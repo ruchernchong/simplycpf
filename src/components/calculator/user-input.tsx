@@ -2,8 +2,8 @@ import { HelpCircleIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useAtom, useAtomValue } from "jotai";
 import { useResetAtom } from "jotai/utils";
-import { formStepAtom } from "@/atoms/form-step-atom";
 import { type ChangeEvent, useCallback, useEffect, useTransition } from "react";
+import { formStepAtom } from "@/atoms/form-step-atom";
 import { settingsAtom } from "@/atoms/setting-atom";
 import { Button } from "@/components/ui/button";
 import {
@@ -170,7 +170,7 @@ const UserInput = () => {
         </div>
 
         {step === 1 && (
-          <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50 p-4 text-center">
+          <div className="rounded-lg border border-muted-foreground/30 border-dashed bg-muted/50 p-4 text-center">
             <p className="text-muted-foreground text-sm">
               Enter your gross monthly income to see your CPF calculations
             </p>
