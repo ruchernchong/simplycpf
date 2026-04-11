@@ -1,3 +1,10 @@
+## [1.15.3](https://github.com/ruchernchong/simplycpf/compare/v1.15.2...v1.15.3) (2026-04-11)
+
+### Bug Fixes
+
+* activate Jotai Provider in root layout ([53bdb0a](https://github.com/ruchernchong/simplycpf/commit/53bdb0a69525f47db4e9e46eadec8b4b4523fa81))
+* make settingsAtom SSR-safe to prevent hydration mismatch ([b7432cf](https://github.com/ruchernchong/simplycpf/commit/b7432cfe1fc93176405382e4762a9fa336582b45)), closes [#61](https://github.com/ruchernchong/simplycpf/issues/61)
+
 ## [1.15.2](https://github.com/ruchernchong/simplycpf/compare/v1.15.1...v1.15.2) (2026-01-02)
 
 ### Bug Fixes
