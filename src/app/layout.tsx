@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import type { WebApplication, WithContext } from "schema-dts";
+import { Providers } from "@/app/providers";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, title } from "@/config";
 
@@ -56,9 +57,11 @@ export default function RootLayout({
     <html lang="en" className={geist.className}>
       <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
-          {children}
-          <Analytics />
-          <StructuredData data={schema} />
+          <Providers>
+            {children}
+            <Analytics />
+            <StructuredData data={schema} />
+          </Providers>
         </NuqsAdapter>
       </body>
     </html>
