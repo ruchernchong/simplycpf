@@ -1,3 +1,13 @@
+## [1.18.0](https://github.com/ruchernchong/simplycpf/compare/v1.17.0...v1.18.0) (2026-04-12)
+
+### Features
+
+* add Vercel Portless for local dev at simplycpf.localhost ([4d34c5e](https://github.com/ruchernchong/simplycpf/commit/4d34c5e67540bd9f75282f346bc23f3654ce1b9f))
+
+### Bug Fixes
+
+* remove share feature exposing private data in URLs ([e8d73dd](https://github.com/ruchernchong/simplycpf/commit/e8d73ddd311512f83619478775ae02716bb0741d))
+
 ## [1.17.0](https://github.com/ruchernchong/simplycpf/compare/v1.16.0...v1.17.0) (2026-04-12)
 
 ### Features
