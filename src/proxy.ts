@@ -14,7 +14,7 @@ export const proxy = (request: NextRequest) => {
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data:;
     font-src 'self';
-    connect-src 'self' vitals.vercel-insights.com;
+    connect-src 'self' vitals.vercel-insights.com analytics.google.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';

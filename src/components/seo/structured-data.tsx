@@ -1,9 +1,9 @@
 import Script from "next/script";
 import { useId } from "react";
-import type { Thing, WithContext } from "schema-dts";
+import type { Graph, Thing, WithContext } from "schema-dts";
 
 interface StructuredDataProps<T extends Thing> {
-  data: WithContext<T>;
+  data: WithContext<T> | Graph;
 }
 
 export const StructuredData = <T extends Thing>({
