@@ -10,7 +10,6 @@ import {
 } from "@/atoms/result-atom";
 import { settingsAtom } from "@/atoms/setting-atom";
 import { ageGroupAtom } from "@/atoms/user-atom";
-import { ShareResults } from "@/components/calculator/share-results";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -203,24 +202,17 @@ export function CalculatedResult() {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
-          >
-            <HugeiconsIcon
-              icon={File01Icon}
-              className="size-4"
-              strokeWidth={2}
-            />
-            {isGeneratingPdf ? "Generating..." : "Download PDF"}
-          </Button>
-        </div>
-        {monthlyGrossIncome > 0 && <ShareResults />}
+      <CardFooter className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={handleDownloadPdf}
+          disabled={isGeneratingPdf}
+        >
+          <HugeiconsIcon icon={File01Icon} className="size-4" strokeWidth={2} />
+          {isGeneratingPdf ? "Generating..." : "Download PDF"}
+        </Button>
       </CardFooter>
     </Card>
   );

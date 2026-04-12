@@ -18,11 +18,6 @@ function trackEvent(eventName: string, params?: EventParams): void {
 export const EVENT = {
   CALCULATOR_COMPLETE: "calculator_complete",
   PDF_DOWNLOAD_CLICK: "pdf_download_click",
-  SHARE_CLICK_WHATSAPP: "share_click_whatsapp",
-  SHARE_CLICK_TELEGRAM: "share_click_telegram",
-  SHARE_CLICK_LINKEDIN: "share_click_linkedin",
-  SHARE_CLICK_LINK: "share_click_link",
-  SHARE_CLICK_NATIVE: "share_click_native",
   NAVIGATION_CLICK_CALCULATOR: "navigation_click_calculator",
   NAVIGATION_CLICK_INTEREST_RATES: "navigation_click_interest_rates",
   NAVIGATION_CLICK_INVESTMENTS: "navigation_click_investments",
@@ -50,18 +45,9 @@ type NavigationClickParams = {
   [EVENT.NAVIGATION_CLICK_INVESTMENTS]: { source: string };
 };
 
-type ShareClickParams = {
-  [EVENT.SHARE_CLICK_WHATSAPP]: EventParams;
-  [EVENT.SHARE_CLICK_TELEGRAM]: EventParams;
-  [EVENT.SHARE_CLICK_LINKEDIN]: EventParams;
-  [EVENT.SHARE_CLICK_LINK]: EventParams;
-  [EVENT.SHARE_CLICK_NATIVE]: EventParams;
-};
-
 type EventParamsMap = CalculatorCompleteParams &
   PdfDownloadClickParams &
-  NavigationClickParams &
-  ShareClickParams;
+  NavigationClickParams;
 
 export function trackTypedEvent<E extends EventName>(
   eventName: E,

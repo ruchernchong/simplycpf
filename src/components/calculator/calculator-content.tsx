@@ -12,7 +12,6 @@ import { CeilingChangeReminder } from "@/components/calculator/ceiling-change-re
 import CeilingComparisonCard from "@/components/calculator/ceiling-comparison-card";
 import DistributionView from "@/components/calculator/distribution-view";
 import StepSection from "@/components/calculator/step-section";
-import { UrlParamsSync } from "@/components/calculator/url-params-sync";
 import UserInput from "@/components/calculator/user-input";
 
 const ComparisonFallback = () => (
@@ -34,9 +33,6 @@ const CalculatorContent = () => {
 
   return (
     <div>
-      <Suspense fallback={null}>
-        <UrlParamsSync />
-      </Suspense>
       <div className="mb-8 grid gap-8 md:grid-cols-2">
         <Suspense
           fallback={
