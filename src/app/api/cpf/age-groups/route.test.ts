@@ -30,15 +30,17 @@ describe("GET /api/cpf/age-groups", () => {
     { index: 0, description: "35 and below", minAge: 0, maxAge: 35 },
     { index: 1, description: "Above 35 to 45", minAge: 35, maxAge: 45 },
     { index: 7, description: "Above 70", minAge: 70, maxAge: undefined },
-  ])(
-    "should include age group: $description",
-    async ({ index, description, minAge, maxAge }) => {
-      const response = await GET();
-      const data = await response.json();
+  ])("should include age group: $description", async ({
+    index,
+    description,
+    minAge,
+    maxAge,
+  }) => {
+    const response = await GET();
+    const data = await response.json();
 
-      expect(data[index].description).toBe(description);
-      expect(data[index].minAge).toBe(minAge);
-      expect(data[index].maxAge).toBe(maxAge);
-    },
-  );
+    expect(data[index].description).toBe(description);
+    expect(data[index].minAge).toBe(minAge);
+    expect(data[index].maxAge).toBe(maxAge);
+  });
 });

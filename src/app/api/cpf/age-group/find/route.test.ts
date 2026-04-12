@@ -52,15 +52,15 @@ describe("GET /api/cpf/age-group/find", () => {
     { age: 65, expectedDescription: "Above 65 to 70" },
     { age: 70, expectedDescription: "Above 70" },
     { age: 75, expectedDescription: "Above 70" },
-  ])(
-    "should return $expectedDescription for age $age",
-    async ({ age, expectedDescription }) => {
-      const request = createRequest(age);
-      const response = await GET(request);
-      const data = await response.json();
+  ])("should return $expectedDescription for age $age", async ({
+    age,
+    expectedDescription,
+  }) => {
+    const request = createRequest(age);
+    const response = await GET(request);
+    const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data.description).toBe(expectedDescription);
-    },
-  );
+    expect(response.status).toBe(200);
+    expect(data.description).toBe(expectedDescription);
+  });
 });

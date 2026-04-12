@@ -169,16 +169,19 @@ const testAgeGroup = {
 };
 
 describe("calculateCpfContribution", () => {
-  it.each(testCases)(
-    "should return the expected income after CPF contribution in $effectiveDate on a gross income of $income",
-    ({ effectiveDate, income, expected }) => {
-      expect(
-        calculateCpfContribution(income, effectiveDate, {
-          ageGroup: testAgeGroup,
-        }),
-      ).toEqual(expected);
-    },
-  );
+  it.each(
+    testCases,
+  )("should return the expected income after CPF contribution in $effectiveDate on a gross income of $income", ({
+    effectiveDate,
+    income,
+    expected,
+  }) => {
+    expect(
+      calculateCpfContribution(income, effectiveDate, {
+        ageGroup: testAgeGroup,
+      }),
+    ).toEqual(expected);
+  });
 
   it("should return the income after CPF contribution before the ceiling changes", () => {
     expect(

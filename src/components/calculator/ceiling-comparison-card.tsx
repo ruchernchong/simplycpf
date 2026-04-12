@@ -115,7 +115,7 @@ const CeilingComparisonCard = () => {
               variants={timelineVariants}
             />
             <motion.div
-              className="-translate-y-1/2 absolute top-1/2 right-0 size-0 border-y-4 border-y-transparent border-l-6 border-l-muted-foreground/40"
+              className="absolute top-1/2 right-0 size-0 -translate-y-1/2 border-y-4 border-y-transparent border-l-6 border-l-muted-foreground/40"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5, duration: 0.3 }}

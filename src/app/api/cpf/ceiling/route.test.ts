@@ -39,14 +39,14 @@ describe("GET /api/cpf/ceiling", () => {
     { date: "2024-01-01", ceiling: 6800 },
     { date: "2025-01-01", ceiling: 7400 },
     { date: "2026-01-01", ceiling: 8000 },
-  ])(
-    "should return the ceiling as $ceiling for $date",
-    async ({ date, ceiling }) => {
-      const req = createRequest(`/api/cpf/ceiling?date=${date}`);
-      const res = await GET(req).then((res) => res.json());
-      expect(res).toEqual({ date, ceiling });
-    },
-  );
+  ])("should return the ceiling as $ceiling for $date", async ({
+    date,
+    ceiling,
+  }) => {
+    const req = createRequest(`/api/cpf/ceiling?date=${date}`);
+    const res = await GET(req).then((res) => res.json());
+    expect(res).toEqual({ date, ceiling });
+  });
 
   it("uses today's date if no date is provided", async () => {
     const today = new Date();

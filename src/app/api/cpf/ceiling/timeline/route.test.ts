@@ -39,15 +39,15 @@ describe("GET /api/cpf/ceiling/timeline", () => {
     { date: "2024-01-01", ceiling: 6800 },
     { date: "2025-01-01", ceiling: 7400 },
     { date: "2026-01-01", ceiling: 8000 },
-  ])(
-    "should include ceiling $ceiling for date $date",
-    async ({ date, ceiling }) => {
-      const response = await GET();
-      const data = await response.json();
+  ])("should include ceiling $ceiling for date $date", async ({
+    date,
+    ceiling,
+  }) => {
+    const response = await GET();
+    const data = await response.json();
 
-      const entry = data.find((e: { date: string }) => e.date === date);
-      expect(entry).toBeDefined();
-      expect(entry.ceiling).toBe(ceiling);
-    },
-  );
+    const entry = data.find((e: { date: string }) => e.date === date);
+    expect(entry).toBeDefined();
+    expect(entry.ceiling).toBe(ceiling);
+  });
 });

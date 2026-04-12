@@ -41,7 +41,7 @@ interface CustomTooltipProps {
 }
 
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     return (
       <div className="rounded border border-zinc-200 bg-white p-4 shadow-md">
         <p className="mb-2 font-medium">{label}</p>
