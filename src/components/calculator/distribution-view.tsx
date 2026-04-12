@@ -24,7 +24,7 @@ export const DistributionView = ({
         <CardContent className="p-6">
           <div>
             <div className="flex items-center justify-between border-b py-4 font-semibold text-xl last:border-0">
-              <p>Total Contribution</p>
+              <p>Total Monthly CPF Contributions</p>
               <p>{formatCurrency(totalCpfContribution)}</p>
             </div>
             {distributionResults.map(({ name, value }) => (
@@ -33,7 +33,7 @@ export const DistributionView = ({
                 className="flex items-center justify-between border-b py-4 last:border-0"
               >
                 <p className="font-medium text-zinc-500">
-                  {CPF_ACCOUNT_MAP[name]} ({name})
+                  Your {CPF_ACCOUNT_MAP[name]} ({name})
                 </p>
                 <p className="font-semibold text-xl">{formatCurrency(value)}</p>
               </div>

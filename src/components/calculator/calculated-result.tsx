@@ -1,7 +1,7 @@
 import { File01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import {
   ceilingComparisonAtom,
@@ -10,6 +10,7 @@ import {
 } from "@/atoms/result-atom";
 import { settingsAtom } from "@/atoms/setting-atom";
 import { ageGroupAtom } from "@/atoms/user-atom";
+import { ShareResults } from "@/components/calculator/share-results";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,11 +27,13 @@ import {
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
 import useAnimatedNumber from "@/hooks/use-animated-number";
+import { EVENT, getIncomeBracket, trackTypedEvent } from "@/lib/analytics";
 import { openPdf, type PdfData } from "@/lib/download-pdf";
 import { formatCurrency } from "@/lib/format";
 
 export function CalculatedResult() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const hasTrackedCompletion = useRef(false);
 
   const { monthlyGrossIncome } = useAtomValue(settingsAtom);
   const ageGroup = useAtomValue(ageGroupAtom);
@@ -39,6 +42,19 @@ export function CalculatedResult() {
   const distributionResults = useAtomValue(distributionResultsAtom);
   const ceilingComparison = useAtomValue(ceilingComparisonAtom);
   const currentCeilingDate = useAtomValue(latestIncomeCeilingDateAtom);
+
+  useEffect(() => {
+    if (monthlyGrossIncome > 0 && !hasTrackedCompletion.current) {
+      hasTrackedCompletion.current = true;
+      trackTypedEvent(EVENT.CALCULATOR_COMPLETE, {
+        age_bracket:
+          ageGroup?.description?.replace(/\s+/g, "_").toLowerCase() ??
+          "unknown",
+        ceiling_year: currentCeilingDate,
+        income_bracket: getIncomeBracket(monthlyGrossIncome),
+      });
+    }
+  }, [monthlyGrossIncome, ageGroup, currentCeilingDate]);
 
   const annualWage = monthlyGrossIncome * 12;
   const currentCeiling = CPF_INCOME_CEILING[currentCeilingDate];
@@ -65,6 +81,9 @@ export function CalculatedResult() {
   const hasNoCeilingDifference = takeHomeImpact === 0 && cpfImpact === 0;
 
   async function handleDownloadPdf() {
+    trackTypedEvent(EVENT.PDF_DOWNLOAD_CLICK, {
+      has_ceiling_comparison: !hasNoCeilingDifference,
+    });
     setIsGeneratingPdf(true);
     try {
       const pdfData: PdfData = {
@@ -101,10 +120,28 @@ export function CalculatedResult() {
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle>Contribution Summary</CardTitle>
-        <CardDescription>Your calculated CPF contributions</CardDescription>
+        <CardTitle>Your CPF Savings</CardTitle>
+        <CardDescription>
+          Where your retirement money goes this month
+        </CardDescription>
+        <p className="text-muted-foreground text-xs">
+          Rates sourced from CPF Board publications · Open-source and verifiable
+        </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        <div className="rounded-lg border border-accent/20 bg-accent/5 p-4">
+          <p className="mb-1 text-muted-foreground text-sm">
+            Your Take-Home Income
+          </p>
+          <p className="font-bold font-mono text-3xl text-foreground">
+            {safeCurrency(
+              useAnimatedNumber(contributionResult.afterCpfContribution),
+            )}
+          </p>
+          <p className="text-muted-foreground text-xs">
+            After CPF contributions from your salary
+          </p>
+        </div>
         <div>
           <div className="flex items-center justify-between border-b py-4">
             <p className="text-muted-foreground text-sm">Age Group</p>
@@ -119,14 +156,6 @@ export function CalculatedResult() {
             </p>
           </div>
           <div className="flex items-center justify-between border-b py-4">
-            <p className="text-muted-foreground text-sm">Take-home Income</p>
-            <p className="text-right font-medium font-mono">
-              {safeCurrency(
-                useAnimatedNumber(contributionResult.afterCpfContribution),
-              )}
-            </p>
-          </div>
-          <div className="flex items-center justify-between border-b py-4">
             <p className="text-muted-foreground text-sm">
               Your contribution ({safePercent(contributionRate.employee)}%)
             </p>
@@ -138,9 +167,7 @@ export function CalculatedResult() {
           </div>
           <div className="flex items-center justify-between border-b py-4">
             <p className="text-muted-foreground text-sm">
-              Company&apos;s contribution (
-              {safePercent(contributionRate.employer)}
-              %)
+              Your employer adds ({safePercent(contributionRate.employer)}%)
             </p>
             <p className="text-right font-medium font-mono text-accent">
               {safeCurrency(
@@ -150,7 +177,7 @@ export function CalculatedResult() {
           </div>
           <div className="flex items-center justify-between py-4">
             <p className="text-muted-foreground text-sm">
-              Total CPF contribution
+              Total monthly CPF contributions
             </p>
             <p className="text-right font-mono font-semibold text-accent">
               {safeCurrency(
@@ -164,25 +191,36 @@ export function CalculatedResult() {
         <div className="rounded-md border border-accent/30 bg-accent/5 p-4">
           <div className="flex flex-col gap-2">
             <p className="text-muted-foreground text-sm">
-              Remaining Additional Wage (AW) for CPF contribution
+              Remaining room for Additional Wage (AW) contributions
             </p>
             <p className="font-medium font-mono text-lg">
               {safeCurrency(useAnimatedNumber(remainingAdditionalWage), 0)}
             </p>
+            <p className="text-muted-foreground text-xs">
+              AW covers bonuses and variable pay. The cap is $102,000 annually
+              minus your ordinary wages.
+            </p>
           </div>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={handleDownloadPdf}
-          disabled={isGeneratingPdf}
-        >
-          <HugeiconsIcon icon={File01Icon} className="size-4" strokeWidth={2} />
-          {isGeneratingPdf ? "Generating..." : "Download PDF"}
-        </Button>
+      <CardFooter className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+          >
+            <HugeiconsIcon
+              icon={File01Icon}
+              className="size-4"
+              strokeWidth={2}
+            />
+            {isGeneratingPdf ? "Generating..." : "Download PDF"}
+          </Button>
+        </div>
+        {monthlyGrossIncome > 0 && <ShareResults />}
       </CardFooter>
     </Card>
   );

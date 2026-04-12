@@ -8,9 +8,11 @@ import {
   hasCpfContributionAtom,
 } from "@/atoms/result-atom";
 import { CalculatedResult } from "@/components/calculator/calculated-result";
+import { CeilingChangeReminder } from "@/components/calculator/ceiling-change-reminder";
 import CeilingComparisonCard from "@/components/calculator/ceiling-comparison-card";
 import DistributionView from "@/components/calculator/distribution-view";
 import StepSection from "@/components/calculator/step-section";
+import { UrlParamsSync } from "@/components/calculator/url-params-sync";
 import UserInput from "@/components/calculator/user-input";
 
 const ComparisonFallback = () => (
@@ -32,6 +34,9 @@ const CalculatorContent = () => {
 
   return (
     <div>
+      <Suspense fallback={null}>
+        <UrlParamsSync />
+      </Suspense>
       <div className="mb-8 grid gap-8 md:grid-cols-2">
         <Suspense
           fallback={
@@ -50,6 +55,9 @@ const CalculatorContent = () => {
           </Suspense>
         </StepSection>
       </div>
+      <Suspense fallback={null}>
+        <CeilingChangeReminder />
+      </Suspense>
       <StepSection show={showResults} delay={0.1}>
         <div className="mb-8">
           <Suspense fallback={<ComparisonFallback />}>
@@ -61,7 +69,7 @@ const CalculatorContent = () => {
         <Suspense fallback={<DistributionFallback />}>
           <div>
             <h2 className="mb-6 text-center font-semibold text-2xl">
-              CPF Account Type Distribution
+              How Your CPF Is Distributed Across Accounts
             </h2>
             <DistributionView distributionResults={distributionResults} />
           </div>
