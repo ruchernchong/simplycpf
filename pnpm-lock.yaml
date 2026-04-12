@@ -146,6 +146,9 @@ importers:
       lint-staged:
         specifier: ^16.2.7
         version: 16.2.7
+      portless:
+        specifier: ^0.10.1
+        version: 0.10.1
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -4976,6 +4979,12 @@ packages:
   pkg-conf@2.1.0:
     resolution: {integrity: sha512-C+VUP+8jis7EsQZIhDYmS5qlNtjv2yP4SNtjXK9AP1ZcTRlnSfuumaTnRfYZnYgUUYVIKqL0fRvmUGDV2fmp6g==}
     engines: {node: '>=4'}
+
+  portless@0.10.1:
+    resolution: {integrity: sha512-WSzw0bW5tKoK8TIrOr54T43jc0A35XR6RApGEhlbBOl8NgugfQTD3EGKwqE2jjEdcNtPG5WHH/dXzxgVIoY4hw==}
+    engines: {node: '>=20'}
+    os: [darwin, linux, win32]
+    hasBin: true
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -11170,6 +11179,8 @@ snapshots:
     dependencies:
       find-up: 2.1.0
       load-json-file: 4.0.0
+
+  portless@0.10.1: {}
 
   possible-typed-array-names@1.1.0: {}
 

@@ -51,6 +51,11 @@
       "sourceType": "github",
       "computedHash": "9505748dba2319487b285f8ab8c1e5417fce38a512d596e1c9e2e87b34b196e1"
     },
+    "portless": {
+      "source": "vercel-labs/portless",
+      "sourceType": "github",
+      "computedHash": "4ec0e34bf4604a1327fd396825d50fbb3950d94d5f68deaea48c89788444292b"
+    },
     "product-marketing-context": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",

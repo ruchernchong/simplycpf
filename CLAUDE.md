@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions following Singapore's 2023 Budget changes to income ceilings.
 
 ## Build and Test Commands
-- `pnpm dev` - Start development server
+- `pnpm dev` - Start development server via Portless at `https://simplycpf.localhost`
+- `PORTLESS=0 pnpm dev` - Start development server without Portless (direct `localhost:3000`)
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run Biome linting

@@ -4,7 +4,7 @@
   "version": "1.11.2",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "portless run next dev",
     "build": "next build",
     "start": "next start",
     "lint": "biome check .",
@@ -64,6 +64,7 @@
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "lint-staged": "^16.2.7",
+    "portless": "^0.10.1",
     "postcss": "^8.5.6",
     "schema-dts": "^1.1.5",
     "semantic-release": "^24.2.9",
