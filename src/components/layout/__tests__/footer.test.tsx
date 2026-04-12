@@ -47,7 +47,7 @@ describe("Footer", () => {
     render(<Footer />);
     expect(screen.getByText("Quick Links")).toBeTruthy();
 
-    const aboutLink = screen.getByText("About Us");
+    const aboutLink = screen.getByText("About");
     expect(aboutLink).toBeTruthy();
     expect(aboutLink.closest("a")?.getAttribute("href")).toBe("/about");
   });
@@ -56,7 +56,7 @@ describe("Footer", () => {
     render(<Footer />);
     expect(screen.getByText("Official Resources")).toBeTruthy();
 
-    const cpfLink = screen.getByText("CPF Official Website");
+    const cpfLink = screen.getByText("CPF Board Website");
     expect(cpfLink).toBeTruthy();
     expect(cpfLink.closest("a")?.getAttribute("href")).toBe(
       "https://www.cpf.gov.sg",
@@ -80,14 +80,13 @@ describe("Footer", () => {
     ).toBeTruthy();
   });
 
-  it("renders 'Made with love' text", () => {
+  it("renders 'Open-source with love' text", () => {
     render(<Footer />);
-    // The text is split by an icon element, so use a function matcher
     expect(
       screen.getByText((_, element) => {
         return (
           element?.tagName === "SPAN" &&
-          element?.textContent?.includes("Made with") &&
+          element?.textContent?.includes("Open-source with") &&
           element?.textContent?.includes("in Singapore")
         );
       }),

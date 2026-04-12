@@ -212,7 +212,7 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>CPF Contribution Summary</Text>
+          <Text style={styles.title}>Your CPF Savings Summary</Text>
           <Text style={styles.subtitle}>
             Generated on {formatDate(data.generatedAt)}
           </Text>
@@ -220,7 +220,7 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
 
         {/* Contribution Summary */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Contribution Details</Text>
+          <Text style={styles.sectionTitle}>Your Savings Details</Text>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Age Group</Text>
             <Text style={styles.rowValue}>{data.ageGroup}</Text>
@@ -238,31 +238,29 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>
-              Your Contribution ({data.employeeRate}%)
-            </Text>
+            <Text style={styles.rowLabel}>You save ({data.employeeRate}%)</Text>
             <Text style={styles.rowValueAccent}>
               {formatCurrency(data.employeeContribution)}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>
-              Company's Contribution ({data.employerRate}%)
+              Your employer adds ({data.employerRate}%)
             </Text>
             <Text style={styles.rowValueAccent}>
               {formatCurrency(data.employerContribution)}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Total CPF Contribution</Text>
+            <Text style={styles.rowLabel}>
+              Total going into your CPF accounts
+            </Text>
             <Text style={styles.rowValueAccent}>
               {formatCurrency(data.totalContribution)}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>
-              Remaining Additional Wage (AW) for CPF
-            </Text>
+            <Text style={styles.rowLabel}>Additional Wage (AW) room left</Text>
             <Text style={styles.rowValue}>
               {formatCurrency(data.remainingAW, 0)}
             </Text>
@@ -273,7 +271,7 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
         {data.ceilingComparison && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              Impact of Income Ceiling Changes
+              How the Ceiling Change Affects You
             </Text>
             <View style={styles.ceilingTimeline}>
               <View>
@@ -292,7 +290,7 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
             </View>
             <View style={styles.comparisonGrid}>
               <View style={styles.comparisonCard}>
-                <Text style={styles.comparisonLabel}>Take-home pay impact</Text>
+                <Text style={styles.comparisonLabel}>Take-home pay change</Text>
                 <Text
                   style={[
                     styles.comparisonValue,
@@ -306,7 +304,7 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
               </View>
               <View style={styles.comparisonCard}>
                 <Text style={styles.comparisonLabel}>
-                  CPF contribution impact
+                  Your retirement savings change
                 </Text>
                 <Text
                   style={[
@@ -325,11 +323,13 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
 
         {/* Distribution */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>CPF Account Distribution</Text>
+          <Text style={styles.sectionTitle}>
+            Where Your Retirement Money Goes
+          </Text>
           <View style={styles.distributionRow}>
             <View style={styles.distributionTable}>
               <View style={styles.row}>
-                <Text style={styles.rowLabel}>Total Contribution</Text>
+                <Text style={styles.rowLabel}>Total Going Into Your CPF</Text>
                 <Text style={styles.rowValue}>
                   {formatCurrency(data.totalContribution)}
                 </Text>

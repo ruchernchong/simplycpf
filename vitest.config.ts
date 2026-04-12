@@ -45,8 +45,18 @@ export default defineConfig({
         "src/components/pdf/**",
         // SEO components (static structured data)
         "src/components/seo/**",
+        // Analytics (requires global gtag mocking)
+        "src/components/analytics/**",
+        "src/lib/analytics.ts",
         // Search API (uses fumadocs library)
         "src/app/api/search/**",
+        // New route files (static markdown generation)
+        "src/app/cpf-rates.md/**",
+        // Engagement components (require browser APIs and context mocking)
+        "src/components/calculator/share-results.tsx",
+        "src/components/calculator/url-params-sync.tsx",
+        "src/components/calculator/ceiling-change-reminder.tsx",
+        "src/components/calculator/ceiling-comparison-card.tsx",
         // Complex UI components (require Jotai/charts/form mocking)
         "src/components/about/**",
         "src/components/calculator/**",

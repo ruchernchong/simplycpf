@@ -20,13 +20,17 @@ const InsightBanner = () => {
         />
         <div className="flex flex-col gap-2">
           <p className="font-medium text-foreground text-sm">
-            What does this mean for you?
+            <span className="font-mono text-accent">
+              {formatCurrency(increase)}
+            </span>{" "}
+            more of your monthly income is subject to CPF contributions
           </p>
           <p className="text-muted-foreground text-sm">
-            The {formatCurrency(increase)} increase ({percentIncrease}%) means
-            higher earners will see more of their income subject to CPF
-            contributions, resulting in greater retirement savings but reduced
-            take-home pay.
+            The income ceiling rose {percentIncrease}% — from{" "}
+            <span className="font-mono">{formatCurrency(initial)}</span> to{" "}
+            <span className="font-mono">{formatCurrency(final)}</span>. If you
+            earn above the old ceiling, your take-home pay may decrease but your
+            OA, SA, and MA grow faster.
           </p>
         </div>
       </div>
