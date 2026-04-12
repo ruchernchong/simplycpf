@@ -1,3 +1,9 @@
+## [1.18.1](https://github.com/ruchernchong/simplycpf/compare/v1.18.0...v1.18.1) (2026-04-12)
+
+### Bug Fixes
+
+* update CPF ceiling numbers, remove unused stats ([1e8c87a](https://github.com/ruchernchong/simplycpf/commit/1e8c87a7b9febf7fb4ac0566a10c0211327357ac))
+
 ## [1.18.0](https://github.com/ruchernchong/simplycpf/compare/v1.17.0...v1.18.0) (2026-04-12)
 
 ### Features
