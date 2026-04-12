@@ -9,12 +9,12 @@ const { rewrite: rewriteLLM } = rewritePath(
 export const proxy = (request: NextRequest) => {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const cspHeader = `
-    default-src 'self' analytics.google.com;
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com va.vercel-scripts.com;
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data:;
     font-src 'self';
-    connect-src 'self' vitals.vercel-insights.com analytics.google.com;
+    connect-src 'self' vitals.vercel-insights.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
