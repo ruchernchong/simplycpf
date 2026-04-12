@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # SimplyCPF - Development Guide
 
-A Next.js application that calculates CPF (Central Provident Fund) contributions following Singapore's 2023 Budget changes to income ceilings.
+A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions following Singapore's 2023 Budget changes to income ceilings.
 
 ## Build and Test Commands
 - `pnpm dev` - Start development server
@@ -90,6 +90,16 @@ Documentation site powered by Fumadocs at `/developer`:
 - **Configuration**: `source.config.ts` defines MDX processing with Twoslash support
 - **Content**: MDX files in `content/docs/` organised by category (api, examples, changelog)
 - **Features**: Interactive API documentation with TypeScript code examples, syntax highlighting with Twoslash
+
+### Next.js Configuration
+Key `next.config.ts` settings:
+- **Turbopack**: Default bundler (stable since Next.js 16), filesystem cache enabled for builds
+- **React Compiler**: Enabled via `reactCompiler: true` with `babel-plugin-react-compiler`
+- **Typed Routes**: `typedRoutes: true` generates `RouteContext` type for route params
+- **Typed Env**: `experimental.typedEnv` provides type-safe `process.env` access
+- **MCP Server**: `experimental.mcpServer` enables the Next.js Model Context Protocol server
+- **Strict Route Types**: `experimental.strictRouteTypes` type-checks App Router page props
+- **Logging**: `logging.browserToTerminal` forwards browser errors to terminal; `logging.serverFunctions` logs server action execution in dev
 
 ### API Routes
 RESTful API endpoints under `/api/cpf/` provide programmatic access to CPF calculations:

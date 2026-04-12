@@ -10,11 +10,14 @@ const nextConfig: NextConfig = {
     fetches: {
       fullUrl: true,
     },
+    browserToTerminal: "error",
+    serverFunctions: true,
   },
   serverExternalPackages: ["typescript", "twoslash"],
   typedRoutes: true,
   experimental: {
     mcpServer: true,
+    strictRouteTypes: true,
     turbopackFileSystemCacheForBuild: true,
     typedEnv: true,
   },
