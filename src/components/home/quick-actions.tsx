@@ -8,13 +8,13 @@ import {
 import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
+import posthog from "posthog-js";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { EVENT, type EventName, trackTypedEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 const actions = [
@@ -24,7 +24,7 @@ const actions = [
       "See your full CPF breakdown — employee and employer contributions by age group and income, plus your take-home pay",
     href: "/calculator" as const,
     icon: Calculator01Icon as IconSvgElement,
-    event: EVENT.NAVIGATION_CLICK_CALCULATOR,
+    event: "navigation_click_calculator",
   },
   {
     title: "Interest Rates",
@@ -32,7 +32,7 @@ const actions = [
       "Check how much interest your OA, SA, and MA earn, and see contribution distribution rates across all 8 age brackets",
     href: "/interest-rates" as const,
     icon: ChartLineData01Icon as IconSvgElement,
-    event: EVENT.NAVIGATION_CLICK_INTEREST_RATES,
+    event: "navigation_click_interest_rates",
   },
   {
     title: "Investment Comparison",
@@ -40,7 +40,7 @@ const actions = [
       "Compare your CPF returns against Singapore bonds, STI ETF, and other investments to decide which strategy fits your retirement timeline",
     href: "/investments" as const,
     icon: MoneyBag01Icon as IconSvgElement,
-    event: EVENT.NAVIGATION_CLICK_INVESTMENTS,
+    event: "navigation_click_investments",
   },
 ];
 
@@ -56,11 +56,9 @@ const QuickActions = () => {
             key={action.href}
             href={action.href}
             className="group"
-            onClick={() =>
-              trackTypedEvent(action.event as EventName, {
-                source: "home_quick_actions",
-              })
-            }
+            onClick={() => {
+              posthog.capture(action.event, { source: "home_quick_actions" });
+            }}
           >
             <Card
               className={cn(

@@ -1,4 +1,5 @@
 import { useAtom } from "jotai";
+import posthog from "posthog-js";
 import { useState } from "react";
 import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import {
@@ -27,6 +28,10 @@ const CPFYearSlider = () => {
     const selectedDate = dateKeys[index];
     setSliderValue(selectedDate);
     setLatestIncomeCeilingDate(selectedDate);
+    posthog.capture("timeline_year_changed", {
+      selected_date: selectedDate,
+      ceiling_value: CPF_INCOME_CEILING[selectedDate],
+    });
   };
 
   return (

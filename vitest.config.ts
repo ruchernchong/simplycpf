@@ -45,9 +45,6 @@ export default defineConfig({
         "src/components/pdf/**",
         // SEO components (static structured data)
         "src/components/seo/**",
-        // Analytics (requires global gtag mocking)
-        "src/components/analytics/**",
-        "src/lib/analytics.ts",
         // Search API (uses fumadocs library)
         "src/app/api/search/**",
         // New route files (static markdown generation)

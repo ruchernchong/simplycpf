@@ -1,6 +1,7 @@
 import { File01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useAtomValue } from "jotai";
+import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import {
@@ -26,7 +27,6 @@ import {
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
 import useAnimatedNumber from "@/hooks/use-animated-number";
-import { EVENT, getIncomeBracket, trackTypedEvent } from "@/lib/analytics";
 import { openPdf, type PdfData } from "@/lib/download-pdf";
 import { formatCurrency } from "@/lib/format";
 
@@ -45,13 +45,19 @@ export function CalculatedResult() {
   useEffect(() => {
     if (monthlyGrossIncome > 0 && !hasTrackedCompletion.current) {
       hasTrackedCompletion.current = true;
-      trackTypedEvent(EVENT.CALCULATOR_COMPLETE, {
+      const eventProps = {
         age_bracket:
           ageGroup?.description?.replaceAll(/\s+/g, "_").toLowerCase() ??
           "unknown",
         ceiling_year: currentCeilingDate,
-        income_bracket: getIncomeBracket(monthlyGrossIncome),
-      });
+        income_bracket:
+          monthlyGrossIncome <= 6000
+            ? "at_or_below_6000"
+            : monthlyGrossIncome <= 6800
+              ? "6000_to_6800"
+              : "above_6800",
+      };
+      posthog.capture("calculator_complete", eventProps);
     }
   }, [monthlyGrossIncome, ageGroup, currentCeilingDate]);
 
@@ -80,9 +86,8 @@ export function CalculatedResult() {
   const hasNoCeilingDifference = takeHomeImpact === 0 && cpfImpact === 0;
 
   async function handleDownloadPdf() {
-    trackTypedEvent(EVENT.PDF_DOWNLOAD_CLICK, {
-      has_ceiling_comparison: !hasNoCeilingDifference,
-    });
+    const pdfEventProps = { has_ceiling_comparison: !hasNoCeilingDifference };
+    posthog.capture("pdf_download_click", pdfEventProps);
     setIsGeneratingPdf(true);
     try {
       const pdfData: PdfData = {
@@ -111,6 +116,9 @@ export function CalculatedResult() {
       };
 
       await openPdf(pdfData);
+    } catch (err) {
+      posthog.captureException(err);
+      throw err;
     } finally {
       setIsGeneratingPdf(false);
     }

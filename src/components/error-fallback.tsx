@@ -2,6 +2,7 @@
 
 import { AlertCircleIcon, RefreshIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import posthog from "posthog-js";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,7 @@ export function ErrorFallback({
 }: ErrorFallbackProps) {
   useEffect(() => {
     console.error(`${logLabel}:`, error);
+    posthog.captureException(error, { tags: { logLabel } });
   }, [error, logLabel]);
 
   return (

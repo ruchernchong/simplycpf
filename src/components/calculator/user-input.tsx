@@ -6,6 +6,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useAtom, useAtomValue } from "jotai";
 import { useResetAtom } from "jotai/utils";
+import posthog from "posthog-js";
 import {
   type ChangeEvent,
   useCallback,
@@ -64,6 +65,7 @@ const UserInput = () => {
   );
 
   const handleReset = () => {
+    posthog.capture("calculator_reset");
     startTransition(() => {
       resetSettings();
     });
@@ -77,6 +79,9 @@ const UserInput = () => {
     if (birthDate) url.searchParams.set("dob", birthDate);
     try {
       await navigator.clipboard.writeText(url.toString());
+      posthog.capture("calculator_link_copied", {
+        has_birth_date: !!birthDate,
+      });
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch {

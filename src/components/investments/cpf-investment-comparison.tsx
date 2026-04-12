@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useState } from "react";
 import {
   CartesianGrid,
@@ -102,11 +103,18 @@ export function CPFInvestmentComparison() {
   ]);
 
   const toggleScenario = (name: string) => {
-    setSelectedScenarios((prev) =>
-      prev.includes(name)
+    setSelectedScenarios((prev) => {
+      const isRemoving = prev.includes(name);
+      const next = isRemoving
         ? prev.filter((s) => s !== name)
-        : [...prev, name].slice(0, 4),
-    );
+        : [...prev, name].slice(0, 4);
+      posthog.capture("investment_scenario_toggled", {
+        scenario: name,
+        action: isRemoving ? "removed" : "added",
+        active_scenarios: next,
+      });
+      return next;
+    });
   };
 
   // Generate chart data

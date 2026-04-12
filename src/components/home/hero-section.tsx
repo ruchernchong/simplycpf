@@ -1,6 +1,9 @@
+"use client";
+
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +41,9 @@ const HeroSection = () => {
       <Link
         href="/calculator"
         className={cn(buttonVariants({ size: "lg" }), "gap-2")}
+        onClick={() =>
+          posthog.capture("hero_cta_clicked", { source: "home_hero" })
+        }
       >
         Calculate My CPF
         <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />

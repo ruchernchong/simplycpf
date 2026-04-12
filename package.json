@@ -36,6 +36,8 @@
     "motion": "^12.23.26",
     "next": "16.2.3",
     "nuqs": "^2.8.9",
+    "posthog-js": "^1.367.0",
+    "posthog-node": "^5.29.2",
     "react": "19.2.3",
     "react-day-picker": "^8.10.1",
     "react-dom": "19.2.3",
