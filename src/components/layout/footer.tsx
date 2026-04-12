@@ -15,8 +15,9 @@ export function Footer() {
               <span className="font-semibold text-lg">SimplyCPF</span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Your trusted companion for CPF contribution calculations in
-              Singapore.
+              A free, open-source CPF calculator for Singapore. No sign-up, no
+              data collection — just accurate numbers backed by CPF Board rates
+              that anyone can verify.
             </p>
           </div>
 
@@ -25,8 +26,8 @@ export function Footer() {
             <h3 className="mb-4 font-semibold text-foreground">Disclaimer</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
               This calculator is an independent tool and is not affiliated with,
-              endorsed by, or connected to the CPF Board, Ministry of Manpower,
-              or any government agency.
+              endorsed by, or connected to the CPF Board or Ministry of
+              Manpower.
             </p>
           </div>
 
@@ -36,18 +37,34 @@ export function Footer() {
             <ul className="flex flex-col gap-2">
               <li>
                 <Link
-                  href="/about"
-                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/calculator"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
                   Calculator
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/interest-rates"
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Interest Rates
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/investments"
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Investment Comparison
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  About
                 </Link>
               </li>
             </ul>
@@ -66,7 +83,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  CPF Official Website
+                  CPF Board Website
                 </a>
               </li>
               <li>
@@ -103,7 +120,7 @@ export function Footer() {
               <span className="sr-only">GitHub</span>
             </a>
             <span className="flex items-center gap-2 text-muted-foreground text-sm">
-              Made with
+              Open-source with
               <HugeiconsIcon
                 icon={FavouriteIcon}
                 className="size-4 text-accent"

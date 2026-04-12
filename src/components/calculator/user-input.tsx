@@ -1,8 +1,19 @@
-import { HelpCircleIcon } from "@hugeicons/core-free-icons";
+import {
+  Bookmark02Icon,
+  FlashIcon,
+  HelpCircleIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useResetAtom } from "jotai/utils";
-import { type ChangeEvent, useCallback, useEffect, useTransition } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
+import { formStepAtom } from "@/atoms/form-step-atom";
 import { settingsAtom } from "@/atoms/setting-atom";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +38,7 @@ const UserInput = () => {
   const [settings, setSettings] = useAtom(settingsAtom);
   const { birthDate, monthlyGrossIncome, shouldStoreInput } = settings;
   const [isPending, startTransition] = useTransition();
+  const step = useAtomValue(formStepAtom);
 
   const resetSettings = useResetAtom(settingsAtom);
 
@@ -57,15 +69,41 @@ const UserInput = () => {
     });
   };
 
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopyCalcLink = async () => {
+    const url = new URL(globalThis.window?.location.href ?? "");
+    url.searchParams.set("income", String(monthlyGrossIncome));
+    if (birthDate) url.searchParams.set("dob", birthDate);
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      setLinkCopied(false);
+    }
+  };
+
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle>Personal Information</CardTitle>
+        <CardTitle>Your Details</CardTitle>
         <CardDescription>
-          Enter your details for CPF calculation
+          Just two inputs for your full CPF breakdown
         </CardDescription>
+        <p className="text-muted-foreground text-xs">
+          Your inputs stay in your browser — nothing is sent to any server.
+        </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
+        <div className="flex items-center gap-2 rounded-md bg-accent/5 px-3 py-2 text-accent text-xs">
+          <HugeiconsIcon
+            icon={FlashIcon}
+            className="size-3.5"
+            strokeWidth={2}
+          />
+          Results update instantly as you type
+        </div>
         {/* Birth Date Input */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
@@ -80,7 +118,8 @@ const UserInput = () => {
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">
-                  Your birth date affects your contribution rates
+                  Your age group (out of 8 brackets) determines how much goes
+                  into each CPF account
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -120,7 +159,7 @@ const UserInput = () => {
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">
-                  Your total monthly salary before any deductions
+                  Your total salary before CPF contributions
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -158,16 +197,40 @@ const UserInput = () => {
               disabled={isPending}
             />
             <Label htmlFor="remember" className="text-sm">
-              Store input on this browser?
+              Remember my inputs on this browser
             </Label>
           </div>
           <p className="text-muted-foreground text-xs">
-            By ticking the above checkbox, the input will be stored on your own
-            browser. No data are being stored on any servers.
+            Your inputs stay on your browser only — nothing is sent to any
+            server.
           </p>
         </div>
+
+        {step === 1 && (
+          <div className="rounded-lg border border-muted-foreground/30 border-dashed bg-muted/50 p-4 text-center">
+            <p className="text-muted-foreground text-sm">
+              Enter your gross monthly income to see your CPF calculations
+            </p>
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="flex justify-end">
+      <CardFooter className="flex items-center justify-between">
+        {monthlyGrossIncome > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleCopyCalcLink}
+            title="Copy a link that saves your inputs — no sign-up needed"
+          >
+            <HugeiconsIcon
+              icon={Bookmark02Icon}
+              className="size-4"
+              strokeWidth={2}
+            />
+            {linkCopied ? "Link copied!" : "Save calculation"}
+          </Button>
+        )}
         <Button variant="outline" onClick={handleReset} disabled={isPending}>
           Reset
         </Button>

@@ -1,3 +1,19 @@
+## [1.16.0](https://github.com/ruchernchong/simplycpf/compare/v1.15.3...v1.16.0) (2026-04-11)
+
+### Features
+
+* add formStepAtom and useFormStep hook for progressive reveal ([98e77fc](https://github.com/ruchernchong/simplycpf/commit/98e77fc64100e90d1d51a7e18bd4c60ae0b3e181))
+* add income prompt hint when birth date is valid ([ed5c1ff](https://github.com/ruchernchong/simplycpf/commit/ed5c1ff501c20f9268221378c6b75d7fa1f3ddfa))
+* add progressive reveal to calculator content ([d133797](https://github.com/ruchernchong/simplycpf/commit/d1337977dd23af85335c5da2db9e6d79f1908772)), closes [#55](https://github.com/ruchernchong/simplycpf/issues/55)
+* add StepSection animated wrapper for progressive reveal ([ece362c](https://github.com/ruchernchong/simplycpf/commit/ece362ce978b3fee29764b2bea0d7e2e698cfc50))
+
+## [1.15.3](https://github.com/ruchernchong/simplycpf/compare/v1.15.2...v1.15.3) (2026-04-11)
+
+### Bug Fixes
+
+* activate Jotai Provider in root layout ([53bdb0a](https://github.com/ruchernchong/simplycpf/commit/53bdb0a69525f47db4e9e46eadec8b4b4523fa81))
+* make settingsAtom SSR-safe to prevent hydration mismatch ([b7432cf](https://github.com/ruchernchong/simplycpf/commit/b7432cfe1fc93176405382e4762a9fa336582b45)), closes [#61](https://github.com/ruchernchong/simplycpf/issues/61)
+
 ## [1.15.2](https://github.com/ruchernchong/simplycpf/compare/v1.15.1...v1.15.2) (2026-01-02)
 
 ### Bug Fixes

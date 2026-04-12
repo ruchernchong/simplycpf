@@ -96,9 +96,9 @@ const CeilingComparisonCard = () => {
     >
       <CardHeader>
         <motion.div variants={itemVariants}>
-          <CardTitle>Ceiling Comparison</CardTitle>
+          <CardTitle>How the Ceiling Change Affects You</CardTitle>
           <CardDescription className="mb-4">
-            Impact of income ceiling changes
+            What the new ceiling means for your money
           </CardDescription>
         </motion.div>
         {/* Timeline visual */}
@@ -139,7 +139,7 @@ const CeilingComparisonCard = () => {
             whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           >
             <p className="mb-4 text-muted-foreground text-sm">
-              Take-home pay impact
+              Take-home pay change
             </p>
             <div className="mb-2 flex items-center gap-2">
               <motion.div
@@ -181,7 +181,7 @@ const CeilingComparisonCard = () => {
             whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           >
             <p className="mb-4 text-muted-foreground text-sm">
-              CPF contribution impact
+              Your retirement savings change
             </p>
             <div className="mb-2 flex items-center gap-2">
               <motion.div
@@ -209,10 +209,10 @@ const CeilingComparisonCard = () => {
             </div>
             <p className="text-muted-foreground text-xs">
               {cpfImpact > 0
-                ? "More CPF savings under current ceiling"
+                ? "More retirement savings under current ceiling"
                 : cpfImpact < 0
-                  ? "Less CPF under current ceiling"
-                  : "No difference in CPF contributions"}
+                  ? "Less retirement savings under current ceiling"
+                  : "No difference in retirement savings"}
             </p>
           </motion.div>
         </div>
@@ -232,9 +232,8 @@ const CeilingComparisonCard = () => {
               <span className="font-medium text-foreground">
                 {formatCurrency(currentCeiling, 0)}
               </span>
-              . Higher earners now have more income subject to CPF
-              contributions, increasing retirement savings but reducing
-              take-home pay.
+              . Higher earners now have more income growing as retirement
+              savings — though take-home pay decreases.
             </p>
           </motion.div>
         )}
