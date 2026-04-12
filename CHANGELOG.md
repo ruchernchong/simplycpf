@@ -1,3 +1,17 @@
+## [1.17.0](https://github.com/ruchernchong/simplycpf/compare/v1.16.0...v1.17.0) (2026-04-12)
+
+### Features
+
+* add GA4 setup, event tracking, and coverage exclusions ([5a6dd76](https://github.com/ruchernchong/simplycpf/commit/5a6dd76f6446ed4be0daa35afad1728bd5289a19))
+* add share results, URL params, trust badges, CRO tweaks ([6035e29](https://github.com/ruchernchong/simplycpf/commit/6035e29c996fa836fbdc857c601b59667485df01))
+* apply loss aversion, anchoring, endowment framing ([8345972](https://github.com/ruchernchong/simplycpf/commit/83459729ab7c915ce912790fd6b36efc51220852))
+* enhance metadata, sitemap, robots, schema, and AI routes ([11b6ada](https://github.com/ruchernchong/simplycpf/commit/11b6adabc9d4c624299f85c32341c0f84b0e369c))
+* rewrite page headlines, intros, and metadata ([d094e4b](https://github.com/ruchernchong/simplycpf/commit/d094e4bd46af9cc3d9ceccc4fd80a81675f98ccc))
+
+### Bug Fixes
+
+* resolve SonarQube issues (globalThis, replaceAll, spacing) ([6460ba9](https://github.com/ruchernchong/simplycpf/commit/6460ba9dbc01c997bb2d6294c6342291411c2212))
+
 ## [1.16.0](https://github.com/ruchernchong/simplycpf/compare/v1.15.3...v1.16.0) (2026-04-11)
 
 ### Features
