@@ -1,3 +1,9 @@
+## [1.19.0](https://github.com/ruchernchong/simplycpf/compare/v1.18.1...v1.19.0) (2026-04-12)
+
+### Features
+
+* integrate PostHog analytics replacing GA ([1178c1f](https://github.com/ruchernchong/simplycpf/commit/1178c1fce8b41944486abb1381709031c70c376f))
+
 ## [1.18.1](https://github.com/ruchernchong/simplycpf/compare/v1.18.0...v1.18.1) (2026-04-12)
 
 ### Bug Fixes
