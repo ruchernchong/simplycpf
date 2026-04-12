@@ -72,7 +72,7 @@ const UserInput = () => {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopyCalcLink = async () => {
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.window?.location.href ?? "");
     url.searchParams.set("income", String(monthlyGrossIncome));
     if (birthDate) url.searchParams.set("dob", birthDate);
     try {

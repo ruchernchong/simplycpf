@@ -48,7 +48,7 @@ export function CalculatedResult() {
       hasTrackedCompletion.current = true;
       trackTypedEvent(EVENT.CALCULATOR_COMPLETE, {
         age_bracket:
-          ageGroup?.description?.replace(/\s+/g, "_").toLowerCase() ??
+          ageGroup?.description?.replaceAll(/\s+/g, "_").toLowerCase() ??
           "unknown",
         ceiling_year: currentCeilingDate,
         income_bracket: getIncomeBracket(monthlyGrossIncome),

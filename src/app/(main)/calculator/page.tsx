@@ -117,15 +117,15 @@ const CalculatorPage = () => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-muted-foreground text-sm">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block size-1.5 rounded-full bg-accent" />
+              <span className="inline-block size-1.5 rounded-full bg-accent" />{" "}
               Free — no sign-up
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block size-1.5 rounded-full bg-accent" />
+              <span className="inline-block size-1.5 rounded-full bg-accent" />{" "}
               Results update instantly
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block size-1.5 rounded-full bg-accent" />
+              <span className="inline-block size-1.5 rounded-full bg-accent" />{" "}
               No data collected
             </span>
           </div>

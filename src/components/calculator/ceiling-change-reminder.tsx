@@ -26,7 +26,7 @@ export function CeilingChangeReminder() {
   const handleBookmark = () => {
     setBookmarkHint(true);
     setTimeout(() => setBookmarkHint(false), 3000);
-    void navigator.clipboard?.writeText(window.location.href);
+    void navigator.clipboard?.writeText(globalThis.window?.location.href ?? "");
   };
 
   return (

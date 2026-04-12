@@ -15,8 +15,8 @@ export function ShareResults() {
   const ceilingDate = useAtomValue(latestIncomeCeilingDateAtom);
 
   const shareUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/calculator?income=${monthlyGrossIncome}&dob=${birthDate}&ceiling=${ceilingDate}`
+    typeof globalThis !== "undefined" && globalThis.window
+      ? `${globalThis.window.location.origin}/calculator?income=${monthlyGrossIncome}&dob=${birthDate}&ceiling=${ceilingDate}`
       : "";
 
   const shareText = `My CPF contribution at $${monthlyGrossIncome.toLocaleString()}/month — calculate yours at SimplyCPF!`;
@@ -32,27 +32,26 @@ export function ShareResults() {
       textarea.value = shareUrl;
       document.body.appendChild(textarea);
       textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+      await navigator.clipboard.writeText(shareUrl);
+      textarea.remove();
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      trackTypedEvent(EVENT.SHARE_CLICK_NATIVE, {});
-      try {
-        await navigator.share({
-          title: "SimplyCPF — CPF Contribution Calculator",
-          text: shareText,
-          url: shareUrl,
-        });
-        return;
-      } catch {
-        handleCopyLink();
-      }
-    } else {
+    if (!navigator.share) {
+      handleCopyLink();
+      return;
+    }
+    trackTypedEvent(EVENT.SHARE_CLICK_NATIVE, {});
+    try {
+      await navigator.share({
+        title: "SimplyCPF — CPF Contribution Calculator",
+        text: shareText,
+        url: shareUrl,
+      });
+    } catch {
       handleCopyLink();
     }
   };
@@ -60,13 +59,13 @@ export function ShareResults() {
   const handleWhatsApp = () => {
     trackTypedEvent(EVENT.SHARE_CLICK_WHATSAPP, {});
     const encoded = encodeURIComponent(`${shareText} ${shareUrl}`);
-    window.open(`https://wa.me/?text=${encoded}`, "_blank");
+    globalThis.window?.open(`https://wa.me/?text=${encoded}`, "_blank");
   };
 
   const handleTelegram = () => {
     trackTypedEvent(EVENT.SHARE_CLICK_TELEGRAM, {});
     const encoded = encodeURIComponent(shareUrl);
-    window.open(
+    globalThis.window?.open(
       `https://t.me/share/url?url=${encoded}&text=${encodeURIComponent(shareText)}`,
       "_blank",
     );
@@ -75,7 +74,7 @@ export function ShareResults() {
   const handleLinkedIn = () => {
     trackTypedEvent(EVENT.SHARE_CLICK_LINKEDIN, {});
     const encodedUrl = encodeURIComponent(shareUrl);
-    window.open(
+    globalThis.window?.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
       "_blank",
       "noopener,noreferrer,width=600,height=600",

@@ -24,15 +24,14 @@ const HeroSection = () => {
       </p>
       <div className="mb-6 flex items-center justify-center gap-4 text-muted-foreground text-sm">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-1.5 rounded-full bg-accent" />
-          Free
+          <span className="inline-block size-1.5 rounded-full bg-accent" /> Free
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-1.5 rounded-full bg-accent" />
-          No sign-up
+          <span className="inline-block size-1.5 rounded-full bg-accent" /> No
+          sign-up
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-1.5 rounded-full bg-accent" />
+          <span className="inline-block size-1.5 rounded-full bg-accent" />{" "}
           Open-source
         </span>
       </div>

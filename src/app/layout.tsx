@@ -5,8 +5,8 @@ import type { Metadata } from "next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import type { Graph } from "schema-dts";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Providers } from "@/app/providers";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, title } from "@/config";
 
