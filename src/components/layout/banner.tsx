@@ -2,13 +2,17 @@
 
 import { useAtomValue } from "jotai";
 import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
-import { CPF_INCOME_CEILING } from "@/constants";
+import {
+  CPF_INCOME_CEILING,
+  CPF_INCOME_CEILING_BEFORE_SEPT_2023,
+} from "@/constants";
 import useAnimatedNumber from "@/hooks/use-animated-number";
 import { formatCurrency } from "@/lib/format";
 
 const Banner = () => {
   const latestIncomeCeilingDate = useAtomValue(latestIncomeCeilingDateAtom);
   const currentCeiling = CPF_INCOME_CEILING[latestIncomeCeilingDate];
+  const ceilingIncrease = currentCeiling - CPF_INCOME_CEILING_BEFORE_SEPT_2023;
 
   const formattedDate = new Date(latestIncomeCeilingDate).toLocaleDateString(
     "en-SG",
@@ -30,7 +34,7 @@ const Banner = () => {
           <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:gap-6">
             {/* Label */}
             <span className="font-medium text-primary-foreground/80 text-sm uppercase tracking-wider">
-              Current Income Ceiling
+              Your CPF Income Ceiling
             </span>
 
             {/* Divider - Teal dot */}
@@ -48,6 +52,16 @@ const Banner = () => {
             <span className="text-primary-foreground/70 text-sm">
               Effective from {formattedDate}
             </span>
+
+            {/* Increase amount - only show if ceiling has risen */}
+            {ceilingIncrease > 0 && (
+              <>
+                <span className="hidden size-1.5 rounded-full bg-accent/50 md:block" />
+                <span className="font-medium text-accent text-sm">
+                  +{formatCurrency(ceilingIncrease, 0)} from pre-2023
+                </span>
+              </>
+            )}
           </div>
         </div>
 

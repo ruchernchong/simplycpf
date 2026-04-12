@@ -1,27 +1,27 @@
 [
   {
-    "question": "What is this \"calculator\" about?",
-    "answer": "Following the announcement from the Ministry of Finance (MOF) during the Budget 2023 on 14 February 2023, the CPF income ceiling will be raised gradually from $6000 to $8000 by September 2026. This service has no affiliation with neither the MOF nor the CPF Board."
+    "question": "How are CPF contributions calculated in Singapore?",
+    "answer": "CPF contributions are calculated based on your monthly gross income and age group. There are 8 age brackets, each with different employee and employer contribution rates. Your income is subject to CPF contributions up to the current income ceiling, which is rising progressively from $6,000 to $8,000 by September 2026 following Budget 2023. SimplyCPF handles all these variables automatically — just enter your income and birth date to get your exact contribution amounts."
   },
   {
-    "question": "Does this collect any of my data?",
-    "answer": "No data are being collected. The inputs are wiped on browser refresh. However, if you have checked the checkbox, you will be storing the input on the browser."
+    "question": "What are the CPF contribution rates by age group?",
+    "answer": "CPF contribution rates vary by age group. For employees aged 55 and below, the total contribution rate is 37% (20% employee + 17% employer). Rates gradually decrease for older age groups: 56–60 years (26.5% total), 61–65 years (16.5% total), 66–70 years (12.5% total), and even lower for those above 70. The distribution across OA, SA, and MA also changes with age — older workers see more allocated to SA and MA rather than OA. Use the calculator to see the exact rates for your age group."
   },
   {
-    "question": "Do I need to login to use this?",
-    "answer": "No login is required. There is no reason to implement this since it is not storing any form of data"
+    "question": "How does the CPF income ceiling change affect my take-home pay?",
+    "answer": "The CPF income ceiling is rising from $6,000 to $8,000 in stages from September 2023 to September 2026. If your monthly income is above the old ceiling of $6,000, more of your income becomes subject to CPF contributions as the ceiling increases. This means your employee CPF contribution goes up and your take-home pay decreases slightly, but your total CPF savings (including employer contributions) increase. SimplyCPF's ceiling comparison feature shows you the exact dollar impact on both your take-home pay and your retirement savings."
   },
   {
-    "question": "Should I check the \"Store input on this browser?\"",
-    "answer": "This is a feature to help with storing the input value on your own browser and for the convenience of not having to re-type your input when you return to this page. It is strictly up to you to decide to use this function or not."
+    "question": "What is the difference between OA, SA, and MA in CPF?",
+    "answer": "CPF contributions are distributed across three accounts: the Ordinary Account (OA) for housing, insurance, investment, and education; the Special Account (SA) for retirement and retirement-related investments; and the MediSave Account (MA) for healthcare and medical insurance. The distribution varies by age — younger workers have more allocated to OA, while older workers see more going to SA and MA. The OA earns 2.5% p.a. (floor rate), while SA and MA earn a minimum of 4% p.a. with the potential to earn more when market rates are higher."
   },
   {
-    "question": "Why are you doing this?",
-    "answer": "As a developer, I just love to build things. I created this immediately after the announcement of the CPF income ceiling changes in Budget 2023 (14 February). I wanted to challenge myself and see how quickly could I react to design and deploy to production a particular microservice/product."
+    "question": "Does SimplyCPF collect any of my data?",
+    "answer": "No data are being collected. The inputs are wiped on browser refresh. However, if you have checked the \"Store input on this browser\" checkbox, your input will be stored locally on your own browser only — no data are sent to or stored on any servers."
   },
   {
-    "question": "I am a developer and I wish to contribute changes to this. How may I do so?",
-    "answer": "This is an open-source project. All contributions are welcomed. Feel free to clone/fork the repository and create a pull request."
+    "question": "Do I need to sign up or log in to use SimplyCPF?",
+    "answer": "No sign-up or login is required. SimplyCPF is completely free and ungated — you can start calculating your CPF contributions immediately without creating an account or providing any personal information."
   },
   {
     "question": "How are CPF interest rates determined?",
@@ -38,5 +38,13 @@
   {
     "question": "How does the 10-year Singapore Government Securities (SGS) yield affect my CPF?",
     "answer": "The 10-year SGS yield directly affects the interest rate for your Special, MediSave, and Retirement Accounts (SMRA). The SMRA interest rate is pegged to the 12-month average of the 10-year SGS yield plus 1%. When SGS yields are high, your SMRA earns more. When SGS yields are low and the calculated rate falls below 4%, the floor rate of 4% applies to protect your savings. This pegging mechanism ensures your CPF interest rates reflect market conditions while maintaining a safety net."
+  },
+  {
+    "question": "Is SimplyCPF affiliated with the CPF Board?",
+    "answer": "No. SimplyCPF is an independent tool and is not affiliated with, endorsed by, or officially connected to the Central Provident Fund Board (CPF Board), Ministry of Manpower (MOM), or any other government agency. However, all contribution rates and income ceiling data are sourced directly from CPF Board publications. The calculation logic is open-source and fully verifiable on GitHub."
+  },
+  {
+    "question": "I am a developer and I wish to contribute changes. How may I do so?",
+    "answer": "SimplyCPF is an open-source project released under the MIT licence. All contributions are welcome. Feel free to clone or fork the repository on GitHub and create a pull request. The project also provides a Developer API with 12 endpoints for programmatic access to CPF calculations — visit the developer documentation for details."
   }
 ]
