@@ -1,23 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
-import { ageGroups } from "@/data";
 
 const CpfStatisticBlock = () => {
-  const currentCeiling = CPF_INCOME_CEILING["2025-01-01"];
-  const finalCeiling = CPF_INCOME_CEILING["2026-01-01"];
-  const defaultGroup = ageGroups[0];
-
+  const currentCeiling = CPF_INCOME_CEILING["2026-01-01"];
   const stats = [
     {
-      label: "Total contribution rate (age ≤ 55)",
-      value: `${((defaultGroup.contributionRate.employee + defaultGroup.contributionRate.employer) * 100).toFixed(0)}%`,
-      detail: "20% employee + 17% employer",
-    },
-    {
-      label: "Current income ceiling (2025)",
+      label: "Current income ceiling (2026)",
       value: `S$${currentCeiling.toLocaleString()}`,
-      detail: "Rising to S$8,000 in 2026",
+      detail: "Final ceiling under 2023 Budget changes",
     },
     {
       label: "OA interest rate (floor)",
@@ -28,16 +19,6 @@ const CpfStatisticBlock = () => {
       label: "SMRA interest rate (floor)",
       value: `${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.`,
       detail: "Minimum guaranteed; may earn more",
-    },
-    {
-      label: "Age brackets",
-      value: "8",
-      detail: "From ≤35 to 70+",
-    },
-    {
-      label: "Ceiling increase (2023–2026)",
-      value: "33.3%",
-      detail: `S$6,000 → S$${finalCeiling.toLocaleString()}`,
     },
   ];
 

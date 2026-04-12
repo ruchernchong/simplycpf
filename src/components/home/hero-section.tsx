@@ -17,10 +17,10 @@ const HeroSection = () => {
       </p>
       <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
         See how the Budget 2023 income ceiling changes affect your take-home pay
-        as the CPF ceiling rises from{" "}
+        as the CPF ceiling rose from{" "}
         <span className="font-mono font-semibold text-accent">$6,000</span> to{" "}
-        <span className="font-mono font-semibold text-accent">$8,000</span> by
-        September 2026.
+        <span className="font-mono font-semibold text-accent">$8,000</span> in
+        January 2026.
       </p>
       <div className="mb-6 flex items-center justify-center gap-4 text-muted-foreground text-sm">
         <span className="flex items-center gap-1.5">
