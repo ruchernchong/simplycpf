@@ -1,0 +1,50 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "rangeStrategy": "pin",
+  "schedule": ["before 9am on Monday"],
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates for devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Group commitlint packages",
+      "matchPackagePatterns": ["^@commitlint/"],
+      "groupName": "commitlint"
+    },
+    {
+      "description": "Group semantic-release packages",
+      "matchPackageNames": ["semantic-release"],
+      "matchPackagePatterns": ["^@semantic-release/"],
+      "groupName": "semantic-release"
+    },
+    {
+      "description": "Group testing-library packages",
+      "matchPackagePatterns": ["^@testing-library/"],
+      "groupName": "testing-library"
+    },
+    {
+      "description": "Group vitest packages",
+      "matchPackageNames": ["vitest"],
+      "matchPackagePatterns": ["^@vitest/"],
+      "groupName": "vitest"
+    },
+    {
+      "description": "Group hugeicons packages",
+      "matchPackagePatterns": ["^@hugeicons/"],
+      "groupName": "hugeicons"
+    },
+    {
+      "description": "Group biome packages",
+      "matchPackagePatterns": ["^@biomejs/"],
+      "groupName": "biome"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 9am on the first day of the month"]
+  }
+}

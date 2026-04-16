@@ -56,6 +56,9 @@ cd simplycpf
 # Install dependencies
 pnpm install
 
+# Initialise Git hooks (required — .npmrc sets ignore-scripts=true for security)
+pnpm run prepare
+
 # Start development server
 pnpm dev
 ```
