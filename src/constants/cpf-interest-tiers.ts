@@ -1,0 +1,3 @@
+export const CPF_EXTRA_INTEREST_CAP = 60_000;
+export const CPF_OA_EXTRA_INTEREST_CAP = 20_000;
+export const CPF_EXTRA_INTEREST_RATE = 0.01;

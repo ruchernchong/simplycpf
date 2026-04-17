@@ -1,16 +1,18 @@
 import { ageGroups } from "../data";
+import type { AgeGroup } from "../types";
 
-export const findAgeGroup = (age: number) => {
-  // Special handling for boundary cases - find the right group when age matches minAge
-  for (let i = ageGroups.length - 1; i >= 0; i--) {
-    const ageGroup = ageGroups[i];
+export const findAgeGroup = <T extends AgeGroup = AgeGroup>(
+  age: number,
+  groups: T[] = ageGroups as T[],
+): T => {
+  for (let i = groups.length - 1; i >= 0; i--) {
+    const ageGroup = groups[i];
     if (age === ageGroup.minAge) {
       return ageGroup;
     }
   }
 
-  // Regular case
-  for (const ageGroup of ageGroups) {
+  for (const ageGroup of groups) {
     if (
       age > ageGroup.minAge &&
       (age <= Number(ageGroup.maxAge) || !ageGroup.maxAge)
@@ -19,5 +21,5 @@ export const findAgeGroup = (age: number) => {
     }
   }
 
-  return ageGroups[0];
+  return groups[0];
 };

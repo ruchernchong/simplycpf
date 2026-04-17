@@ -7,6 +7,12 @@ import { CPFInvestmentComparison } from "@/components/investments/cpf-investment
 import { StructuredData } from "@/components/seo/structured-data";
 import { buttonVariants } from "@/components/ui/button";
 import { BASE_URL } from "@/config";
+import {
+  buildBreadcrumbList,
+  buildGraph,
+  buildPageSchema,
+  buildSpeakable,
+} from "@/lib/build-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -42,38 +48,22 @@ export const metadata: Metadata = {
 };
 
 const InvestmentsPage = () => {
-  const schema: Graph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebPage",
-        name: "CPF Investment Comparison",
-        description:
-          "Compare CPF account growth against Singapore bonds, STI ETF, and other investment options. Adjust time horizons and see side-by-side returns over time.",
-        url: `${BASE_URL}/investments`,
-        inLanguage: "en-SG",
-        keywords:
-          "CPF investment, CPF investment scheme, CPFIS, CPF vs investment, CPF returns comparison, STI ETF vs CPF, Singapore investment comparison",
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: BASE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Investments",
-            item: `${BASE_URL}/investments`,
-          },
-        ],
-      },
-    ],
-  };
+  const schema: Graph = buildGraph([
+    buildPageSchema({
+      name: "CPF Investment Comparison",
+      description:
+        "Compare CPF account growth against Singapore bonds, STI ETF, and other investment options. Adjust time horizons and see side-by-side returns over time.",
+      url: `${BASE_URL}/investments`,
+      speakableSelectors: ["h1", ".investment-description"],
+      keywords:
+        "CPF investment, CPF investment scheme, CPFIS, CPF vs investment, CPF returns comparison, STI ETF vs CPF, Singapore investment comparison",
+    }),
+    buildBreadcrumbList([
+      { name: "Home", url: BASE_URL },
+      { name: "Investments", url: `${BASE_URL}/investments` },
+    ]),
+    buildSpeakable(["h1"]),
+  ]);
 
   return (
     <>

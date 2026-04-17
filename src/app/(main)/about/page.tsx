@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/card";
 import { BASE_URL } from "@/config";
 import faqData from "@/data/faq.json";
+import {
+  buildBreadcrumbList,
+  buildFAQPage,
+  buildGraph,
+  buildPageSchema,
+  buildSpeakable,
+} from "@/lib/build-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -55,46 +62,21 @@ export const metadata: Metadata = {
 };
 
 const About = () => {
-  const schema: Graph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "AboutPage",
-        name: "About SimplyCPF",
-        description:
-          "About SimplyCPF — a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
-        url: `${BASE_URL}/about`,
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: BASE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "About",
-            item: `${BASE_URL}/about`,
-          },
-        ],
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqData.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: answer,
-          },
-        })),
-      },
-    ],
-  };
+  const schema: Graph = buildGraph([
+    buildPageSchema({
+      name: "About SimplyCPF",
+      description:
+        "About SimplyCPF — a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
+      url: `${BASE_URL}/about`,
+      speakableSelectors: ["h1", "[data-content-block='faq']"],
+    }),
+    buildBreadcrumbList([
+      { name: "Home", url: BASE_URL },
+      { name: "About", url: `${BASE_URL}/about` },
+    ]),
+    buildFAQPage(faqData),
+    buildSpeakable(["h1", "[data-content-block='faq']"]),
+  ]);
 
   return (
     <>

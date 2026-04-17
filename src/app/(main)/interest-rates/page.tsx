@@ -10,6 +10,13 @@ import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-co
 import { StructuredData } from "@/components/seo/structured-data";
 import { buttonVariants } from "@/components/ui/button";
 import { BASE_URL } from "@/config";
+import {
+  buildBreadcrumbList,
+  buildDataset,
+  buildGraph,
+  buildPageSchema,
+  buildSpeakable,
+} from "@/lib/build-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -45,38 +52,47 @@ export const metadata: Metadata = {
 };
 
 const InterestRatesPage = () => {
-  const schema: Graph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebPage",
-        name: "CPF Interest Rates",
-        description:
-          "View current CPF interest rates for OA, SA, and MA accounts. Understand floor rates vs pegged rates, see historical trends, and learn contribution distribution rates by age group.",
-        url: `${BASE_URL}/interest-rates`,
-        inLanguage: "en-SG",
-        keywords:
-          "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, CPF distribution rates, Singapore CPF rates",
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: BASE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Interest Rates",
-            item: `${BASE_URL}/interest-rates`,
-          },
-        ],
-      },
-    ],
-  };
+  const schema: Graph = buildGraph([
+    buildPageSchema({
+      name: "CPF Interest Rates",
+      description:
+        "View current CPF interest rates for OA, SA, and MA accounts. Understand floor rates vs pegged rates, see historical trends, and learn contribution distribution rates by age group.",
+      url: `${BASE_URL}/interest-rates`,
+      speakableSelectors: ["h1", ".interest-rates-description"],
+      keywords:
+        "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, CPF distribution rates, Singapore CPF rates",
+    }),
+    buildBreadcrumbList([
+      { name: "Home", url: BASE_URL },
+      { name: "Interest Rates", url: `${BASE_URL}/interest-rates` },
+    ]),
+    buildDataset({
+      name: "CPF Interest Rates Historical Data",
+      description:
+        "Historical and current CPF interest rates for OA, SA, MA, and RA accounts, including floor rates, SMRA pegged rates, and 10-year SGS yield data.",
+      url: `${BASE_URL}/api/cpf/interest-rates`,
+      distributions: [
+        {
+          encodingFormat: "application/json",
+          contentUrl: `${BASE_URL}/api/cpf/interest-rates`,
+        },
+        {
+          encodingFormat: "application/json",
+          contentUrl: `${BASE_URL}/api/cpf/interest-rates/trend`,
+        },
+      ],
+      variables: [
+        "OA interest rate",
+        "SA interest rate",
+        "MA interest rate",
+        "RA interest rate",
+        "SMRA pegged rate",
+        "10-year SGS yield",
+      ],
+      temporalCoverage: "2023/2026",
+    }),
+    buildSpeakable(["h1", "h2"]),
+  ]);
 
   return (
     <>

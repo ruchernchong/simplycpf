@@ -88,3 +88,107 @@ export interface InterestRateTrendData {
   peggedRate: number;
   actualRate: number;
 }
+
+// Projection types
+
+export type CitizenshipStatus =
+  | "citizen"
+  | "spr-year1"
+  | "spr-year2"
+  | "spr-year3-plus";
+
+export interface VoluntaryTopUp {
+  amount: number;
+  account: "SA" | "MA" | "RA";
+  frequency: "monthly" | "yearly";
+}
+
+export interface OaToSaTransfer {
+  amount: number;
+  timing: "now" | "yearly";
+}
+
+export interface ProjectionParams {
+  monthlyIncome: number;
+  birthDate: string;
+  startAge?: number;
+  endAge?: number;
+  housingWithdrawal?: number;
+  voluntaryTopUp?: VoluntaryTopUp;
+  oaToSaTransfer?: OaToSaTransfer;
+  citizenship: CitizenshipStatus;
+}
+
+export interface AccountBalances {
+  oa: number;
+  sa: number;
+  ma: number;
+  ra: number;
+}
+
+export interface YearlyContribution {
+  employee: number;
+  employer: number;
+  total: number;
+}
+
+export interface YearlyDistribution {
+  oa: number;
+  sa: number;
+  ma: number;
+  ra: number;
+}
+
+export interface YearlyInterest {
+  oa: number;
+  sa: number;
+  ma: number;
+  ra: number;
+  extraInterest: number;
+}
+
+export interface YearlyBalance {
+  year: number;
+  age: number;
+  ageGroup: string;
+  balances: AccountBalances;
+  contributions: YearlyContribution;
+  distribution: YearlyDistribution;
+  interestEarned: YearlyInterest;
+  housingWithdrawal?: number;
+  voluntaryTopUp?: number;
+}
+
+export interface CpfLifeEstimate {
+  standardMonthly: number;
+  escalatingStartMonthly: number;
+  basicMonthly: number;
+  deferredTo70Monthly: number;
+}
+
+export interface ProjectionResult {
+  input: ProjectionParams;
+  yearlyBalances: YearlyBalance[];
+  milestones: {
+    age55: AccountBalances;
+    age65: AccountBalances;
+    age70?: AccountBalances;
+  };
+  cpfLifeEstimate: CpfLifeEstimate;
+  totalContributed: number;
+  totalInterestEarned: number;
+}
+
+export interface ScenarioDifference {
+  totalContributions: number;
+  totalInterestEarned: number;
+  age65Balance: number;
+  cpfLifeMonthlyPayout: number;
+}
+
+export interface ScenarioResult {
+  baseline: ProjectionResult;
+  scenario: ProjectionResult;
+  difference: ScenarioDifference;
+  insights: string[];
+}

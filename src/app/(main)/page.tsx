@@ -12,6 +12,12 @@ import { StructuredData } from "@/components/seo/structured-data";
 import CPFIncomeCeilingTimeline from "@/components/timeline/cpf-income-ceiling-timeline";
 import { buttonVariants } from "@/components/ui/button";
 import { BASE_URL } from "@/config";
+import {
+  buildBreadcrumbList,
+  buildDataset,
+  buildGraph,
+  buildSpeakable,
+} from "@/lib/build-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -47,38 +53,51 @@ export const metadata: Metadata = {
 };
 
 const HomePage = () => {
-  const schema: Graph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        name: "SimplyCPF",
-        description:
-          "Free CPF contribution calculator for Singapore employees and employers. Calculate contributions by age group, track progressive ceiling changes, and view OA, SA, MA distribution.",
-        url: BASE_URL,
-        applicationCategory: "FinanceApplication",
-        featureList: [
-          "Calculate CPF contributions by age group and income",
-          "View distribution across OA, SA, MA accounts",
-          "Track progressive income ceiling changes from 2023 to 2026",
-          "Compare CPF returns against investment options",
-          "Access current CPF interest rates and distribution rates",
-        ],
-        inLanguage: "en-SG",
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: BASE_URL,
-          },
-        ],
-      },
-    ],
-  };
+  const schema: Graph = buildGraph([
+    {
+      "@type": "SoftwareApplication" as const,
+      name: "SimplyCPF",
+      description:
+        "Free CPF contribution calculator for Singapore employees and employers. Calculate contributions by age group, track progressive ceiling changes, and view OA, SA, MA distribution.",
+      url: BASE_URL,
+      applicationCategory: "FinanceApplication",
+      featureList: [
+        "Calculate CPF contributions by age group and income",
+        "View distribution across OA, SA, MA accounts",
+        "Track progressive income ceiling changes from 2023 to 2026",
+        "Compare CPF returns against investment options",
+        "Access current CPF interest rates and distribution rates",
+      ],
+      inLanguage: "en-SG",
+    },
+    buildBreadcrumbList([{ name: "Home", url: BASE_URL }]),
+    buildDataset({
+      name: "CPF Contribution Rates by Age Group",
+      description:
+        "Contribution rates, distribution rates, and income ceiling data for Singapore CPF across 8 age brackets, including progressive ceiling changes from 2023 to 2026.",
+      url: `${BASE_URL}/api/cpf/age-groups`,
+      distributions: [
+        {
+          encodingFormat: "application/json",
+          contentUrl: `${BASE_URL}/api/cpf/age-groups`,
+        },
+        {
+          encodingFormat: "application/json",
+          contentUrl: `${BASE_URL}/api/cpf/ceiling/timeline`,
+        },
+      ],
+      variables: [
+        "Employee contribution rate",
+        "Employer contribution rate",
+        "OA distribution rate",
+        "SA distribution rate",
+        "MA distribution rate",
+        "Income ceiling",
+      ],
+      temporalCoverage: "2023/2026",
+    }),
+    buildSpeakable(["h1", ".hero-description", ".insight-banner"]),
+  ]);
 
   return (
     <>

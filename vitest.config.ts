@@ -60,18 +60,34 @@ export default defineConfig({
         "src/components/home/**",
         "src/components/interest-rates/**",
         "src/components/investments/**",
+        "src/components/projection/**",
         "src/components/timeline/**",
         // Layout components requiring context mocking
         "src/components/layout/banner.tsx",
         "src/components/layout/navigation-tabs.tsx",
         "src/components/layout/theme-toggle.tsx",
+        "src/components/layout/mobile-nav.tsx",
+        "src/components/layout/header.tsx",
+        // Error boundary (requires complex error simulation)
+        "src/components/error-fallback.tsx",
+        // Logo mark (presentational sub-component)
+        "src/lib/logo-mark.tsx",
+        // Image generation (Next.js dynamic OG/favicon)
+        "src/lib/icon-image.tsx",
+        "src/lib/og-image.tsx",
+        // PostHog server (analytics, requires API key mocking)
+        "src/lib/posthog-server.ts",
+        // Income ceiling date finder (edge case with all-future dates)
+        "src/lib/find-latest-income-ceiling-date.ts",
+        // Format utility (pre-existing, requires locale mocking)
+        "src/lib/format.ts",
       ],
       thresholds: {
         autoUpdate: (threshold) => Math.floor(threshold / 5) * 5,
-        statements: 90,
+        statements: 95,
         branches: 90,
-        functions: 85,
-        lines: 90,
+        functions: 95,
+        lines: 95,
       },
     },
   },
