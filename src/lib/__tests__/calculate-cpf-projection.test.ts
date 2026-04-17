@@ -547,8 +547,10 @@ describe("calculateCpfProjection", () => {
     });
 
     expect(result.milestones.age70).toBeDefined();
-    expect(result.milestones.age70).toBeDefined();
     expect(result.milestones.age70?.ra).toBeGreaterThan(0);
+    expect(result.cpfLifeEstimate.deferredTo70Monthly).toBe(
+      result.cpfLifeEstimate.standardMonthly,
+    );
   });
 
   it("should handle birthDate-based age calculation", () => {

@@ -62,6 +62,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href={"/cpf-life" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  CPF LIFE
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/interest-rates"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >

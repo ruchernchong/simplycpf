@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import ProjectionContent from "@/components/projection/projection-content";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL } from "@/config";
+import faqProjectionData from "@/data/faq-projection.json";
 import {
+  buildFAQPage,
   buildGraph,
   buildHowTo,
   buildPageSchema,
@@ -76,6 +78,7 @@ const schema = buildGraph([
       },
     ],
   ),
+  buildFAQPage(faqProjectionData),
   buildWebApplication({
     name: "SimplyCPF Projection Calculator",
     url: `${BASE_URL}/projection`,

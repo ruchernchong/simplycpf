@@ -113,21 +113,27 @@ const schema: Graph = {
     },
     {
       "@type": "SiteNavigationElement",
+      name: "CPF LIFE",
+      url: `${BASE_URL}/cpf-life`,
+      position: 4,
+    },
+    {
+      "@type": "SiteNavigationElement",
       name: "Interest Rates",
       url: `${BASE_URL}/interest-rates`,
-      position: 4,
+      position: 5,
     },
     {
       "@type": "SiteNavigationElement",
       name: "Investments",
       url: `${BASE_URL}/investments`,
-      position: 5,
+      position: 6,
     },
     {
       "@type": "SiteNavigationElement",
       name: "About",
       url: `${BASE_URL}/about`,
-      position: 6,
+      position: 7,
     },
   ],
 };

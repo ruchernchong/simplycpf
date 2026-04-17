@@ -1,0 +1,18 @@
+[
+  {
+    "question": "How much CPF LIFE will I get each month?",
+    "answer": "Your CPF LIFE payout depends mainly on your Retirement Account balance and when you start your payouts. SimplyCPF gives an estimated monthly payout across the Standard, Escalating, Basic, and defer-to-70 scenarios so you can compare the range before applying officially."
+  },
+  {
+    "question": "What is the difference between the Standard, Escalating, and Basic plans?",
+    "answer": "The Standard Plan generally starts with a higher payout, the Escalating Plan starts lower but rises over time, and the Basic Plan usually pays less each month while leaving more in the Retirement Account early on. SimplyCPF shows all three side by side so the trade-offs are easier to understand."
+  },
+  {
+    "question": "What happens if I defer my CPF LIFE payout to age 70?",
+    "answer": "Deferring your payout can increase your eventual monthly payout. SimplyCPF uses a simplified deferment uplift of about 7% per year deferred, capped at age 70, to help you compare the potential impact."
+  },
+  {
+    "question": "Do I need the Full Retirement Sum to join CPF LIFE?",
+    "answer": "Not necessarily. CPF LIFE payouts can still be estimated from lower Retirement Account balances, but the eventual payout will be lower. In SimplyCPF, balances below S$60,000 are shown as below the current threshold used for the simplified estimate."
+  }
+]

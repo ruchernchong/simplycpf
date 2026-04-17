@@ -19,6 +19,7 @@ const navItems: { href: Route; label: string }[] = [
   { href: "/calculator" as Route, label: "Calculator" },
   { href: "/projection" as Route, label: "Projection" },
   { href: "/what-if" as Route, label: "What-If" },
+  { href: "/cpf-life" as Route, label: "CPF LIFE" },
   { href: "/interest-rates" as Route, label: "Interest Rates" },
   { href: "/investments" as Route, label: "Investments" },
   { href: "/about" as Route, label: "About" },

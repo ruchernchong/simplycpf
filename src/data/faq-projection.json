@@ -1,0 +1,18 @@
+[
+  {
+    "question": "How much CPF will I have at 65?",
+    "answer": "That depends on your income, age, citizenship status, housing usage, and whether you top up or transfer savings along the way. SimplyCPF projects your balances using CPF floor interest rates and the current contribution rules so you can see a conservative estimate instead of guessing."
+  },
+  {
+    "question": "What happens to my CPF at age 55?",
+    "answer": "At age 55, SimplyCPF models the transfer from your Special Account and, if needed, your Ordinary Account into your Retirement Account up to the Full Retirement Sum. Any remaining OA balance stays in OA, while SA is treated as closed after the transfer."
+  },
+  {
+    "question": "How does the extra 1% CPF interest work in the projection?",
+    "answer": "The projection applies the extra 1% interest on the first S$60,000 of combined CPF balances, with the OA portion capped at the first S$20,000. After age 55, the extra interest that would otherwise go to OA is redirected to your Retirement Account instead."
+  },
+  {
+    "question": "Are the CPF LIFE figures official quotes?",
+    "answer": "No. The CPF LIFE figures on SimplyCPF are clearly labelled as estimates. They use a simplified payout factor so you can compare scenarios quickly, but they are not official CPF Board quotes or guarantees."
+  }
+]

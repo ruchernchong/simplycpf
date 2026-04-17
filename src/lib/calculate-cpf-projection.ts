@@ -180,7 +180,10 @@ function performSaToRaConversion(
   };
 }
 
-function estimateCpfLife(raBalance: number): CpfLifeEstimate {
+export function estimateCpfLife(
+  raBalance: number,
+  currentAge = 65,
+): CpfLifeEstimate {
   if (raBalance < CPF_LIFE_MIN_RETIREMENT_SAVINGS) {
     return {
       standardMonthly: 0,
@@ -195,9 +198,12 @@ function estimateCpfLife(raBalance: number): CpfLifeEstimate {
     standardMonthly * CPF_LIFE_ESCALATING_START_RATIO,
   );
   const basicMonthly = Math.round(standardMonthly * CPF_LIFE_BASIC_RATIO);
+  const deferYears = Math.max(
+    0,
+    Math.min(CPF_LIFE_MAX_DEFER_YEARS, 70 - currentAge),
+  );
   const deferredTo70Monthly = Math.round(
-    standardMonthly *
-      (1 + CPF_LIFE_DEFER_ANNUAL_INCREASE * CPF_LIFE_MAX_DEFER_YEARS),
+    standardMonthly * (1 + CPF_LIFE_DEFER_ANNUAL_INCREASE * deferYears),
   );
 
   return {
@@ -381,7 +387,7 @@ export function calculateCpfProjection(
     }
   }
 
-  const cpfLifeEstimate = estimateCpfLife(balances.ra);
+  const cpfLifeEstimate = estimateCpfLife(balances.ra, overrideEndAge);
 
   return {
     input: params,

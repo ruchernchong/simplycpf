@@ -15,6 +15,7 @@ A modern web application to calculate CPF (Central Provident Fund) contributions
 - 🔮 **Retirement Projection** - Project your CPF balances to age 55, 65, or 70 with CPF LIFE estimates and optional housing, top-up, and OA to SA assumptions
 - 🧪 **What-If Simulator** - Compare salary changes, OA to SA transfers, annual top-ups, and the cost of starting later
 - 🔗 **Shareable URLs** - Copy projection and what-if links with the current inputs already encoded in the URL
+- 🛟 **CPF LIFE Estimator** - Estimate monthly CPF LIFE payouts from your Retirement Account balance and compare the main plan types
 - 🕒 **Interactive Timeline** - Visualise CPF income ceiling changes from 2023 to 2026 with an interactive timeline
 - 📱 **Mobile-Friendly** - Responsive design with PWA support for offline use
 - 📄 **PDF Export** - Download your CPF calculation results as a PDF document
