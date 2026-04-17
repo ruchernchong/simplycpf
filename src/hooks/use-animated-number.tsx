@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from "react";
 
+const prefersReducedMotion =
+  typeof window !== "undefined"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
+
 const useAnimatedNumber = (targetValue: number, duration = 500) => {
   const [animatedValue, setAnimatedValue] = useState(targetValue);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: animatedValue is intentionally excluded to prevent infinite loops
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setAnimatedValue(targetValue);
+      return;
+    }
+
     const startValue = animatedValue;
     const diff = targetValue - startValue;
     const startTime = performance.now();

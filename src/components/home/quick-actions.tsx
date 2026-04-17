@@ -46,8 +46,11 @@ const actions = [
 
 const QuickActions = () => {
   return (
-    <section>
-      <h2 className="mb-4 font-semibold text-lg text-muted-foreground">
+    <section aria-labelledby="quick-actions-heading">
+      <h2
+        id="quick-actions-heading"
+        className="mb-4 font-semibold text-lg text-muted-foreground"
+      >
         What Would You Like to Know?
       </h2>
       <div className="grid gap-4">

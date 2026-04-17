@@ -204,6 +204,7 @@ export function CPFInvestmentComparison() {
                   key={scenario.name}
                   type="button"
                   onClick={() => toggleScenario(scenario.name)}
+                  aria-pressed={selectedScenarios.includes(scenario.name)}
                   className={`rounded-lg border-2 p-4 text-left transition-all ${
                     selectedScenarios.includes(scenario.name)
                       ? "border-blue-500 bg-blue-50"
@@ -240,7 +241,10 @@ export function CPFInvestmentComparison() {
           </div>
 
           {/* Growth Chart */}
-          <div>
+          <div
+            role="img"
+            aria-label="Investment growth comparison chart showing projected returns over time for selected scenarios"
+          >
             <h3 className="mb-4 font-semibold text-lg">Growth Over Time</h3>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartData}>

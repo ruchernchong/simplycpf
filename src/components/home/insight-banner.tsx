@@ -11,15 +11,22 @@ const InsightBanner = () => {
   const percentIncrease = ((increase / initial) * 100).toFixed(0);
 
   return (
-    <section className="rounded-lg border border-accent/20 bg-accent/5 p-4">
+    <section
+      className="rounded-lg border border-accent/20 bg-accent/5 p-4"
+      aria-labelledby="insight-heading"
+    >
       <div className="flex gap-4">
         <HugeiconsIcon
           icon={InformationCircleIcon}
           className="size-5 flex-shrink-0 text-accent"
           strokeWidth={2}
+          aria-hidden="true"
         />
         <div className="flex flex-col gap-2">
-          <p className="font-medium text-foreground text-sm">
+          <p
+            id="insight-heading"
+            className="font-medium text-foreground text-sm"
+          >
             <span className="font-mono text-accent">
               {formatCurrency(increase)}
             </span>{" "}
