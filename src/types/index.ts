@@ -64,6 +64,7 @@ export interface Settings {
   shouldStoreInput: boolean;
   monthlyGrossIncome: number;
   birthDate: string;
+  citizenshipStatus: CitizenshipStatus;
 }
 
 // Interface for quarterly CPF interest rates

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import ProjectionContent from "@/components/projection/projection-content";
+import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
+import CpfProjectionIntroBlock from "@/components/seo/cpf-projection-intro-block";
+import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
+import CpfTopUpLimitsBlock from "@/components/seo/cpf-top-up-limits-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL } from "@/config";
 import faqProjectionData from "@/data/faq-projection.json";
@@ -115,6 +119,10 @@ export default function ProjectionPage() {
         >
           <ProjectionContent />
         </Suspense>
+        <CpfProjectionIntroBlock />
+        <CpfInterestTiersBlock />
+        <CpfRetirementSumsBlock />
+        <CpfTopUpLimitsBlock />
       </div>
     </>
   );

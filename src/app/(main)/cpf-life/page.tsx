@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import CpfLifeContent from "@/components/cpf-life/cpf-life-content";
+import CpfLifeDefinitionBlock from "@/components/seo/cpf-life-definition-block";
+import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
@@ -85,6 +87,8 @@ export default function CpfLifePage() {
           </p>
         </div>
         <CpfLifeContent />
+        <CpfLifeDefinitionBlock />
+        <CpfRetirementSumsBlock />
       </div>
     </>
   );

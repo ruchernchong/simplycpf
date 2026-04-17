@@ -5,6 +5,7 @@ const initialValue: Settings = {
   shouldStoreInput: false,
   monthlyGrossIncome: 0,
   birthDate: "",
+  citizenshipStatus: "citizen",
 };
 
 const storage = createJSONStorage<Settings>(() => {

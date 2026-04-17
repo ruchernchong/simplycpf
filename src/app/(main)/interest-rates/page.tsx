@@ -7,6 +7,7 @@ import CPFInterestRatesSection from "@/components/interest-rates/cpf-interest-ra
 import DistributionRatesTable from "@/components/interest-rates/distribution-rates-table";
 import CpfContributionComparisonBlock from "@/components/seo/cpf-contribution-comparison-block";
 import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-comparison-block";
+import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { buttonVariants } from "@/components/ui/button";
 import { BASE_URL } from "@/config";
@@ -126,6 +127,7 @@ const InterestRatesPage = () => {
         </div>
         <CpfContributionComparisonBlock />
         <CpfDistributionComparisonBlock />
+        <CpfInterestTiersBlock />
         <div className="text-center">
           <p className="mb-4 font-medium text-foreground text-lg">
             Want to see how these rates apply to your salary?
