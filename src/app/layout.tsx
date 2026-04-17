@@ -101,21 +101,27 @@ const schema: Graph = {
     },
     {
       "@type": "SiteNavigationElement",
+      name: "Projection",
+      url: `${BASE_URL}/projection`,
+      position: 2,
+    },
+    {
+      "@type": "SiteNavigationElement",
       name: "Interest Rates",
       url: `${BASE_URL}/interest-rates`,
-      position: 2,
+      position: 3,
     },
     {
       "@type": "SiteNavigationElement",
       name: "Investments",
       url: `${BASE_URL}/investments`,
-      position: 3,
+      position: 4,
     },
     {
       "@type": "SiteNavigationElement",
       name: "About",
       url: `${BASE_URL}/about`,
-      position: 4,
+      position: 5,
     },
   ],
 };
@@ -124,7 +130,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={geist.className}>
+    <html lang="en" className={geist.className} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
           <Providers>

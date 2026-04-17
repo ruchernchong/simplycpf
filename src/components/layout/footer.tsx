@@ -1,5 +1,6 @@
 import { FavouriteIcon, Github01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { Route } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 
@@ -45,6 +46,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href={"/projection" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Projection
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/interest-rates"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
@@ -56,7 +65,7 @@ export function Footer() {
                   href="/investments"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
-                  Investment Comparison
+                  Investments
                 </Link>
               </li>
               <li>

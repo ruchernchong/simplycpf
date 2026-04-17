@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/github/package-json/v/ruchernchong/simplycpf)](https://github.com/ruchernchong/simplycpf)
 [![License](https://img.shields.io/github/license/ruchernchong/simplycpf)](LICENSE)
 
-A modern web application to calculate CPF (Central Provident Fund) contributions following the 2023 income ceiling changes announced by Singapore's Ministry of Finance.
+A modern web application to calculate CPF (Central Provident Fund) contributions and project retirement balances following the 2023 income ceiling changes announced by Singapore's Ministry of Finance.
 
 **[🚀 Visit SimplyCPF](https://simplycpf.com)**
 
@@ -12,6 +12,7 @@ A modern web application to calculate CPF (Central Provident Fund) contributions
 - 💰 **Accurate CPF Calculations** - Compute employee and employer contributions based on current income ceilings
 - 📊 **Age-Based Rates** - Automatic calculation using 8 different age brackets with varying contribution rates
 - 📈 **Distribution Breakdown** - View OA (Ordinary Account), SA (Special Account), and MA (MediSave Account) allocations
+- 🔮 **Retirement Projection** - Project your CPF balances to age 55, 65, or 70 with CPF LIFE estimates and optional housing, top-up, and OA to SA assumptions
 - 🕒 **Interactive Timeline** - Visualise CPF income ceiling changes from 2023 to 2026 with an interactive timeline
 - 📱 **Mobile-Friendly** - Responsive design with PWA support for offline use
 - 📄 **PDF Export** - Download your CPF calculation results as a PDF document
@@ -24,7 +25,7 @@ Following the Ministry of Finance announcement at Singapore Budget 2023 (13 Febr
 - **Previous ceiling**: $6,000 (before September 2023)
 - **Current target**: $8,000 (by September 2026)
 
-This calculator helps Singaporeans estimate their take-home income after CPF contributions under the new ceiling structure while accounting for age-specific contribution and distribution rates.
+This calculator helps Singaporeans estimate their take-home income after CPF contributions under the new ceiling structure while accounting for age-specific contribution and distribution rates. It also includes a CPF projection page for modelling how your balances may grow across OA, SA, MA, and RA over time.
 
 ## Technology Stack
 
@@ -59,17 +60,23 @@ pnpm install
 # Initialise Git hooks (required — .npmrc sets ignore-scripts=true for security)
 pnpm run prepare
 
-# Start development server
+# Start development server via Portless
 pnpm dev
+
+# Start development server without Portless
+PORTLESS=0 pnpm dev
 ```
 
-The application will be available at `http://localhost:3000`.
+The application will be available at `https://simplycpf.localhost` by default, or `http://localhost:3000` when Portless is disabled.
 
 ### Development Commands
 
 ```bash
-# Start development server
+# Start development server via Portless
 pnpm dev
+
+# Start development server without Portless
+PORTLESS=0 pnpm dev
 
 # Build for production
 pnpm build
@@ -95,7 +102,7 @@ pnpm test:coverage
 
 ## Developer Portal
 
-The application includes a comprehensive API documentation portal at `/developer` with:
+The application includes a comprehensive API documentation portal at `/docs` with:
 
 - **Getting Started** - Quick start guide for developers
 - **API Reference** - Complete documentation for all 12 endpoints
@@ -123,7 +130,7 @@ The site provides LLM-friendly endpoints following the [llms.txt specification](
 ```
 src/
 ├── app/              # Next.js app directory (routes, layouts)
-│   └── developer/   # Developer portal (Fumadocs)
+│   └── (docs)/      # Developer portal (Fumadocs)
 ├── atoms/            # Jotai state atoms
 ├── components/       # React components
 │   └── ui/          # shadcn/ui components

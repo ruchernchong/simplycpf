@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const navigationItems = [
   { href: "/", label: "Income Ceiling" },
   { href: "/calculator", label: "Calculator" },
+  { href: "/projection", label: "Projection" },
   { href: "/interest-rates", label: "Interest Rates" },
   { href: "/investments", label: "Investments" },
 ];
