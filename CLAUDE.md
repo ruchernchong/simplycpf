@@ -57,6 +57,7 @@ Calculator-wide shared state is managed through Jotai atoms in `src/atoms/`:
 - `income-ceiling-atom.ts` - Income ceiling data and selected timeline date (`latestIncomeCeilingDateAtom`)
 
 Self-contained pages that do not need cross-route shared state, such as the CPF projection page, can use page-local client state instead of introducing new global atoms.
+Projection and what-if pages serialise form state into the URL with `nuqs` so results can be shared and reopened directly from search params.
 
 ### CPF Calculation Logic
 The core calculation happens in `src/lib/calculate-cpf-contribution.ts`:

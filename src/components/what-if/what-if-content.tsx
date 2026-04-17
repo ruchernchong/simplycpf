@@ -1,6 +1,13 @@
 "use client";
 
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates,
+} from "nuqs";
 import { useState, useTransition } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -68,6 +75,50 @@ const defaultAgeComparisonValues: AgeComparisonFormValues = {
   scenarioStartAge: 35,
 };
 
+const scenarioTypes = [
+  "salary",
+  "transfer",
+  "top-up",
+  "age-comparison",
+] as const;
+
+const citizenshipStatuses = [
+  "citizen",
+  "spr-year1",
+  "spr-year2",
+  "spr-year3-plus",
+] as const;
+
+const transferTimings = ["now", "yearly"] as const;
+const topUpAccounts = ["SA", "MA", "RA"] as const;
+
+const whatIfSearchParams = {
+  scenario: parseAsStringLiteral(scenarioTypes).withDefault("salary"),
+  monthlyIncome: parseAsInteger.withDefault(defaultSalaryValues.monthlyIncome),
+  birthDate: parseAsString.withDefault(defaultSalaryValues.birthDate),
+  endAge: parseAsInteger.withDefault(defaultSalaryValues.endAge),
+  citizenship: parseAsStringLiteral(citizenshipStatuses).withDefault(
+    defaultSalaryValues.citizenship,
+  ),
+  newIncome: parseAsInteger.withDefault(defaultSalaryValues.newIncome),
+  transferAmount: parseAsInteger.withDefault(
+    defaultTransferValues.transferAmount,
+  ),
+  transferTiming: parseAsStringLiteral(transferTimings).withDefault(
+    defaultTransferValues.transferTiming,
+  ),
+  topUpAmount: parseAsInteger.withDefault(defaultTopUpValues.topUpAmount),
+  topUpAccount: parseAsStringLiteral(topUpAccounts).withDefault(
+    defaultTopUpValues.topUpAccount,
+  ),
+  baselineStartAge: parseAsInteger.withDefault(
+    defaultAgeComparisonValues.baselineStartAge,
+  ),
+  scenarioStartAge: parseAsInteger.withDefault(
+    defaultAgeComparisonValues.scenarioStartAge,
+  ),
+};
+
 function getScenarioSummary(
   scenario: ScenarioType,
   salaryValues: SalaryChangeFormValues,
@@ -115,14 +166,49 @@ function getScenarioSummary(
 }
 
 export default function WhatIfContent() {
-  const [scenario, setScenario] = useState<ScenarioType>("salary");
-  const [salaryValues, setSalaryValues] = useState(defaultSalaryValues);
-  const [transferValues, setTransferValues] = useState(defaultTransferValues);
-  const [topUpValues, setTopUpValues] = useState(defaultTopUpValues);
-  const [ageComparisonValues, setAgeComparisonValues] = useState(
-    defaultAgeComparisonValues,
-  );
+  const [queryValues, setQueryValues] = useQueryStates(whatIfSearchParams, {
+    urlKeys: {
+      monthlyIncome: "income",
+      transferAmount: "transfer",
+      topUpAmount: "topUp",
+      baselineStartAge: "baselineAge",
+      scenarioStartAge: "scenarioAge",
+    },
+  });
   const [isPending, startTransition] = useTransition();
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const scenario = queryValues.scenario;
+  const salaryValues: SalaryChangeFormValues = {
+    monthlyIncome: queryValues.monthlyIncome,
+    newIncome: queryValues.newIncome,
+    birthDate: queryValues.birthDate,
+    endAge: queryValues.endAge,
+    citizenship: queryValues.citizenship,
+  };
+  const transferValues: OaToSaFormValues = {
+    monthlyIncome: queryValues.monthlyIncome,
+    birthDate: queryValues.birthDate,
+    endAge: queryValues.endAge,
+    citizenship: queryValues.citizenship,
+    transferAmount: queryValues.transferAmount,
+    transferTiming: queryValues.transferTiming,
+  };
+  const topUpValues: VoluntaryTopUpFormValues = {
+    monthlyIncome: queryValues.monthlyIncome,
+    birthDate: queryValues.birthDate,
+    endAge: queryValues.endAge,
+    citizenship: queryValues.citizenship,
+    topUpAmount: queryValues.topUpAmount,
+    topUpAccount: queryValues.topUpAccount,
+  };
+  const ageComparisonValues: AgeComparisonFormValues = {
+    monthlyIncome: queryValues.monthlyIncome,
+    endAge: queryValues.endAge,
+    citizenship: queryValues.citizenship,
+    baselineStartAge: queryValues.baselineStartAge,
+    scenarioStartAge: queryValues.scenarioStartAge,
+  };
 
   const salaryHasValidBirthDate = isValidDateFormat(salaryValues.birthDate);
   const salaryCurrentAge = salaryHasValidBirthDate
@@ -244,13 +330,41 @@ export default function WhatIfContent() {
     });
   })();
 
+  const handleSharedChange = (nextValues: Partial<typeof queryValues>) => {
+    startTransition(() => {
+      void setQueryValues(nextValues);
+    });
+  };
+
+  const handleBirthDateChange = (rawValue: string) => {
+    const birthDate = formatDateInput(rawValue, queryValues.birthDate);
+
+    startTransition(() => {
+      void setQueryValues({
+        birthDate: birthDate.length > 0 ? birthDate : null,
+      });
+    });
+  };
+
+  const handleCopyWhatIfLink = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        globalThis.window?.location.href ?? "",
+      );
+      setLinkCopied(true);
+      globalThis.window.setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      setLinkCopied(false);
+    }
+  };
+
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
       <Tabs
         value={scenario}
         onValueChange={(value) => {
           if (isScenarioType(value)) {
-            setScenario(value);
+            handleSharedChange({ scenario: value });
           }
         }}
       >
@@ -268,25 +382,8 @@ export default function WhatIfContent() {
                 currentAge={salaryCurrentAge}
                 hasValidBirthDate={salaryHasValidBirthDate}
                 hasValidRange={salaryHasValidRange}
-                onBirthDateChange={(rawValue) => {
-                  startTransition(() => {
-                    setSalaryValues((currentValues) => ({
-                      ...currentValues,
-                      birthDate: formatDateInput(
-                        rawValue,
-                        currentValues.birthDate,
-                      ),
-                    }));
-                  });
-                }}
-                onChange={(nextValues) => {
-                  startTransition(() => {
-                    setSalaryValues((currentValues) => ({
-                      ...currentValues,
-                      ...nextValues,
-                    }));
-                  });
-                }}
+                onBirthDateChange={handleBirthDateChange}
+                onChange={handleSharedChange}
               />
             </TabsContent>
 
@@ -296,25 +393,8 @@ export default function WhatIfContent() {
                 currentAge={transferCurrentAge}
                 hasValidBirthDate={transferHasValidBirthDate}
                 hasValidRange={transferHasValidRange}
-                onBirthDateChange={(rawValue) => {
-                  startTransition(() => {
-                    setTransferValues((currentValues) => ({
-                      ...currentValues,
-                      birthDate: formatDateInput(
-                        rawValue,
-                        currentValues.birthDate,
-                      ),
-                    }));
-                  });
-                }}
-                onChange={(nextValues) => {
-                  startTransition(() => {
-                    setTransferValues((currentValues) => ({
-                      ...currentValues,
-                      ...nextValues,
-                    }));
-                  });
-                }}
+                onBirthDateChange={handleBirthDateChange}
+                onChange={handleSharedChange}
               />
             </TabsContent>
 
@@ -324,25 +404,8 @@ export default function WhatIfContent() {
                 currentAge={topUpCurrentAge}
                 hasValidBirthDate={topUpHasValidBirthDate}
                 hasValidRange={topUpHasValidRange}
-                onBirthDateChange={(rawValue) => {
-                  startTransition(() => {
-                    setTopUpValues((currentValues) => ({
-                      ...currentValues,
-                      birthDate: formatDateInput(
-                        rawValue,
-                        currentValues.birthDate,
-                      ),
-                    }));
-                  });
-                }}
-                onChange={(nextValues) => {
-                  startTransition(() => {
-                    setTopUpValues((currentValues) => ({
-                      ...currentValues,
-                      ...nextValues,
-                    }));
-                  });
-                }}
+                onBirthDateChange={handleBirthDateChange}
+                onChange={handleSharedChange}
               />
             </TabsContent>
 
@@ -350,14 +413,7 @@ export default function WhatIfContent() {
               <AgeComparisonForm
                 values={ageComparisonValues}
                 hasValidRange={ageComparisonHasValidRange}
-                onChange={(nextValues) => {
-                  startTransition(() => {
-                    setAgeComparisonValues((currentValues) => ({
-                      ...currentValues,
-                      ...nextValues,
-                    }));
-                  });
-                }}
+                onChange={handleSharedChange}
               />
             </TabsContent>
           </CardContent>
@@ -367,6 +423,11 @@ export default function WhatIfContent() {
       <div className="flex flex-col gap-6">
         {result ? (
           <>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={handleCopyWhatIfLink}>
+                {linkCopied ? "Link copied" : "Copy share link"}
+              </Button>
+            </div>
             <ScenarioComparisonChart
               baseline={result.baseline}
               scenario={result.scenario}

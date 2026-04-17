@@ -1,7 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates,
+} from "nuqs";
 import { useState, useTransition } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -45,6 +52,36 @@ const defaultFormValues: ProjectionFormValues = {
   transferTiming: "now",
 };
 
+const citizenshipStatuses = [
+  "citizen",
+  "spr-year1",
+  "spr-year2",
+  "spr-year3-plus",
+] as const;
+
+const topUpAccounts = ["SA", "MA", "RA"] as const;
+const transferTimings = ["now", "yearly"] as const;
+
+const projectionSearchParams = {
+  monthlyIncome: parseAsInteger.withDefault(defaultFormValues.monthlyIncome),
+  birthDate: parseAsString.withDefault(defaultFormValues.birthDate),
+  endAge: parseAsInteger.withDefault(defaultFormValues.endAge),
+  citizenship: parseAsStringLiteral(citizenshipStatuses).withDefault(
+    defaultFormValues.citizenship,
+  ),
+  housingWithdrawal: parseAsInteger.withDefault(
+    defaultFormValues.housingWithdrawal,
+  ),
+  topUpAmount: parseAsInteger.withDefault(defaultFormValues.topUpAmount),
+  topUpAccount: parseAsStringLiteral(topUpAccounts).withDefault(
+    defaultFormValues.topUpAccount,
+  ),
+  transferAmount: parseAsInteger.withDefault(defaultFormValues.transferAmount),
+  transferTiming: parseAsStringLiteral(transferTimings).withDefault(
+    defaultFormValues.transferTiming,
+  ),
+};
+
 function getTotalBalance(params: {
   oa: number;
   sa: number;
@@ -55,8 +92,16 @@ function getTotalBalance(params: {
 }
 
 export default function ProjectionContent() {
-  const [values, setValues] = useState(defaultFormValues);
+  const [values, setValues] = useQueryStates(projectionSearchParams, {
+    urlKeys: {
+      monthlyIncome: "income",
+      housingWithdrawal: "housing",
+      topUpAmount: "topUp",
+      transferAmount: "transfer",
+    },
+  });
   const [isPending, startTransition] = useTransition();
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const hasValidBirthDate = isValidDateFormat(values.birthDate);
   const currentAge = hasValidBirthDate
@@ -104,23 +149,36 @@ export default function ProjectionContent() {
 
   const handleChange = (nextValues: Partial<ProjectionFormValues>) => {
     startTransition(() => {
-      setValues((currentValues) => ({
-        ...currentValues,
-        ...nextValues,
-      }));
+      void setValues(nextValues);
     });
   };
 
   const handleBirthDateChange = (rawValue: string) => {
-    handleChange({
-      birthDate: formatDateInput(rawValue, values.birthDate),
+    const birthDate = formatDateInput(rawValue, values.birthDate);
+
+    startTransition(() => {
+      void setValues({
+        birthDate: birthDate.length > 0 ? birthDate : null,
+      });
     });
   };
 
   const handleReset = () => {
     startTransition(() => {
-      setValues(defaultFormValues);
+      void setValues(null);
     });
+  };
+
+  const handleCopyProjectionLink = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        globalThis.window?.location.href ?? "",
+      );
+      setLinkCopied(true);
+      globalThis.window.setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      setLinkCopied(false);
+    }
   };
 
   return (
@@ -139,6 +197,11 @@ export default function ProjectionContent() {
       <div className="flex flex-col gap-6">
         {result && finalBalance ? (
           <>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={handleCopyProjectionLink}>
+                {linkCopied ? "Link copied" : "Copy share link"}
+              </Button>
+            </div>
             <div className="grid gap-4 md:grid-cols-3">
               <Card className="shadow-md">
                 <CardHeader>

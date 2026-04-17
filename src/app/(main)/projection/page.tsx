@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ProjectionContent from "@/components/projection/projection-content";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL } from "@/config";
@@ -106,7 +107,11 @@ export default function ProjectionPage() {
             annual top-ups, and OA to SA transfers may change the outcome.
           </p>
         </div>
-        <ProjectionContent />
+        <Suspense
+          fallback={<div className="min-h-[480px] rounded-lg bg-muted/30" />}
+        >
+          <ProjectionContent />
+        </Suspense>
       </div>
     </>
   );

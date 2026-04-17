@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { StructuredData } from "@/components/seo/structured-data";
 import WhatIfContent from "@/components/what-if/what-if-content";
 import { BASE_URL } from "@/config";
@@ -102,7 +103,11 @@ export default function WhatIfPage() {
             most before you commit.
           </p>
         </div>
-        <WhatIfContent />
+        <Suspense
+          fallback={<div className="min-h-[480px] rounded-lg bg-muted/30" />}
+        >
+          <WhatIfContent />
+        </Suspense>
       </div>
     </>
   );
