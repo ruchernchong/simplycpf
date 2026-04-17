@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  CodeIcon,
-  Home01Icon,
-  InformationCircleIcon,
-  Moon01Icon,
-  Sun01Icon,
-} from "@hugeicons/core-free-icons";
+import { Moon01Icon, Sun01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -20,10 +14,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const navItems: { href: Route; label: string; icon: typeof Home01Icon }[] = [
-  { href: "/" as Route, label: "Home", icon: Home01Icon },
-  { href: "/about" as Route, label: "About", icon: InformationCircleIcon },
-  { href: "/docs" as Route, label: "Developer", icon: CodeIcon },
+const navItems: { href: Route; label: string }[] = [
+  { href: "/" as Route, label: "Home" },
+  { href: "/calculator" as Route, label: "Calculator" },
+  { href: "/projection" as Route, label: "Projection" },
+  { href: "/what-if" as Route, label: "What-If" },
+  { href: "/interest-rates" as Route, label: "Interest Rates" },
+  { href: "/investments" as Route, label: "Investments" },
+  { href: "/about" as Route, label: "About" },
+  { href: "/docs" as Route, label: "Developer" },
 ];
 
 const MobileNav = () => {
@@ -67,13 +66,8 @@ const MobileNav = () => {
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
+              className="rounded-lg px-4 py-3 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
             >
-              <HugeiconsIcon
-                icon={item.icon}
-                className="size-5"
-                strokeWidth={2}
-              />
               {item.label}
             </Link>
           ))}

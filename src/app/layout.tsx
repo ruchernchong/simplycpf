@@ -107,21 +107,27 @@ const schema: Graph = {
     },
     {
       "@type": "SiteNavigationElement",
+      name: "What-If",
+      url: `${BASE_URL}/what-if`,
+      position: 3,
+    },
+    {
+      "@type": "SiteNavigationElement",
       name: "Interest Rates",
       url: `${BASE_URL}/interest-rates`,
-      position: 3,
+      position: 4,
     },
     {
       "@type": "SiteNavigationElement",
       name: "Investments",
       url: `${BASE_URL}/investments`,
-      position: 4,
+      position: 5,
     },
     {
       "@type": "SiteNavigationElement",
       name: "About",
       url: `${BASE_URL}/about`,
-      position: 5,
+      position: 6,
     },
   ],
 };

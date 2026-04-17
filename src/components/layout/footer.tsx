@@ -54,6 +54,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href={"/what-if" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  What-If
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/interest-rates"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >

@@ -9,6 +9,7 @@ const navigationItems = [
   { href: "/", label: "Income Ceiling" },
   { href: "/calculator", label: "Calculator" },
   { href: "/projection", label: "Projection" },
+  { href: "/what-if", label: "What-If" },
   { href: "/interest-rates", label: "Interest Rates" },
   { href: "/investments", label: "Investments" },
 ];

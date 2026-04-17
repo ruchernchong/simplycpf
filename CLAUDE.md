@@ -90,7 +90,7 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 
 ### Route Groups
 The application uses Next.js route groups for organisation:
-- `(main)` - Main application routes (home, calculator, projection, about, interest-rates, investments)
+- `(main)` - Main application routes (home, calculator, projection, what-if, about, interest-rates, investments)
 - `(docs)` - Developer portal routes powered by Fumadocs
 
 ### Developer Portal
@@ -143,6 +143,7 @@ Located in `src/hooks/`:
 - **PDF Export** (`cpf-results-pdf.tsx`, `download-pdf.tsx`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
 - **Home Page Components**: `hero-section.tsx`, `insight-banner.tsx`, `quick-actions.tsx` for the landing page
 - **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
+- **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
 
 ## Design System
 

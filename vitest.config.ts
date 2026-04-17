@@ -62,6 +62,7 @@ export default defineConfig({
         "src/components/investments/**",
         "src/components/projection/**",
         "src/components/timeline/**",
+        "src/components/what-if/**",
         // Layout components requiring context mocking
         "src/components/layout/banner.tsx",
         "src/components/layout/navigation-tabs.tsx",
