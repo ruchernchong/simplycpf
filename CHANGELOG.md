@@ -1,3 +1,9 @@
+## [1.20.0](https://github.com/ruchernchong/simplycpf/compare/v1.19.0...v1.20.0) (2026-04-17)
+
+### Features
+
+* add health check endpoint for uptime monitoring ([aca8552](https://github.com/ruchernchong/simplycpf/commit/aca8552810eed11b5dcd49cfec6fc1a3ebd491a4))
+
 ## [1.19.0](https://github.com/ruchernchong/simplycpf/compare/v1.18.1...v1.19.0) (2026-04-12)
 
 ### Features
