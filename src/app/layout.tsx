@@ -125,15 +125,27 @@ const schema: Graph = {
     },
     {
       "@type": "SiteNavigationElement",
+      name: "CPF Cheat Sheet",
+      url: `${BASE_URL}/cpf-cheat-sheet`,
+      position: 6,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "Retirement Readiness",
+      url: `${BASE_URL}/retirement-readiness`,
+      position: 7,
+    },
+    {
+      "@type": "SiteNavigationElement",
       name: "Investments",
       url: `${BASE_URL}/investments`,
-      position: 6,
+      position: 8,
     },
     {
       "@type": "SiteNavigationElement",
       name: "About",
       url: `${BASE_URL}/about`,
-      position: 7,
+      position: 9,
     },
   ],
 };

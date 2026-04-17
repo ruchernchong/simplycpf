@@ -11,6 +11,8 @@ const navigationItems = [
   { href: "/projection", label: "Projection" },
   { href: "/what-if", label: "What-If" },
   { href: "/cpf-life", label: "CPF LIFE" },
+  { href: "/cpf-cheat-sheet", label: "Cheat Sheet" },
+  { href: "/retirement-readiness", label: "Readiness" },
   { href: "/interest-rates", label: "Interest Rates" },
   { href: "/investments", label: "Investments" },
 ];

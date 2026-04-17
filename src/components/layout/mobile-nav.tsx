@@ -20,6 +20,11 @@ const navItems: { href: Route; label: string }[] = [
   { href: "/projection" as Route, label: "Projection" },
   { href: "/what-if" as Route, label: "What-If" },
   { href: "/cpf-life" as Route, label: "CPF LIFE" },
+  { href: "/cpf-cheat-sheet" as Route, label: "CPF Cheat Sheet" },
+  {
+    href: "/retirement-readiness" as Route,
+    label: "Retirement Readiness",
+  },
   { href: "/interest-rates" as Route, label: "Interest Rates" },
   { href: "/investments" as Route, label: "Investments" },
   { href: "/about" as Route, label: "About" },
