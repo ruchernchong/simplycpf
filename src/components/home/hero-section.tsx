@@ -41,7 +41,7 @@ const HeroSection = () => {
             className="inline-block size-1.5 rounded-full bg-accent"
             aria-hidden="true"
           />{" "}
-          No sign-up
+          No sign-up for core tools
         </span>
         <span className="flex items-center gap-1.5">
           <span

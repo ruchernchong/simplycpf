@@ -16,6 +16,8 @@ A modern web application to calculate CPF (Central Provident Fund) contributions
 - 🧪 **What-If Simulator** - Compare salary changes, OA to SA transfers, annual top-ups, and the cost of starting later
 - 🔗 **Shareable URLs** - Copy projection and what-if links with the current inputs already encoded in the URL
 - 🛟 **CPF LIFE Estimator** - Estimate monthly CPF LIFE payouts from your Retirement Account balance and compare the main plan types
+- 🧾 **CPF Cheat Sheet** - Download a printable PDF with contribution rates, account distribution, retirement sums, BHS, and PR reference points
+- ✅ **Retirement Readiness Score** - Answer 5 quick questions to see which CPF planning gap to fix next and get a tailored follow-up report by email
 - 🕒 **Interactive Timeline** - Visualise CPF income ceiling changes from 2023 to 2026 with an interactive timeline
 - 📱 **Mobile-Friendly** - Responsive design with PWA support for offline use
 - 📄 **PDF Export** - Download your CPF calculation results as a PDF document
@@ -30,6 +32,8 @@ Following the Ministry of Finance announcement at Singapore Budget 2023 (13 Febr
 
 This calculator helps Singaporeans estimate their take-home income after CPF contributions under the new ceiling structure while accounting for age-specific contribution and distribution rates. It also includes a CPF projection page for modelling how your balances may grow across OA, SA, MA, and RA over time.
 
+The core calculators and planning tools work without sign-up. Email is only requested if you want SimplyCPF to send you a cheat sheet or readiness report.
+
 ## Technology Stack
 
 - **Framework**: [Next.js 16](https://nextjs.org/) with React 19
@@ -42,6 +46,7 @@ This calculator helps Singaporeans estimate their take-home income after CPF con
 - **Linting**: Biome
 - **Package Manager**: pnpm 10.x
 - **Deployment**: Vercel
+- **Email Delivery**: Resend (optional, for cheat sheet and readiness report delivery)
 
 ## Getting Started
 
@@ -71,6 +76,18 @@ PORTLESS=0 pnpm dev
 ```
 
 The application will be available at `https://simplycpf.localhost` by default, or `http://localhost:3000` when Portless is disabled.
+
+### Optional Resend Setup
+
+If you want the cheat sheet and readiness report email flows to work locally, set these environment variables:
+
+```bash
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+RESEND_REPLY_TO_EMAIL=
+```
+
+Without them, the core CPF calculators still work normally.
 
 ### Development Commands
 

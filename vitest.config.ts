@@ -64,6 +64,7 @@ export default defineConfig({
         "src/components/timeline/**",
         "src/components/what-if/**",
         "src/components/cpf-life/**",
+        "src/components/lead-magnets/**",
         // Layout components requiring context mocking
         "src/components/layout/banner.tsx",
         "src/components/layout/navigation-tabs.tsx",

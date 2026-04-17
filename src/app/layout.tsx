@@ -12,7 +12,7 @@ import { BASE_URL, title } from "@/config";
 const geist = Geist({ subsets: ["latin"] });
 
 const description =
-  "Your CPF, simplified. Calculate your CPF contributions with the latest income ceiling changes.";
+  "Your CPF, simplified. Calculate contributions, project retirement balances, compare CPF LIFE payouts, and test CPF scenarios for Singapore.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -66,7 +66,7 @@ const schema: Graph = {
       name: "SimplyCPF",
       url: BASE_URL,
       description:
-        "Calculate your CPF contributions with the latest income ceiling changes. Your CPF, simplified.",
+        "Calculate contributions, project retirement balances, compare CPF LIFE payouts, and test CPF scenarios for Singapore.",
       applicationCategory: "FinanceApplication",
       operatingSystem: "All",
       offers: {
@@ -85,7 +85,7 @@ const schema: Graph = {
       url: BASE_URL,
       logo: `${BASE_URL}/icon.svg`,
       description:
-        "Free, open-source CPF contribution calculator for Singapore employees and employers.",
+        "Free, open-source CPF planning tools for Singapore employees and Permanent Residents.",
       founder: {
         "@type": "Person",
         name: "Ru Chern Chong",

@@ -78,7 +78,7 @@ const llmsTxt = `# ${title}
 
 > ${description}
 
-SimplyCPF is a free, open-source CPF contribution calculator for Singapore employees and employers. It calculates CPF contributions based on monthly income, age group, and the latest income ceiling changes following Singapore's Budget 2023.
+SimplyCPF is a free, open-source CPF calculator and planning toolkit for Singapore employees and Permanent Residents. It covers CPF contributions, projection modelling, what-if scenarios, CPF LIFE estimates, and quick reference resources built from CPF Board rates.
 
 ## What is CPF?
 
@@ -178,9 +178,12 @@ For an employee with monthly income I, age group G, and ceiling C:
 - [Projection](${BASE_URL}/projection): Career-long CPF projection with age 55, 65, and 70 milestones
 - [What-If](${BASE_URL}/what-if): Compare salary changes, top-ups, OA to SA transfers, and delayed starts
 - [CPF LIFE](${BASE_URL}/cpf-life): Estimate CPF LIFE payouts from your Retirement Account balance
+- [CPF Cheat Sheet](${BASE_URL}/cpf-cheat-sheet): Download a printable CPF reference sheet with rates, sums, ceilings, and PR transitions
+- [Retirement Readiness Score](${BASE_URL}/retirement-readiness): Answer 5 quick questions to see which CPF planning gap to tackle next
 - [Interest Rates](${BASE_URL}/interest-rates): CPF interest rates and historical trends
 - [Investments](${BASE_URL}/investments): Investment comparison tools
 - [About](${BASE_URL}/about): Information about the application
+- [Privacy](${BASE_URL}/privacy): Privacy and optional email-delivery disclosure
 
 ## Developer Portal
 
@@ -213,7 +216,8 @@ For an employee with monthly income I, age group G, and ceiling C:
 ## About SimplyCPF
 
 - Free and open-source (MIT licence)
-- No sign-up, no account, no data collection
+- Core tools work without sign-up or an account
+- Email is only requested when a user asks for a CPF resource or report
 - Rates sourced from CPF Board publications
 - Calculation logic is fully transparent and verifiable on GitHub
 - Not affiliated with the CPF Board or any government agency

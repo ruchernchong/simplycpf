@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import CalculatorContent from "@/components/calculator/calculator-content";
+import CheatSheetCta from "@/components/lead-magnets/cheat-sheet-cta";
 import IncomeCeilingDefinitionBlock from "@/components/seo/income-ceiling-definition-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL } from "@/config";
@@ -129,12 +130,13 @@ const CalculatorPage = () => {
                 className="inline-block size-1.5 rounded-full bg-accent"
                 aria-hidden="true"
               />{" "}
-              No data collected
+              Optional email only for requested resources
             </span>
           </div>
         </div>
         <CalculatorContent />
         <IncomeCeilingDefinitionBlock />
+        <CheatSheetCta compact />
       </div>
     </>
   );

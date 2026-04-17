@@ -17,10 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  CPF_RETIREMENT_SUMS,
-  getRetirementSumsForYear,
-} from "@/constants/cpf-retirement-sums";
+import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { estimateCpfLife } from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
 

@@ -3,7 +3,7 @@ export const BASE_URL =
 
 export const title = "SimplyCPF";
 export const description =
-  "Calculate your CPF contributions with the latest income ceiling changes. Your CPF, simplified.";
+  "Calculate, project, and plan your CPF with free tools for contributions, retirement balances, CPF LIFE, and scenario modelling.";
 
 export const CPF_TYPE = {
   OA: "OA",

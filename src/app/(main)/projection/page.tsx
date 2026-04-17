@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import CheatSheetCta from "@/components/lead-magnets/cheat-sheet-cta";
+import ReadinessScoreCta from "@/components/lead-magnets/readiness-score-cta";
 import ProjectionContent from "@/components/projection/projection-content";
 import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import CpfProjectionIntroBlock from "@/components/seo/cpf-projection-intro-block";
@@ -123,6 +125,10 @@ export default function ProjectionPage() {
         <CpfInterestTiersBlock />
         <CpfRetirementSumsBlock />
         <CpfTopUpLimitsBlock />
+        <div className="grid gap-4 md:grid-cols-2">
+          <CheatSheetCta compact />
+          <ReadinessScoreCta compact />
+        </div>
       </div>
     </>
   );

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import CpfLifeContent from "@/components/cpf-life/cpf-life-content";
+import CheatSheetCta from "@/components/lead-magnets/cheat-sheet-cta";
+import ReadinessScoreCta from "@/components/lead-magnets/readiness-score-cta";
 import CpfLifeDefinitionBlock from "@/components/seo/cpf-life-definition-block";
 import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import { StructuredData } from "@/components/seo/structured-data";
@@ -89,6 +91,10 @@ export default function CpfLifePage() {
         <CpfLifeContent />
         <CpfLifeDefinitionBlock />
         <CpfRetirementSumsBlock />
+        <div className="grid gap-4 md:grid-cols-2">
+          <CheatSheetCta compact />
+          <ReadinessScoreCta compact />
+        </div>
       </div>
     </>
   );

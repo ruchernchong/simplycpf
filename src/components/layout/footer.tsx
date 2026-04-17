@@ -16,9 +16,9 @@ export function Footer() {
               <span className="font-semibold text-lg">SimplyCPF</span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              A free, open-source CPF calculator for Singapore. No sign-up, no
-              data collection — just accurate numbers backed by CPF Board rates
-              that anyone can verify.
+              A free, open-source CPF planning tool for Singapore. The core
+              tools work without sign-up, with optional email delivery for
+              requested resources and reports.
             </p>
           </div>
 
@@ -90,6 +90,14 @@ export function Footer() {
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
                   About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Privacy
                 </Link>
               </li>
             </ul>

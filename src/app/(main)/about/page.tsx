@@ -86,7 +86,7 @@ const About = () => {
           <CardHeader>
             <CardTitle>About SimplyCPF</CardTitle>
             <CardDescription>
-              No guesswork, no sign-up, no data collection
+              No guesswork. The core tools stay free and sign-up is optional.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -94,7 +94,8 @@ const About = () => {
               SimplyCPF is a free, open-source tool that helps Singapore
               Citizens and Permanent Residents see exactly where their CPF
               retirement money goes — based on income, age group, and the latest
-              ceiling changes. No sign-up, no data collection.
+              ceiling changes. The main calculators and planning tools work
+              without sign-up.
             </p>
             <p>
               CPF contribution rates vary across 8 age brackets, and
@@ -108,6 +109,18 @@ const About = () => {
               All calculation logic is open-source and verifiable on GitHub.
               Rates are sourced directly from CPF Board publications and updated
               within days when changes are announced.
+            </p>
+            <p>
+              If you ask SimplyCPF to email you a CPF cheat sheet or readiness
+              report, we only use your email address to send that requested
+              resource. You can read the current disclosure on the{" "}
+              <Link
+                href="/privacy"
+                className="text-accent underline underline-offset-2 hover:text-accent/80"
+              >
+                privacy page
+              </Link>
+              .
             </p>
             <p>
               This tool covers the progressive increases in CPF Income Ceiling
@@ -193,7 +206,7 @@ const About = () => {
 
         <div className="text-center">
           <p className="mb-4 font-medium text-foreground text-lg">
-            Try the calculator — free, instant, no sign-up
+            Try the calculator — free, instant, no sign-up required
           </p>
           <Link
             href="/calculator"

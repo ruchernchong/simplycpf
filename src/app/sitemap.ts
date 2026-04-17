@@ -26,6 +26,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      url: `${BASE_URL}/cpf-cheat-sheet`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/retirement-readiness`,
+      lastModified,
+    },
+    {
       url: `${BASE_URL}/interest-rates`,
       lastModified,
     },
@@ -35,6 +43,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/about`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/privacy`,
       lastModified,
     },
     {
