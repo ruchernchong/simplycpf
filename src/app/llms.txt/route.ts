@@ -21,7 +21,10 @@ import {
 } from "@/constants/cpf-interest-tiers";
 import { CPF_RETIREMENT_SUMS } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
-import { prYear1Rates, prYear2Rates } from "@/data/pr-rates";
+import {
+  permanentResidentYear1Rates,
+  permanentResidentYear2Rates,
+} from "@/data/permanent-resident-rates";
 
 export const revalidate = false;
 
@@ -49,14 +52,14 @@ const ceilingEntries = Object.entries(CPF_INCOME_CEILING)
   .map(([date, ceiling]) => `| ${date} | S$${ceiling.toLocaleString()} |`)
   .join("\n");
 
-const prYear1Section = prYear1Rates
+const prYear1Section = permanentResidentYear1Rates
   .map(
     (g) =>
       `| ${g.description} | ${formatPct(g.contributionRate.employee)} | ${formatPct(g.contributionRate.employer)} |`,
   )
   .join("\n");
 
-const prYear2Section = prYear2Rates
+const prYear2Section = permanentResidentYear2Rates
   .map(
     (g) =>
       `| ${g.description} | ${formatPct(g.contributionRate.employee)} | ${formatPct(g.contributionRate.employer)} |`,

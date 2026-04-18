@@ -10,7 +10,7 @@ describe("GET /api/cpf/bhs", () => {
     expect(response.status).toBe(200);
     expect(data).toHaveProperty("years");
     expect(data.years).toHaveProperty("2026");
-    expect(data.years["2026"]).toBe(75500);
+    expect(data.years["2026"]).toBe(79000);
   });
 
   it("should return a single year when year query is provided", async () => {
@@ -22,7 +22,7 @@ describe("GET /api/cpf/bhs", () => {
     expect(response.status).toBe(200);
     expect(data).toEqual({
       year: 2026,
-      bhs: 75500,
+      bhs: 79000,
     });
   });
 

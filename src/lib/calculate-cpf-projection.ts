@@ -8,7 +8,10 @@ import {
 } from "@/constants/cpf-interest-tiers";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
-import { prYear1Rates, prYear2Rates } from "@/data/pr-rates";
+import {
+  permanentResidentYear1Rates,
+  permanentResidentYear2Rates,
+} from "@/data/permanent-resident-rates";
 import { findAgeGroup } from "@/lib/find-age-group";
 import type {
   AccountBalances,
@@ -32,9 +35,9 @@ const TAX_RELIEF_SELF = 8_000;
 function getAgeGroupsForCitizenship(citizenship: CitizenshipStatus) {
   switch (citizenship) {
     case "spr-year1":
-      return prYear1Rates;
+      return permanentResidentYear1Rates;
     case "spr-year2":
-      return prYear2Rates;
+      return permanentResidentYear2Rates;
     default:
       return ageGroups;
   }

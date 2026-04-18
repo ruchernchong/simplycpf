@@ -20,7 +20,10 @@ import {
 } from "@/constants/cpf-interest-tiers";
 import { CPF_RETIREMENT_SUMS } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
-import { prYear1Rates, prYear2Rates } from "@/data/pr-rates";
+import {
+  permanentResidentYear1Rates,
+  permanentResidentYear2Rates,
+} from "@/data/permanent-resident-rates";
 
 export const revalidate = false;
 
@@ -48,14 +51,14 @@ const quarterlyRows = QUARTERLY_CPF_RATES.map(
   (q) => `| ${q.quarter} | ${q.oa}% | ${q.sa}% | ${q.ma}% | ${q.ra}% |`,
 ).join("\n");
 
-const prYear1Rows = prYear1Rates
+const prYear1Rows = permanentResidentYear1Rates
   .map(
     (g) =>
       `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
   )
   .join("\n");
 
-const prYear2Rows = prYear2Rates
+const prYear2Rows = permanentResidentYear2Rates
   .map(
     (g) =>
       `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,

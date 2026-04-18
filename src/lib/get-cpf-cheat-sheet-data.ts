@@ -11,7 +11,10 @@ import {
 } from "@/constants/cpf-interest-tiers";
 import { CPF_RETIREMENT_SUMS } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
-import { prYear1Rates, prYear2Rates } from "@/data/pr-rates";
+import {
+  permanentResidentYear1Rates,
+  permanentResidentYear2Rates,
+} from "@/data/permanent-resident-rates";
 
 export interface CheatSheetSection {
   title: string;
@@ -82,7 +85,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
         description:
           "The first year after becoming a Singapore Permanent Resident uses lower graduated CPF rates.",
         columns: ["Age Group", "Employee", "Employer"],
-        rows: prYear1Rates.map((group) => [
+        rows: permanentResidentYear1Rates.map((group) => [
           group.description,
           formatPct(group.contributionRate.employee),
           formatPct(group.contributionRate.employer),
@@ -93,7 +96,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
         description:
           "The second year increases the rates again before full rates apply from Year 3 onwards.",
         columns: ["Age Group", "Employee", "Employer"],
-        rows: prYear2Rates.map((group) => [
+        rows: permanentResidentYear2Rates.map((group) => [
           group.description,
           formatPct(group.contributionRate.employee),
           formatPct(group.contributionRate.employer),

@@ -67,11 +67,11 @@ vi.mock("@/constants/cpf-retirement-sums", () => ({
 
 vi.mock("@/constants/cpf-bhs", () => ({
   CPF_BASIC_HEALTHCARE_SUM: {
-    "2026": 75_500,
+    "2026": 79_000,
   },
   getBhsForYear: (year: number) => {
-    if (year <= 2026) return 75_500;
-    return 75_500 + 2000 * (year - 2026);
+    if (year <= 2026) return 79_000;
+    return 79_000 + 3500 * (year - 2026);
   },
 }));
 
@@ -114,23 +114,23 @@ vi.mock("@/data", () => ({
   ],
 }));
 
-vi.mock("@/data/pr-rates", () => ({
-  prYear1Rates: [
+vi.mock("@/data/permanent-resident-rates", () => ({
+  permanentResidentYear1Rates: [
     {
       description: "1st Year SPR 55 and below",
       minAge: 0,
       maxAge: 55,
-      contributionRate: { employee: 0.05, employer: 0.05 },
-      distributionRate: { OA: 1, SA: 0, MA: 0 },
+      contributionRate: { employee: 0.05, employer: 0.04 },
+      distributionRate: { OA: 0.6217, SA: 0.1621, MA: 0.2162 },
     },
   ],
-  prYear2Rates: [
+  permanentResidentYear2Rates: [
     {
       description: "2nd Year SPR 55 and below",
       minAge: 0,
       maxAge: 55,
-      contributionRate: { employee: 0.05, employer: 0.09 },
-      distributionRate: { OA: 0.5677, SA: 0.1891, MA: 0.2432 },
+      contributionRate: { employee: 0.15, employer: 0.09 },
+      distributionRate: { OA: 0.6217, SA: 0.1621, MA: 0.2162 },
     },
   ],
 }));
@@ -279,7 +279,7 @@ describe("calculateCpfProjection", () => {
 
     for (const balance of result.yearlyBalances) {
       if (balance.age < 55) {
-        const projectedBhs = 75500 + 2000 * (balance.year - 2026);
+        const projectedBhs = 79000 + 3500 * (balance.year - 2026);
         expect(balance.balances.ma).toBeLessThanOrEqual(projectedBhs + 500);
       }
     }
@@ -374,7 +374,7 @@ describe("calculateCpfProjection", () => {
     );
   });
 
-  it("should handle 1st year PR rates (G/G)", () => {
+  it("should handle 1st year PR graduated rates", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 5000,
       birthDate: "01/2001",
@@ -386,11 +386,11 @@ describe("calculateCpfProjection", () => {
     const yearlyBalance = result.yearlyBalances[0];
     expect(yearlyBalance.contributions.employee).toBeLessThan(5000 * 0.2 * 12);
     expect(yearlyBalance.distribution.oa).toBeGreaterThan(0);
-    expect(yearlyBalance.distribution.sa).toBe(0);
-    expect(yearlyBalance.distribution.ma).toBe(0);
+    expect(yearlyBalance.distribution.sa).toBeGreaterThan(0);
+    expect(yearlyBalance.distribution.ma).toBeGreaterThan(0);
   });
 
-  it("should handle 2nd year PR rates (F/G)", () => {
+  it("should handle 2nd year PR graduated rates", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 5000,
       birthDate: "01/2001",

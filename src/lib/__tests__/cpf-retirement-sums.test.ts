@@ -3,6 +3,11 @@ import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 
 describe("getRetirementSumsForYear", () => {
   it("should return known retirement sums for 2024-2026", () => {
+    const sums2024 = getRetirementSumsForYear(2024);
+    expect(sums2024.brs).toBe(102_900);
+    expect(sums2024.frs).toBe(205_800);
+    expect(sums2024.ers).toBe(308_700);
+
     const sums2026 = getRetirementSumsForYear(2026);
     expect(sums2026.brs).toBe(110_200);
     expect(sums2026.frs).toBe(220_400);
