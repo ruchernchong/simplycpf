@@ -1,46 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
 import { calculateCpfProjection } from "../calculate-cpf-projection";
 
-vi.mock("@/constants", () => ({
-  CPF_INCOME_CEILING: {
-    "2026": 8000,
-    "2027": 8000,
-    "2028": 8000,
-    "2029": 8000,
-    "2030": 8000,
-    "2031": 8000,
-    "2032": 8000,
-    "2033": 8000,
-    "2034": 8000,
-    "2035": 8000,
-    "2036": 8000,
-    "2037": 8000,
-    "2038": 8000,
-    "2039": 8000,
-    "2040": 8000,
-    "2041": 8000,
-    "2042": 8000,
-    "2043": 8000,
-    "2044": 8000,
-    "2045": 8000,
-    "2046": 8000,
-    "2047": 8000,
-    "2048": 8000,
-    "2049": 8000,
-    "2050": 8000,
-    "2051": 8000,
-    "2052": 8000,
-    "2053": 8000,
-    "2054": 8000,
-    "2055": 8000,
-    "2056": 8000,
-    "2057": 8000,
-    "2058": 8000,
-    "2059": 8000,
-    "2060": 8000,
-    "2061": 8000,
-  },
-}));
+vi.mock("@/constants", () => {
+  const CPF_INCOME_CEILING: Record<string, number> = {
+    "2023-01-01": 6000,
+    "2023-09-01": 6300,
+    "2024-01-01": 6800,
+    "2025-01-01": 7400,
+    "2026-01-01": 8000,
+  };
+  return {
+    CPF_INCOME_CEILING,
+    CPF_INCOME_CEILING_BEFORE_SEPT_2023: 6000,
+    DEFAULT_CPF_INCOME_CEILING: 6000,
+    getCeilingForYear: (year: number) => {
+      const yearEnd = new Date(`${year}-12-31`);
+      const sorted = Object.entries(CPF_INCOME_CEILING).sort(
+        ([a], [b]) => new Date(a).getTime() - new Date(b).getTime(),
+      );
+      let ceiling = 6000;
+      for (const [date, value] of sorted) {
+        if (new Date(date) <= yearEnd) ceiling = value;
+        else break;
+      }
+      return ceiling;
+    },
+  };
+});
 
 vi.mock("@/constants/cpf-interest-rates", () => ({
   CPF_INTEREST_FLOOR_RATES: { OA: 2.5, SMRA: 4.0 },
@@ -50,6 +36,7 @@ vi.mock("@/constants/cpf-interest-tiers", () => ({
   CPF_EXTRA_INTEREST_CAP: 60_000,
   CPF_OA_EXTRA_INTEREST_CAP: 20_000,
   CPF_EXTRA_INTEREST_RATE: 0.01,
+  CPF_ADDITIONAL_SENIOR_INTEREST_CAP: 30_000,
 }));
 
 vi.mock("@/constants/cpf-retirement-sums", () => ({
@@ -241,6 +228,20 @@ describe("calculateCpfProjection", () => {
     expect(age56Balance.balances.ra).toBeGreaterThan(0);
   });
 
+  it("should keep SA at 0 when projection starts at age 57", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 5000,
+      birthDate: "01/1968",
+      startAge: 57,
+      endAge: 60,
+      citizenship: "citizen",
+    });
+
+    for (const balance of result.yearlyBalances) {
+      expect(balance.balances.sa).toBe(0);
+    }
+  });
+
   it("should calculate extra interest on first S$60,000", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 5000,
@@ -252,6 +253,24 @@ describe("calculateCpfProjection", () => {
 
     const yearlyBalance = result.yearlyBalances[0];
     expect(yearlyBalance.interestEarned.extraInterest).toBeGreaterThan(0);
+  });
+
+  it("should apply additional 1% senior extra interest after age 55", () => {
+    const baseline = calculateCpfProjection({
+      monthlyIncome: 5000,
+      birthDate: "01/2001",
+      startAge: 54,
+      endAge: 56,
+      citizenship: "citizen",
+    });
+
+    const age54 = baseline.yearlyBalances.filter((b) => b.age === 54)[0];
+    const age56 = baseline.yearlyBalances.filter((b) => b.age === 56)[0];
+
+    expect(age54.interestEarned.extraInterest).toBeGreaterThan(0);
+    expect(age56.interestEarned.extraInterest).toBeGreaterThan(
+      age54.interestEarned.extraInterest,
+    );
   });
 
   it("should redirect OA extra interest to RA after age 55", () => {

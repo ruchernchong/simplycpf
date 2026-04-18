@@ -12,6 +12,23 @@ export const CPF_INCOME_CEILING: CPFIncomeCeiling = {
   "2026-01-01": 8000,
 };
 
+export function getCeilingForYear(year: number): number {
+  const yearEnd = new Date(`${year}-12-31`);
+  const sortedEntries = Object.entries(CPF_INCOME_CEILING).sort(
+    ([a], [b]) => new Date(a).getTime() - new Date(b).getTime(),
+  );
+
+  let ceiling = CPF_INCOME_CEILING_BEFORE_SEPT_2023;
+  for (const [effectiveDate, value] of sortedEntries) {
+    if (new Date(effectiveDate) <= yearEnd) {
+      ceiling = value;
+    } else {
+      break;
+    }
+  }
+  return ceiling;
+}
+
 export const CPF_ACCOUNT_MAP: Record<string, string> = {
   OA: "Ordinary Account",
   SA: "Special Account",

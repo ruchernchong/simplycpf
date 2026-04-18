@@ -1,7 +1,8 @@
-import { CPF_INCOME_CEILING } from "@/constants";
+import { getCeilingForYear } from "@/constants";
 import { getBhsForYear } from "@/constants/cpf-bhs";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import {
+  CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
@@ -24,7 +25,7 @@ import type {
   YearlyBalance,
 } from "@/types";
 
-const CPF_LIFE_PAYOUT_FACTOR = 0.0073;
+const CPF_LIFE_PAYOUT_FACTOR = 0.008;
 const CPF_LIFE_ESCALATING_START_RATIO = 0.8;
 const CPF_LIFE_BASIC_RATIO = 0.9;
 const CPF_LIFE_DEFER_ANNUAL_INCREASE = 0.07;
@@ -55,7 +56,18 @@ function calculateExtraInterest(balances: AccountBalances, age: number) {
   const smraExtra = smraPortion * CPF_EXTRA_INTEREST_RATE;
 
   if (age >= 55) {
-    return { oaExtra: 0, smraExtra: oaExtra + smraExtra };
+    const seniorOaPortion = Math.min(balances.oa, CPF_OA_EXTRA_INTEREST_CAP);
+    const seniorRemainingCap = Math.max(
+      0,
+      CPF_ADDITIONAL_SENIOR_INTEREST_CAP - seniorOaPortion,
+    );
+    const seniorSmraPortion = Math.min(
+      balances.sa + balances.ma + balances.ra,
+      seniorRemainingCap,
+    );
+    const seniorExtra =
+      (seniorOaPortion + seniorSmraPortion) * CPF_EXTRA_INTEREST_RATE;
+    return { oaExtra: 0, smraExtra: oaExtra + smraExtra + seniorExtra };
   }
 
   return { oaExtra, smraExtra };
@@ -172,11 +184,12 @@ function performSaToRaConversion(
   frs: number,
 ): AccountBalances {
   const raFromSa = Math.min(balances.sa, frs);
+  const saExcess = Math.max(0, balances.sa - frs);
   const remainingFrs = frs - raFromSa;
   const raFromOa = Math.min(balances.oa, remainingFrs);
 
   return {
-    oa: balances.oa - raFromOa,
+    oa: balances.oa - raFromOa + saExcess,
     sa: 0,
     ma: balances.ma,
     ra: balances.ra + raFromSa + raFromOa,
@@ -252,7 +265,7 @@ export function calculateCpfProjection(
     const projectedYear = currentYear + i;
     const ageGroup = findAgeGroup(projectedAge, applicableAgeGroups);
 
-    const incomeCeiling = CPF_INCOME_CEILING[projectedYear.toString()] ?? 8000;
+    const incomeCeiling = getCeilingForYear(projectedYear);
     const cappedIncome = Math.min(monthlyIncome, incomeCeiling);
 
     const employeeRate = ageGroup.contributionRate.employee;
@@ -322,7 +335,7 @@ export function calculateCpfProjection(
     );
     balances = transferResult;
 
-    if (projectedAge === 55 && !saClosed) {
+    if (!saClosed && projectedAge >= 55) {
       balances = performSaToRaConversion(balances, frs);
       saClosed = true;
     }

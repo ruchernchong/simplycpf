@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
@@ -39,23 +40,22 @@ const CpfInterestTiersBlock = () => (
           <div className="rounded-lg border border-border bg-muted/50 p-4">
             <p className="mb-2 font-semibold text-sm">Age 55 and Above</p>
             <p className="font-bold text-2xl text-foreground">
-              +{CPF_EXTRA_INTEREST_RATE * 100}% + {CPF_EXTRA_INTEREST_RATE}%
+              +{CPF_EXTRA_INTEREST_RATE * 100}% + {CPF_EXTRA_INTEREST_RATE * 100}
+              %
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              First tier: S${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()}
+              Base tier: +{CPF_EXTRA_INTEREST_RATE * 100}% on first S$
+              {CPF_EXTRA_INTEREST_CAP.toLocaleString()} of combined balances
               <br />
-              Second tier: Next S$
-              {(
-                CPF_EXTRA_INTEREST_CAP - CPF_OA_EXTRA_INTEREST_CAP
-              ).toLocaleString()}{" "}
-              of OA + SA + MA + RA
+              Senior tier: Additional +{CPF_EXTRA_INTEREST_RATE * 100}% on first
+              S${CPF_ADDITIONAL_SENIOR_INTEREST_CAP.toLocaleString()} of combined
+              balances
             </p>
             <p className="mt-2 text-muted-foreground text-xs">
               Max extra interest: S$
               {(
-                CPF_OA_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE +
-                (CPF_EXTRA_INTEREST_CAP - CPF_OA_EXTRA_INTEREST_CAP) *
-                  CPF_EXTRA_INTEREST_RATE
+                CPF_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE +
+                CPF_ADDITIONAL_SENIOR_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE
               ).toFixed(0)}{" "}
               per year
             </p>

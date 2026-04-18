@@ -5,6 +5,7 @@ import {
 import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import {
+  CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
@@ -120,6 +121,10 @@ export function getCpfCheatSheetData(): CheatSheetData {
           [
             "OA portion eligible for extra interest",
             `${formatCurrency(CPF_OA_EXTRA_INTEREST_CAP)}`,
+          ],
+          [
+            "Additional interest for members aged 55+",
+            `${(CPF_EXTRA_INTEREST_RATE * 100).toFixed(0)}% on first ${formatCurrency(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}`,
           ],
         ],
       },
