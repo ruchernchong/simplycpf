@@ -1,3 +1,9 @@
+## [1.22.0](https://github.com/ruchernchong/simplycpf/compare/v1.21.0...v1.22.0) (2026-04-18)
+
+### Features
+
+* add FAQ pages, OG images, and age-specific calculator routes ([38df827](https://github.com/ruchernchong/simplycpf/commit/38df8279ed5ded4d918c604daf806eec5a2a8cfd))
+
 ## [1.21.0](https://github.com/ruchernchong/simplycpf/compare/v1.20.0...v1.21.0) (2026-04-18)
 
 ### Features
