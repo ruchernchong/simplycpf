@@ -188,6 +188,14 @@ For an employee with monthly income I, age group G, and ceiling C:
 - [About](${BASE_URL}/about): Information about the application
 - [Privacy](${BASE_URL}/privacy): Privacy and optional email-delivery disclosure
 
+## FAQ
+
+- [FAQ Index](${BASE_URL}/faq): Common questions about CPF contributions, projections, CPF LIFE, and retirement planning
+- [General CPF Questions](${BASE_URL}/faq/general): Essential CPF concepts, interest rates, account types, and how SimplyCPF works
+- [Contribution Rates](${BASE_URL}/faq/contribution-rates): CPF contribution calculations, income ceilings, and age-based rates
+- [Career Projection](${BASE_URL}/faq/projection): Long-term CPF balance projections, milestones, and CPF LIFE estimates
+- [CPF LIFE](${BASE_URL}/faq/cpf-life): Monthly payouts, plan types, deferment options, and retirement sums
+
 ## Developer Portal
 
 - [Developer Portal](${BASE_URL}/docs): API documentation for integrating CPF calculations into applications

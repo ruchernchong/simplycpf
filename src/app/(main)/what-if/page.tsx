@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/what-if`,
     images: [
       {
-        url: `${BASE_URL}/opengraph-image`,
+        url: `${BASE_URL}/what-if/opengraph-image`,
         width: 1200,
         height: 630,
         alt: "CPF What-If Simulator - SimplyCPF",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "CPF What-If Simulator | Compare CPF Scenarios",
     description:
       "Compare CPF scenarios like salary increases, annual top-ups, OA to SA transfers, and delayed starts.",
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [`${BASE_URL}/what-if/opengraph-image`],
   },
 };
 

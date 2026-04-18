@@ -14,6 +14,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      url: `${BASE_URL}/calculator?age=35`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/calculator?age=55`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/calculator?age=65`,
+      lastModified,
+    },
+    {
       url: `${BASE_URL}/projection`,
       lastModified,
     },
@@ -51,6 +63,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/docs`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/faq`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/faq/general`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/faq/contribution-rates`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/faq/projection`,
+      lastModified,
+    },
+    {
+      url: `${BASE_URL}/faq/cpf-life`,
       lastModified,
     },
   ];

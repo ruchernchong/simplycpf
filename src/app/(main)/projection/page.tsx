@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/projection`,
     images: [
       {
-        url: `${BASE_URL}/opengraph-image`,
+        url: `${BASE_URL}/projection/opengraph-image`,
         width: 1200,
         height: 630,
         alt: "CPF Projection Calculator - SimplyCPF",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "CPF Projection Calculator | Project Your CPF to Age 55, 65 and 70",
     description:
       "Project your CPF balances with conservative floor rates, milestone snapshots, and CPF LIFE payout estimates.",
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [`${BASE_URL}/projection/opengraph-image`],
   },
 };
 

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import type { Graph } from "schema-dts";
 import CalculatorContent from "@/components/calculator/calculator-content";
 import CheatSheetCta from "@/components/lead-magnets/cheat-sheet-cta";
+import CpfAgeSpecificBlock from "@/components/seo/cpf-age-specific-block";
 import IncomeCeilingDefinitionBlock from "@/components/seo/income-ceiling-definition-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL } from "@/config";
@@ -14,46 +16,107 @@ import {
   buildPageSchema,
   buildWebApplication,
 } from "@/lib/build-schema";
+import { findAgeGroup } from "@/lib/find-age-group";
 
-export const metadata: Metadata = {
-  title: "CPF Contribution Calculator | Know Your Take-Home Pay After CPF",
-  description:
-    "Free CPF contribution calculator for Singapore employees and employers. See exactly how much goes into your OA, SA, and MA accounts, what your employer contributes, and how the rising income ceiling changes your take-home pay.",
-  keywords:
-    "CPF contribution calculator, CPF calculator, CPF deduction, take-home pay calculator Singapore, CPF contribution rate by age, CPF employee employer contribution, CPF OA SA MA distribution, Singapore CPF calculator",
-  alternates: {
-    canonical: "/calculator",
-  },
-  openGraph: {
-    title: "CPF Contribution Calculator | Know Your Take-Home Pay After CPF",
-    description:
-      "Free CPF contribution calculator. See how much goes into your OA, SA, and MA accounts, what your employer contributes, and how the rising ceiling affects your pay.",
-    url: `${BASE_URL}/calculator`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF Contribution Calculator — SimplyCPF",
+const searchParamsCache = createSearchParamsCache({
+  age: parseAsInteger,
+});
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}): Promise<Metadata> {
+  const { age } = await searchParamsCache.parse(searchParams);
+
+  if (!age) {
+    return {
+      title: "CPF Contribution Calculator | Know Your Take-Home Pay After CPF",
+      description:
+        "Free CPF contribution calculator for Singapore employees and employers. See exactly how much goes into your OA, SA, and MA accounts, what your employer contributes, and how the rising income ceiling changes your take-home pay.",
+      keywords:
+        "CPF contribution calculator, CPF calculator, CPF deduction, take-home pay calculator Singapore, CPF contribution rate by age, CPF employee employer contribution, CPF OA SA MA distribution, Singapore CPF calculator",
+      alternates: {
+        canonical: "/calculator",
       },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF Contribution Calculator | Know Your Take-Home Pay After CPF",
-    description:
-      "Free CPF contribution calculator. See how much goes into your OA, SA, and MA accounts, what your employer contributes, and how the rising ceiling affects your pay.",
-    images: [`${BASE_URL}/opengraph-image`],
-  },
-};
+      openGraph: {
+        title:
+          "CPF Contribution Calculator | Know Your Take-Home Pay After CPF",
+        description:
+          "Free CPF contribution calculator. See how much goes into your OA, SA, and MA accounts, what your employer contributes, and how the rising ceiling affects your pay.",
+        url: `${BASE_URL}/calculator`,
+        images: [
+          {
+            url: `${BASE_URL}/opengraph-image`,
+            width: 1200,
+            height: 630,
+            alt: "CPF Contribution Calculator — SimplyCPF",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title:
+          "CPF Contribution Calculator | Know Your Take-Home Pay After CPF",
+        description:
+          "Free CPF contribution calculator. See how much goes into your OA, SA, and MA accounts, what your employer contributes, and how the rising ceiling affects your pay.",
+        images: [`${BASE_URL}/opengraph-image`],
+      },
+    };
+  }
 
-const CalculatorPage = () => {
+  const ageGroup = findAgeGroup(age);
+  const totalRate =
+    (ageGroup.contributionRate.employee + ageGroup.contributionRate.employer) *
+    100;
+
+  return {
+    title: `CPF Calculator for ${ageGroup.description} | Singapore`,
+    description: `Calculate CPF contributions for employees ${ageGroup.description.toLowerCase()}. See ${totalRate}% total rate, OA/SA/MA distribution, and take-home pay impact.`,
+    keywords: `CPF calculator ${ageGroup.description.toLowerCase()}, CPF contribution rate ${age}, CPF ${age} years old, Singapore CPF calculator age ${age}`,
+    alternates: {
+      canonical: `/calculator?age=${age}`,
+    },
+    openGraph: {
+      title: `CPF Calculator for ${ageGroup.description} | Singapore`,
+      description: `Calculate CPF contributions for employees ${ageGroup.description.toLowerCase()}. See ${totalRate}% total rate, OA/SA/MA distribution, and take-home pay impact.`,
+      url: `${BASE_URL}/calculator?age=${age}`,
+      images: [
+        {
+          url: `${BASE_URL}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: `CPF Calculator for ${ageGroup.description} — SimplyCPF`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `CPF Calculator for ${ageGroup.description} | Singapore`,
+      description: `Calculate CPF contributions for employees ${ageGroup.description.toLowerCase()}. See ${totalRate}% total rate, OA/SA/MA distribution, and take-home pay impact.`,
+      images: [`${BASE_URL}/opengraph-image`],
+    },
+  };
+}
+
+const CalculatorPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) => {
+  const { age } = await searchParamsCache.parse(searchParams);
+  const ageGroup = age ? findAgeGroup(age) : null;
+
   const schema: Graph = buildGraph([
     buildPageSchema({
-      name: "SimplyCPF Calculator",
+      name: ageGroup
+        ? `SimplyCPF Calculator — ${ageGroup.description}`
+        : "SimplyCPF Calculator",
       description:
         "Free CPF contribution calculator for Singapore employees and employers. Calculate employee and employer CPF contributions by age group, view distribution across OA, SA, and MA accounts, and track income ceiling impacts on take-home pay.",
-      url: `${BASE_URL}/calculator`,
+      url: ageGroup
+        ? `${BASE_URL}/calculator?age=${age}`
+        : `${BASE_URL}/calculator`,
       speakableSelectors: ["h1", ".calculator-results"],
       keywords:
         "CPF contribution calculator, CPF calculator, CPF deduction, take-home pay calculator Singapore, CPF contribution rate by age",
@@ -135,6 +198,7 @@ const CalculatorPage = () => {
           </div>
         </div>
         <CalculatorContent />
+        {ageGroup && <CpfAgeSpecificBlock ageGroup={ageGroup} />}
         <IncomeCeilingDefinitionBlock />
         <CheatSheetCta compact />
       </div>
