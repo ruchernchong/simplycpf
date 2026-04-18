@@ -117,10 +117,7 @@ function applyVoluntaryTopUp(
     return { balances, topUpAmount: 0 };
   }
 
-  const amount = Math.min(
-    topUp.amount,
-    age < 55 ? TAX_RELIEF_SELF : TAX_RELIEF_SELF,
-  );
+  const amount = Math.min(topUp.amount, TAX_RELIEF_SELF);
 
   if (age < 55) {
     const maxTopUp = Math.max(0, frs - balances.sa);

@@ -11,7 +11,13 @@ import {
   upsertLeadContact,
 } from "@/lib/resend";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_MAX_LENGTH = 254;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/;
+
+function isValidEmail(email: string): boolean {
+  if (email.length > EMAIL_MAX_LENGTH) return false;
+  return EMAIL_REGEX.test(email);
+}
 
 const VALID_INTEREST_AREAS = new Set(["projection", "cpf-life", "pr-rates"]);
 const VALID_BUCKETS = new Set(["low", "mid", "high"]);
@@ -19,7 +25,7 @@ const VALID_BUCKETS = new Set(["low", "mid", "high"]);
 function assertValidLeadCapturePayload(
   payload: Partial<LeadCapturePayload>,
 ): asserts payload is LeadCapturePayload {
-  if (!payload.email || !EMAIL_REGEX.test(payload.email)) {
+  if (!payload.email || !isValidEmail(payload.email)) {
     throw new AppError("email must be a valid email address");
   }
 

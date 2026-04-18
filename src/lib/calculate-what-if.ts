@@ -65,7 +65,7 @@ function buildDifference(
 }
 
 function formatSignedCurrency(value: number, decimalPlaces = 0): string {
-  return formatCurrency(Math.abs(value), decimalPlaces).replace("$", "S$");
+  return formatCurrency(Math.abs(value), decimalPlaces).replaceAll("$", "S$");
 }
 
 function buildSalaryChangeInsights(
