@@ -1,3 +1,26 @@
+## [1.21.0](https://github.com/ruchernchong/simplycpf/compare/v1.20.0...v1.21.0) (2026-04-18)
+
+### Features
+
+* add CPF lead magnets with optional email delivery ([fbfd4e9](https://github.com/ruchernchong/simplycpf/commit/fbfd4e901724304e692209cfb66e0349fc5f5199))
+* add CPF LIFE estimator and expand documentation ([87db88e](https://github.com/ruchernchong/simplycpf/commit/87db88eee936a6b6d6487130d51d1dfd4c0b1ab7))
+* add CPF projection page ([36b0719](https://github.com/ruchernchong/simplycpf/commit/36b0719145aa621f10363cad2de4c8f3d91dadc2))
+* add CPF what-if scenario engine ([0e9025a](https://github.com/ruchernchong/simplycpf/commit/0e9025a8e670e3f1b6093e23491deeb20adb6b91))
+* add CPF what-if simulator page ([00d1573](https://github.com/ruchernchong/simplycpf/commit/00d15734f637e76086ec0813b7f8a8e0b2ab35e1))
+* add PR graduated rates and SEO content blocks ([763e295](https://github.com/ruchernchong/simplycpf/commit/763e29540dda5530fb61883b782be153f3c3ba59))
+* add schema helpers and CPF projection engine ([07473f2](https://github.com/ruchernchong/simplycpf/commit/07473f277d2d2e84ba6d51aed0d1cfd303d8387d))
+* add shareable URLs for projection tools ([6d82bce](https://github.com/ruchernchong/simplycpf/commit/6d82bce7611bcdebf1f2b1d1730ef62869ebc22f))
+* expand CPF projection and reference APIs ([8df9416](https://github.com/ruchernchong/simplycpf/commit/8df94160d94c1cc55ab3e2b9cf7af1e94d902d22))
+* improve navigation theming and accessibility ([7354270](https://github.com/ruchernchong/simplycpf/commit/7354270a391691a0b060b27ab1e0a4017ac73044))
+
+### Bug Fixes
+
+* add CPF LIFE to main navigation tabs ([e7773d2](https://github.com/ruchernchong/simplycpf/commit/e7773d2393d322896e3f19e00b7495705e14f298))
+* correct CPF projection engine logic ([cdb947b](https://github.com/ruchernchong/simplycpf/commit/cdb947b30d5f7e1366c7aef8ad5a68fa7a6cfccd))
+* correct CPF retirement sums, BHS, and permanent resident rates ([4b323e3](https://github.com/ruchernchong/simplycpf/commit/4b323e3b9cc25098eab590341959057a4e34bb17))
+* prevent ReDoS in email regex and fix incomplete string encoding ([1030961](https://github.com/ruchernchong/simplycpf/commit/10309612c52d4c307c9cf07c6909a62e394f0138))
+* surface lead magnets in navigation ([269d525](https://github.com/ruchernchong/simplycpf/commit/269d5252a5a2cb3747651759e74a5d9f335cd1d9))
+
 ## [1.20.0](https://github.com/ruchernchong/simplycpf/compare/v1.19.0...v1.20.0) (2026-04-17)
 
 ### Features
