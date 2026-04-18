@@ -11,7 +11,10 @@ export default function MainLayout({
     <>
       <Header />
       <Banner />
-      <main className="container mx-auto flex flex-1 flex-col gap-8 px-4 py-8">
+      <main
+        id="main-content"
+        className="container mx-auto flex flex-1 flex-col gap-8 px-4 py-8"
+      >
         <NavigationTabs />
         {children}
       </main>

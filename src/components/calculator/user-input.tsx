@@ -2,6 +2,7 @@ import {
   Bookmark02Icon,
   FlashIcon,
   HelpCircleIcon,
+  Passport01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useAtom, useAtomValue } from "jotai";
@@ -29,15 +30,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { Settings } from "@/types";
 import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
+
+const citizenshipOptions = [
+  { value: "citizen", label: "Singapore Citizen" },
+  { value: "spr-year1", label: "Permanent Resident (Year 1)" },
+  { value: "spr-year2", label: "Permanent Resident (Year 2)" },
+  { value: "spr-year3-plus", label: "Permanent Resident (Year 3+)" },
+];
 
 const UserInput = () => {
   const [settings, setSettings] = useAtom(settingsAtom);
-  const { birthDate, monthlyGrossIncome, shouldStoreInput } = settings;
+  const { birthDate, monthlyGrossIncome, shouldStoreInput, citizenshipStatus } =
+    settings;
   const [isPending, startTransition] = useTransition();
   const step = useAtomValue(formStepAtom);
 
@@ -148,6 +165,52 @@ const UserInput = () => {
               Please enter a valid date in MM/YYYY format
             </p>
           )}
+        </div>
+
+        {/* Citizenship Status Select */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="citizenshipStatus">Citizenship Status</Label>
+            <Tooltip>
+              <TooltipTrigger className="cursor-help">
+                <HugeiconsIcon
+                  icon={Passport01Icon}
+                  className="size-4 text-muted-foreground"
+                  strokeWidth={2}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">
+                  Permanent Residents (PRs) pay graduated CPF rates during their
+                  first 2 years. Year 3+ uses the same rates as citizens.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Select
+            value={citizenshipStatus}
+            onValueChange={(value) =>
+              setSettings((setting) => ({
+                ...setting,
+                citizenshipStatus: value as Settings["citizenshipStatus"],
+              }))
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {citizenshipOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-muted-foreground text-xs">
+            PR Year 1 and Year 2 use graduated contribution rates that increase
+            progressively.
+          </p>
         </div>
 
         {/* Gross Income Input */}

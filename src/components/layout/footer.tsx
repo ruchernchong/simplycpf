@@ -1,5 +1,6 @@
 import { FavouriteIcon, Github01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { Route } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 
@@ -15,9 +16,9 @@ export function Footer() {
               <span className="font-semibold text-lg">SimplyCPF</span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              A free, open-source CPF calculator for Singapore. No sign-up, no
-              data collection — just accurate numbers backed by CPF Board rates
-              that anyone can verify.
+              A free, open-source CPF planning tool for Singapore. The core
+              tools work without sign-up, with optional email delivery for
+              requested resources and reports.
             </p>
           </div>
 
@@ -45,6 +46,46 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href={"/projection" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Projection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={"/what-if" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  What-If
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={"/cpf-life" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  CPF LIFE
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={"/cpf-cheat-sheet" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  CPF Cheat Sheet
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={"/retirement-readiness" as Route}
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Retirement Readiness
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/interest-rates"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
@@ -56,7 +97,7 @@ export function Footer() {
                   href="/investments"
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
-                  Investment Comparison
+                  Investments
                 </Link>
               </li>
               <li>
@@ -65,6 +106,14 @@ export function Footer() {
                   className="text-muted-foreground text-sm transition-colors hover:text-accent"
                 >
                   About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-muted-foreground text-sm transition-colors hover:text-accent"
+                >
+                  Privacy
                 </Link>
               </li>
             </ul>

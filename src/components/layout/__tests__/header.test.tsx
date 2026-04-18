@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { Header } from "../header";
 
-// Mock dependencies
 vi.mock("@hugeicons/react", () => ({
   HugeiconsIcon: ({
     icon,
@@ -19,6 +18,14 @@ vi.mock("@hugeicons/core-free-icons", () => ({
   InformationCircleIcon: "InformationCircleIcon",
 }));
 
+vi.mock("@/components/layout/mobile-nav", () => ({
+  default: () => <div data-testid="mobile-nav">MobileNav</div>,
+}));
+
+vi.mock("@/components/layout/theme-toggle", () => ({
+  default: () => <div data-testid="theme-toggle">ThemeToggle</div>,
+}));
+
 describe("Header", () => {
   it("renders the logo with link to homepage", () => {
     render(<Header />);
@@ -33,5 +40,23 @@ describe("Header", () => {
 
     expect(screen.getByText("Home")).toBeTruthy();
     expect(screen.getByText("About")).toBeTruthy();
+  });
+
+  it("renders the mobile nav", () => {
+    render(<Header />);
+
+    expect(screen.getByTestId("mobile-nav")).toBeTruthy();
+  });
+
+  it("renders the theme toggle", () => {
+    render(<Header />);
+
+    expect(screen.getByTestId("theme-toggle")).toBeTruthy();
+  });
+
+  it("renders skip-to-content link", () => {
+    render(<Header />);
+
+    expect(screen.getByText("Skip to content")).toBeTruthy();
   });
 });

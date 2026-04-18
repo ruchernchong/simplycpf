@@ -9,11 +9,22 @@ import {
   CPF_INCOME_CEILING,
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
+import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
 import {
   CPF_INTEREST_FLOOR_RATES,
   PEGGED_RATE_MARKUP,
 } from "@/constants/cpf-interest-rates";
+import {
+  CPF_EXTRA_INTEREST_CAP,
+  CPF_EXTRA_INTEREST_RATE,
+  CPF_OA_EXTRA_INTEREST_CAP,
+} from "@/constants/cpf-interest-tiers";
+import { CPF_RETIREMENT_SUMS } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
+import {
+  permanentResidentYear1Rates,
+  permanentResidentYear2Rates,
+} from "@/data/permanent-resident-rates";
 
 export const revalidate = false;
 
@@ -41,11 +52,36 @@ const ceilingEntries = Object.entries(CPF_INCOME_CEILING)
   .map(([date, ceiling]) => `| ${date} | S$${ceiling.toLocaleString()} |`)
   .join("\n");
 
+const prYear1Section = permanentResidentYear1Rates
+  .map(
+    (g) =>
+      `| ${g.description} | ${formatPct(g.contributionRate.employee)} | ${formatPct(g.contributionRate.employer)} |`,
+  )
+  .join("\n");
+
+const prYear2Section = permanentResidentYear2Rates
+  .map(
+    (g) =>
+      `| ${g.description} | ${formatPct(g.contributionRate.employee)} | ${formatPct(g.contributionRate.employer)} |`,
+  )
+  .join("\n");
+
+const retirementSumsSection = Object.entries(CPF_RETIREMENT_SUMS)
+  .map(
+    ([year, sums]) =>
+      `| ${year} | S$${sums.brs.toLocaleString()} | S$${sums.frs.toLocaleString()} | S$${sums.ers.toLocaleString()} |`,
+  )
+  .join("\n");
+
+const bhsSection = Object.entries(CPF_BASIC_HEALTHCARE_SUM)
+  .map(([year, bhs]) => `| ${year} | S$${bhs.toLocaleString()} |`)
+  .join("\n");
+
 const llmsTxt = `# ${title}
 
 > ${description}
 
-SimplyCPF is a free, open-source CPF contribution calculator for Singapore employees and employers. It calculates CPF contributions based on monthly income, age group, and the latest income ceiling changes following Singapore's Budget 2023.
+SimplyCPF is a free, open-source CPF calculator and planning toolkit for Singapore employees and Permanent Residents. It covers CPF contributions, projection modelling, what-if scenarios, CPF LIFE estimates, and quick reference resources built from CPF Board rates.
 
 ## What is CPF?
 
@@ -95,6 +131,38 @@ ${ceilingEntries}
 - SMRA earns a guaranteed minimum of ${CPF_INTEREST_FLOOR_RATES.SMRA}% per annum, with potential to earn more when market rates are higher
 - The pegged rate is based on the 12-month average yield of 10-year Singapore Government Securities (SGS) plus ${PEGGED_RATE_MARKUP}%
 
+## CPF Extra Interest Tiers
+
+- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${CPF_EXTRA_INTEREST_CAP.toLocaleString()} combined
+- OA portion eligible for the extra interest is capped at the first S$${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()}
+- After age 55, the extra interest on the OA portion is redirected to the Retirement Account
+
+## CPF Retirement Sums
+
+| Year | BRS | FRS | ERS |
+|------|-----|-----|-----|
+${retirementSumsSection}
+
+## Basic Healthcare Sum (BHS)
+
+| Year | BHS |
+|------|-----|
+${bhsSection}
+
+## PR Graduated CPF Rates
+
+### 1st Year PR
+
+| Age Group | Employee | Employer |
+|-----------|----------|----------|
+${prYear1Section}
+
+### 2nd Year PR
+
+| Age Group | Employee | Employer |
+|-----------|----------|----------|
+${prYear2Section}
+
 ## CPF Contribution Formula
 
 For an employee with monthly income I, age group G, and ceiling C:
@@ -110,21 +178,29 @@ For an employee with monthly income I, age group G, and ceiling C:
 
 - [Home](${BASE_URL}): CPF contribution calculator with interactive visualisation
 - [Calculator](${BASE_URL}/calculator): Full-featured CPF calculator with age-based contribution rates
+- [Projection](${BASE_URL}/projection): Career-long CPF projection with age 55, 65, and 70 milestones
+- [What-If](${BASE_URL}/what-if): Compare salary changes, top-ups, OA to SA transfers, and delayed starts
+- [CPF LIFE](${BASE_URL}/cpf-life): Estimate CPF LIFE payouts from your Retirement Account balance
+- [CPF Cheat Sheet](${BASE_URL}/cpf-cheat-sheet): Download a printable CPF reference sheet with rates, sums, ceilings, and PR transitions
+- [Retirement Readiness Score](${BASE_URL}/retirement-readiness): Answer 5 quick questions to see which CPF planning gap to tackle next
 - [Interest Rates](${BASE_URL}/interest-rates): CPF interest rates and historical trends
 - [Investments](${BASE_URL}/investments): Investment comparison tools
 - [About](${BASE_URL}/about): Information about the application
+- [Privacy](${BASE_URL}/privacy): Privacy and optional email-delivery disclosure
 
 ## Developer Portal
 
-- [Developer Portal](${BASE_URL}/developer): API documentation for integrating CPF calculations into applications
-- [Getting Started](${BASE_URL}/developer/getting-started): Quick start guide for using the API
-- [API Reference](${BASE_URL}/developer/api): Complete API documentation
+- [Developer Portal](${BASE_URL}/docs): API documentation for integrating CPF calculations into applications
+- [Getting Started](${BASE_URL}/docs/getting-started): Quick start guide for using the API
+- [API Reference](${BASE_URL}/docs/api): Complete API documentation
 
 ## API Endpoints
 
 - [Calculate CPF](${BASE_URL}/api/cpf/calculate): Calculate CPF contributions for a given income
 - [Batch Calculate](${BASE_URL}/api/cpf/calculate/batch): Calculate CPF contributions for multiple incomes
-- [Projection](${BASE_URL}/api/cpf/projection): Multi-year CPF contribution projections
+- [Projection](${BASE_URL}/api/cpf/projection): Full CPF balance projections with milestones, interest, and CPF LIFE estimates
+- [Retirement Sums](${BASE_URL}/api/cpf/retirement-sums): BRS, FRS, and ERS data by year
+- [Basic Healthcare Sum](${BASE_URL}/api/cpf/bhs): BHS data by year
 - [Age Groups](${BASE_URL}/api/cpf/age-groups): Get all CPF contribution rates by age bracket
 - [Find Age Group](${BASE_URL}/api/cpf/age-group/find): Find the applicable age group for a specific age
 - [Age from Birthdate](${BASE_URL}/api/cpf/age/from-birthdate): Calculate age from a birthdate
@@ -143,7 +219,8 @@ For an employee with monthly income I, age group G, and ceiling C:
 ## About SimplyCPF
 
 - Free and open-source (MIT licence)
-- No sign-up, no account, no data collection
+- Core tools work without sign-up or an account
+- Email is only requested when a user asks for a CPF resource or report
 - Rates sourced from CPF Board publications
 - Calculation logic is fully transparent and verifiable on GitHub
 - Not affiliated with the CPF Board or any government agency

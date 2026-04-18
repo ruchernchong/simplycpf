@@ -6,7 +6,8 @@ import {
   Sun01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -34,66 +35,21 @@ const themeOptions = [
 ] as const;
 
 const ThemeToggle = () => {
-  const [theme, setTheme] = useState("system");
-
-  const applyTheme = useCallback((selectedTheme: string, root: HTMLElement) => {
-    switch (selectedTheme) {
-      case "dark":
-        root.classList.add("dark");
-        root.classList.remove("light");
-        break;
-      case "light":
-        root.classList.add("light");
-        root.classList.remove("dark");
-        break;
-      case "system": {
-        const isDarkMode = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        root.classList.toggle("dark", isDarkMode);
-        root.classList.toggle("light", !isDarkMode);
-        break;
-      }
-      default:
-        root.classList.remove("light");
-        root.classList.remove("dark");
-        break;
-    }
-  }, []);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const root = window.document.documentElement;
-    const savedTheme = localStorage.getItem("theme") || "system";
-    setTheme(savedTheme);
-    applyTheme(savedTheme, root);
+    setMounted(true);
+  }, []);
 
-    // Set up a listener for system theme changes
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      if (theme === "system") {
-        applyTheme(e.matches ? "dark" : "light", root);
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleSystemThemeChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleSystemThemeChange);
-    };
-  }, [theme, applyTheme]);
-
-  const handleThemeChange = (newTheme: string | null) => {
-    if (!newTheme) return;
-    const root = window.document.documentElement;
-    setTheme(newTheme);
-    applyTheme(newTheme, root);
-    localStorage.setItem("theme", newTheme);
-  };
+  if (!mounted) {
+    return <div className="h-9 w-[100px]" />;
+  }
 
   return (
     <div>
-      <Select value={theme} onValueChange={handleThemeChange}>
-        <SelectTrigger aria-label="Select Theme">
+      <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
+        <SelectTrigger aria-label="Select Theme" className="w-[100px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

@@ -12,7 +12,7 @@ import { BASE_URL, title } from "@/config";
 const geist = Geist({ subsets: ["latin"] });
 
 const description =
-  "Your CPF, simplified. Calculate your CPF contributions with the latest income ceiling changes.";
+  "Your CPF, simplified. Calculate contributions, project retirement balances, compare CPF LIFE payouts, and test CPF scenarios for Singapore.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -66,7 +66,7 @@ const schema: Graph = {
       name: "SimplyCPF",
       url: BASE_URL,
       description:
-        "Calculate your CPF contributions with the latest income ceiling changes. Your CPF, simplified.",
+        "Calculate contributions, project retirement balances, compare CPF LIFE payouts, and test CPF scenarios for Singapore.",
       applicationCategory: "FinanceApplication",
       operatingSystem: "All",
       offers: {
@@ -85,7 +85,7 @@ const schema: Graph = {
       url: BASE_URL,
       logo: `${BASE_URL}/icon.svg`,
       description:
-        "Free, open-source CPF contribution calculator for Singapore employees and employers.",
+        "Free, open-source CPF planning tools for Singapore employees and Permanent Residents.",
       founder: {
         "@type": "Person",
         name: "Ru Chern Chong",
@@ -101,21 +101,51 @@ const schema: Graph = {
     },
     {
       "@type": "SiteNavigationElement",
+      name: "Projection",
+      url: `${BASE_URL}/projection`,
+      position: 2,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "What-If",
+      url: `${BASE_URL}/what-if`,
+      position: 3,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "CPF LIFE",
+      url: `${BASE_URL}/cpf-life`,
+      position: 4,
+    },
+    {
+      "@type": "SiteNavigationElement",
       name: "Interest Rates",
       url: `${BASE_URL}/interest-rates`,
-      position: 2,
+      position: 5,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "CPF Cheat Sheet",
+      url: `${BASE_URL}/cpf-cheat-sheet`,
+      position: 6,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "Retirement Readiness",
+      url: `${BASE_URL}/retirement-readiness`,
+      position: 7,
     },
     {
       "@type": "SiteNavigationElement",
       name: "Investments",
       url: `${BASE_URL}/investments`,
-      position: 3,
+      position: 8,
     },
     {
       "@type": "SiteNavigationElement",
       name: "About",
       url: `${BASE_URL}/about`,
-      position: 4,
+      position: 9,
     },
   ],
 };
@@ -124,7 +154,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={geist.className}>
+    <html lang="en" className={geist.className} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
           <Providers>

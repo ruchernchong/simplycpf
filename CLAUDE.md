@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # SimplyCPF - Development Guide
 
-A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions following Singapore's 2023 Budget changes to income ceilings.
+A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions and helps users plan CPF outcomes following Singapore's 2023 Budget changes to income ceilings.
 
 ## Build and Test Commands
 - `pnpm dev` - Start development server via Portless at `https://simplycpf.localhost`
@@ -49,14 +49,16 @@ Keep documentation in sync with code changes:
 
 ## Architecture
 
-### State Management (Jotai Atoms)
-State is managed through Jotai atoms in `src/atoms/`:
+### State Management
+Calculator-wide shared state is managed through Jotai atoms in `src/atoms/`:
 - `result-atom.ts` - Core derived atoms for CPF calculations (`contributionResultAtom`, `distributionResultsAtom`)
-- `user-atom.ts` - User-specific data (age, birth date)
-- `user-input-atom.ts` - Form input state
+- `user-atom.ts` - Derived user age group from stored birth date
 - `setting-atom.ts` - User settings (income, storage preferences)
 - `income-ceiling-atom.ts` - Income ceiling data and selected timeline date (`latestIncomeCeilingDateAtom`)
-- `year-slider-atom.ts` - Timeline year slider state
+
+Self-contained pages that do not need cross-route shared state, such as the CPF projection page, can use page-local client state instead of introducing new global atoms.
+Projection and what-if pages serialise form state into the URL with `nuqs` so results can be shared and reopened directly from search params.
+Lead magnet flows such as the retirement readiness score use page-local client state and should not introduce new global atoms.
 
 ### CPF Calculation Logic
 The core calculation happens in `src/lib/calculate-cpf-contribution.ts`:
@@ -65,10 +67,17 @@ The core calculation happens in `src/lib/calculate-cpf-contribution.ts`:
 - Returns `ComputedResult` with employee/employer contributions and OA/SA/MA distributions
 - Income is capped at the ceiling defined in `src/constants/index.ts` based on the year
 
+Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
+- Projects yearly balances across OA, SA, MA, and RA from the current age to a chosen end age
+- Applies CPF floor interest rates, extra interest tiers, BHS overflow handling, and the age 55 SA to RA conversion
+- Supports optional housing withdrawals, annual voluntary top-ups, and OA to SA transfers
+- Returns `ProjectionResult` with yearly balances, milestone snapshots, and simplified CPF LIFE estimates
+
 ### Key Data Structures
 - **Age Groups** (`src/data/index.ts`): 8 age brackets with varying contribution rates (employee/employer) and distribution rates (OA/SA/MA percentages)
 - **Income Ceilings** (`src/constants/index.ts`): Ceiling values by year following the gradual increase from $6000 (pre-Sept 2023) to $8000 (Sept 2026)
-- **Types** (`src/types/index.ts`): `AgeGroup`, `ContributionRate`, `DistributionRate`, `ComputedResult`, `ContributionResult`
+- **Projection Constants** (`src/constants/cpf-retirement-sums.ts`, `src/constants/cpf-bhs.ts`, `src/constants/cpf-interest-tiers.ts`, `src/data/permanent-resident-rates.ts`): Retirement sums, BHS values, extra interest tiers, and PR graduated rates
+- **Types** (`src/types/index.ts`): `AgeGroup`, `ContributionRate`, `DistributionRate`, `ComputedResult`, `ContributionResult`, `ProjectionParams`, `ProjectionResult`, `YearlyBalance`
 
 ### Testing Strategy
 - Tests use Vitest with jsdom environment
@@ -83,7 +92,7 @@ The core calculation happens in `src/lib/calculate-cpf-contribution.ts`:
 
 ### Route Groups
 The application uses Next.js route groups for organisation:
-- `(main)` - Main application routes (calculator, about, interest-rates, investments)
+- `(main)` - Main application routes (home, calculator, projection, what-if, cpf-life, cpf-cheat-sheet, retirement-readiness, about, privacy, interest-rates, investments)
 - `(docs)` - Developer portal routes powered by Fumadocs
 
 ### Developer Portal
@@ -112,6 +121,8 @@ RESTful API endpoints under `/api/cpf/` provide programmatic access to CPF calcu
 
 Other API routes:
 - `/api/search` - Full-text search across documentation
+- `/api/lead-capture` - Internal email delivery endpoint for lead magnet requests
+- `/api/lead-magnets/cpf-cheat-sheet` - Generates the public cheat sheet PDF
 
 ### LLM Integration Routes
 Routes for AI/LLM consumption following the llms.txt specification:
@@ -127,14 +138,27 @@ Located in `src/hooks/`:
 
 ### Utilities
 - `src/lib/cache-headers.ts` - Standardised cache header utilities for API responses
+- `src/lib/calculate-retirement-readiness.ts` - Scoring logic and next-step recommendations for the readiness assessment
+- `src/lib/email-templates.ts` - HTML/text email templates for the cheat sheet and readiness report
 - `src/lib/error-handler.ts` - Centralised error handling with consistent API error responses
 - `src/lib/format.ts` - Number and currency formatting utilities
+- `src/lib/get-cpf-cheat-sheet-data.ts` - Shared CPF reference data used by the cheat sheet page and PDF export
+- `src/lib/resend.ts` - Resend contact upsert and transactional email helpers for optional resource delivery
 - `src/config/index.ts` - Application configuration constants
 
 ### Key Components
 - **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline showing the progression of CPF income ceiling changes from pre-2023 to final 2026 ceiling
 - **PDF Export** (`cpf-results-pdf.tsx`, `download-pdf.tsx`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
+- **Lead Magnet Components** (`src/components/lead-magnets/`): CTA cards, cheat sheet signup, readiness score assessment, and result views for optional resource delivery
 - **Home Page Components**: `hero-section.tsx`, `insight-banner.tsx`, `quick-actions.tsx` for the landing page
+- **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
+- **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
+- **CPF LIFE Components** (`src/components/cpf-life/`): CPF LIFE payout estimator inputs, plan comparison cards, and retirement sum references for the `/cpf-life` page
+
+### Email Delivery
+- Cheat sheet and readiness report delivery are optional add-ons powered by Resend
+- Configure `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and optionally `RESEND_REPLY_TO_EMAIL` to enable them
+- Core calculators and planning tools should continue to work without any email configuration
 
 ## Design System
 

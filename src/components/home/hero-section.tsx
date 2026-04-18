@@ -9,8 +9,11 @@ import { cn } from "@/lib/utils";
 
 const HeroSection = () => {
   return (
-    <section className="text-center">
-      <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
+    <section className="text-center" aria-labelledby="hero-heading">
+      <h1
+        id="hero-heading"
+        className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl"
+      >
         Know Exactly Where Your CPF Money Goes
       </h1>
       <p className="mx-auto mb-2 max-w-2xl text-lg text-muted-foreground">
@@ -27,14 +30,24 @@ const HeroSection = () => {
       </p>
       <div className="mb-6 flex items-center justify-center gap-4 text-muted-foreground text-sm">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-1.5 rounded-full bg-accent" /> Free
+          <span
+            className="inline-block size-1.5 rounded-full bg-accent"
+            aria-hidden="true"
+          />{" "}
+          Free
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-1.5 rounded-full bg-accent" /> No
-          sign-up
+          <span
+            className="inline-block size-1.5 rounded-full bg-accent"
+            aria-hidden="true"
+          />{" "}
+          No sign-up for core tools
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-1.5 rounded-full bg-accent" />{" "}
+          <span
+            className="inline-block size-1.5 rounded-full bg-accent"
+            aria-hidden="true"
+          />{" "}
           Open-source
         </span>
       </div>
@@ -46,7 +59,11 @@ const HeroSection = () => {
         }
       >
         Calculate My CPF
-        <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
+        <HugeiconsIcon
+          icon={ArrowRight02Icon}
+          className="size-4"
+          aria-hidden="true"
+        />
       </Link>
     </section>
   );

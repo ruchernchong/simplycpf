@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/card";
 import { BASE_URL } from "@/config";
 import faqData from "@/data/faq.json";
+import {
+  buildBreadcrumbList,
+  buildFAQPage,
+  buildGraph,
+  buildPageSchema,
+  buildSpeakable,
+} from "@/lib/build-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -55,46 +62,21 @@ export const metadata: Metadata = {
 };
 
 const About = () => {
-  const schema: Graph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "AboutPage",
-        name: "About SimplyCPF",
-        description:
-          "About SimplyCPF — a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
-        url: `${BASE_URL}/about`,
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: BASE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "About",
-            item: `${BASE_URL}/about`,
-          },
-        ],
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqData.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: answer,
-          },
-        })),
-      },
-    ],
-  };
+  const schema: Graph = buildGraph([
+    buildPageSchema({
+      name: "About SimplyCPF",
+      description:
+        "About SimplyCPF — a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
+      url: `${BASE_URL}/about`,
+      speakableSelectors: ["h1", "[data-content-block='faq']"],
+    }),
+    buildBreadcrumbList([
+      { name: "Home", url: BASE_URL },
+      { name: "About", url: `${BASE_URL}/about` },
+    ]),
+    buildFAQPage(faqData),
+    buildSpeakable(["h1", "[data-content-block='faq']"]),
+  ]);
 
   return (
     <>
@@ -104,7 +86,7 @@ const About = () => {
           <CardHeader>
             <CardTitle>About SimplyCPF</CardTitle>
             <CardDescription>
-              No guesswork, no sign-up, no data collection
+              No guesswork. The core tools stay free and sign-up is optional.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -112,7 +94,8 @@ const About = () => {
               SimplyCPF is a free, open-source tool that helps Singapore
               Citizens and Permanent Residents see exactly where their CPF
               retirement money goes — based on income, age group, and the latest
-              ceiling changes. No sign-up, no data collection.
+              ceiling changes. The main calculators and planning tools work
+              without sign-up.
             </p>
             <p>
               CPF contribution rates vary across 8 age brackets, and
@@ -126,6 +109,18 @@ const About = () => {
               All calculation logic is open-source and verifiable on GitHub.
               Rates are sourced directly from CPF Board publications and updated
               within days when changes are announced.
+            </p>
+            <p>
+              If you ask SimplyCPF to email you a CPF cheat sheet or readiness
+              report, we only use your email address to send that requested
+              resource. You can read the current disclosure on the{" "}
+              <Link
+                href="/privacy"
+                className="text-accent underline underline-offset-2 hover:text-accent/80"
+              >
+                privacy page
+              </Link>
+              .
             </p>
             <p>
               This tool covers the progressive increases in CPF Income Ceiling
@@ -211,7 +206,7 @@ const About = () => {
 
         <div className="text-center">
           <p className="mb-4 font-medium text-foreground text-lg">
-            Try the calculator — free, instant, no sign-up
+            Try the calculator — free, instant, no sign-up required
           </p>
           <Link
             href="/calculator"

@@ -6,13 +6,24 @@ import {
   CPF_INCOME_CEILING,
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
+import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
 import {
   CPF_ACCOUNT_INTEREST_MAP,
   CPF_INTEREST_FLOOR_RATES,
   PEGGED_RATE_MARKUP,
   QUARTERLY_CPF_RATES,
 } from "@/constants/cpf-interest-rates";
+import {
+  CPF_EXTRA_INTEREST_CAP,
+  CPF_EXTRA_INTEREST_RATE,
+  CPF_OA_EXTRA_INTEREST_CAP,
+} from "@/constants/cpf-interest-tiers";
+import { CPF_RETIREMENT_SUMS } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
+import {
+  permanentResidentYear1Rates,
+  permanentResidentYear2Rates,
+} from "@/data/permanent-resident-rates";
 
 export const revalidate = false;
 
@@ -39,6 +50,31 @@ const ceilingRows = Object.entries(CPF_INCOME_CEILING)
 const quarterlyRows = QUARTERLY_CPF_RATES.map(
   (q) => `| ${q.quarter} | ${q.oa}% | ${q.sa}% | ${q.ma}% | ${q.ra}% |`,
 ).join("\n");
+
+const prYear1Rows = permanentResidentYear1Rates
+  .map(
+    (g) =>
+      `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
+  )
+  .join("\n");
+
+const prYear2Rows = permanentResidentYear2Rates
+  .map(
+    (g) =>
+      `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
+  )
+  .join("\n");
+
+const retirementSumRows = Object.entries(CPF_RETIREMENT_SUMS)
+  .map(
+    ([year, sums]) =>
+      `| ${year} | S$${sums.brs.toLocaleString()} | S$${sums.frs.toLocaleString()} | S$${sums.ers.toLocaleString()} |`,
+  )
+  .join("\n");
+
+const bhsRows = Object.entries(CPF_BASIC_HEALTHCARE_SUM)
+  .map(([year, bhs]) => `| ${year} | S$${bhs.toLocaleString()} |`)
+  .join("\n");
 
 const cpfRatesMd = `# CPF Rates — Machine-Readable Reference
 
@@ -92,6 +128,37 @@ SMRA interest rate = max(10-year SGS 12-month average yield + ${PEGGED_RATE_MARK
 |---------|----|----|----|----|
 ${quarterlyRows}
 
+### Extra Interest Tiers
+
+- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${CPF_EXTRA_INTEREST_CAP.toLocaleString()} combined
+- OA portion eligible for the extra interest is capped at the first S$${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()}
+
+## PR Graduated Rates
+
+### 1st Year PR Rates
+
+| Age Group | Employee Rate | Employer Rate |
+|-----------|--------------|--------------|
+${prYear1Rows}
+
+### 2nd Year PR Rates
+
+| Age Group | Employee Rate | Employer Rate |
+|-----------|--------------|--------------|
+${prYear2Rows}
+
+## Retirement Sums
+
+| Year | BRS | FRS | ERS |
+|------|-----|-----|-----|
+${retirementSumRows}
+
+## Basic Healthcare Sum (BHS)
+
+| Year | BHS |
+|------|-----|
+${bhsRows}
+
 ## CPF Contribution Formula
 
 1. Determine the applicable income ceiling C based on the year
@@ -111,6 +178,7 @@ ${quarterlyRows}
 - **Final income ceiling (2026):** S$${CPF_INCOME_CEILING["2026-01-01"].toLocaleString()}
 - **OA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.OA}% p.a.
 - **SMRA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.
+- **Extra interest tier:** ${CPF_EXTRA_INTEREST_RATE * 100}% on first S$${CPF_EXTRA_INTEREST_CAP.toLocaleString()} (OA capped at S$${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()})
 - **Age brackets:** 8 (0–35, 36–45, 46–50, 51–55, 56–60, 61–65, 66–70, 70+)
 - **Ceiling increase (2023–2026):** 33.3% (S$6,000 → S$8,000)
 

@@ -1,0 +1,18 @@
+[
+  {
+    "question": "How are CPF contributions calculated?",
+    "answer": "CPF contributions are calculated by applying the contribution rate for your age group to your capped monthly income. Income above the prevailing CPF income ceiling is not subject to contributions. The total contribution is then distributed across your Ordinary Account (OA), Special Account (SA), and MediSave Account (MA) based on distribution rates for your age group."
+  },
+  {
+    "question": "What is the CPF income ceiling for 2026?",
+    "answer": "The CPF income ceiling is S$8,000 per month from January 2026. This is the final step of the progressive increase from S$6,000 (pre-September 2023) announced in Budget 2023."
+  },
+  {
+    "question": "How much do I contribute to CPF as an employee aged 55 and below?",
+    "answer": "Employees aged 55 and below contribute 20% of their capped monthly salary to CPF, while employers contribute 17%, for a total of 37%. Income above the ceiling is not subject to CPF contributions."
+  },
+  {
+    "question": "Does my age affect my CPF contribution rate?",
+    "answer": "Yes. CPF contribution rates decrease as you age. There are 8 age brackets: 55 and below (37% total), above 55 to 60 (26.5% total), above 60 to 65 (16.5% total), above 65 to 70 (12.5% total), and above 70 (10.5% total). The distribution across OA, SA, and MA also shifts — older workers see more allocated to SA and MA rather than OA."
+  }
+]
