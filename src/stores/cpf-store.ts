@@ -92,18 +92,11 @@ export const createCpfStore = () => {
          * Only persist settings when shouldStoreInput is true.
          * This matches the current Jotai atomWithStorage behavior.
          */
-        partialize: (state) => {
-          if (!state.settings.shouldStoreInput) {
-            return {
-              settings: initialSettings,
-              latestIncomeCeilingDate: state.latestIncomeCeilingDate,
-            };
-          }
-          return {
-            settings: state.settings,
-            latestIncomeCeilingDate: state.latestIncomeCeilingDate,
-          };
-        },
+        partialize: (state) => ({
+          settings: state.settings.shouldStoreInput
+            ? state.settings
+            : initialSettings,
+        }),
       },
     ),
   );
