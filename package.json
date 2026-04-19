@@ -39,9 +39,9 @@
     "posthog-js": "1.367.0",
     "posthog-node": "5.29.2",
     "react": "19.2.3",
-    "react-day-picker": "8.10.1",
+    "react-day-picker": "9.14.0",
     "react-dom": "19.2.3",
-    "recharts": "2.15.4",
+    "recharts": "3.8.0",
     "tailwind-merge": "2.6.0",
     "zustand": "5.0.12"
   },
