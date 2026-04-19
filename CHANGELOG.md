@@ -1,3 +1,10 @@
+## [1.22.2](https://github.com/ruchernchong/simplycpf/compare/v1.22.1...v1.22.2) (2026-04-19)
+
+### Bug Fixes
+
+* remove effect that wiped inputs on unchecking remember ([c5ca8a9](https://github.com/ruchernchong/simplycpf/commit/c5ca8a991a95bb5a3b991a0d0095fa9b5fd755d0))
+* use items prop on Select to display correct labels ([b055067](https://github.com/ruchernchong/simplycpf/commit/b0550670c00861b935b14f6eb62bbf6326bffa53))
+
 ## [1.22.1](https://github.com/ruchernchong/simplycpf/compare/v1.22.0...v1.22.1) (2026-04-19)
 
 ### Bug Fixes
