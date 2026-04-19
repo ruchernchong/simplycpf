@@ -202,6 +202,7 @@ const UserInput = () => {
             </Tooltip>
           </div>
           <Select
+            items={citizenshipOptions}
             value={citizenshipStatus}
             onValueChange={(value) =>
               updateSettings({

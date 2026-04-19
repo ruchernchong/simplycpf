@@ -28,7 +28,13 @@ interface OaToSaFormProps {
   onChange: (nextValues: Partial<OaToSaFormValues>) => void;
 }
 
-const transferTimings: OaToSaTransfer["timing"][] = ["now", "yearly"];
+const transferTimingOptions: {
+  label: string;
+  value: OaToSaTransfer["timing"];
+}[] = [
+  { label: "One-off now", value: "now" },
+  { label: "Repeat yearly", value: "yearly" },
+];
 
 function parseNumericInput(value: string): number {
   return Number.parseFloat(value) || 0;
@@ -37,7 +43,7 @@ function parseNumericInput(value: string): number {
 function isTransferTiming(
   value: string | null,
 ): value is OaToSaTransfer["timing"] {
-  return transferTimings.some((timing) => timing === value);
+  return transferTimingOptions.some((option) => option.value === value);
 }
 
 export default function OaToSaForm({
@@ -81,6 +87,7 @@ export default function OaToSaForm({
         <div className="flex flex-col gap-2">
           <Label htmlFor="transfer-timing">Transfer timing</Label>
           <Select
+            items={transferTimingOptions}
             value={values.transferTiming}
             onValueChange={(value) => {
               if (isTransferTiming(value)) {
@@ -92,8 +99,11 @@ export default function OaToSaForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="now">One-off now</SelectItem>
-              <SelectItem value="yearly">Repeat yearly</SelectItem>
+              {transferTimingOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

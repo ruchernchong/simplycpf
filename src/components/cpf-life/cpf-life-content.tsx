@@ -127,6 +127,7 @@ export default function CpfLifeContent() {
           <div className="flex flex-col gap-2">
             <Label htmlFor="cpf-life-plan">Focus plan</Label>
             <Select
+              items={planOptions}
               value={selectedPlan}
               onValueChange={(value) => {
                 setSelectedPlan(value as CpfLifePlan);

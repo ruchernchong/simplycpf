@@ -37,6 +37,11 @@ const citizenshipOptions: {
 
 const startAgeOptions = [25, 35, 45, 55];
 
+const startAgeItems = startAgeOptions.map((age) => ({
+  label: `Start at age ${age}`,
+  value: age.toString(),
+}));
+
 function parseNumericInput(value: string): number {
   return Number.parseFloat(value) || 0;
 }
@@ -74,6 +79,7 @@ export default function AgeComparisonForm({
         <div className="flex flex-col gap-2">
           <Label htmlFor="age-comparison-citizenship">Citizenship status</Label>
           <Select
+            items={citizenshipOptions}
             value={values.citizenship}
             onValueChange={(value) => {
               if (isCitizenshipStatus(value)) {
@@ -100,6 +106,7 @@ export default function AgeComparisonForm({
         <div className="flex flex-col gap-2">
           <Label htmlFor="baseline-start-age">Baseline start age</Label>
           <Select
+            items={startAgeItems}
             value={values.baselineStartAge.toString()}
             onValueChange={(value) => {
               if (isStartAgeOption(value)) {
@@ -114,9 +121,9 @@ export default function AgeComparisonForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {startAgeOptions.map((age) => (
-                <SelectItem key={age} value={age.toString()}>
-                  Start at age {age}
+              {startAgeItems.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -126,6 +133,7 @@ export default function AgeComparisonForm({
         <div className="flex flex-col gap-2">
           <Label htmlFor="scenario-start-age">Scenario start age</Label>
           <Select
+            items={startAgeItems}
             value={values.scenarioStartAge.toString()}
             onValueChange={(value) => {
               if (isStartAgeOption(value)) {
@@ -140,9 +148,9 @@ export default function AgeComparisonForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {startAgeOptions.map((age) => (
-                <SelectItem key={age} value={age.toString()}>
-                  Start at age {age}
+              {startAgeItems.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>

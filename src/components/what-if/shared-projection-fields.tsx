@@ -103,6 +103,7 @@ export default function SharedProjectionFields({
       <div className="flex flex-col gap-2">
         <Label htmlFor="what-if-citizenship">Citizenship status</Label>
         <Select
+          items={citizenshipOptions}
           value={values.citizenship}
           onValueChange={(value) => {
             if (isCitizenshipStatus(value)) {

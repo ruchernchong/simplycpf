@@ -60,7 +60,14 @@ const citizenshipOptions: {
 ];
 
 const topUpAccounts: VoluntaryTopUp["account"][] = ["SA", "MA", "RA"];
-const transferTimings: OaToSaTransfer["timing"][] = ["now", "yearly"];
+
+const transferTimingOptions: {
+  label: string;
+  value: OaToSaTransfer["timing"];
+}[] = [
+  { label: "One-off now", value: "now" },
+  { label: "Repeat yearly", value: "yearly" },
+];
 
 function parseNumericInput(value: string): number {
   return Number.parseFloat(value) || 0;
@@ -79,7 +86,7 @@ function isTopUpAccount(
 function isTransferTiming(
   value: string | null,
 ): value is OaToSaTransfer["timing"] {
-  return transferTimings.some((timing) => timing === value);
+  return transferTimingOptions.some((option) => option.value === value);
 }
 
 export default function ProjectionForm({
@@ -158,6 +165,7 @@ export default function ProjectionForm({
           <div className="flex flex-col gap-2">
             <Label htmlFor="projection-citizenship">Citizenship status</Label>
             <Select
+              items={citizenshipOptions}
               value={values.citizenship}
               onValueChange={(value) => {
                 if (isCitizenshipStatus(value)) {
@@ -285,6 +293,7 @@ export default function ProjectionForm({
           <div className="flex flex-col gap-2 sm:col-span-2">
             <Label htmlFor="projection-transfer-timing">Transfer timing</Label>
             <Select
+              items={transferTimingOptions}
               value={values.transferTiming}
               onValueChange={(value) => {
                 if (isTransferTiming(value)) {
@@ -299,9 +308,9 @@ export default function ProjectionForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {transferTimings.map((timing) => (
-                  <SelectItem key={timing} value={timing}>
-                    {timing === "now" ? "One-off now" : "Repeat yearly"}
+                {transferTimingOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

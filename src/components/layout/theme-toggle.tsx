@@ -49,8 +49,23 @@ const ThemeToggle = () => {
   return (
     <div>
       <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
-        <SelectTrigger aria-label="Select Theme" className="w-[100px]">
-          <SelectValue />
+        <SelectTrigger aria-label="Select theme" className="w-[100px]">
+          <SelectValue>
+            {(value) => {
+              const option = themeOptions.find((o) => o.value === value);
+              if (!option) return null;
+              return (
+                <>
+                  <HugeiconsIcon
+                    icon={option.icon}
+                    className="size-4"
+                    strokeWidth={2}
+                  />
+                  <span>{option.label}</span>
+                </>
+              );
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {themeOptions.map(({ value, label, icon }) => (
