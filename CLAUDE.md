@@ -11,13 +11,24 @@ A Next.js 16.2 application that calculates CPF (Central Provident Fund) contribu
 - `PORTLESS=0 pnpm dev` - Start development server without Portless (direct `localhost:3000`)
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
-- `pnpm lint` - Run Biome linting
+- `pnpm lint` - Run Biome linting across the repo
 - `pnpm format` - Format code with Biome
-- `pnpm typecheck` - Run TypeScript type checking
-- `pnpm test` - Run tests once with coverage
+- `pnpm typecheck` - Runs `next typegen` first then `tsc --noEmit`
+- `pnpm test` - Run tests once with coverage (Vitest)
 - `pnpm test:watch` - Run tests in watch mode
 - `pnpm test:coverage` - Run tests with coverage report
 - `pnpm generate:docs` - Generate API documentation
+
+### Targeted runs
+- Single test file: `pnpm exec vitest run src/lib/__tests__/calculate-cpf-contribution.test.ts`
+- Filter by test name: `pnpm exec vitest run -t "ceiling"`
+- Lint/format a single file: `pnpm exec biome check --write src/components/foo.tsx`
+
+### First-time setup
+`.npmrc` sets `ignore-scripts=true` (block install-time scripts), `save-exact=true` (no `^`/`~` on `pnpm add`), and `minimum-release-age=4320` (3-day quarantine for newly published packages). Because of `ignore-scripts`, **you must run `pnpm run prepare` after `pnpm install`** to wire up Husky hooks — otherwise commits won't be linted.
+
+### Commit conventions
+Commits are validated by `commitlint` with `@commitlint/config-conventional` via the `commit-msg` Husky hook. Use Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`, `style:`, `docs:`, `test:`). `lint-staged` runs Biome on staged files via the `pre-commit` hook. Versioning is fully automated by `semantic-release` based on commit history, so the prefix you pick directly drives the next published version.
 
 ## Code Style
 - **Language**: Use English (Singapore) spelling across documentation and copy
@@ -80,10 +91,10 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 - **Types** (`src/types/index.ts`): `AgeGroup`, `ContributionRate`, `DistributionRate`, `ComputedResult`, `ContributionResult`, `ProjectionParams`, `ProjectionResult`, `YearlyBalance`
 
 ### Testing Strategy
-- Tests use Vitest with jsdom environment
-- Coverage excludes: `node_modules`, `.next`, `.d.ts` files, config files, `src/middleware.ts`, and `src/components/ui/**` (UI library components)
-- Test files located alongside source in `__tests__` directories
-- React component tests exist but are excluded from main test runs
+- Tests use Vitest with jsdom environment, globals enabled, setup at `vitest.setup.ts`
+- Test files live alongside source in `__tests__` directories matching `src/**/*.{test,spec}.{ts,tsx}`
+- Coverage source is `src/**/*.{js,jsx,ts,tsx}` with these exclusions: `*.d.ts`, `src/components/ui/**`, `src/proxy.ts`, `src/types/**`, `src/providers/**`, every `src/app/(main)/**/{page,loading,error}.tsx`, `src/app/(docs)/**`, `src/app/{robots,sitemap}.ts`, `src/app/{error,not-found,providers}.tsx`, `src/app/**/layout.tsx`, and the OG/icon image generators (`src/app/{apple-icon,icon,opengraph-image,twitter-image}.tsx`)
+- Page components are intentionally excluded — treat them as presentational shells; cover behaviour in their child components and in the underlying `src/lib/` calculation modules
 
 ### UI Components
 - UI components in `src/components/ui/` are from shadcn/ui (excluded from Biome linting)
@@ -92,7 +103,7 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 
 ### Route Groups
 The application uses Next.js route groups for organisation:
-- `(main)` - Main application routes (home, calculator, projection, what-if, cpf-life, cpf-cheat-sheet, retirement-readiness, about, privacy, interest-rates, investments)
+- `(main)` - Main application routes (home, calculator, projection, what-if, cpf-life, cpf-cheat-sheet, retirement-readiness, about, faq, privacy, interest-rates, investments)
 - `(docs)` - Developer portal routes powered by Fumadocs
 
 ### Developer Portal
@@ -149,8 +160,10 @@ Located in `src/hooks/`:
 - **Lead Magnet Components** (`src/components/lead-magnets/`): On-page readiness score assessment form and result view for the `/retirement-readiness` page
 - **Home Page Components**: `hero-section.tsx`, `insight-banner.tsx`, `quick-actions.tsx` for the landing page
 - **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
-- **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
+- **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, scenario summary banner, and result cards for the `/what-if` page
 - **CPF LIFE Components** (`src/components/cpf-life/`): CPF LIFE payout estimator inputs, plan comparison cards, and retirement sum references for the `/cpf-life` page
+- **Interest Rates Components** (`src/components/interest-rates/`): Rate overview cards, extra interest tier cards, distribution rates table, the SMRA pegged-vs-floor explainer (`understanding-rates-info`), 12-month trend chart, and the quarterly rates table for the `/interest-rates` page. The page also reuses three SEO blocks from `src/components/seo/` (`cpf-contribution-comparison-block`, `cpf-distribution-comparison-block`, `cpf-interest-tiers-block`); the interest tiers block is also rendered on `/projection`
+- **FAQ Page** (`src/components/faq/on-this-page-nav.tsx`): IntersectionObserver-driven scroll spy for the FAQ index page
 
 ## Design System
 
@@ -193,6 +206,31 @@ Philosophy: **"Push Down, Not Pull Up"** — Elements push content below them ra
 - Use `size-*` instead of `w-* h-*` for square elements
 - Use `gap-*` for flex/grid containers
 - CSS-first configuration in `globals.css` with `@theme inline`
+
+### Section card pattern (canonical)
+Page-level cards/sections use a single class signature so the whole site stays visually consistent:
+
+```tsx
+<section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+  <div className="flex flex-col gap-1">
+    <h2 className="font-semibold text-[16px] text-foreground">Title</h2>
+    <p className="text-[12px] text-muted-foreground">Subhead.</p>
+  </div>
+  {/* content */}
+</section>
+```
+
+Prefer this over `<Card>`/`<CardHeader>`/`<CardContent>` from `src/components/ui/card.tsx` for new page sections — the shadcn `Card` is reserved for places where the existing app already uses it.
+
+### Colour usage
+**Always reach for design tokens**, never raw Tailwind colour scales like `bg-amber-50`, `text-blue-900`, `border-zinc-200`, or hex literals. Tokens to use:
+
+- Surface/text: `bg-card`, `bg-muted`, `bg-muted/40`, `text-foreground`, `text-muted-foreground`, `border-border`
+- Brand accent (teal): `bg-accent`, `bg-accent/5`, `text-accent`, `border-accent/30`, `ring-accent/20`, `text-accent-foreground`
+- Charts/recharts: `var(--color-chart-1)` … `var(--color-chart-5)`, `var(--color-destructive)` for warning lines
+- Recharts grid/axis: `stroke="var(--color-border)"` and `tick={{ fill: "var(--color-muted-foreground)" }}`
+
+Tinted info callouts use `bg-muted/50 ring-1 ring-border/60` (neutral) or `bg-accent/5 ring-1 ring-accent/20` (emphasis) — not raw amber/blue backgrounds.
 
 ### Off-Limits
 
