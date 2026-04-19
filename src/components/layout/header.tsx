@@ -1,14 +1,13 @@
-import {
-  CodeIcon,
-  Home01Icon,
-  InformationCircleIcon,
-} from "@hugeicons/core-free-icons";
+import { Github01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Route } from "next";
 import Link from "next/link";
 import MobileNav from "@/components/layout/mobile-nav";
 import ThemeToggle from "@/components/layout/theme-toggle";
 import { Logo } from "@/components/logo";
+
+const headerActionClass =
+  "inline-flex h-8 items-center gap-1 rounded-4xl px-3 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground";
 
 export function Header() {
   return (
@@ -21,53 +20,31 @@ export function Header() {
       </a>
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="group flex items-center gap-4">
-              <Logo className="size-9 shadow-sm" />
-              <span className="font-semibold text-foreground text-xl tracking-tight transition-colors group-hover:text-primary">
-                SimplyCPF
-              </span>
-            </Link>
-
-            <nav className="hidden items-center gap-2 md:flex">
-              <Link
-                href="/"
-                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
-              >
-                <HugeiconsIcon
-                  icon={Home01Icon}
-                  className="size-4"
-                  strokeWidth={2}
-                />
-                Home
-              </Link>
-              <Link
-                href="/about"
-                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
-              >
-                <HugeiconsIcon
-                  icon={InformationCircleIcon}
-                  className="size-4"
-                  strokeWidth={2}
-                />
-                About
-              </Link>
-              <Link
-                href={"/docs" as Route}
-                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
-              >
-                <HugeiconsIcon
-                  icon={CodeIcon}
-                  className="size-4"
-                  strokeWidth={2}
-                />
-                Developer
-              </Link>
-            </nav>
-          </div>
+          <Link href="/" className="group flex items-center gap-4">
+            <Logo className="size-9 shadow-sm" />
+            <span className="font-semibold text-foreground text-xl tracking-tight transition-colors group-hover:text-primary">
+              SimplyCPF
+            </span>
+          </Link>
 
           <div className="flex items-center gap-2">
-            <div className="hidden md:block">
+            <div className="hidden items-center gap-1 md:flex">
+              <Link href={"/docs" as Route} className={headerActionClass}>
+                Docs
+              </Link>
+              <a
+                href="https://github.com/ruchernchong/simplycpf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={headerActionClass}
+              >
+                <HugeiconsIcon
+                  icon={Github01Icon}
+                  className="size-4"
+                  strokeWidth={2}
+                />
+                GitHub
+              </a>
               <ThemeToggle />
             </div>
             <MobileNav />

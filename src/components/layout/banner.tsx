@@ -33,7 +33,7 @@ const Banner = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:gap-6">
             {/* Label */}
-            <span className="font-medium text-primary-foreground/80 text-sm uppercase tracking-wider">
+            <span className="font-medium text-primary-foreground/80 text-xs uppercase tracking-[0.1em]">
               Your CPF Income Ceiling
             </span>
 

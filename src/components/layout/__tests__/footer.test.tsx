@@ -1,25 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
 import { Footer } from "../footer";
 
-// Mock the current year to make tests deterministic
-const _mockDate = new Date(2024, 0, 1);
 const originalDate = global.Date;
-
-vi.mock("@hugeicons/react", () => ({
-  HugeiconsIcon: ({
-    icon,
-    ...props
-  }: {
-    icon: unknown;
-    "data-testid"?: string;
-  }) => <div data-testid={props["data-testid"] || "hugeicon"}>Icon</div>,
-}));
-
-vi.mock("@hugeicons/core-free-icons", () => ({
-  Github01Icon: "Github01Icon",
-  FavouriteIcon: "FavouriteIcon",
-}));
 
 describe("Footer", () => {
   beforeAll(() => {
@@ -56,7 +38,7 @@ describe("Footer", () => {
     render(<Footer />);
     expect(screen.getByText("Official Resources")).toBeTruthy();
 
-    const cpfLink = screen.getByText("CPF Board Website");
+    const cpfLink = screen.getByText("CPF Board");
     expect(cpfLink).toBeTruthy();
     expect(cpfLink.closest("a")?.getAttribute("href")).toBe(
       "https://www.cpf.gov.sg",
@@ -66,10 +48,16 @@ describe("Footer", () => {
       "noopener noreferrer",
     );
 
-    const momLink = screen.getByText("Ministry of Manpower");
-    expect(momLink).toBeTruthy();
-    expect(momLink.closest("a")?.getAttribute("href")).toBe(
-      "https://www.mom.gov.sg",
+    const budgetLink = screen.getByText("Budget 2023");
+    expect(budgetLink).toBeTruthy();
+    expect(budgetLink.closest("a")?.getAttribute("href")).toBe(
+      "https://www.mof.gov.sg/budget-archives/budget-2023/",
+    );
+
+    const githubLink = screen.getByText("GitHub Repository");
+    expect(githubLink).toBeTruthy();
+    expect(githubLink.closest("a")?.getAttribute("href")).toBe(
+      "https://github.com/ruchernchong/simplycpf",
     );
   });
 
@@ -80,16 +68,8 @@ describe("Footer", () => {
     ).toBeTruthy();
   });
 
-  it("renders 'Open-source with love' text", () => {
+  it("renders 'Made in Singapore' tagline", () => {
     render(<Footer />);
-    expect(
-      screen.getByText((_, element) => {
-        return (
-          element?.tagName === "SPAN" &&
-          element?.textContent?.includes("Open-source with") &&
-          element?.textContent?.includes("in Singapore")
-        );
-      }),
-    ).toBeTruthy();
+    expect(screen.getByText("Made in Singapore")).toBeTruthy();
   });
 });

@@ -13,9 +13,7 @@ vi.mock("@hugeicons/react", () => ({
 }));
 
 vi.mock("@hugeicons/core-free-icons", () => ({
-  CodeIcon: "CodeIcon",
-  Home01Icon: "Home01Icon",
-  InformationCircleIcon: "InformationCircleIcon",
+  Github01Icon: "Github01Icon",
 }));
 
 vi.mock("@/components/layout/mobile-nav", () => ({
@@ -35,11 +33,11 @@ describe("Header", () => {
     expect(logoLink.closest("a")?.getAttribute("href")).toBe("/");
   });
 
-  it("renders navigation links", () => {
+  it("renders header action links", () => {
     render(<Header />);
 
-    expect(screen.getByText("Home")).toBeTruthy();
-    expect(screen.getByText("About")).toBeTruthy();
+    expect(screen.getByText("Docs")).toBeTruthy();
+    expect(screen.getByText("GitHub")).toBeTruthy();
   });
 
   it("renders the mobile nav", () => {

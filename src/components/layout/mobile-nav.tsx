@@ -1,6 +1,10 @@
 "use client";
 
-import { Moon01Icon, Sun01Icon } from "@hugeicons/core-free-icons";
+import {
+  Github01Icon,
+  Moon01Icon,
+  Sun01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -28,7 +32,7 @@ const navItems: { href: Route; label: string }[] = [
   { href: "/interest-rates" as Route, label: "Interest Rates" },
   { href: "/investments" as Route, label: "Investments" },
   { href: "/about" as Route, label: "About" },
-  { href: "/docs" as Route, label: "Developer" },
+  { href: "/docs" as Route, label: "Docs" },
 ];
 
 const MobileNav = () => {
@@ -77,6 +81,20 @@ const MobileNav = () => {
               {item.label}
             </Link>
           ))}
+          <a
+            href="https://github.com/ruchernchong/simplycpf"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 rounded-lg px-4 py-3 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
+          >
+            <HugeiconsIcon
+              icon={Github01Icon}
+              className="size-4"
+              strokeWidth={2}
+            />
+            GitHub
+          </a>
           <div className="my-2 border-border border-t" />
           <div className="flex items-center justify-between rounded-lg px-4 py-3">
             <span className="font-medium text-muted-foreground text-sm">
