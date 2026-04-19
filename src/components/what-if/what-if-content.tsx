@@ -7,14 +7,6 @@ import {
   useQueryStates,
 } from "nuqs";
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   calculateAgeComparisonScenario,
@@ -37,6 +29,7 @@ import ScenarioSelector, {
   isScenarioType,
   type ScenarioType,
 } from "./scenario-selector";
+import ScenarioSummaryBanner from "./scenario-summary-banner";
 import VoluntaryTopUpForm, {
   type VoluntaryTopUpFormValues,
 } from "./voluntary-top-up-form";
@@ -93,7 +86,7 @@ const transferTimings = ["now", "yearly"] as const;
 const topUpAccounts = ["SA", "MA", "RA"] as const;
 
 const whatIfSearchParams = {
-  scenario: parseAsStringLiteral(scenarioTypes).withDefault("salary"),
+  scenario: parseAsStringLiteral(scenarioTypes).withDefault("top-up"),
   monthlyIncome: parseAsInteger.withDefault(defaultSalaryValues.monthlyIncome),
   birthDate: parseAsString.withDefault(defaultSalaryValues.birthDate),
   endAge: parseAsInteger.withDefault(defaultSalaryValues.endAge),
@@ -129,36 +122,24 @@ function getScenarioSummary(
   switch (scenario) {
     case "salary":
       return {
-        title: "What if your salary changes?",
-        description:
-          "Compare your current monthly income against a higher or lower salary and see how the change flows through to your CPF balances.",
-        baselineLabel: `Current income (${salaryValues.monthlyIncome.toLocaleString("en-SG")})`,
-        scenarioLabel: `New income (${salaryValues.newIncome.toLocaleString("en-SG")})`,
+        baselineLabel: `Current income $${salaryValues.monthlyIncome.toLocaleString("en-SG")}`,
+        scenarioLabel: `New income $${salaryValues.newIncome.toLocaleString("en-SG")}`,
       };
     case "transfer":
       return {
-        title: "What if you move OA to SA?",
-        description:
-          "See how shifting money from OA into SA could change your compounding and retirement outcome.",
         baselineLabel: "No OA to SA transfer",
         scenarioLabel:
           transferValues.transferTiming === "yearly"
-            ? "Repeat OA to SA transfer"
-            : "One-off OA to SA transfer",
+            ? `Repeat $${transferValues.transferAmount.toLocaleString("en-SG")} yearly`
+            : `One-off $${transferValues.transferAmount.toLocaleString("en-SG")}`,
       };
     case "top-up":
       return {
-        title: "What if you do annual top-ups?",
-        description:
-          "Estimate the combined effect of yearly top-ups, higher compounding, and CPF LIFE payout changes.",
         baselineLabel: "No annual top-up",
-        scenarioLabel: `Annual ${topUpValues.topUpAccount} top-up`,
+        scenarioLabel: `$${topUpValues.topUpAmount.toLocaleString("en-SG")} ${topUpValues.topUpAccount} top-up`,
       };
     case "age-comparison":
       return {
-        title: "What if you start later?",
-        description:
-          "Compare two starting ages to see the cost of delay on CPF contributions and compounding.",
         baselineLabel: `Start at age ${ageComparisonValues.baselineStartAge}`,
         scenarioLabel: `Start at age ${ageComparisonValues.scenarioStartAge}`,
       };
@@ -175,7 +156,7 @@ export default function WhatIfContent() {
       scenarioStartAge: "scenarioAge",
     },
   });
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [linkCopied, setLinkCopied] = useState(false);
 
   const scenario = queryValues.scenario;
@@ -359,7 +340,7 @@ export default function WhatIfContent() {
   };
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+    <div className="flex flex-col gap-5">
       <Tabs
         value={scenario}
         onValueChange={(value) => {
@@ -368,106 +349,89 @@ export default function WhatIfContent() {
           }
         }}
       >
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>{scenarioSummary.title}</CardTitle>
-            <CardDescription>{scenarioSummary.description}</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6">
-            <ScenarioSelector />
+        <ScenarioSelector active={scenario} />
 
-            <TabsContent value="salary">
-              <SalaryChangeForm
-                values={salaryValues}
-                currentAge={salaryCurrentAge}
-                hasValidBirthDate={salaryHasValidBirthDate}
-                hasValidRange={salaryHasValidRange}
-                onBirthDateChange={handleBirthDateChange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
+        <div className="mt-5 rounded-lg border border-border bg-card p-6 shadow-sm">
+          <TabsContent value="salary" className="m-0">
+            <SalaryChangeForm
+              values={salaryValues}
+              currentAge={salaryCurrentAge}
+              hasValidBirthDate={salaryHasValidBirthDate}
+              hasValidRange={salaryHasValidRange}
+              onBirthDateChange={handleBirthDateChange}
+              onChange={handleSharedChange}
+            />
+          </TabsContent>
 
-            <TabsContent value="transfer">
-              <OaToSaForm
-                values={transferValues}
-                currentAge={transferCurrentAge}
-                hasValidBirthDate={transferHasValidBirthDate}
-                hasValidRange={transferHasValidRange}
-                onBirthDateChange={handleBirthDateChange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
+          <TabsContent value="transfer" className="m-0">
+            <OaToSaForm
+              values={transferValues}
+              currentAge={transferCurrentAge}
+              hasValidBirthDate={transferHasValidBirthDate}
+              hasValidRange={transferHasValidRange}
+              onBirthDateChange={handleBirthDateChange}
+              onChange={handleSharedChange}
+            />
+          </TabsContent>
 
-            <TabsContent value="top-up">
-              <VoluntaryTopUpForm
-                values={topUpValues}
-                currentAge={topUpCurrentAge}
-                hasValidBirthDate={topUpHasValidBirthDate}
-                hasValidRange={topUpHasValidRange}
-                onBirthDateChange={handleBirthDateChange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
+          <TabsContent value="top-up" className="m-0">
+            <VoluntaryTopUpForm
+              values={topUpValues}
+              currentAge={topUpCurrentAge}
+              hasValidBirthDate={topUpHasValidBirthDate}
+              hasValidRange={topUpHasValidRange}
+              onBirthDateChange={handleBirthDateChange}
+              onChange={handleSharedChange}
+            />
+          </TabsContent>
 
-            <TabsContent value="age-comparison">
-              <AgeComparisonForm
-                values={ageComparisonValues}
-                hasValidRange={ageComparisonHasValidRange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
-          </CardContent>
-        </Card>
+          <TabsContent value="age-comparison" className="m-0">
+            <AgeComparisonForm
+              values={ageComparisonValues}
+              hasValidRange={ageComparisonHasValidRange}
+              onChange={handleSharedChange}
+            />
+          </TabsContent>
+        </div>
       </Tabs>
 
-      <div className="flex flex-col gap-6">
-        {result ? (
-          <>
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={handleCopyWhatIfLink}>
-                {linkCopied ? "Link copied" : "Copy share link"}
-              </Button>
-            </div>
-            <ScenarioComparisonChart
-              baseline={result.baseline}
-              scenario={result.scenario}
-              baselineLabel={scenarioSummary.baselineLabel}
-              scenarioLabel={scenarioSummary.scenarioLabel}
-            />
-            <ScenarioResults
-              result={result}
-              baselineLabel={scenarioSummary.baselineLabel}
-              scenarioLabel={scenarioSummary.scenarioLabel}
-            />
-          </>
-        ) : (
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Your what-if comparison will appear here</CardTitle>
-              <CardDescription>
-                Fill in the scenario inputs to compare the baseline and the
-                alternative outcome.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 text-muted-foreground text-sm">
-              <p>
-                This simulator reuses the same CPF projection engine as the
-                projection page, then layers a second scenario on top for a
-                side-by-side comparison.
-              </p>
-              <ul className="flex list-disc flex-col gap-2 pl-6">
-                <li>Salary change shows the impact of higher or lower pay.</li>
-                <li>OA to SA transfer highlights extra compounding.</li>
-                <li>Top-up compares voluntary contributions and tax relief.</li>
-                <li>Age comparison shows the cost of delay.</li>
-              </ul>
-              {isPending ? (
-                <p className="text-accent">Updating your scenario…</p>
-              ) : null}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {result ? (
+        <>
+          <ScenarioComparisonChart
+            baseline={result.baseline}
+            scenario={result.scenario}
+            baselineLabel={scenarioSummary.baselineLabel}
+            scenarioLabel={scenarioSummary.scenarioLabel}
+          />
+          <ScenarioSummaryBanner
+            age65Delta={result.difference.age65Balance}
+            cpfLifeDelta={result.difference.cpfLifeMonthlyPayout}
+          />
+          <ScenarioResults
+            result={result}
+            baselineLabel={scenarioSummary.baselineLabel}
+            scenarioLabel={scenarioSummary.scenarioLabel}
+          />
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleCopyWhatIfLink}
+              className="rounded-md px-2 py-1 text-[12px] text-muted-foreground hover:text-foreground"
+            >
+              {linkCopied ? "Link copied" : "Copy share link"}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="rounded-lg border border-border border-dashed bg-card p-8 text-muted-foreground">
+          <h3 className="font-semibold text-[16px] text-foreground">
+            Your what-if comparison will appear here
+          </h3>
+          <p className="text-[13px]">
+            Fill in the scenario inputs above to see a side-by-side comparison.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

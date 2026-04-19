@@ -12,7 +12,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CPF_INTEREST_FLOOR_RATES,
   SGS_YIELDS_MONTHLY,
@@ -20,12 +19,11 @@ import {
 import { calculateInterestTrend } from "@/lib/calculate-interest-trend";
 import { formatPercentage } from "@/lib/format";
 
-// Chart colors
 const COLORS = {
-  sgsYield: "#3b82f6", // blue
-  peggedRate: "#f59e0b", // amber
-  actualRate: "#10b981", // green
-  floorLine: "#ef4444", // red
+  sgsYield: "var(--color-chart-1)",
+  peggedRate: "var(--color-chart-4)",
+  actualRate: "var(--color-chart-2)",
+  floorLine: "var(--color-destructive)",
 };
 
 interface TooltipPayloadEntry {
@@ -40,32 +38,28 @@ interface CustomTooltipProps {
   label?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-  if (active && payload?.length) {
-    return (
-      <div className="rounded border border-zinc-200 bg-white p-4 shadow-md">
-        <p className="mb-2 font-medium">{label}</p>
-        {payload.map((entry) => (
-          <p
-            key={entry.name}
-            className="text-sm"
-            style={{ color: entry.color }}
-          >
-            {entry.name}:{" "}
-            {formatPercentage(entry.value / 100, { decimalPlaces: 2 })}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-md border border-border bg-card p-3 shadow-sm">
+      <p className="pb-1 font-medium text-[12px] text-foreground">{label}</p>
+      {payload.map((entry) => (
+        <p
+          key={entry.name}
+          className="text-[11px]"
+          style={{ color: entry.color }}
+        >
+          {entry.name}:{" "}
+          {formatPercentage(entry.value / 100, { decimalPlaces: 2 })}
+        </p>
+      ))}
+    </div>
+  );
+}
 
-export const InterestRateTrendChart = () => {
-  // Calculate trend data from monthly SGS yields
+export function InterestRateTrendChart() {
   const trendData = calculateInterestTrend(SGS_YIELDS_MONTHLY);
 
-  // Transform data for Recharts (convert to chart-friendly format)
   const chartData = trendData.map((data) => ({
     month: format(parse(data.month, "yyyy-MM", new Date()), "MMM yy"),
     "10Y SGS Yield": data.sgsYield,
@@ -74,57 +68,70 @@ export const InterestRateTrendChart = () => {
   }));
 
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle className="text-center">
-          CPF Interest Rate Trends (12-Month View)
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-6">
-        <ResponsiveContainer width="100%" height={400}>
+    <section
+      aria-label="Interest rate trend"
+      className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm"
+    >
+      <div className="flex flex-col gap-1">
+        <h2 className="font-semibold text-[16px] text-foreground">
+          Interest Rate Trend (12-Month View)
+        </h2>
+        <p className="text-[12px] text-muted-foreground">
+          The SMRA actual rate is the higher of the pegged rate (SGS yield + 1%)
+          and the 4% floor.
+        </p>
+      </div>
+      <div role="img" aria-label="Line chart of CPF interest rate trends">
+        <ResponsiveContainer width="100%" height={320}>
           <LineChart
             data={chartData}
-            margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
           >
-            <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="var(--color-border)"
+            />
             <XAxis
               dataKey="month"
-              tick={{ fontSize: 12 }}
-              className="text-zinc-600"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
             />
             <YAxis
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
               tickFormatter={(value) =>
                 formatPercentage(value / 100, { decimalPlaces: 1 })
               }
-              tick={{ fontSize: 12 }}
-              className="text-zinc-600"
               domain={[2, 5]}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: "14px" }} />
-
-            {/* Floor rate reference line */}
+            <Legend
+              wrapperStyle={{ fontSize: 11 }}
+              iconType="circle"
+              iconSize={8}
+            />
             <ReferenceLine
               y={CPF_INTEREST_FLOOR_RATES.SMRA}
               stroke={COLORS.floorLine}
               strokeDasharray="5 5"
-              strokeWidth={2}
+              strokeWidth={1.5}
               label={{
                 value: "SMRA Floor (4%)",
                 position: "right",
                 fill: COLORS.floorLine,
-                fontSize: 12,
+                fontSize: 11,
               }}
             />
-
-            {/* Data lines */}
             <Line
               type="monotone"
               dataKey="10Y SGS Yield"
               stroke={COLORS.sgsYield}
               strokeWidth={2}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
+              dot={{ r: 2 }}
+              activeDot={{ r: 4 }}
             />
             <Line
               type="monotone"
@@ -132,44 +139,44 @@ export const InterestRateTrendChart = () => {
               stroke={COLORS.peggedRate}
               strokeWidth={2}
               strokeDasharray="5 5"
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
+              dot={{ r: 2 }}
+              activeDot={{ r: 4 }}
             />
             <Line
               type="monotone"
               dataKey="Actual SMRA Rate"
               stroke={COLORS.actualRate}
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
+              strokeWidth={2.5}
+              dot={{ r: 3 }}
+              activeDot={{ r: 5 }}
             />
           </LineChart>
         </ResponsiveContainer>
-
-        <div className="flex flex-col gap-4">
-          <div className="rounded-md bg-amber-50 p-4">
-            <p className="text-amber-900 text-sm">
-              <span className="font-semibold">How it works:</span> The SMRA
-              (Special, MediSave & Retirement Accounts) interest rate is pegged
-              to the 12-month average of 10-year Singapore Government Securities
-              (SGS) yield plus 1%. When this pegged rate falls below 4%, members
-              receive the floor rate of 4% instead.
-            </p>
-          </div>
-
-          <div className="rounded-md bg-blue-50 p-4">
-            <p className="text-blue-900 text-sm">
-              <span className="font-semibold">Why floor rates matter:</span>{" "}
-              Floor rates protect your CPF savings during periods of low
-              interest rates. Even when market rates fall below the floor, your
-              CPF accounts continue to earn the guaranteed minimum rate,
-              ensuring consistent growth of your retirement savings.
-            </p>
-          </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="rounded-md bg-muted/50 p-4 ring-1 ring-border/60">
+          <p className="text-[12px] text-muted-foreground leading-[1.55]">
+            <span className="font-semibold text-foreground">How it works:</span>{" "}
+            The SMRA (Special, MediSave & Retirement Accounts) interest rate is
+            pegged to the 12-month average of 10-year Singapore Government
+            Securities (SGS) yield plus 1%. When this pegged rate falls below
+            4%, members receive the floor rate of 4% instead.
+          </p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="rounded-md bg-accent/5 p-4 ring-1 ring-accent/20">
+          <p className="text-[12px] text-muted-foreground leading-[1.55]">
+            <span className="font-semibold text-accent">
+              Why floor rates matter:
+            </span>{" "}
+            Floor rates protect your CPF savings during periods of low interest
+            rates. Even when market rates fall below the floor, your CPF
+            accounts continue to earn the guaranteed minimum rate, ensuring
+            consistent growth of your retirement savings.
+          </p>
+        </div>
+      </div>
+    </section>
   );
-};
+}
 
 export default InterestRateTrendChart;

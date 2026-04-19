@@ -1,7 +1,4 @@
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import {
@@ -10,14 +7,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { BASE_URL } from "@/config";
 import faqData from "@/data/faq.json";
 import {
@@ -27,7 +16,6 @@ import {
   buildPageSchema,
   buildSpeakable,
 } from "@/lib/build-schema";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "About SimplyCPF | Free Singapore CPF Contribution Calculator",
@@ -61,6 +49,26 @@ export const metadata: Metadata = {
   },
 };
 
+interface AboutSection {
+  title: string;
+  body: string;
+}
+
+const SECTIONS: AboutSection[] = [
+  {
+    title: "Purpose",
+    body: "SimplyCPF is a free, open-source CPF planning tool for Singapore Citizens and Permanent Residents. It helps users estimate CPF contributions and projected outcomes based on income, age group, and prevailing contribution rules.",
+  },
+  {
+    title: "Scope of Service",
+    body: "CPF contribution rates vary across age groups, and allocations across Ordinary Account (OA), Special Account (SA), and MediSave Account (MA) differ by profile. This page summarises those mechanics in a practical, readable format.",
+  },
+  {
+    title: "Source and Accuracy",
+    body: "Calculation references are based on publicly available CPF Board guidance and are updated when official rules change. Users should verify final decisions against official CPF resources.",
+  },
+];
+
 const About = () => {
   const schema: Graph = buildGraph([
     buildPageSchema({
@@ -81,141 +89,84 @@ const About = () => {
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-8 p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>About SimplyCPF</CardTitle>
-            <CardDescription>
-              No guesswork. The core tools stay free and sign-up is optional.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <p>
-              SimplyCPF is a free, open-source tool that helps Singapore
-              Citizens and Permanent Residents see exactly where their CPF
-              retirement money goes — based on income, age group, and the latest
-              ceiling changes. The main calculators and planning tools work
-              without sign-up.
+      <div className="flex flex-col gap-5">
+        <section
+          aria-label="About SimplyCPF"
+          className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm"
+        >
+          <div className="flex flex-col gap-1">
+            <h1 className="font-bold text-[24px] text-foreground tracking-tight">
+              About SimplyCPF
+            </h1>
+            <p className="text-[13px] text-muted-foreground">
+              Independent informational resource for CPF contribution planning.
             </p>
-            <p>
-              CPF contribution rates vary across 8 age brackets, and
-              contributions are distributed differently across your Ordinary
-              Account (OA), Special Account (SA), and MediSave Account (MA)
-              depending on your age. SimplyCPF handles all of this automatically
-              so you get the numbers that matter — your take-home pay and
-              retirement savings — without cross-referencing government tables.
-            </p>
-            <p>
-              All calculation logic is open-source and verifiable on GitHub.
-              Rates are sourced directly from CPF Board publications and updated
-              within days when changes are announced.
-            </p>
-            <p>
-              If you ask SimplyCPF to email you a CPF cheat sheet or readiness
-              report, we only use your email address to send that requested
-              resource. You can read the current disclosure on the{" "}
-              <Link
-                href="/privacy"
-                className="text-accent underline underline-offset-2 hover:text-accent/80"
-              >
-                privacy page
-              </Link>
-              .
-            </p>
-            <p>
-              This tool covers the progressive increases in CPF Income Ceiling
-              from 2023 to 2026 following Budget 2023, so you can see exactly
-              how much more of your income becomes retirement savings over time.
-              Whether you are an employee estimating your take-home pay, an
-              employer verifying contribution amounts, or a financial planner
-              comparing CPF growth with other investments — SimplyCPF gives you
-              the numbers in seconds.
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <ol className="flex flex-col gap-4">
+            {SECTIONS.map(({ title, body }, index) => (
+              <li key={title} className="flex flex-col gap-1">
+                <h2 className="font-semibold text-[14px] text-foreground">
+                  {index + 1}. {title}
+                </h2>
+                <p className="text-[13px] text-muted-foreground leading-[1.55]">
+                  {body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-        <Card className="border-orange-200 bg-orange-50">
-          <CardHeader>
-            <CardTitle>Important Disclaimer</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              This calculator is an independent tool to help with CPF
-              contribution calculations. It is not affiliated with, endorsed by,
-              or connected to the Central Provident Fund Board (CPF Board),
-              Ministry of Manpower (MOM), or any government agency.
-            </p>
-            <p>
-              All rates are sourced from CPF Board publications and the
-              calculation logic is open for anyone to verify. For official CPF
-              matters, always refer to the{" "}
-              <a
-                href="https://www.cpf.gov.sg"
-                className="text-accent underline underline-offset-2 hover:text-accent/80"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                CPF Board website
-              </a>{" "}
-              or contact CPF Board directly.
-            </p>
-          </CardContent>
-        </Card>
+        <section
+          aria-label="Disclaimer"
+          className="flex flex-col gap-2 rounded-lg bg-primary p-5 text-primary-foreground"
+        >
+          <h2 className="font-semibold text-[14px]">Disclaimer</h2>
+          <p className="text-[13px] leading-[1.55] opacity-80">
+            SimplyCPF provides estimates based on publicly available CPF
+            contribution rates and income ceilings. Always refer to the official
+            CPF Board for authoritative information and seek professional
+            financial advice for your specific situation.
+          </p>
+        </section>
 
-        <Card
+        <section
           data-content-block="faq"
+          aria-label="Frequently asked questions"
+          className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm"
           itemScope
           itemProp="mainEntity"
           itemType="https://schema.org/FAQPage"
         >
-          <CardHeader>
-            <CardTitle>Frequently Asked Questions</CardTitle>
-            <CardDescription>
-              Common questions about CPF contributions and this calculator
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Accordion className="w-full">
-              {faqData.map(({ question, answer }) => {
-                const index = `${question}-${answer}`;
-                return (
-                  <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
+          <h2 className="font-semibold text-[16px] text-foreground">
+            Frequently Asked Questions
+          </h2>
+          <Accordion className="w-full">
+            {faqData.map(({ question, answer }) => {
+              const index = `${question}-${answer}`;
+              return (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  itemScope
+                  itemProp="mainEntity"
+                  itemType="https://schema.org/Question"
+                >
+                  <AccordionTrigger className="text-left text-[14px]">
+                    <span itemProp="name">{question}</span>
+                  </AccordionTrigger>
+                  <AccordionContent
+                    className="text-[13px] text-muted-foreground leading-[1.55]"
                     itemScope
-                    itemProp="mainEntity"
-                    itemType="https://schema.org/Question"
+                    itemProp="acceptedAnswer"
+                    itemType="https://schema.org/Answer"
                   >
-                    <AccordionTrigger className="text-left">
-                      <span itemProp="name">{question}</span>
-                    </AccordionTrigger>
-                    <AccordionContent
-                      className="text-muted-foreground"
-                      itemScope
-                      itemProp="acceptedAnswer"
-                      itemType="https://schema.org/Answer"
-                    >
-                      <span itemProp="text">{answer}</span>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
-          </CardContent>
-        </Card>
-
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
-            Try the calculator — free, instant, no sign-up required
-          </p>
-          <Link
-            href="/calculator"
-            className={cn(buttonVariants({ size: "lg" }), "gap-2")}
-          >
-            Calculate My CPF
-            <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
-          </Link>
-        </div>
+                    <span itemProp="text">{answer}</span>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        </section>
       </div>
     </>
   );

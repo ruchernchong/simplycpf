@@ -9,6 +9,13 @@ export interface ReadinessAnswers {
   cpfLifeConfidence: "low" | "medium" | "high";
 }
 
+export interface ReadinessBreakdownRow {
+  key: keyof ReadinessAnswers;
+  label: string;
+  score: number;
+  max: number;
+}
+
 export interface ReadinessResult {
   score: number;
   bucket: ReadinessBucket;
@@ -19,6 +26,7 @@ export interface ReadinessResult {
   nextSteps: string[];
   primaryActionLabel: string;
   primaryActionHref: string;
+  breakdown: ReadinessBreakdownRow[];
 }
 
 const SCORE_MAP = {
@@ -167,6 +175,23 @@ function buildReadinessPresentation({
   };
 }
 
+const BREAKDOWN_META: { key: keyof ReadinessAnswers; label: string }[] = [
+  { key: "citizenshipStatus", label: "CPF status alignment" },
+  { key: "housingUsage", label: "Housing affordability" },
+  { key: "planningHabit", label: "Projection habit" },
+  { key: "topUpHabit", label: "Top-up discipline" },
+  { key: "cpfLifeConfidence", label: "CPF LIFE clarity" },
+];
+
+function getBreakdown(answers: ReadinessAnswers): ReadinessBreakdownRow[] {
+  return BREAKDOWN_META.map(({ key, label }) => {
+    const map = SCORE_MAP[key] as Record<string, number>;
+    const score = map[answers[key]] ?? 0;
+    const max = Math.max(...Object.values(map));
+    return { key, label, score, max };
+  });
+}
+
 export function calculateRetirementReadiness(
   answers: ReadinessAnswers,
 ): ReadinessResult {
@@ -184,6 +209,7 @@ export function calculateRetirementReadiness(
     score,
     bucket,
     interestArea,
+    breakdown: getBreakdown(answers),
     ...buildReadinessPresentation({ bucket, interestArea }),
   };
 }

@@ -1,22 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
+import OnThisPageNav from "@/components/faq/on-this-page-nav";
 import { StructuredData } from "@/components/seo/structured-data";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { BASE_URL } from "@/config";
 import faqData from "@/data/faq.json";
 import faqCalculatorData from "@/data/faq-calculator.json";
@@ -61,8 +46,31 @@ export const metadata: Metadata = {
   },
 };
 
+interface PolicySection {
+  id: string;
+  title: string;
+  body: string;
+}
+
+const SECTIONS: PolicySection[] = [
+  {
+    id: "overview",
+    title: "Overview",
+    body: "This page explains how CPF contribution rules work in practice and where key thresholds apply. Use it as a quick reference before using calculators or planning salary changes.",
+  },
+  {
+    id: "contribution-ceiling",
+    title: "Contribution ceiling",
+    body: "From September 2026, ordinary wages are subject to CPF up to a monthly income ceiling of $8,000. Any wages above that amount are not counted for compulsory CPF contributions, though additional voluntary top-ups may still be possible under separate limits.",
+  },
+  {
+    id: "account-allocations",
+    title: "Account allocations and age 55",
+    body: "Contribution shares across OA, SA, and MA vary by age band. At age 55, savings are set aside for retirement in the Retirement Account, which often affects how later contributions are allocated. Refer to age-specific rates for planning accuracy.",
+  },
+];
+
 const FAQIndex = () => {
-  // Combine all FAQ data for the schema
   const allFaqs = [
     ...faqData,
     ...faqCalculatorData,
@@ -84,87 +92,47 @@ const FAQIndex = () => {
     buildFAQPage(allFaqs),
   ]);
 
-  const categories = [
-    {
-      title: "General CPF Questions",
-      description: `Essential CPF concepts, interest rates, and how SimplyCPF works (${faqData.length} questions)`,
-      href: "/faq/general",
-      count: faqData.length,
-    },
-    {
-      title: "Contribution Rates",
-      description: `CPF contribution calculations, income ceilings, and age-based rates (${faqCalculatorData.length} questions)`,
-      href: "/faq/contribution-rates",
-      count: faqCalculatorData.length,
-    },
-    {
-      title: "Career Projection",
-      description: `Long-term CPF balance projections, milestones, and interest (${faqProjectionData.length} questions)`,
-      href: "/faq/projection",
-      count: faqProjectionData.length,
-    },
-    {
-      title: "CPF LIFE",
-      description: `Monthly payouts, plan types, and retirement income (${faqCpfLifeData.length} questions)`,
-      href: "/faq/cpf-life",
-      count: faqCpfLifeData.length,
-    },
-  ];
-
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-6 p-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>FAQ</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+      <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+            <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+              On this page
+            </p>
+            <OnThisPageNav
+              items={SECTIONS.map(({ id, title }) => ({ id, title }))}
+            />
+          </div>
+        </aside>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>CPF FAQ</CardTitle>
-            <CardDescription>
-              Common questions answered about CPF contributions, projections,
-              CPF LIFE, and retirement planning in Singapore
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {categories.map((category) => (
-                <Link
-                  key={category.href}
-                  href={
-                    category.href as
-                      | "/faq/general"
-                      | "/faq/contribution-rates"
-                      | "/faq/projection"
-                      | "/faq/cpf-life"
-                  }
-                  className="group"
-                >
-                  <Card className="h-full transition-colors hover:border-accent">
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between text-lg">
-                        {category.title}
-                        <span className="rounded-full bg-accent/10 px-2 py-0.5 font-medium text-accent text-xs">
-                          {category.count}
-                        </span>
-                      </CardTitle>
-                      <CardDescription>{category.description}</CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <main className="flex flex-col gap-5">
+          <header className="flex flex-col gap-1">
+            <h1 className="font-bold text-[28px] text-foreground tracking-tight md:text-[32px]">
+              CPF Policy and Help
+            </h1>
+            <p className="text-[12px] text-muted-foreground">
+              Last updated 12 Mar 2026 · 6 min read
+            </p>
+          </header>
+
+          {SECTIONS.map(({ id, title, body }) => (
+            <section
+              key={id}
+              id={id}
+              aria-label={title}
+              className="flex scroll-mt-24 flex-col gap-2 rounded-lg border border-border bg-card p-6 shadow-sm"
+            >
+              <h2 className="font-semibold text-[18px] text-foreground">
+                {title}
+              </h2>
+              <p className="text-[13px] text-muted-foreground leading-[1.6]">
+                {body}
+              </p>
+            </section>
+          ))}
+        </main>
       </div>
     </>
   );

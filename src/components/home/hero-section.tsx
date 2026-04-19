@@ -1,56 +1,61 @@
 "use client";
 
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight02Icon,
+  FlashIcon,
+  ShieldUserIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import posthog from "posthog-js";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const badges: { icon: IconSvgElement; label: string }[] = [
+  { icon: Tick02Icon as IconSvgElement, label: "No cost" },
+  { icon: ShieldUserIcon as IconSvgElement, label: "No sign-in required" },
+  { icon: FlashIcon as IconSvgElement, label: "Immediate calculation" },
+];
+
 const HeroSection = () => {
   return (
-    <section className="text-center" aria-labelledby="hero-heading">
+    <section
+      className="flex flex-col items-center gap-4 py-5 text-center"
+      aria-labelledby="hero-heading"
+    >
+      <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 font-medium text-[12px] text-muted-foreground">
+        <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
+        Updated for Budget 2023 ceiling changes
+      </span>
       <h1
         id="hero-heading"
-        className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl"
+        className="max-w-[760px] font-bold text-4xl text-foreground leading-[1.1] tracking-tight md:text-5xl"
       >
-        Know Exactly Where Your CPF Money Goes
+        CPF Contribution Overview
       </h1>
-      <p className="mx-auto mb-2 max-w-2xl text-lg text-muted-foreground">
-        Find out exactly how much goes into each CPF account — your Ordinary,
-        Special, and MediSave — and what your employer contributes on top. All
-        based on your income and age group, in seconds.
+      <p className="hero-description max-w-[640px] text-[16px] text-muted-foreground leading-[1.55]">
+        Review estimated monthly CPF contributions across Ordinary, Special, and
+        Medisave accounts, based on applicable income ceiling values from 2023
+        to 2026.
       </p>
-      <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
-        See how the Budget 2023 income ceiling changes affect your take-home pay
-        as the CPF ceiling rose from{" "}
-        <span className="font-mono font-semibold text-accent">$6,000</span> to{" "}
-        <span className="font-mono font-semibold text-accent">$8,000</span> in
-        January 2026.
-      </p>
-      <div className="mb-6 flex items-center justify-center gap-4 text-muted-foreground text-sm">
-        <span className="flex items-center gap-1.5">
-          <span
-            className="inline-block size-1.5 rounded-full bg-accent"
-            aria-hidden="true"
-          />{" "}
-          Free
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span
-            className="inline-block size-1.5 rounded-full bg-accent"
-            aria-hidden="true"
-          />{" "}
-          No sign-up for core tools
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span
-            className="inline-block size-1.5 rounded-full bg-accent"
-            aria-hidden="true"
-          />{" "}
-          Open-source
-        </span>
-      </div>
+      <ul className="flex flex-wrap items-center justify-center gap-3">
+        {badges.map(({ icon, label }) => (
+          <li
+            key={label}
+            className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 font-medium text-[13px] text-foreground"
+          >
+            <HugeiconsIcon
+              icon={icon}
+              className="size-3.5 text-accent"
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            {label}
+          </li>
+        ))}
+      </ul>
       <Link
         href="/calculator"
         className={cn(buttonVariants({ size: "lg" }), "gap-2")}
@@ -58,7 +63,7 @@ const HeroSection = () => {
           posthog.capture("hero_cta_clicked", { source: "home_hero" })
         }
       >
-        Calculate My CPF
+        Go to calculator
         <HugeiconsIcon
           icon={ArrowRight02Icon}
           className="size-4"

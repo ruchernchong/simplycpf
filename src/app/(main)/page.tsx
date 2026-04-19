@@ -1,8 +1,6 @@
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
+import BreakdownCta from "@/components/home/breakdown-cta";
 import HeroSection from "@/components/home/hero-section";
 import InsightBanner from "@/components/home/insight-banner";
 import QuickActions from "@/components/home/quick-actions";
@@ -10,7 +8,6 @@ import CpfDefinitionBlock from "@/components/seo/cpf-definition-block";
 import CpfStatisticBlock from "@/components/seo/cpf-statistic-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import CPFIncomeCeilingTimeline from "@/components/timeline/cpf-income-ceiling-timeline";
-import { buttonVariants } from "@/components/ui/button";
 import { BASE_URL } from "@/config";
 import {
   buildBreadcrumbList,
@@ -18,7 +15,6 @@ import {
   buildGraph,
   buildSpeakable,
 } from "@/lib/build-schema";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "SimplyCPF — Free CPF Calculator and Planning Tools for Singapore",
@@ -104,29 +100,18 @@ const HomePage = () => {
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
         <HeroSection />
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
           <CPFIncomeCeilingTimeline />
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <InsightBanner />
             <QuickActions />
           </div>
         </div>
         <CpfDefinitionBlock />
         <CpfStatisticBlock />
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
-            Ready to see your CPF breakdown?
-          </p>
-          <Link
-            href="/calculator"
-            className={cn(buttonVariants({ size: "lg" }), "gap-2")}
-          >
-            Calculate My CPF Now
-            <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
-          </Link>
-        </div>
+        <BreakdownCta />
       </div>
     </>
   );

@@ -1,52 +1,78 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartColumnIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
+import { formatCurrency } from "@/lib/format";
 
 const CpfStatisticBlock = () => {
   const currentCeiling = CPF_INCOME_CEILING["2026-01-01"];
   const stats = [
     {
-      label: "Current income ceiling (2026)",
-      value: `S$${currentCeiling.toLocaleString()}`,
-      detail: "Final ceiling under 2023 Budget changes",
+      label: "Income Ceiling",
+      value: formatCurrency(currentCeiling, 0),
+      detail: "Monthly cap from Jan 2026",
+      accent: false,
     },
     {
-      label: "OA interest rate (floor)",
-      value: `${CPF_INTEREST_FLOOR_RATES.OA}% p.a.`,
-      detail: "Fixed, not pegged to SGS",
+      label: "OA Interest Rate",
+      value: `${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`,
+      detail: "Floor rate per annum",
+      accent: false,
     },
     {
-      label: "SMRA interest rate (floor)",
-      value: `${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.`,
-      detail: "Minimum guaranteed; may earn more",
+      label: "SMRA Interest Rate",
+      value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
+      detail: "Floor rate per annum",
+      accent: false,
+    },
+    {
+      label: "Extra Interest",
+      value: "+1.00%",
+      detail: "Up to age 55 on first $60k",
+      accent: true,
     },
   ];
 
   return (
-    <section aria-labelledby="cpf-statistics" data-content-block="statistics">
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle id="cpf-statistics">Key CPF Numbers at a Glance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-lg border border-border bg-muted/30 p-4"
-              >
-                <p className="mb-2 text-muted-foreground text-sm">
-                  {stat.label}
-                </p>
-                <p className="font-bold font-mono text-2xl text-foreground">
-                  {stat.value}
-                </p>
-                <p className="text-muted-foreground text-xs">{stat.detail}</p>
-              </div>
-            ))}
+    <section
+      aria-labelledby="cpf-statistics"
+      data-content-block="statistics"
+      className="flex flex-col gap-3"
+    >
+      <div className="flex items-center gap-2">
+        <HugeiconsIcon
+          icon={ChartColumnIcon}
+          className="size-[18px] text-accent"
+          strokeWidth={2}
+          aria-hidden="true"
+        />
+        <h2
+          id="cpf-statistics"
+          className="font-semibold text-foreground text-xl"
+        >
+          Key Numbers
+        </h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="flex flex-col gap-2 rounded-lg border border-border bg-card p-6"
+          >
+            <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+              {stat.label}
+            </p>
+            <p
+              className={`font-bold font-mono text-4xl ${
+                stat.accent ? "text-accent" : "text-foreground"
+              }`}
+            >
+              {stat.value}
+            </p>
+            <p className="text-[13px] text-muted-foreground">{stat.detail}</p>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     </section>
   );
 };

@@ -1,110 +1,100 @@
 "use client";
 
 import {
+  ArrowRight01Icon,
   Calculator01Icon,
-  ChartLineData01Icon,
-  MoneyBag01Icon,
+  ChartUpIcon,
+  Exchange01Icon,
+  Wallet01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { Route } from "next";
 import Link from "next/link";
 import posthog from "posthog-js";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
-const actions = [
+type Action = {
+  title: string;
+  description: string;
+  href: Route;
+  icon: IconSvgElement;
+  event: string;
+};
+
+const actions: Action[] = [
   {
-    title: "CPF Calculator",
-    description:
-      "See your full CPF breakdown — employee and employer contributions by age group and income, plus your take-home pay",
-    href: "/calculator" as const,
+    title: "Calculate contributions",
+    description: "Monthly breakdown by OA / SA / MA",
+    href: "/calculator",
     icon: Calculator01Icon as IconSvgElement,
     event: "navigation_click_calculator",
   },
   {
-    title: "Interest Rates",
-    description:
-      "Check how much interest your OA, SA, and MA earn, and see contribution distribution rates across all 8 age brackets",
-    href: "/interest-rates" as const,
-    icon: ChartLineData01Icon as IconSvgElement,
-    event: "navigation_click_interest_rates",
+    title: "Project career savings",
+    description: "Long-term balances until age 65+",
+    href: "/projection" as Route,
+    icon: ChartUpIcon as IconSvgElement,
+    event: "navigation_click_projection",
   },
   {
-    title: "Investment Comparison",
-    description:
-      "Compare your CPF returns against Singapore bonds, STI ETF, and other investments to decide which strategy fits your retirement timeline",
-    href: "/investments" as const,
-    icon: MoneyBag01Icon as IconSvgElement,
-    event: "navigation_click_investments",
+    title: "Compare what-if scenarios",
+    description: "Top-ups, housing, voluntary transfers",
+    href: "/what-if" as Route,
+    icon: Exchange01Icon as IconSvgElement,
+    event: "navigation_click_what_if",
+  },
+  {
+    title: "Estimate CPF LIFE payouts",
+    description: "Monthly retirement income",
+    href: "/cpf-life" as Route,
+    icon: Wallet01Icon as IconSvgElement,
+    event: "navigation_click_cpf_life",
   },
 ];
 
 const QuickActions = () => {
   return (
-    <section aria-labelledby="quick-actions-heading">
+    <section
+      className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5 shadow-sm"
+      aria-labelledby="quick-actions-heading"
+    >
       <h2
         id="quick-actions-heading"
-        className="mb-4 font-semibold text-lg text-muted-foreground"
+        className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]"
       >
-        What Would You Like to Know?
+        Quick Actions
       </h2>
-      <div className="grid gap-4">
-        {actions.map((action, index) => (
-          <Link
-            key={action.href}
-            href={action.href}
-            className="group"
-            onClick={() => {
-              posthog.capture(action.event, { source: "home_quick_actions" });
-            }}
-          >
-            <Card
-              className={cn(
-                "h-full transition-all hover:shadow-md",
-                index === 0
-                  ? "border-accent/30 shadow-md hover:border-accent/50"
-                  : "shadow-sm hover:border-accent/30",
-              )}
-            >
-              <CardHeader className="pb-4">
-                <div className="mb-2 flex items-center gap-4">
-                  <div
-                    className={cn(
-                      "rounded-lg p-2",
-                      index === 0 ? "bg-accent/15" : "bg-accent/10",
-                    )}
-                  >
-                    <HugeiconsIcon
-                      icon={action.icon}
-                      className="size-5 text-accent"
-                      strokeWidth={2}
-                    />
-                  </div>
-                  <CardTitle
-                    className={cn(
-                      "text-base transition-colors group-hover:text-accent",
-                      index === 0 && "text-lg",
-                    )}
-                  >
-                    {action.title}
-                  </CardTitle>
-                  {index === 0 && (
-                    <span className="rounded-full bg-accent/10 px-2 py-0.5 font-medium text-accent text-xs">
-                      Most Popular
-                    </span>
-                  )}
-                </div>
-                <CardDescription>{action.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {actions.map((action) => (
+        <Link
+          key={action.href}
+          href={action.href}
+          className="group flex items-center gap-3 rounded-lg border border-border bg-background p-3 transition-colors hover:border-accent/40 hover:bg-accent/5"
+          onClick={() =>
+            posthog.capture(action.event, { source: "home_quick_actions" })
+          }
+        >
+          <HugeiconsIcon
+            icon={action.icon}
+            className="size-[18px] flex-shrink-0 text-accent"
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="font-semibold text-[13px] text-foreground">
+              {action.title}
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              {action.description}
+            </span>
+          </div>
+          <HugeiconsIcon
+            icon={ArrowRight01Icon}
+            className="size-4 flex-shrink-0 text-muted-foreground transition-colors group-hover:text-accent"
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+        </Link>
+      ))}
     </section>
   );
 };

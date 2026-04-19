@@ -1,7 +1,6 @@
 "use client";
 
 import { shallow } from "zustand/shallow";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ageGroups } from "@/data";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatPercentage } from "@/lib/format";
@@ -22,13 +21,13 @@ interface DistributionRowProps {
 const DesktopRow = ({ group, isCurrentGroup }: DistributionRowProps) => (
   <div
     className={cn(
-      "-mx-4 grid grid-cols-4 gap-4 border-b px-4 py-4 last:border-0",
-      isCurrentGroup && "bg-emerald-50",
+      "grid grid-cols-4 gap-4 border-border border-b py-3 text-[13px] last:border-b-0",
+      isCurrentGroup && "bg-accent/10",
     )}
   >
-    <p className="font-medium">{group.description}</p>
+    <p className="font-medium text-foreground">{group.description}</p>
     {ACCOUNT_KEYS.map((key) => (
-      <p key={key} className="text-right">
+      <p key={key} className="text-right font-mono text-muted-foreground">
         {formatDistributionRate(group.distributionRate[key])}
       </p>
     ))}
@@ -38,16 +37,18 @@ const DesktopRow = ({ group, isCurrentGroup }: DistributionRowProps) => (
 const MobileRow = ({ group, isCurrentGroup }: DistributionRowProps) => (
   <div
     className={cn(
-      "-mx-4 flex flex-col gap-2 border-b px-4 py-4 last:border-0",
-      isCurrentGroup && "bg-emerald-50",
+      "flex flex-col gap-2 border-border border-b py-3 last:border-b-0",
+      isCurrentGroup && "bg-accent/10",
     )}
   >
-    <p className="font-semibold text-lg">{group.description}</p>
-    <div className="grid grid-cols-3 gap-4 text-sm">
+    <p className="font-semibold text-[14px] text-foreground">
+      {group.description}
+    </p>
+    <div className="grid grid-cols-3 gap-3 text-[12px]">
       {ACCOUNT_KEYS.map((key) => (
         <div key={key}>
           <p className="text-muted-foreground">{key}</p>
-          <p className="font-medium">
+          <p className="font-medium font-mono">
             {formatDistributionRate(group.distributionRate[key])}
           </p>
         </div>
@@ -63,44 +64,35 @@ export const DistributionRatesTable = () => {
     group.description === currentAgeGroup?.description;
 
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle className="text-center">
-          CPF Distribution Rates by Age Group
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Desktop: Table-like grid */}
-        <div className="hidden md:block">
-          <div className="grid grid-cols-4 gap-4 border-b pb-4 font-semibold">
-            <p>Age Group</p>
-            {ACCOUNT_KEYS.map((key) => (
-              <p key={key} className="text-right">
-                {key}
-              </p>
-            ))}
-          </div>
-          {ageGroups.map((group) => (
-            <DesktopRow
-              key={group.description}
-              group={group}
-              isCurrentGroup={isCurrentAgeGroup(group)}
-            />
+    <div>
+      <div className="hidden md:block">
+        <div className="grid grid-cols-4 gap-4 border-border border-b py-2 font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.08em]">
+          <p>Age Group</p>
+          {ACCOUNT_KEYS.map((key) => (
+            <p key={key} className="text-right">
+              {key} %
+            </p>
           ))}
         </div>
+        {ageGroups.map((group) => (
+          <DesktopRow
+            key={group.description}
+            group={group}
+            isCurrentGroup={isCurrentAgeGroup(group)}
+          />
+        ))}
+      </div>
 
-        {/* Mobile: Stacked list */}
-        <div className="flex flex-col gap-4 md:hidden">
-          {ageGroups.map((group) => (
-            <MobileRow
-              key={group.description}
-              group={group}
-              isCurrentGroup={isCurrentAgeGroup(group)}
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+      <div className="flex flex-col md:hidden">
+        {ageGroups.map((group) => (
+          <MobileRow
+            key={group.description}
+            group={group}
+            isCurrentGroup={isCurrentAgeGroup(group)}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
 

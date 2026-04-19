@@ -3,9 +3,9 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 
 const headingClass =
-  "mb-4 font-bold text-foreground text-xs uppercase tracking-[0.1em]";
+  "mb-3 font-bold text-foreground text-[11px] uppercase tracking-[0.1em]";
 const linkClass =
-  "text-muted-foreground text-sm transition-colors hover:text-accent";
+  "text-muted-foreground text-[13px] transition-colors hover:text-accent";
 
 export function Footer() {
   return (
@@ -13,23 +13,21 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8 grid grid-cols-1 gap-12 md:grid-cols-4">
           <div className="md:col-span-1">
-            <div className="mb-4 flex items-center gap-4">
-              <Logo className="size-8 shadow-sm" />
-              <span className="font-semibold text-lg">SimplyCPF</span>
+            <div className="mb-3 flex items-center gap-2">
+              <Logo className="size-6 shadow-sm" />
+              <span className="font-bold text-sm">SimplyCPF</span>
             </div>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              A free, open-source CPF planning tool for Singapore. The core
-              tools work without sign-up, with optional email delivery for
-              requested resources and reports.
+            <p className="text-[13px] text-muted-foreground leading-[1.55]">
+              Open-source CPF calculation reference for Singapore salary
+              contribution estimates.
             </p>
           </div>
 
           <div>
             <h3 className={headingClass}>Disclaimer</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              This calculator is an independent tool and is not affiliated with,
-              endorsed by, or connected to the CPF Board or Ministry of
-              Manpower.
+            <p className="text-[12px] text-muted-foreground leading-[1.55]">
+              Estimates only. Not official CPF Board figures. Always verify on
+              cpf.gov.sg before making financial decisions.
             </p>
           </div>
 

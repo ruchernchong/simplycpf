@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { getBhsForYear } from "@/constants/cpf-bhs";
 import { formatCurrency } from "@/lib/format";
 import type { AccountBalances, ProjectionResult } from "@/types";
 
@@ -16,77 +10,61 @@ function getTotalBalance(balances: AccountBalances): number {
   return balances.oa + balances.sa + balances.ma + balances.ra;
 }
 
+function compactCurrency(value: number): string {
+  if (Math.abs(value) >= 1_000_000) {
+    return `$${(value / 1_000_000).toFixed(2)}M`;
+  }
+  return formatCurrency(value, 0);
+}
+
 export default function MilestoneCards({ result }: MilestoneCardsProps) {
-  const milestones = [
+  const bhsMilestone = result.yearlyBalances.find(
+    ({ year, balances }) => balances.ma >= getBhsForYear(year),
+  );
+
+  const milestones: {
+    eyebrow: string;
+    primary: string;
+    description: string;
+  }[] = [
     {
-      age: 55,
-      balances: result.milestones.age55,
-      available: result.yearlyBalances.some(({ age }) => age === 55),
-      description:
-        "Special Account funds move into your Retirement Account up to the FRS.",
+      eyebrow: "YOUR BHS MILESTONE",
+      primary: bhsMilestone ? `Age ${bhsMilestone.age}` : "Not reached",
+      description: bhsMilestone
+        ? "Estimated year your MA reaches BHS."
+        : "Your MA does not reach the BHS within this projection.",
     },
     {
-      age: 65,
-      balances: result.milestones.age65,
-      available: result.yearlyBalances.some(({ age }) => age === 65),
-      description:
-        "A useful checkpoint for retirement readiness and CPF LIFE planning.",
+      eyebrow: "YOUR RA AT 55",
+      primary: result.yearlyBalances.some(({ age }) => age === 55)
+        ? compactCurrency(result.milestones.age55.ra)
+        : "Extend to 55",
+      description: "Estimated balance set aside for retirement.",
     },
     {
-      age: 70,
-      balances: result.milestones.age70,
-      available: result.yearlyBalances.some(({ age }) => age === 70),
-      description:
-        "Extending the projection helps you see the value of delaying payouts.",
+      eyebrow: "YOUR ESTIMATED CPF AT 65",
+      primary: result.yearlyBalances.some(({ age }) => age === 65)
+        ? compactCurrency(getTotalBalance(result.milestones.age65))
+        : "Extend to 65",
+      description: "Projected across OA, SA/RA, and MA.",
     },
   ];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      {milestones.map((milestone) => (
-        <Card key={milestone.age} className="shadow-md">
-          <CardHeader>
-            <CardTitle>Age {milestone.age}</CardTitle>
-            <CardDescription>{milestone.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {milestone.available && milestone.balances ? (
-              <div className="flex flex-col gap-4">
-                <div>
-                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                    Total projected CPF
-                  </p>
-                  <p className="font-semibold text-2xl text-foreground">
-                    {formatCurrency(getTotalBalance(milestone.balances), 0)}
-                  </p>
-                </div>
-                <div className="grid gap-4 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">OA</span>
-                    <span>{formatCurrency(milestone.balances.oa, 0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">SA</span>
-                    <span>{formatCurrency(milestone.balances.sa, 0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">MA</span>
-                    <span>{formatCurrency(milestone.balances.ma, 0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">RA</span>
-                    <span>{formatCurrency(milestone.balances.ra, 0)}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                Extend your projection to age {milestone.age} to see this
-                milestone.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+    <div className="grid gap-3 md:grid-cols-3">
+      {milestones.map(({ eyebrow, primary, description }) => (
+        <div
+          key={eyebrow}
+          className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4 shadow-sm"
+        >
+          <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+            {eyebrow}
+          </p>
+          <p className="font-bold font-mono text-2xl text-foreground">
+            {primary}
+          </p>
+          <p className="text-[12px] text-muted-foreground">{description}</p>
+        </div>
       ))}
     </div>
   );

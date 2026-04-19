@@ -5,14 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   CPF_ACCOUNT_MAP,
   CPF_ADDITIONAL_WAGE_CEILING,
   CPF_INCOME_CEILING,
@@ -31,6 +23,12 @@ import {
   selectMonthlyGrossIncome,
 } from "@/stores/selectors";
 
+const ACCOUNT_TONES: Record<string, { dot: string; bar: string }> = {
+  OA: { dot: "bg-chart-1", bar: "bg-chart-1" },
+  SA: { dot: "bg-chart-2", bar: "bg-chart-2" },
+  MA: { dot: "bg-chart-3", bar: "bg-chart-3" },
+};
+
 export function CalculatedResult() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const hasTrackedCompletion = useRef(false);
@@ -46,7 +44,7 @@ export function CalculatedResult() {
   useEffect(() => {
     if (monthlyGrossIncome > 0 && !hasTrackedCompletion.current) {
       hasTrackedCompletion.current = true;
-      const eventProps = {
+      posthog.capture("calculator_complete", {
         age_bracket:
           ageGroup?.description?.replaceAll(/\s+/g, "_").toLowerCase() ??
           "unknown",
@@ -57,38 +55,46 @@ export function CalculatedResult() {
             : monthlyGrossIncome <= 6800
               ? "6000_to_6800"
               : "above_6800",
-      };
-      posthog.capture("calculator_complete", eventProps);
+      });
     }
   }, [monthlyGrossIncome, ageGroup, currentCeilingDate]);
 
   const annualWage = monthlyGrossIncome * 12;
   const currentCeiling = CPF_INCOME_CEILING[currentCeilingDate];
+  const remainingAdditionalWage = Math.max(
+    0,
+    CPF_ADDITIONAL_WAGE_CEILING - annualWage,
+  );
 
-  // Helper function to safely format currency with fallback
-  const safeCurrency = (value: number | undefined, decimalPlaces = 2) => {
-    if (!value || Number.isNaN(value)) {
-      return formatCurrency(0, decimalPlaces);
-    }
-    return formatCurrency(value, decimalPlaces);
-  };
+  const animatedTotal = useAnimatedNumber(
+    contributionResult.contribution.totalContribution,
+  );
+  const animatedEmployee = useAnimatedNumber(
+    contributionResult.contribution.employee,
+  );
+  const animatedEmployer = useAnimatedNumber(
+    contributionResult.contribution.employer,
+  );
+  const animatedTakeHome = useAnimatedNumber(
+    contributionResult.afterCpfContribution,
+  );
 
-  // Helper function to safely format percentage with fallback
-  const safePercent = (value: number | undefined) => {
-    if (!value || Number.isNaN(value)) return "0";
-    return (value * 100).toFixed(0);
-  };
+  const totalDistribution = distributionResults.reduce(
+    (sum, item) => sum + item.value,
+    0,
+  );
 
-  const additionalWageGap = CPF_ADDITIONAL_WAGE_CEILING - annualWage;
-  const remainingAdditionalWage = Math.max(0, additionalWageGap);
+  const employeePct = Math.round((contributionRate.employee ?? 0) * 100);
+  const employerPct = Math.round((contributionRate.employer ?? 0) * 100);
 
   const takeHomeImpact = -ceilingComparison.takeHomePayDifference;
   const cpfImpact = -ceilingComparison.totalContributionDifference;
   const hasNoCeilingDifference = takeHomeImpact === 0 && cpfImpact === 0;
 
   async function handleDownloadPdf() {
-    const pdfEventProps = { has_ceiling_comparison: !hasNoCeilingDifference };
-    posthog.capture("pdf_download_click", pdfEventProps);
+    posthog.capture("pdf_download_click", {
+      has_ceiling_comparison: !hasNoCeilingDifference,
+    });
     setIsGeneratingPdf(true);
     try {
       const pdfData: PdfData = {
@@ -98,8 +104,8 @@ export function CalculatedResult() {
         takeHomeIncome: contributionResult.afterCpfContribution,
         employeeContribution: contributionResult.contribution.employee,
         employerContribution: contributionResult.contribution.employer,
-        employeeRate: Math.round((contributionRate.employee ?? 0) * 100),
-        employerRate: Math.round((contributionRate.employer ?? 0) * 100),
+        employeeRate: employeePct,
+        employerRate: employerPct,
         totalContribution: contributionResult.contribution.totalContribution,
         remainingAW: remainingAdditionalWage,
         ceilingComparison: hasNoCeilingDifference
@@ -126,92 +132,144 @@ export function CalculatedResult() {
   }
 
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Your CPF Savings</CardTitle>
-        <CardDescription>
-          Where your retirement money goes this month
-        </CardDescription>
-        <p className="text-muted-foreground text-xs">
-          Rates sourced from CPF Board publications · Open-source and verifiable
+    <div
+      id="calculator-results"
+      className="calculator-results flex scroll-mt-24 flex-col gap-4"
+    >
+      {/* Estimated Total — dark slate */}
+      <section
+        aria-label="Estimated total monthly CPF"
+        className="flex flex-col gap-2 rounded-lg bg-primary p-6 text-primary-foreground"
+      >
+        <p className="font-semibold text-[11px] uppercase tracking-[0.1em] opacity-70">
+          Estimated total monthly CPF
         </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="rounded-lg border border-accent/20 bg-accent/5 p-4">
-          <p className="mb-1 text-muted-foreground text-sm">
-            Your Take-Home Income
+        <div className="flex flex-wrap items-baseline gap-4">
+          <p className="font-bold font-mono text-4xl">
+            {formatCurrency(animatedTotal)}
           </p>
-          <p className="font-bold font-mono text-3xl text-foreground">
-            {safeCurrency(
-              useAnimatedNumber(contributionResult.afterCpfContribution),
-            )}
+          <p className="text-[13px] opacity-70">Employee + employer combined</p>
+        </div>
+      </section>
+
+      {/* Employee + Employer share — 2-up grid */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <section
+          aria-label="Your employee share"
+          className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4"
+        >
+          <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+            Your employee share
           </p>
-          <p className="text-muted-foreground text-xs">
+          <p className="font-bold font-mono text-2xl text-foreground">
+            {formatCurrency(animatedEmployee)}
+          </p>
+          <p className="text-[12px] text-muted-foreground">
+            {employeePct}% of wages
+          </p>
+        </section>
+        <section
+          aria-label="Employer share"
+          className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-4"
+        >
+          <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+            Employer share
+          </p>
+          <p className="font-bold font-mono text-2xl text-foreground">
+            {formatCurrency(animatedEmployer)}
+          </p>
+          <p className="text-[12px] text-muted-foreground">
+            {employerPct}% of wages
+          </p>
+        </section>
+      </div>
+
+      {/* Distribution — horizontal stacked bar + legend */}
+      {totalDistribution > 0 && (
+        <section
+          aria-label="CPF allocation across OA, SA, and MA"
+          className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6"
+        >
+          <h3 className="font-semibold text-[14px] text-foreground">
+            How your CPF is allocated (OA / SA / MA)
+          </h3>
+          <div className="flex h-3 w-full overflow-hidden rounded-md">
+            {distributionResults.map(({ name, value }) => {
+              const tone = ACCOUNT_TONES[name];
+              const flex = Math.max(0, value);
+              return (
+                <span
+                  key={name}
+                  className={tone?.bar ?? "bg-accent"}
+                  style={{ flex: `${flex} 1 0` }}
+                  aria-hidden="true"
+                />
+              );
+            })}
+          </div>
+          <ul className="grid gap-4 sm:grid-cols-3">
+            {distributionResults.map(({ name, value }) => {
+              const tone = ACCOUNT_TONES[name];
+              const pct = totalDistribution
+                ? (value / totalDistribution) * 100
+                : 0;
+              return (
+                <li key={name} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`size-2.5 rounded-full ${tone?.dot ?? "bg-accent"}`}
+                      aria-hidden="true"
+                    />
+                    <span className="font-medium text-[12px] text-foreground">
+                      {CPF_ACCOUNT_MAP[name] ?? name}
+                    </span>
+                  </div>
+                  <p className="font-bold font-mono text-[18px] text-foreground">
+                    {formatCurrency(value)}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {pct.toFixed(1)}% of total
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* Take-home + AW — supporting stats */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <section
+          aria-label="Your take-home pay"
+          className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/30 p-4"
+        >
+          <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+            Take-home pay
+          </p>
+          <p className="font-bold font-mono text-[20px] text-foreground">
+            {formatCurrency(animatedTakeHome)}
+          </p>
+          <p className="text-[12px] text-muted-foreground">
             After CPF contributions from your salary
           </p>
-        </div>
-        <div>
-          <div className="flex items-center justify-between border-b py-4">
-            <p className="text-muted-foreground text-sm">Age Group</p>
-            <p className="text-right font-medium">
-              {ageGroup?.description || "Not specified"}
-            </p>
-          </div>
-          <div className="flex items-center justify-between border-b py-4">
-            <p className="text-muted-foreground text-sm">Gross Income</p>
-            <p className="text-right font-medium font-mono">
-              {safeCurrency(useAnimatedNumber(monthlyGrossIncome))}
-            </p>
-          </div>
-          <div className="flex items-center justify-between border-b py-4">
-            <p className="text-muted-foreground text-sm">
-              Your contribution ({safePercent(contributionRate.employee)}%)
-            </p>
-            <p className="text-right font-medium font-mono text-accent">
-              {safeCurrency(
-                useAnimatedNumber(contributionResult.contribution.employee),
-              )}
-            </p>
-          </div>
-          <div className="flex items-center justify-between border-b py-4">
-            <p className="text-muted-foreground text-sm">
-              Your employer adds ({safePercent(contributionRate.employer)}%)
-            </p>
-            <p className="text-right font-medium font-mono text-accent">
-              {safeCurrency(
-                useAnimatedNumber(contributionResult.contribution.employer),
-              )}
-            </p>
-          </div>
-          <div className="flex items-center justify-between py-4">
-            <p className="text-muted-foreground text-sm">
-              Total monthly CPF contributions
-            </p>
-            <p className="text-right font-mono font-semibold text-accent">
-              {safeCurrency(
-                useAnimatedNumber(
-                  contributionResult.contribution.totalContribution,
-                ),
-              )}
-            </p>
-          </div>
-        </div>
-        <div className="rounded-md border border-accent/30 bg-accent/5 p-4">
-          <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground text-sm">
-              Remaining room for Additional Wage (AW) contributions
-            </p>
-            <p className="font-medium font-mono text-lg">
-              {safeCurrency(useAnimatedNumber(remainingAdditionalWage), 0)}
-            </p>
-            <p className="text-muted-foreground text-xs">
-              AW covers bonuses and variable pay. The cap is $102,000 annually
-              minus your ordinary wages.
-            </p>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2">
+        </section>
+        <section
+          aria-label="Remaining Additional Wage room"
+          className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/30 p-4"
+        >
+          <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.1em]">
+            Additional Wage room
+          </p>
+          <p className="font-bold font-mono text-[20px] text-foreground">
+            {formatCurrency(remainingAdditionalWage, 0)}
+          </p>
+          <p className="text-[12px] text-muted-foreground">
+            Annual cap of $102,000 minus your ordinary wages
+          </p>
+        </section>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="outline"
           size="sm"
@@ -222,7 +280,10 @@ export function CalculatedResult() {
           <HugeiconsIcon icon={File01Icon} className="size-4" strokeWidth={2} />
           {isGeneratingPdf ? "Generating..." : "Download PDF"}
         </Button>
-      </CardFooter>
-    </Card>
+        <span className="text-[12px] text-muted-foreground">
+          Age group: {ageGroup?.description ?? "Not specified"}
+        </span>
+      </div>
+    </div>
   );
 }

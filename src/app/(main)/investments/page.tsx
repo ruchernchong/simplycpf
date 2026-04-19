@@ -68,31 +68,33 @@ const InvestmentsPage = () => {
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            Is Keeping Money in CPF Your Best Move?
+      <div className="flex flex-col gap-6">
+        <header className="flex flex-col items-center gap-2 text-center">
+          <h1 className="font-bold text-[30px] text-foreground tracking-tight md:text-[34px]">
+            Investment Growth Comparison
           </h1>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
-            CPF accounts offer guaranteed returns backed by the Singapore
-            Government — but they are not your only option. Compare CPF growth
-            against Singapore Government bonds, the STI ETF, or global equity
-            ETFs. Adjust the initial amount and investment period to see how
-            each strategy performs side by side, so you can decide what best
-            fits your retirement timeline.
+          <p className="investment-description max-w-3xl text-[14px] text-muted-foreground leading-[1.55]">
+            Compare projected balances across CPF accounts, SGS bonds, STI ETF,
+            and global equity ETFs using the same starting amount, period, and
+            monthly top-up assumptions.
           </p>
-        </div>
+        </header>
         <CPFInvestmentComparison />
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
-            Haven&apos;t calculated your CPF contributions yet?
+        <div className="flex flex-col items-center gap-3 pb-2 text-center">
+          <p className="text-[13px] text-muted-foreground">
+            Review your CPF contribution estimate before comparing investment
+            outcomes.
           </p>
           <Link
             href="/calculator"
-            className={cn(buttonVariants({ size: "lg" }), "gap-2")}
+            className={cn(buttonVariants({ size: "sm" }), "gap-2")}
           >
-            Calculate My CPF
-            <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
+            Open CPF Calculator
+            <HugeiconsIcon
+              icon={ArrowRight02Icon}
+              className="size-4"
+              aria-hidden="true"
+            />
           </Link>
         </div>
       </div>

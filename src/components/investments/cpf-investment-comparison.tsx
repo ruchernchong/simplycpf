@@ -3,406 +3,277 @@
 import posthog from "posthog-js";
 import { useState } from "react";
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
-import { formatCurrency, formatPercentage } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 interface InvestmentScenario {
+  key: string;
   name: string;
   rate: number;
-  description: string;
-  riskLevel: "Low" | "Medium" | "High";
+  caption: string;
+  highlight?: boolean;
   color: string;
 }
 
-const INVESTMENT_SCENARIOS: InvestmentScenario[] = [
+const SCENARIOS: InvestmentScenario[] = [
   {
+    key: "cpf",
     name: "CPF OA",
     rate: CPF_INTEREST_FLOOR_RATES.OA,
-    description: "Ordinary Account - Fixed floor rate",
-    riskLevel: "Low",
-    color: "#3b82f6",
+    caption: "2.5% p.a. guaranteed",
+    color: "var(--color-chart-3)",
   },
   {
-    name: "CPF SA/MA/RA",
-    rate: CPF_INTEREST_FLOOR_RATES.SMRA,
-    description: "Special, MediSave & Retirement Accounts",
-    riskLevel: "Low",
-    color: "#10b981",
-  },
-  {
-    name: "Singapore Bonds",
+    key: "bonds",
+    name: "SGS Bonds",
     rate: 3.5,
-    description: "Government bonds and corporate bonds",
-    riskLevel: "Low",
-    color: "#f59e0b",
+    caption: "~3.5% p.a. historical",
+    color: "var(--color-chart-4)",
   },
   {
+    key: "sti",
     name: "STI ETF",
     rate: 6.0,
-    description: "Straits Times Index ETF (historical avg)",
-    riskLevel: "Medium",
-    color: "#8b5cf6",
+    caption: "~6.0% p.a. historical",
+    color: "var(--color-chart-1)",
   },
   {
-    name: "Global Equity ETF",
+    key: "global",
+    name: "Global ETF",
     rate: 7.5,
-    description: "MSCI World Index (historical avg)",
-    riskLevel: "Medium",
-    color: "#ec4899",
-  },
-  {
-    name: "Tech Stocks",
-    rate: 10.0,
-    description: "Technology sector equities (high volatility)",
-    riskLevel: "High",
-    color: "#ef4444",
+    caption: "~7.5% p.a. historical",
+    highlight: true,
+    color: "var(--color-chart-2)",
   },
 ];
 
-interface ChartDataPoint {
-  year: number;
-  [key: string]: number;
+const SAMPLE_YEARS = [5, 10, 15, 20];
+
+interface ChartRow {
+  label: string;
+  cpf: number;
+  bonds: number;
+  sti: number;
+  global: number;
 }
 
-const calculateGrowth = (
+function futureValue(
   principal: number,
-  rate: number,
+  monthly: number,
+  ratePct: number,
   years: number,
-): number => {
-  return principal * (1 + rate / 100) ** years;
-};
+): number {
+  const annual = ratePct / 100;
+  const lumpsum = principal * (1 + annual) ** years;
+  if (monthly <= 0) return lumpsum;
+  const monthlyRate = annual / 12;
+  const months = years * 12;
+  const annuity =
+    monthlyRate === 0
+      ? monthly * months
+      : monthly * (((1 + monthlyRate) ** months - 1) / monthlyRate);
+  return lumpsum + annuity;
+}
+
+function compactCurrency(value: number): string {
+  if (Math.abs(value) >= 1_000_000)
+    return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(value) >= 1_000) return `$${Math.round(value / 1_000)}k`;
+  return `$${Math.round(value)}`;
+}
+
+function parseNumeric(value: string): number {
+  return Number.parseFloat(value) || 0;
+}
 
 export function CPFInvestmentComparison() {
-  const [principal, setPrincipal] = useState<number>(50000);
-  const [years, setYears] = useState<number>(20);
-  const [selectedScenarios, setSelectedScenarios] = useState<string[]>([
-    "CPF OA",
-    "CPF SA/MA/RA",
-    "STI ETF",
-  ]);
+  const [principal, setPrincipal] = useState(50_000);
+  const [years, setYears] = useState(20);
+  const [monthly, setMonthly] = useState(500);
 
-  const toggleScenario = (name: string) => {
-    setSelectedScenarios((prev) => {
-      const isRemoving = prev.includes(name);
-      const next = isRemoving
-        ? prev.filter((s) => s !== name)
-        : [...prev, name].slice(0, 4);
-      posthog.capture("investment_scenario_toggled", {
-        scenario: name,
-        action: isRemoving ? "removed" : "added",
-        active_scenarios: next,
-      });
-      return next;
-    });
+  const captureChange = (field: string, value: number) => {
+    posthog.capture("investment_input_changed", { field, value });
   };
 
-  // Generate chart data
-  const chartData: ChartDataPoint[] = Array.from(
-    { length: years + 1 },
-    (_, year) => {
-      const dataPoint: ChartDataPoint = { year };
-      INVESTMENT_SCENARIOS.filter((s) =>
-        selectedScenarios.includes(s.name),
-      ).forEach((scenario) => {
-        dataPoint[scenario.name] = calculateGrowth(
-          principal,
-          scenario.rate,
-          year,
-        );
-      });
-      return dataPoint;
-    },
+  const chartData: ChartRow[] = SAMPLE_YEARS.filter((y) => y <= years).map(
+    (year) => ({
+      label: `Year ${year}`,
+      cpf: futureValue(principal, monthly, SCENARIOS[0].rate, year),
+      bonds: futureValue(principal, monthly, SCENARIOS[1].rate, year),
+      sti: futureValue(principal, monthly, SCENARIOS[2].rate, year),
+      global: futureValue(principal, monthly, SCENARIOS[3].rate, year),
+    }),
   );
 
-  // Calculate final values for comparison table
-  const finalValues = INVESTMENT_SCENARIOS.map((scenario) => ({
+  const finalValues = SCENARIOS.map((scenario) => ({
     ...scenario,
-    finalValue: calculateGrowth(principal, scenario.rate, years),
-    totalGain: calculateGrowth(principal, scenario.rate, years) - principal,
+    finalValue: futureValue(principal, monthly, scenario.rate, years),
   }));
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Disclaimer Banner */}
-      <Card className="border-amber-200 bg-amber-50">
-        <CardContent>
-          <p className="text-amber-900 text-sm">
-            <strong>Disclaimer:</strong> The investment returns shown are
-            historical averages and do not guarantee future performance.
-            Investments carry risks including potential loss of principal. CPF
-            savings are guaranteed by the Singapore Government. Always consult a
-            financial adviser before making investment decisions.
-          </p>
-        </CardContent>
-      </Card>
+    <div className="flex flex-col gap-5">
+      <section
+        aria-label="Investment inputs"
+        className="grid gap-4 rounded-lg border border-border bg-card p-6 shadow-sm sm:grid-cols-3"
+      >
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="investment-principal">Initial Amount</Label>
+          <Input
+            id="investment-principal"
+            type="number"
+            min={0}
+            step={1000}
+            value={principal}
+            onChange={(event) => {
+              const next = parseNumeric(event.target.value);
+              setPrincipal(next);
+              captureChange("principal", next);
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="investment-years">Investment Period</Label>
+          <Input
+            id="investment-years"
+            type="number"
+            min={1}
+            max={40}
+            value={years}
+            onChange={(event) => {
+              const next = Math.min(
+                40,
+                Math.max(1, parseNumeric(event.target.value)),
+              );
+              setYears(next);
+              captureChange("years", next);
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="investment-topup">Monthly Top-up</Label>
+          <Input
+            id="investment-topup"
+            type="number"
+            min={0}
+            step={50}
+            value={monthly}
+            onChange={(event) => {
+              const next = parseNumeric(event.target.value);
+              setMonthly(next);
+              captureChange("monthly", next);
+            }}
+          />
+        </div>
+      </section>
 
-      {/* Calculator Section */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Investment Returns Calculator</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          {/* Input Controls */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="principal">Initial Amount (S$)</Label>
-              <Input
-                id="principal"
-                type="number"
-                min="1000"
-                step="1000"
-                value={principal}
-                onChange={(e) => setPrincipal(Number(e.target.value))}
-                className="text-lg"
+      <section
+        aria-label="Growth comparison chart"
+        className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm"
+      >
+        <h2 className="font-semibold text-[16px] text-foreground">
+          Growth Comparison
+        </h2>
+        <div role="img" aria-label="Bar chart comparing investment growth">
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={chartData}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="var(--color-border)"
               />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="years" className="mb-2 block">
-                Investment Period: {years} years
-              </Label>
-              <Slider
-                id="years"
-                min={1}
-                max={40}
-                step={1}
-                value={[years]}
-                onValueChange={(value) =>
-                  setYears(Array.isArray(value) ? value[0] : value)
-                }
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
               />
-            </div>
-          </div>
-
-          {/* Scenario Selection */}
-          <div className="flex flex-col gap-4">
-            <Label>Select Investment Scenarios (max 4 for chart):</Label>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {INVESTMENT_SCENARIOS.map((scenario) => (
-                <button
-                  key={scenario.name}
-                  type="button"
-                  onClick={() => toggleScenario(scenario.name)}
-                  aria-pressed={selectedScenarios.includes(scenario.name)}
-                  className={`rounded-lg border-2 p-4 text-left transition-all ${
-                    selectedScenarios.includes(scenario.name)
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-zinc-200 hover:border-zinc-300"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <p className="mb-2 font-semibold text-sm">
-                        {scenario.name}
-                      </p>
-                      <p className="text-xs text-zinc-600">
-                        {formatPercentage(scenario.rate / 100, {
-                          decimalPlaces: 1,
-                        })}{" "}
-                        p.a.
-                      </p>
-                    </div>
-                    <span
-                      className={`rounded px-2 py-1 text-xs ${
-                        scenario.riskLevel === "Low"
-                          ? "bg-green-100 text-green-700"
-                          : scenario.riskLevel === "Medium"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {scenario.riskLevel}
-                    </span>
-                  </div>
-                </button>
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
+                tickFormatter={compactCurrency}
+              />
+              <Tooltip
+                cursor={{ fill: "var(--color-muted)" }}
+                contentStyle={{
+                  backgroundColor: "var(--color-card)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+                formatter={(value, name) => [
+                  formatCurrency(Number(value), 0),
+                  name,
+                ]}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: 11 }}
+                iconType="circle"
+                iconSize={8}
+              />
+              {SCENARIOS.map((scenario) => (
+                <Bar
+                  key={scenario.key}
+                  dataKey={scenario.key}
+                  name={scenario.name}
+                  fill={scenario.color}
+                  radius={[4, 4, 0, 0]}
+                />
               ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+
+      <section
+        aria-label="Final values"
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {finalValues.map((scenario) => {
+          const tone = scenario.highlight
+            ? "border-accent bg-accent text-accent-foreground"
+            : "border-border bg-card text-foreground";
+          const captionTone = scenario.highlight
+            ? "text-accent-foreground/80"
+            : "text-muted-foreground";
+          return (
+            <div
+              key={scenario.key}
+              className={cn(
+                "flex flex-col gap-1 rounded-lg border p-4 shadow-sm",
+                tone,
+              )}
+            >
+              <p
+                className={cn(
+                  "font-semibold text-[10px] uppercase tracking-[0.1em]",
+                  captionTone,
+                )}
+              >
+                {scenario.name}
+              </p>
+              <p className="font-bold font-mono text-[20px]">
+                {formatCurrency(scenario.finalValue, 0)}
+              </p>
+              <p className={cn("text-[11px]", captionTone)}>
+                {scenario.caption}
+              </p>
             </div>
-          </div>
-
-          {/* Growth Chart */}
-          <div
-            role="img"
-            aria-label="Investment growth comparison chart showing projected returns over time for selected scenarios"
-          >
-            <h3 className="mb-4 font-semibold text-lg">Growth Over Time</h3>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="year"
-                  label={{
-                    value: "Years",
-                    position: "insideBottom",
-                    offset: -5,
-                  }}
-                />
-                <YAxis
-                  label={{
-                    value: "Value (S$)",
-                    angle: -90,
-                    position: "insideLeft",
-                  }}
-                  tickFormatter={(value) => formatCurrency(value, 0)}
-                />
-                <Tooltip
-                  formatter={(value) => formatCurrency(Number(value))}
-                  labelFormatter={(label) => `Year ${label}`}
-                />
-                <Legend />
-                {INVESTMENT_SCENARIOS.filter((s) =>
-                  selectedScenarios.includes(s.name),
-                ).map((scenario) => (
-                  <Line
-                    key={scenario.name}
-                    type="monotone"
-                    dataKey={scenario.name}
-                    stroke={scenario.color}
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Comparison Table */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Final Value Comparison ({years} years)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Investment Type</TableHead>
-                <TableHead>Rate p.a.</TableHead>
-                <TableHead>Risk Level</TableHead>
-                <TableHead className="text-right">Final Value</TableHead>
-                <TableHead className="text-right">Total Gain</TableHead>
-                <TableHead className="text-right">Gain vs CPF OA</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {finalValues.map((item) => {
-                const cpfOaGain =
-                  finalValues.find((v) => v.name === "CPF OA")?.totalGain || 0;
-                const gainVsCpfOa = item.totalGain - cpfOaGain;
-
-                return (
-                  <TableRow key={item.name}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>
-                      {formatPercentage(item.rate / 100, { decimalPlaces: 1 })}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`rounded px-2 py-1 text-xs ${
-                          item.riskLevel === "Low"
-                            ? "bg-green-100 text-green-700"
-                            : item.riskLevel === "Medium"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {item.riskLevel}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">
-                      {formatCurrency(item.finalValue)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(item.totalGain)}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-medium ${
-                        gainVsCpfOa > 0
-                          ? "text-green-600"
-                          : gainVsCpfOa < 0
-                            ? "text-red-600"
-                            : ""
-                      }`}
-                    >
-                      {gainVsCpfOa > 0 ? "+" : ""}
-                      {formatCurrency(gainVsCpfOa)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Key Considerations */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Key Considerations</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-col gap-4 text-sm">
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <h4 className="mb-2 font-semibold text-blue-900">
-                CPF Advantages
-              </h4>
-              <ul className="flex flex-col gap-2 text-blue-800">
-                <li>• Guaranteed returns by Singapore Government</li>
-                <li>• No market volatility risk</li>
-                <li>• Tax-free interest earnings</li>
-                <li>• Automatic monthly contributions from salary</li>
-              </ul>
-            </div>
-
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-              <h4 className="mb-2 font-semibold text-amber-900">
-                Investment Advantages
-              </h4>
-              <ul className="flex flex-col gap-2 text-amber-800">
-                <li>• Potential for higher returns (with higher risk)</li>
-                <li>• More liquidity and flexibility</li>
-                <li>• Diversification opportunities</li>
-                <li>• Can invest beyond CPF limits</li>
-              </ul>
-            </div>
-
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h4 className="mb-2 font-semibold text-red-900">
-                Investment Risks
-              </h4>
-              <ul className="flex flex-col gap-2 text-red-800">
-                <li>• Market volatility can lead to losses</li>
-                <li>• No guaranteed returns</li>
-                <li>• Requires knowledge and active management</li>
-                <li>
-                  • Historical returns do not guarantee future performance
-                </li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          );
+        })}
+      </section>
     </div>
   );
 }

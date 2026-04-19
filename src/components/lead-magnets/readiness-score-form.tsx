@@ -169,6 +169,12 @@ export default function ReadinessScoreForm() {
     setResult(calculateRetirementReadiness(answers as ReadinessAnswers));
   };
 
+  if (result) {
+    return (
+      <ReadinessScoreResult result={result} onAdjust={() => setResult(null)} />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <form className="flex flex-col gap-6" onSubmit={handleCalculate}>
@@ -224,8 +230,6 @@ export default function ReadinessScoreForm() {
           Calculate my readiness score
         </Button>
       </form>
-
-      {result ? <ReadinessScoreResult result={result} /> : null}
     </div>
   );
 }

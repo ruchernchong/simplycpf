@@ -20,9 +20,7 @@ describe("Footer", () => {
   it("renders disclaimer section", () => {
     render(<Footer />);
     expect(screen.getByText("Disclaimer")).toBeTruthy();
-    expect(
-      screen.getByText(/This calculator is an independent tool/),
-    ).toBeTruthy();
+    expect(screen.getByText(/Not official CPF Board figures/)).toBeTruthy();
   });
 
   it("renders quick links section with correct links", () => {

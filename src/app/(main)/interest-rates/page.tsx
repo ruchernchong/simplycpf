@@ -3,8 +3,12 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Graph } from "schema-dts";
-import CPFInterestRatesSection from "@/components/interest-rates/cpf-interest-rates-section";
 import DistributionRatesTable from "@/components/interest-rates/distribution-rates-table";
+import ExtraInterestTiers from "@/components/interest-rates/extra-interest-tiers";
+import { InterestRateTrendChart } from "@/components/interest-rates/interest-rate-trend-chart";
+import { QuarterlyRatesTable } from "@/components/interest-rates/quarterly-rates-table";
+import RateOverviewCards from "@/components/interest-rates/rate-overview-cards";
+import UnderstandingRatesInfo from "@/components/interest-rates/understanding-rates-info";
 import CpfContributionComparisonBlock from "@/components/seo/cpf-contribution-comparison-block";
 import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-comparison-block";
 import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
@@ -98,12 +102,12 @@ const InterestRatesPage = () => {
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-12">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
+      <div className="flex flex-col gap-6">
+        <header className="flex flex-col items-center gap-3 text-center">
+          <h1 className="font-bold text-[30px] text-foreground tracking-tight md:text-[34px]">
             How Much Interest Does Your CPF Earn?
           </h1>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
+          <p className="interest-rates-description max-w-3xl text-[14px] text-muted-foreground leading-[1.55]">
             Your CPF savings earn guaranteed interest backed by the Singapore
             Government. Your OA earns a floor rate of 2.5% per annum, while your
             SA, MA, and Retirement Account earn interest pegged to the 10-year
@@ -112,32 +116,70 @@ const InterestRatesPage = () => {
             and how your contributions are distributed across accounts for each
             of the 8 age brackets.
           </p>
-        </div>
-        <div>
-          <h2 className="mb-6 font-semibold text-2xl">
+        </header>
+
+        <RateOverviewCards />
+        <ExtraInterestTiers />
+
+        <div className="flex flex-col gap-1 pb-1">
+          <h2 className="font-semibold text-[18px] text-foreground">
             How Your CPF Interest Is Determined
           </h2>
-          <CPFInterestRatesSection />
+          <p className="text-[12px] text-muted-foreground">
+            Floor rates, pegged formula, recent trends, and the quarterly rates
+            actually paid out.
+          </p>
         </div>
-        <div>
-          <h2 className="mb-6 font-semibold text-2xl">
-            Where Your CPF Contributions Go by Age
-          </h2>
+
+        <UnderstandingRatesInfo />
+
+        <section
+          aria-label="Where your contributions go by age"
+          className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6 shadow-sm"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-semibold text-[16px] text-foreground">
+              Where Your Contributions Go by Age
+            </h2>
+            <p className="text-[12px] text-muted-foreground">
+              Younger members build more in OA for housing; older members direct
+              more to SA and MA for retirement and healthcare.
+            </p>
+          </div>
           <DistributionRatesTable />
+        </section>
+
+        <InterestRateTrendChart />
+        <QuarterlyRatesTable />
+
+        <div className="flex flex-col gap-1 pb-1">
+          <h2 className="font-semibold text-[18px] text-foreground">
+            Reference Tables
+          </h2>
+          <p className="text-[12px] text-muted-foreground">
+            Full breakdowns by age group and the extra interest tiers that boost
+            your retirement savings.
+          </p>
         </div>
+
         <CpfContributionComparisonBlock />
         <CpfDistributionComparisonBlock />
         <CpfInterestTiersBlock />
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
+
+        <div className="flex flex-col items-center gap-3 pb-2 text-center">
+          <p className="text-[13px] text-muted-foreground">
             Want to see how these rates apply to your salary?
           </p>
           <Link
             href="/calculator"
-            className={cn(buttonVariants({ size: "lg" }), "gap-2")}
+            className={cn(buttonVariants({ size: "sm" }), "gap-2")}
           >
             Calculate My CPF
-            <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
+            <HugeiconsIcon
+              icon={ArrowRight02Icon}
+              className="size-4"
+              aria-hidden="true"
+            />
           </Link>
         </div>
       </div>
