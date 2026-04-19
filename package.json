@@ -14,7 +14,7 @@
     "test:coverage": "vitest run --coverage",
     "release": "semantic-release",
     "prepare": "husky",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "generate:docs": "pnpm dlx tsx scripts/generate-docs.ts"
   },
   "dependencies": {
