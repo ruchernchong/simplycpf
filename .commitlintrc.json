@@ -7,6 +7,7 @@
       "never",
       ["sentence-case", "start-case", "pascal-case", "upper-case"]
     ],
+    "scope-empty": [2, "always"],
     "type-enum": [
       2,
       "always",
