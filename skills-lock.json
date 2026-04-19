@@ -6,11 +6,6 @@
       "sourceType": "github",
       "computedHash": "1312ab5ad54674a4cc14df9106161239573e7837641ccf4ea55e4dfc3c8a0a6c"
     },
-    "ad-creative": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "5d8f869c7e683e4d4fc7aa7a2b0d370b0ad54a81d9cffb48736ffc47759b3f4d"
-    },
     "ai-seo": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
@@ -21,25 +16,10 @@
       "sourceType": "github",
       "computedHash": "1ad3893d31e5df78cb4b4e16801f49acbdf82daed5f775748859ca7dc638d6d0"
     },
-    "aso-audit": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "96bda37445a17eee85f5db77d136ce1cf9989f09e85a8abafbdcda0d48db8fbe"
-    },
-    "churn-prevention": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "ce389baf7e32cc942143503ecba7068784ca2c790460824c1e5a306d83d1283f"
-    },
     "codegen": {
       "source": "vercel-labs/json-render",
       "sourceType": "github",
       "computedHash": "daf0352381a7de74c7d7784f683e4bb5c6e285301d6adf5e993d72dfa5371b47"
-    },
-    "cold-email": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "6b2c73ca8ee9f2104958476078f50f92ac61ab1b63880762b52816c968a6fea6"
     },
     "competitor-alternatives": {
       "source": "coreyhaines31/marketingskills",
@@ -81,11 +61,6 @@
       "sourceType": "github",
       "computedHash": "6fcfb1f4db31e1299ca64f2fbddc54d02c14968c6a9fa5b15b864dd0da09f7d0"
     },
-    "email-sequence": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "49c9d1795813eec119a1fd9344e763fc911c05616411a68117b30d77204fa399"
-    },
     "form-cro": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
@@ -100,16 +75,6 @@
       "source": "vercel-labs/json-render",
       "sourceType": "github",
       "computedHash": "ad4f79be1e864fdf508c8a445ae4fc35d3b0ce3195b2fcca4f4f0a6f520a2fb9"
-    },
-    "ink": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "127794ab4d276c5dd3fba93d06d041edbb46481032b315b8b5bd24994e7bcff8"
-    },
-    "jotai": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "25bddfd76eba7f21fe4b8bafd8309200674c3d61e125797601a49f3d8650b480"
     },
     "launch-strategy": {
       "source": "coreyhaines31/marketingskills",
@@ -131,11 +96,6 @@
       "sourceType": "github",
       "computedHash": "ddec844d01d102687f89749e1d3a9f7a9019010dce1039a7d442189f39726ad4"
     },
-    "mcp": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "8601f81c837895c306f30bf75ec494606f9213ae0c13d758c07059ff78540326"
-    },
     "next": {
       "source": "vercel-labs/json-render",
       "sourceType": "github",
@@ -146,40 +106,15 @@
       "sourceType": "github",
       "computedHash": "9dbf0a5cc15d805924816a4df6654b105a163618ff986c79f6974211164b34a7"
     },
-    "onboarding-cro": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "9d935c024e0768c8b805852fbf9419c2e8c56be2b9e62e89d43a390008bd1229"
-    },
     "page-cro": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
       "computedHash": "9505748dba2319487b285f8ab8c1e5417fce38a512d596e1c9e2e87b34b196e1"
     },
-    "paid-ads": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "74be53d9e279bafaf1f53e2612cbba0d9e4750df4116496732d877782f0c3a48"
-    },
-    "paywall-upgrade-cro": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "f3955bea72dc22cf5b8e2387ee310a519302ab02518498e045055b1b9bd62a0f"
-    },
-    "popup-cro": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "5b97d79f11192e1fff0b6797629ccdd7515c82f57d1502b761e58679df2b56e5"
-    },
     "portless": {
       "source": "vercel-labs/portless",
       "sourceType": "github",
       "computedHash": "b3f30d9b9f2b548d38c795a81c231b56d4f2f1e074b19207cf2a5a3f4d5b9787"
-    },
-    "pricing-strategy": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "4312095789cc328883428b1f9bd61549ca44b376aeda8d62bb977efad017e594"
     },
     "product-marketing-context": {
       "source": "coreyhaines31/marketingskills",
@@ -206,55 +141,15 @@
       "sourceType": "github",
       "computedHash": "75441f1f69a7949aeb2208a6b5c22a7d2ce721bc8ee9b650371f0d8637778cd0"
     },
-    "react-native": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "bce560b25029037d424b5ec55bb9b3ec2b399ef98fd12c572327292744de84fe"
-    },
     "react-pdf": {
       "source": "vercel-labs/json-render",
       "sourceType": "github",
       "computedHash": "82c58b5177f429f759ea93d6b60264a4ffee9a8ca233a1d5186c85c3b0492516"
     },
-    "react-three-fiber": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "33cfac131cbe9c89b14c4b49ca01e0b0a4a3f9c23bb6c81ac0514143703283e8"
-    },
     "read-docs": {
       "source": "fuma-nama/fumadocs",
       "sourceType": "github",
       "computedHash": "e3ec573b7db71ca1b2a210ea469d3c8bfd7667951c03da6b8950691136fd02b9"
-    },
-    "redux": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "b61532c159d455bc5e903c116f235af16b5eb51a0e51955db55ca79d703e4f7d"
-    },
-    "referral-program": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "baefa6ed79c591d16e3056f3d8544fa2d60b896a618b931f37bf89da7af518d3"
-    },
-    "remotion": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "f46005be6dd80893835d4dee5f75dc45b21f2486ad2af3f14f709267d18b1d47"
-    },
-    "remotion-best-practices": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "8758414c52a59709c5d17e106df990c22bc85c5bb0a4a3dd517e397dfc07a2b5"
-    },
-    "revops": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "3d80242e14a9824d2c33b9b5e957fc47c190f522f8f5f13c7cd9612784053a58"
-    },
-    "sales-enablement": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "7447155639ac2677bc23ef826b079bbf8e415ec35900f6a3c7b25c33e6ad856a"
     },
     "schema-markup": {
       "source": "coreyhaines31/marketingskills",
@@ -271,16 +166,6 @@
       "sourceType": "github",
       "computedHash": "873c67922d80775a9fdf596db7964b579f0408c30ec6e3d11989f6055bbec89f"
     },
-    "shadcn-svelte": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "fcb9b65f29baf8a2e03960d37bceff6a71203aeb962105cf6f78c697c71efc3c"
-    },
-    "signup-flow-cro": {
-      "source": "coreyhaines31/marketingskills",
-      "sourceType": "github",
-      "computedHash": "8c4b9ce342ccb721eed9a4c1eb0d1ea647e5f1a77db8609509181c62636acf61"
-    },
     "site-architecture": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
@@ -295,16 +180,6 @@
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
       "computedHash": "252f58c9993ea38761a6b6cc6f0bbe83fb13f94387a925a57049ca3ca3793b6b"
-    },
-    "solid": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "0c5856c5cb737477a5546c8fa05420a922615501aa45f324022e42c8e104f7ab"
-    },
-    "svelte": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "b9781032762ee9f12d1816804a10e09e5ce6d36754a5e916c5e77a9cdd6d4d28"
     },
     "vercel-cli-with-tokens": {
       "source": "vercel-labs/agent-skills",
@@ -321,30 +196,15 @@
       "sourceType": "github",
       "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
     },
-    "vercel-react-native-skills": {
-      "source": "vercel-labs/agent-skills",
-      "sourceType": "github",
-      "computedHash": "41d24eafa7c3d82e270439808f7cfbc4d51aeb2d14f2809a2267c16275784d06"
-    },
     "vercel-react-view-transitions": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "computedHash": "c8952fc9127fa0564d0cb71dccb4215a5608ac933b5831104f09173a97a46f85"
     },
-    "vue": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "c11732dd40f5c030b1e89eebf10c61c01966961f168bb11d99faf568eb5e36e8"
-    },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
-    },
-    "xstate": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "eb2f2587b606e1501a125df976292ddd7c886e52244e233428aa99dd5a048434"
     },
     "yaml": {
       "source": "vercel-labs/json-render",
