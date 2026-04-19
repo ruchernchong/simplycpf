@@ -6,7 +6,6 @@ import type { Graph } from "schema-dts";
 import HeroSection from "@/components/home/hero-section";
 import InsightBanner from "@/components/home/insight-banner";
 import QuickActions from "@/components/home/quick-actions";
-import LeadMagnetsSection from "@/components/lead-magnets/lead-magnets-section";
 import CpfDefinitionBlock from "@/components/seo/cpf-definition-block";
 import CpfStatisticBlock from "@/components/seo/cpf-statistic-block";
 import { StructuredData } from "@/components/seo/structured-data";
@@ -116,7 +115,6 @@ const HomePage = () => {
         </div>
         <CpfDefinitionBlock />
         <CpfStatisticBlock />
-        <LeadMagnetsSection />
         <div className="text-center">
           <p className="mb-4 font-medium text-foreground text-lg">
             Ready to see your CPF breakdown?

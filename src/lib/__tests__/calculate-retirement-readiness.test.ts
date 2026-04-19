@@ -1,7 +1,4 @@
-import {
-  buildReadinessEmailData,
-  calculateRetirementReadiness,
-} from "../calculate-retirement-readiness";
+import { calculateRetirementReadiness } from "../calculate-retirement-readiness";
 
 describe("calculateRetirementReadiness", () => {
   it("returns a low score when planning habits are weak", () => {
@@ -46,17 +43,19 @@ describe("calculateRetirementReadiness", () => {
     expect(result.interestArea).toBe("pr-rates");
     expect(result.primaryActionHref).toBe("/calculator");
   });
-});
 
-describe("buildReadinessEmailData", () => {
-  it("gives what-if as the primary action for high-score projection users", () => {
-    const summary = buildReadinessEmailData({
-      score: 82,
-      bucket: "high",
-      interestArea: "projection",
+  it("sends high-score citizen projection users to the what-if page", () => {
+    const result = calculateRetirementReadiness({
+      citizenshipStatus: "citizen",
+      housingUsage: "none",
+      planningHabit: "ongoing",
+      topUpHabit: "sometimes",
+      cpfLifeConfidence: "high",
     });
 
-    expect(summary.primaryActionHref).toBe("/what-if");
-    expect(summary.bucketLabel).toBe("On Track");
+    expect(result.bucket).toBe("high");
+    expect(result.interestArea).toBe("projection");
+    expect(result.bucketLabel).toBe("On Track");
+    expect(result.primaryActionHref).toBe("/what-if");
   });
 });

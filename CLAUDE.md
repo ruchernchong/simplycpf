@@ -121,7 +121,6 @@ RESTful API endpoints under `/api/cpf/` provide programmatic access to CPF calcu
 
 Other API routes:
 - `/api/search` - Full-text search across documentation
-- `/api/lead-capture` - Internal email delivery endpoint for lead magnet requests
 - `/api/lead-magnets/cpf-cheat-sheet` - Generates the public cheat sheet PDF
 
 ### LLM Integration Routes
@@ -139,26 +138,19 @@ Located in `src/hooks/`:
 ### Utilities
 - `src/lib/cache-headers.ts` - Standardised cache header utilities for API responses
 - `src/lib/calculate-retirement-readiness.ts` - Scoring logic and next-step recommendations for the readiness assessment
-- `src/lib/email-templates.ts` - HTML/text email templates for the cheat sheet and readiness report
 - `src/lib/error-handler.ts` - Centralised error handling with consistent API error responses
 - `src/lib/format.ts` - Number and currency formatting utilities
 - `src/lib/get-cpf-cheat-sheet-data.ts` - Shared CPF reference data used by the cheat sheet page and PDF export
-- `src/lib/resend.ts` - Resend contact upsert and transactional email helpers for optional resource delivery
 - `src/config/index.ts` - Application configuration constants
 
 ### Key Components
 - **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline showing the progression of CPF income ceiling changes from pre-2023 to final 2026 ceiling
 - **PDF Export** (`cpf-results-pdf.tsx`, `download-pdf.tsx`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
-- **Lead Magnet Components** (`src/components/lead-magnets/`): CTA cards, cheat sheet signup, readiness score assessment, and result views for optional resource delivery
+- **Lead Magnet Components** (`src/components/lead-magnets/`): On-page readiness score assessment form and result view for the `/retirement-readiness` page
 - **Home Page Components**: `hero-section.tsx`, `insight-banner.tsx`, `quick-actions.tsx` for the landing page
 - **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
 - **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
 - **CPF LIFE Components** (`src/components/cpf-life/`): CPF LIFE payout estimator inputs, plan comparison cards, and retirement sum references for the `/cpf-life` page
-
-### Email Delivery
-- Cheat sheet and readiness report delivery are optional add-ons powered by Resend
-- Configure `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and optionally `RESEND_REPLY_TO_EMAIL` to enable them
-- Core calculators and planning tools should continue to work without any email configuration
 
 ## Design System
 

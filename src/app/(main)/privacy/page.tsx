@@ -66,8 +66,8 @@ export default function PrivacyPage() {
             <p>
               Salary, age, citizenship, and other inputs you enter into the
               calculator, projection, what-if, and CPF LIFE tools are held in
-              memory on your device and, where relevant, serialised into the
-              URL so you can share or reopen a scenario.
+              memory on your device and, where relevant, serialised into the URL
+              so you can share or reopen a scenario.
             </p>
             <p>
               These values are not transmitted to a SimplyCPF backend because
@@ -80,7 +80,9 @@ export default function PrivacyPage() {
         <Card>
           <CardHeader>
             <CardTitle>Anonymous usage analytics</CardTitle>
-            <CardDescription>PostHog, routed through a first-party proxy</CardDescription>
+            <CardDescription>
+              PostHog, routed through a first-party proxy
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 text-muted-foreground">
             <p>

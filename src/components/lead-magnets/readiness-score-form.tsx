@@ -4,15 +4,6 @@ import { useState } from "react";
 import ReadinessScoreResult from "@/components/lead-magnets/readiness-score-result";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
   calculateRetirementReadiness,
   type ReadinessAnswers,
   type ReadinessResult,
@@ -155,26 +146,10 @@ const questions = [
   },
 ] as const;
 
-function getCaptureContext() {
-  const searchParams = new URLSearchParams(window.location.search);
-
-  return {
-    referrer: window.location.href,
-    utmSource: searchParams.get("utm_source") ?? undefined,
-    utmMedium: searchParams.get("utm_medium") ?? undefined,
-    utmCampaign: searchParams.get("utm_campaign") ?? undefined,
-    utmContent: searchParams.get("utm_content") ?? undefined,
-  };
-}
-
 export default function ReadinessScoreForm() {
   const [answers, setAnswers] = useState<Partial<ReadinessAnswers>>({});
   const [result, setResult] = useState<ReadinessResult | null>(null);
-  const [email, setEmail] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSent, setIsSent] = useState(false);
 
   const handleCalculate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -192,54 +167,6 @@ export default function ReadinessScoreForm() {
 
     setFormError(null);
     setResult(calculateRetirementReadiness(answers as ReadinessAnswers));
-    setIsSent(false);
-    setEmailError(null);
-  };
-
-  const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!result) {
-      return;
-    }
-
-    setEmailError(null);
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch("/api/lead-capture", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          asset: "readiness_score",
-          sourceRoute: "/retirement-readiness",
-          readinessScore: result.score,
-          readinessBucket: result.bucket,
-          interestArea: result.interestArea,
-          ...getCaptureContext(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Unable to email readiness report");
-      }
-
-      setIsSent(true);
-      setEmail("");
-    } catch (submissionError) {
-      setEmailError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : "Unable to email readiness report",
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   return (
@@ -298,55 +225,7 @@ export default function ReadinessScoreForm() {
         </Button>
       </form>
 
-      {result ? (
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-          <ReadinessScoreResult result={result} />
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Email me the detailed report</CardTitle>
-              <CardDescription>
-                Optional. We will use your email only to send this report.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isSent ? (
-                <div className="rounded-xl border border-accent/20 bg-accent/5 p-6">
-                  <p className="mb-2 font-semibold text-foreground">
-                    Report sent
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    Check your inbox for the detailed SimplyCPF readiness report
-                    and next-step links.
-                  </p>
-                </div>
-              ) : (
-                <form
-                  className="flex flex-col gap-4"
-                  onSubmit={handleEmailSubmit}
-                >
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="readiness-email">Email address</Label>
-                    <Input
-                      id="readiness-email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      required
-                    />
-                  </div>
-                  {emailError ? (
-                    <p className="text-destructive text-sm">{emailError}</p>
-                  ) : null}
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending..." : "Email me the report"}
-                  </Button>
-                </form>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      ) : null}
+      {result ? <ReadinessScoreResult result={result} /> : null}
     </div>
   );
 }

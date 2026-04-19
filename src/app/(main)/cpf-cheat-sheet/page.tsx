@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Graph } from "schema-dts";
-import CheatSheetSignup from "@/components/lead-magnets/cheat-sheet-signup";
 import { StructuredData } from "@/components/seo/structured-data";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -62,52 +61,34 @@ export default function CpfCheatSheetPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Download instantly</CardTitle>
-              <CardDescription>
-                The PDF is public. No sign-up is needed to download it.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <p className="text-muted-foreground text-sm">{data.subtitle}</p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/api/lead-magnets/cpf-cheat-sheet"
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "justify-center",
-                  )}
-                >
-                  Download the PDF
-                </Link>
-                <Link
-                  href="/projection"
-                  className={cn(
-                    buttonVariants({ size: "lg", variant: "outline" }),
-                    "justify-center",
-                  )}
-                >
-                  Open the projection calculator
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Email it to yourself</CardTitle>
-              <CardDescription>
-                Optional. Useful if you want the cheat sheet waiting in your
-                inbox after this session.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CheatSheetSignup sourceRoute="/cpf-cheat-sheet" />
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>Download instantly</CardTitle>
+            <CardDescription>
+              The PDF is public. No sign-up is needed to download it.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <p className="text-muted-foreground text-sm">{data.subtitle}</p>
+            <div className="flex flex-wrap gap-4">
+              <Link
+                href="/api/lead-magnets/cpf-cheat-sheet"
+                className={cn(buttonVariants({ size: "lg" }), "justify-center")}
+              >
+                Download the PDF
+              </Link>
+              <Link
+                href="/projection"
+                className={cn(
+                  buttonVariants({ size: "lg", variant: "outline" }),
+                  "justify-center",
+                )}
+              >
+                Open the projection calculator
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-4">
           {data.sections.map((section) => (

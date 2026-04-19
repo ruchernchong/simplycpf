@@ -36,8 +36,9 @@ export default defineConfig({
         "src/app/\\(main\\)/**/page.tsx",
         "src/app/\\(main\\)/**/loading.tsx",
         "src/app/\\(main\\)/**/error.tsx",
-        // State atoms (require React context)
-        "src/atoms/**",
+        // Zustand stores and providers (require React context)
+        "src/providers/**",
+        "src/stores/**",
         // Hooks (require React context and mocking)
         "src/hooks/**",
         // PDF generation (requires @react-pdf/renderer mocking)

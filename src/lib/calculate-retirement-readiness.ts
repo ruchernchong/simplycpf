@@ -1,5 +1,3 @@
-import type { ReadinessEmailParams } from "@/lib/email-templates";
-
 export type ReadinessBucket = "low" | "mid" | "high";
 export type ReadinessInterestArea = "projection" | "cpf-life" | "pr-rates";
 
@@ -11,9 +9,16 @@ export interface ReadinessAnswers {
   cpfLifeConfidence: "low" | "medium" | "high";
 }
 
-export interface ReadinessResult extends ReadinessEmailParams {
+export interface ReadinessResult {
+  score: number;
   bucket: ReadinessBucket;
+  bucketLabel: string;
   interestArea: ReadinessInterestArea;
+  headline: string;
+  summary: string;
+  nextSteps: string[];
+  primaryActionLabel: string;
+  primaryActionHref: string;
 }
 
 const SCORE_MAP = {
@@ -79,15 +84,13 @@ function getInterestArea(
   return "projection";
 }
 
-export function buildReadinessEmailData({
-  score,
+function buildReadinessPresentation({
   bucket,
   interestArea,
 }: {
-  score: number;
   bucket: ReadinessBucket;
   interestArea: ReadinessInterestArea;
-}): ReadinessEmailParams {
+}) {
   const bucketLabel =
     bucket === "low"
       ? "Needs Attention"
@@ -155,7 +158,6 @@ export function buildReadinessEmailData({
             ];
 
   return {
-    score,
     bucketLabel,
     headline,
     summary,
@@ -179,8 +181,9 @@ export function calculateRetirementReadiness(
   const interestArea = getInterestArea(answers, bucket);
 
   return {
+    score,
     bucket,
     interestArea,
-    ...buildReadinessEmailData({ score, bucket, interestArea }),
+    ...buildReadinessPresentation({ bucket, interestArea }),
   };
 }

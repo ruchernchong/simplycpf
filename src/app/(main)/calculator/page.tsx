@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import type { Graph } from "schema-dts";
 import CalculatorContent from "@/components/calculator/calculator-content";
-import CheatSheetCta from "@/components/lead-magnets/cheat-sheet-cta";
 import CpfAgeSpecificBlock from "@/components/seo/cpf-age-specific-block";
 import IncomeCeilingDefinitionBlock from "@/components/seo/income-ceiling-definition-block";
 import { StructuredData } from "@/components/seo/structured-data";
@@ -188,19 +187,11 @@ const CalculatorPage = async ({
               />{" "}
               Results update instantly
             </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block size-1.5 rounded-full bg-accent"
-                aria-hidden="true"
-              />{" "}
-              Optional email only for requested resources
-            </span>
           </div>
         </div>
         <CalculatorContent />
         {ageGroup && <CpfAgeSpecificBlock ageGroup={ageGroup} />}
         <IncomeCeilingDefinitionBlock />
-        <CheatSheetCta compact />
       </div>
     </>
   );

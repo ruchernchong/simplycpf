@@ -46,7 +46,6 @@ The core calculators and planning tools work without sign-up. Email is only requ
 - **Linting**: Biome
 - **Package Manager**: pnpm 10.x
 - **Deployment**: Vercel
-- **Email Delivery**: Resend (optional, for cheat sheet and readiness report delivery)
 
 ## Getting Started
 
@@ -76,18 +75,6 @@ PORTLESS=0 pnpm dev
 ```
 
 The application will be available at `https://simplycpf.localhost` by default, or `http://localhost:3000` when Portless is disabled.
-
-### Optional Resend Setup
-
-If you want the cheat sheet and readiness report email flows to work locally, set these environment variables:
-
-```bash
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=
-RESEND_REPLY_TO_EMAIL=
-```
-
-Without them, the core CPF calculators still work normally.
 
 ### Development Commands
 
