@@ -1,11 +1,13 @@
-{
-  "extends": ["@commitlint/config-conventional"],
-  "rules": {
+import type { UserConfig } from "@commitlint/types";
+
+const config: UserConfig = {
+  extends: ["@commitlint/config-conventional"],
+  rules: {
     "header-max-length": [2, "always", 72],
     "subject-case": [
       2,
       "never",
-      ["sentence-case", "start-case", "pascal-case", "upper-case"]
+      ["sentence-case", "start-case", "pascal-case", "upper-case"],
     ],
     "scope-empty": [2, "always"],
     "type-enum": [
@@ -22,9 +24,11 @@
         "build",
         "ci",
         "chore",
-        "revert"
-      ]
+        "revert",
+      ],
     ],
-    "body-max-line-length": [0, "always"]
-  }
-}
+    "body-max-line-length": [0, "always"],
+  },
+};
+
+export default config;
