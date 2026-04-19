@@ -20,7 +20,10 @@ export function isScenarioType(value: string | null): value is ScenarioType {
 
 export default function ScenarioSelector() {
   return (
-    <TabsList className="w-full justify-start overflow-x-auto rounded-2xl">
+    <TabsList
+      variant="line"
+      className="w-full justify-start overflow-x-auto"
+    >
       {scenarioOptions.map((option) => (
         <TabsTrigger key={option.value} value={option.value}>
           {option.label}

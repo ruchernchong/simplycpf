@@ -23,7 +23,7 @@ export function NavigationTabs() {
   return (
     <div className="overflow-x-auto">
       <Tabs value={pathname}>
-        <TabsList>
+        <TabsList variant="line">
           {navigationItems.map((item) => (
             <TabsTrigger
               key={item.href}
