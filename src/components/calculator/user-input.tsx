@@ -9,7 +9,6 @@ import posthog from "posthog-js";
 import {
   type ChangeEvent,
   useCallback,
-  useEffect,
   useState,
   useTransition,
 } from "react";
@@ -66,17 +65,6 @@ const UserInput = () => {
   );
 
   const updateSettings = useCpfStore((state) => state.updateSettings);
-
-  // Reset settings when shouldStoreInput is false (on initial load)
-  useEffect(() => {
-    if (!shouldStoreInput) {
-      updateSettings({
-        birthDate: "",
-        monthlyGrossIncome: 0,
-        citizenshipStatus: "citizen",
-      });
-    }
-  }, [updateSettings, shouldStoreInput]);
 
   const handleBirthDateChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
