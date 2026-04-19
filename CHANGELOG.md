@@ -1,3 +1,9 @@
+## [1.22.1](https://github.com/ruchernchong/simplycpf/compare/v1.22.0...v1.22.1) (2026-04-19)
+
+### Bug Fixes
+
+* resolve circular font-sans and broken font-mono in globals.css ([f2a51e6](https://github.com/ruchernchong/simplycpf/commit/f2a51e6c1c64fa23fcc42df5ba988bbe7b015061))
+
 ## [1.22.0](https://github.com/ruchernchong/simplycpf/compare/v1.21.0...v1.22.0) (2026-04-18)
 
 ### Features
