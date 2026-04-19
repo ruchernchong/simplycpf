@@ -15,10 +15,12 @@ import {
   pageBreadcrumb,
 } from "@/lib/build-schema";
 
+const PRIVACY_DESCRIPTION =
+  "SimplyCPF works without signing up. No account, no email, no backend database. Only anonymous usage analytics and a theme preference cookie.";
+
 export const metadata: Metadata = {
   title: "Privacy | SimplyCPF",
-  description:
-    "Privacy information for SimplyCPF, including how optional email delivery works for CPF cheat sheets and readiness reports.",
+  description: PRIVACY_DESCRIPTION,
   alternates: {
     canonical: "/privacy",
   },
@@ -27,8 +29,7 @@ export const metadata: Metadata = {
 const schema: Graph = buildGraph([
   buildPageSchema({
     name: "Privacy",
-    description:
-      "Privacy information for SimplyCPF, including how optional email delivery works for CPF cheat sheets and readiness reports.",
+    description: PRIVACY_DESCRIPTION,
     url: `${BASE_URL}/privacy`,
     speakableSelectors: ["h1", "[data-privacy-summary]"],
   }),
@@ -48,47 +49,66 @@ export default function PrivacyPage() {
             data-privacy-summary
             className="mx-auto max-w-3xl text-muted-foreground"
           >
-            The core SimplyCPF tools work without sign-up. Email is only used if
-            you ask us to send you a CPF cheat sheet or a retirement readiness
-            report.
+            SimplyCPF works without sign-up. There is no account to create, no
+            email address to hand over, and no backend database holding your
+            calculator inputs.
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>What we collect</CardTitle>
+            <CardTitle>What stays in your browser</CardTitle>
             <CardDescription>
-              Only when you request a resource by email
+              Calculator inputs never leave your device
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 text-muted-foreground">
             <p>
-              If you use the calculator, projection tools, what-if simulator, or
-              CPF LIFE estimator without asking for email delivery, SimplyCPF
-              does not require an account or collect your email address.
+              Salary, age, citizenship, and other inputs you enter into the
+              calculator, projection, what-if, and CPF LIFE tools are held in
+              memory on your device and, where relevant, serialised into the
+              URL so you can share or reopen a scenario.
             </p>
             <p>
-              If you ask us to send you a CPF cheat sheet or readiness report,
-              we store the email address you submit together with basic context
-              about the request, such as the page you came from and optional
-              campaign parameters.
+              These values are not transmitted to a SimplyCPF backend because
+              there is no backend database. The CPF calculations run in your
+              browser.
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>How email delivery works</CardTitle>
+            <CardTitle>Anonymous usage analytics</CardTitle>
+            <CardDescription>PostHog, routed through a first-party proxy</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 text-muted-foreground">
             <p>
-              Email delivery is handled through Resend. We use it to send the
-              specific resource or report you requested.
+              SimplyCPF uses PostHog to understand how the tools are used in
+              aggregate. It captures anonymous events such as page views,
+              interactions, and errors. Requests are routed through a
+              first-party <code>/ph</code> proxy.
             </p>
             <p>
-              These emails are transactional. They exist to deliver the CPF
-              resource you asked for, not to lock the core product behind
-              sign-up.
+              Calculator inputs, email addresses, and personal identifiers are
+              not attached to these events. PostHog may set its own cookies or
+              local storage entries for session analytics.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Cookies</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 text-muted-foreground">
+            <p>
+              A theme preference cookie is set so that your light or dark mode
+              choice persists between visits.
+            </p>
+            <p>
+              Beyond that and the PostHog entries noted above, SimplyCPF does
+              not set cookies of its own.
             </p>
           </CardContent>
         </Card>
@@ -100,8 +120,12 @@ export default function PrivacyPage() {
           <CardContent className="flex flex-col gap-4 text-muted-foreground">
             <p>We do not sell your personal data.</p>
             <p>
-              We do not require sign-up to use the main CPF calculators and
-              planning tools.
+              We do not require sign-up to use the CPF calculators and planning
+              tools.
+            </p>
+            <p>
+              We do not send marketing emails or newsletters, and there is no
+              email collection flow on the site.
             </p>
             <p>
               We do not claim to replace the official CPF Board website for
