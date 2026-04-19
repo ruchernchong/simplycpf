@@ -1,16 +1,8 @@
 import { File01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useAtomValue } from "jotai";
 import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
-import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
-import {
-  ceilingComparisonAtom,
-  contributionResultAtom,
-  distributionResultsAtom,
-} from "@/atoms/result-atom";
-import { settingsAtom } from "@/atoms/setting-atom";
-import { ageGroupAtom } from "@/atoms/user-atom";
+import { shallow } from "zustand/shallow";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,20 +19,29 @@ import {
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
 import useAnimatedNumber from "@/hooks/use-animated-number";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { openPdf, type PdfData } from "@/lib/download-pdf";
 import { formatCurrency } from "@/lib/format";
+import {
+  selectAgeGroup,
+  selectCeilingComparison,
+  selectContributionResult,
+  selectDistributionResults,
+  selectLatestIncomeCeilingDate,
+  selectMonthlyGrossIncome,
+} from "@/stores/selectors";
 
 export function CalculatedResult() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const hasTrackedCompletion = useRef(false);
 
-  const { monthlyGrossIncome } = useAtomValue(settingsAtom);
-  const ageGroup = useAtomValue(ageGroupAtom);
+  const monthlyGrossIncome = useCpfStore(selectMonthlyGrossIncome);
+  const ageGroup = useCpfStore(selectAgeGroup, shallow);
   const contributionRate = ageGroup.contributionRate;
-  const contributionResult = useAtomValue(contributionResultAtom);
-  const distributionResults = useAtomValue(distributionResultsAtom);
-  const ceilingComparison = useAtomValue(ceilingComparisonAtom);
-  const currentCeilingDate = useAtomValue(latestIncomeCeilingDateAtom);
+  const contributionResult = useCpfStore(selectContributionResult, shallow);
+  const distributionResults = useCpfStore(selectDistributionResults, shallow);
+  const ceilingComparison = useCpfStore(selectCeilingComparison, shallow);
+  const currentCeilingDate = useCpfStore(selectLatestIncomeCeilingDate);
 
   useEffect(() => {
     if (monthlyGrossIncome > 0 && !hasTrackedCompletion.current) {

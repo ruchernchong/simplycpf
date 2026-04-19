@@ -1,7 +1,5 @@
-import { useAtom } from "jotai";
 import posthog from "posthog-js";
 import { useState } from "react";
-import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import {
   Card,
   CardContent,
@@ -11,12 +9,15 @@ import {
 } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { CPF_INCOME_CEILING } from "@/constants";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { selectLatestIncomeCeilingDate } from "@/stores/selectors";
 
 const CPFYearSlider = () => {
-  const [latestIncomeCeilingDate, setLatestIncomeCeilingDate] = useAtom(
-    latestIncomeCeilingDateAtom,
+  const latestIncomeCeilingDate = useCpfStore(selectLatestIncomeCeilingDate);
+  const setLatestIncomeCeilingDate = useCpfStore(
+    (state) => state.setLatestIncomeCeilingDate,
   );
 
   const [sliderValue, setSliderValue] = useState(latestIncomeCeilingDate);

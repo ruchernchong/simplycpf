@@ -2,9 +2,7 @@
 
 import { CheckmarkCircle01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useAtom } from "jotai";
 import { useTransition } from "react";
-import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import {
   Card,
   CardContent,
@@ -13,12 +11,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CPF_INCOME_CEILING } from "@/constants";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { findLatestIncomeCeilingDate } from "@/lib/find-latest-income-ceiling-date";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { selectLatestIncomeCeilingDate } from "@/stores/selectors";
 
 const CPFIncomeCeilingTimeline = () => {
-  const [selectedDate, setSelectedDate] = useAtom(latestIncomeCeilingDateAtom);
+  const selectedDate = useCpfStore(selectLatestIncomeCeilingDate);
+  const setSelectedDate = useCpfStore(
+    (state) => state.setLatestIncomeCeilingDate,
+  );
   const [isPending, startTransition] = useTransition();
 
   const dateKeys = Object.keys(CPF_INCOME_CEILING);

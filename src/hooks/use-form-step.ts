@@ -1,8 +1,8 @@
-import { useAtomValue } from "jotai";
-import { formStepAtom } from "@/atoms/form-step-atom";
+import { useCpfStore } from "@/hooks/use-cpf-store";
+import { selectFormStep } from "@/stores/selectors";
 
 const useFormStep = () => {
-  return useAtomValue(formStepAtom);
+  return useCpfStore(selectFormStep);
 };
 
 export default useFormStep;

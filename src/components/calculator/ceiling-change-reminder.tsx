@@ -2,15 +2,15 @@
 
 import { Bookmark02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useAtomValue } from "jotai";
 import { useState } from "react";
-import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import { CPF_INCOME_CEILING } from "@/constants";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatDate } from "@/lib/format";
+import { selectLatestIncomeCeilingDate } from "@/stores/selectors";
 
 export function CeilingChangeReminder() {
   const [bookmarkHint, setBookmarkHint] = useState(false);
-  const currentCeilingDate = useAtomValue(latestIncomeCeilingDateAtom);
+  const currentCeilingDate = useCpfStore(selectLatestIncomeCeilingDate);
   const dateKeys = Object.keys(CPF_INCOME_CEILING);
   const currentIndex = dateKeys.indexOf(currentCeilingDate);
   const nextCeilingDate = dateKeys[currentIndex + 1];

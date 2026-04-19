@@ -1,11 +1,12 @@
 "use client";
 
-import { useAtomValue } from "jotai";
-import { ageGroupAtom } from "@/atoms/user-atom";
+import { shallow } from "zustand/shallow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ageGroups } from "@/data";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { selectAgeGroup } from "@/stores/selectors";
 import type { AgeGroup } from "@/types";
 
 const ACCOUNT_KEYS = ["OA", "SA", "MA"] as const;
@@ -56,7 +57,7 @@ const MobileRow = ({ group, isCurrentGroup }: DistributionRowProps) => (
 );
 
 export const DistributionRatesTable = () => {
-  const currentAgeGroup = useAtomValue(ageGroupAtom);
+  const currentAgeGroup = useCpfStore(selectAgeGroup, shallow);
 
   const isCurrentAgeGroup = (group: AgeGroup): boolean =>
     group.description === currentAgeGroup?.description;

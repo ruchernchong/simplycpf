@@ -25,7 +25,7 @@ A Next.js 16.2 application that calculates CPF (Central Provident Fund) contribu
 - **Imports**: Organised via Biome, absolute imports with `@/` prefix
 - **Tailwind Classes**: Automatically sorted using Biome's `useSortedClasses` rule with `cn`, `clsx`, `cva`, and `tw` functions
 - **TypeScript**: Full type coverage, avoid `any` and `as` casts
-- **State Management**: Jotai atoms for global state
+- **State Management**: Zustand store for global state
 - **Component Structure**: Functional components with explicit return types
 - **File Naming**: kebab-case for all files (e.g., `user-input.tsx`, `calculate-cpf-contribution.ts`)
 - **Variable/Function Naming**: camelCase for functions/variables, PascalCase for React component names
@@ -50,13 +50,13 @@ Keep documentation in sync with code changes:
 ## Architecture
 
 ### State Management
-Calculator-wide shared state is managed through Jotai atoms in `src/atoms/`:
-- `result-atom.ts` - Core derived atoms for CPF calculations (`contributionResultAtom`, `distributionResultsAtom`)
-- `user-atom.ts` - Derived user age group from stored birth date
-- `setting-atom.ts` - User settings (income, storage preferences)
-- `income-ceiling-atom.ts` - Income ceiling data and selected timeline date (`latestIncomeCeilingDateAtom`)
+Calculator-wide shared state is managed through a Zustand store in `src/stores/`:
+- `cpf-store.ts` - Core store with settings and actions
+- `cpf-store-context.tsx` - React context provider for the store
+- `selectors.ts` - Computed selectors for derived state (age, age group, contribution results, etc.)
+- `use-cpf-store.ts` - Hook for accessing store state and actions
 
-Self-contained pages that do not need cross-route shared state, such as the CPF projection page, can use page-local client state instead of introducing new global atoms.
+Self-contained pages that do not need cross-route shared state, such as the CPF projection page, can use page-local client state instead of introducing new global store slices.
 Projection and what-if pages serialise form state into the URL with `nuqs` so results can be shared and reopened directly from search params.
 Lead magnet flows such as the retirement readiness score use page-local client state and should not introduce new global atoms.
 

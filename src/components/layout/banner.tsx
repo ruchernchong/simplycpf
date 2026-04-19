@@ -1,16 +1,16 @@
 "use client";
 
-import { useAtomValue } from "jotai";
-import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
 import {
   CPF_INCOME_CEILING,
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
 import useAnimatedNumber from "@/hooks/use-animated-number";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatCurrency } from "@/lib/format";
+import { selectLatestIncomeCeilingDate } from "@/stores/selectors";
 
 const Banner = () => {
-  const latestIncomeCeilingDate = useAtomValue(latestIncomeCeilingDateAtom);
+  const latestIncomeCeilingDate = useCpfStore(selectLatestIncomeCeilingDate);
   const currentCeiling = CPF_INCOME_CEILING[latestIncomeCeilingDate];
   const ceilingIncrease = currentCeiling - CPF_INCOME_CEILING_BEFORE_SEPT_2023;
 

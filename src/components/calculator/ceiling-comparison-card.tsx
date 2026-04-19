@@ -2,10 +2,8 @@
 
 import { ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useAtomValue } from "jotai";
 import { motion, type Variants } from "motion/react";
-import { latestIncomeCeilingDateAtom } from "@/atoms/income-ceiling-atom";
-import { ceilingComparisonAtom } from "@/atoms/result-atom";
+import { shallow } from "zustand/shallow";
 import {
   Card,
   CardContent,
@@ -18,14 +16,19 @@ import {
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
 import useAnimatedNumber from "@/hooks/use-animated-number";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import {
+  selectCeilingComparison,
+  selectLatestIncomeCeilingDate,
+} from "@/stores/selectors";
 
 const MotionCard = motion.create(Card);
 
 const CeilingComparisonCard = () => {
-  const comparison = useAtomValue(ceilingComparisonAtom);
-  const currentCeilingDate = useAtomValue(latestIncomeCeilingDateAtom);
+  const comparison = useCpfStore(selectCeilingComparison, shallow);
+  const currentCeilingDate = useCpfStore(selectLatestIncomeCeilingDate);
   const currentCeiling = CPF_INCOME_CEILING[currentCeilingDate];
 
   // Flip the perspective: show impact under CURRENT ceiling vs old

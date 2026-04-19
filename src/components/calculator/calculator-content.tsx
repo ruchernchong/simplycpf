@@ -1,18 +1,19 @@
 "use client";
 
-import { useAtomValue } from "jotai";
 import { Suspense } from "react";
-import { formStepAtom } from "@/atoms/form-step-atom";
-import {
-  distributionResultsAtom,
-  hasCpfContributionAtom,
-} from "@/atoms/result-atom";
+import { shallow } from "zustand/shallow";
 import { CalculatedResult } from "@/components/calculator/calculated-result";
 import { CeilingChangeReminder } from "@/components/calculator/ceiling-change-reminder";
 import CeilingComparisonCard from "@/components/calculator/ceiling-comparison-card";
 import DistributionView from "@/components/calculator/distribution-view";
 import StepSection from "@/components/calculator/step-section";
 import UserInput from "@/components/calculator/user-input";
+import { useCpfStore } from "@/hooks/use-cpf-store";
+import {
+  selectDistributionResults,
+  selectFormStep,
+  selectHasCpfContribution,
+} from "@/stores/selectors";
 
 const ComparisonFallback = () => (
   <div className="h-64 w-full animate-pulse rounded-lg bg-zinc-200" />
@@ -26,9 +27,9 @@ const DistributionFallback = () => (
 );
 
 const CalculatorContent = () => {
-  const step = useAtomValue(formStepAtom);
-  const hasCpfContribution = useAtomValue(hasCpfContributionAtom);
-  const distributionResults = useAtomValue(distributionResultsAtom);
+  const step = useCpfStore(selectFormStep);
+  const hasCpfContribution = useCpfStore(selectHasCpfContribution);
+  const distributionResults = useCpfStore(selectDistributionResults, shallow);
   const showResults = step >= 2;
 
   return (

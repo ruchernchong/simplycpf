@@ -39,7 +39,7 @@ The core calculators and planning tools work without sign-up. Email is only requ
 - **Framework**: [Next.js 16](https://nextjs.org/) with React 19
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4.x with shadcn/ui components
-- **State Management**: [Jotai](https://jotai.org/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
 - **UI Components**: Base UI primitives
 - **Charts**: Recharts
 - **Testing**: Vitest with React Testing Library

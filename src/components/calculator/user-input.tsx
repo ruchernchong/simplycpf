@@ -5,8 +5,6 @@ import {
   Passport01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useAtom, useAtomValue } from "jotai";
-import { useResetAtom } from "jotai/utils";
 import posthog from "posthog-js";
 import {
   type ChangeEvent,
@@ -15,8 +13,6 @@ import {
   useState,
   useTransition,
 } from "react";
-import { formStepAtom } from "@/atoms/form-step-atom";
-import { settingsAtom } from "@/atoms/setting-atom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -41,6 +37,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCpfStore } from "@/hooks/use-cpf-store";
+import { selectFormStep } from "@/stores/selectors";
 import type { Settings } from "@/types";
 import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
 
@@ -52,19 +50,33 @@ const citizenshipOptions = [
 ];
 
 const UserInput = () => {
-  const [settings, setSettings] = useAtom(settingsAtom);
-  const { birthDate, monthlyGrossIncome, shouldStoreInput, citizenshipStatus } =
-    settings;
   const [isPending, startTransition] = useTransition();
-  const step = useAtomValue(formStepAtom);
+  const step = useCpfStore(selectFormStep);
 
-  const resetSettings = useResetAtom(settingsAtom);
+  // Select individual settings and actions from the store
+  const birthDate = useCpfStore((state) => state.settings.birthDate);
+  const monthlyGrossIncome = useCpfStore(
+    (state) => state.settings.monthlyGrossIncome,
+  );
+  const shouldStoreInput = useCpfStore(
+    (state) => state.settings.shouldStoreInput,
+  );
+  const citizenshipStatus = useCpfStore(
+    (state) => state.settings.citizenshipStatus,
+  );
 
+  const updateSettings = useCpfStore((state) => state.updateSettings);
+
+  // Reset settings when shouldStoreInput is false (on initial load)
   useEffect(() => {
     if (!shouldStoreInput) {
-      resetSettings();
+      updateSettings({
+        birthDate: "",
+        monthlyGrossIncome: 0,
+        citizenshipStatus: "citizen",
+      });
     }
-  }, [resetSettings, shouldStoreInput]);
+  }, [updateSettings, shouldStoreInput]);
 
   const handleBirthDateChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -72,19 +84,21 @@ const UserInput = () => {
       const formattedBirthDate = formatDateInput(rawInput, birthDate);
 
       startTransition(() => {
-        void setSettings((setting) => ({
-          ...setting,
-          birthDate: formattedBirthDate,
-        }));
+        updateSettings({ birthDate: formattedBirthDate });
       });
     },
-    [birthDate, setSettings],
+    [birthDate, updateSettings],
   );
 
   const handleReset = () => {
     posthog.capture("calculator_reset");
     startTransition(() => {
-      resetSettings();
+      updateSettings({
+        birthDate: "",
+        monthlyGrossIncome: 0,
+        citizenshipStatus: "citizen",
+        shouldStoreInput: false,
+      });
     });
   };
 
@@ -190,10 +204,9 @@ const UserInput = () => {
           <Select
             value={citizenshipStatus}
             onValueChange={(value) =>
-              setSettings((setting) => ({
-                ...setting,
+              updateSettings({
                 citizenshipStatus: value as Settings["citizenshipStatus"],
-              }))
+              })
             }
           >
             <SelectTrigger className="w-full">
@@ -238,10 +251,9 @@ const UserInput = () => {
             placeholder="0.00"
             value={monthlyGrossIncome || ""}
             onChange={(e) =>
-              setSettings((setting) => ({
-                ...setting,
+              updateSettings({
                 monthlyGrossIncome: Number.parseFloat(e.target.value) || 0,
-              }))
+              })
             }
             className="max-w-xs"
             min={0}
@@ -256,10 +268,9 @@ const UserInput = () => {
               checked={shouldStoreInput}
               onCheckedChange={(checked) =>
                 startTransition(() => {
-                  setSettings((setting) => ({
-                    ...setting,
+                  updateSettings({
                     shouldStoreInput: Boolean(checked),
-                  }));
+                  });
                 })
               }
               disabled={isPending}
