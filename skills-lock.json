@@ -31,11 +31,6 @@
       "sourceType": "github",
       "computedHash": "de49a0fd426d4710fc05b2759244588c6f5b5014d9cd9331a0d54dc655f023bc"
     },
-    "jotai": {
-      "source": "vercel-labs/json-render",
-      "sourceType": "github",
-      "computedHash": "1773e11369c7e45e30d52519869dc758e557e41ec4b3d923fa9911780a4bdde7"
-    },
     "lead-magnets": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
