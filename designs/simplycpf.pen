@@ -13290,6 +13290,45 @@
                           "fontWeight": "normal"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "eYGen",
+                      "name": "Section/Age 55 and beyond",
+                      "width": "fill_container",
+                      "fill": "$--card",
+                      "cornerRadius": 12,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--border"
+                      },
+                      "layout": "vertical",
+                      "gap": 10,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wKaH3",
+                          "name": "sec4h",
+                          "fill": "$--foreground",
+                          "content": "Age 55 and beyond",
+                          "fontFamily": "Inter",
+                          "fontSize": 20,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "7sHrr",
+                          "name": "sec4b",
+                          "fill": "$--muted-foreground",
+                          "content": "From age 55, savings up to the Full Retirement Sum are moved into the Retirement Account. CPF LIFE payouts can start from 65, with options to defer for higher monthly income. The Retirement Sum Scheme bridges members who do not qualify for CPF LIFE.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -28269,6 +28308,1114 @@
                           "ref": "u:VSnC2"
                         }
                       ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "OOvME",
+      "x": 0,
+      "y": 14900,
+      "name": "Page — FAQ — Contribution Rates",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "$--background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "WGFZB",
+          "name": "hdrA",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "$--border"
+          },
+          "padding": [
+            16,
+            32
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "L45gH",
+              "fill": "$--foreground",
+              "content": "SimplyCPF",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "w5GhR",
+              "name": "Nav",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "LLgb6",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Home",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "h1kB9",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Docs",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "aSzEK",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "FAQ",
+                      "fill": "$--foreground"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "5WVP1",
+          "name": "Main",
+          "width": "fill_container",
+          "fill": "$--background",
+          "layout": "vertical",
+          "padding": [
+            40,
+            32
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "GYkDU",
+              "name": "Inner",
+              "width": 1040,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "osHOh",
+                  "name": "Breadcrumb",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QqVRr",
+                      "name": "bcA1",
+                      "fill": "$--muted-foreground",
+                      "content": "Home",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "TC8XS",
+                      "name": "bcA2",
+                      "fill": "$--muted-foreground",
+                      "content": "/",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ccad2",
+                      "name": "bcA3",
+                      "fill": "$--muted-foreground",
+                      "content": "FAQ",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uOEaf",
+                      "name": "bcA4",
+                      "fill": "$--muted-foreground",
+                      "content": "/",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "1Numx",
+                      "name": "bcA5",
+                      "fill": "$--foreground",
+                      "content": "Contribution Rates",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tj01R",
+                  "name": "Doc Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    0,
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WAKj0",
+                      "name": "heroTitle",
+                      "fill": "$--foreground",
+                      "content": "CPF Contribution Rates",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "qf6MY",
+                      "name": "heroMeta",
+                      "fill": "$--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Questions about CPF contribution calculations, income ceilings, and age-based rates",
+                      "lineHeight": 1.5,
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "JCge0",
+                  "name": "Accordion Card",
+                  "width": "fill_container",
+                  "fill": "$--card",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--border"
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    28,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "id": "lUdiA",
+                      "type": "ref",
+                      "ref": "u:pfIN1",
+                      "width": "fill_container",
+                      "name": "accA1",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How are CPF contributions calculated?"
+                        },
+                        "u:IaDRg": {
+                          "content": "CPF contributions are calculated by applying the contribution rate for your age group to your capped monthly income. Income above the prevailing CPF income ceiling is not subject to contributions. The total contribution is then distributed across your Ordinary Account (OA), Special Account (SA), and MediSave Account (MA) based on distribution rates for your age group."
+                        }
+                      }
+                    },
+                    {
+                      "id": "yj7rI",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "width": "fill_container",
+                      "name": "accA2",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What is the CPF income ceiling for 2026?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "sC83F",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "width": "fill_container",
+                      "name": "accA3",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How much do I contribute to CPF as an employee aged 55 and below?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "pD3TT",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "width": "fill_container",
+                      "name": "accA4",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Does my age affect my CPF contribution rate?"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FmzRl",
+      "x": 1600,
+      "y": 14900,
+      "name": "Page — FAQ — CPF LIFE",
+      "clip": true,
+      "width": 1440,
+      "height": 1400,
+      "fill": "$--background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "U5kAL",
+          "name": "hdrB",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "$--border"
+          },
+          "padding": [
+            16,
+            32
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "9IYna",
+              "fill": "$--foreground",
+              "content": "SimplyCPF",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "G1Ygt",
+              "name": "Nav",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "59PGe",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Home",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "8omXK",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Docs",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "wSdgW",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "FAQ",
+                      "fill": "$--foreground"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "X93xE",
+          "name": "Main",
+          "width": "fill_container",
+          "fill": "$--background",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            40,
+            32
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "1aMGf",
+              "name": "Inner",
+              "width": 1040,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "9zLg3",
+                  "name": "Breadcrumb",
+                  "fill": "$--muted-foreground",
+                  "content": "Home / FAQ / CPF LIFE",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "Dk2f9",
+                  "name": "Doc Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    0,
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PwQrk",
+                      "name": "titleB",
+                      "fill": "$--foreground",
+                      "content": "CPF LIFE",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HlKw5",
+                      "name": "metaB",
+                      "fill": "$--muted-foreground",
+                      "content": "Monthly payouts, plan types, deferment options, and retirement sums",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qsGhD",
+                  "name": "Accordion Card",
+                  "width": "fill_container",
+                  "fill": "$--card",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--border"
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    28,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "id": "6cSpo",
+                      "type": "ref",
+                      "ref": "u:pfIN1",
+                      "name": "accB1",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How much CPF LIFE will I get each month?"
+                        },
+                        "u:IaDRg": {
+                          "content": "Your CPF LIFE payout depends mainly on your Retirement Account balance and when you start your payouts. SimplyCPF gives an estimated monthly payout across the Standard, Escalating, Basic, and defer-to-70 scenarios so you can compare the range before applying officially."
+                        }
+                      }
+                    },
+                    {
+                      "id": "NhWXi",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accB2",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What is the difference between the Standard, Escalating, and Basic plans?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "4KuOV",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accB3",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What happens if I defer my CPF LIFE payout to age 70?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "iZhRm",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accB4",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Do I need the Full Retirement Sum to join CPF LIFE?"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "88hXE",
+      "x": 3200,
+      "y": 14900,
+      "name": "Page — FAQ — General",
+      "clip": true,
+      "width": 1440,
+      "height": 2400,
+      "fill": "$--background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "s9pre",
+          "name": "hdrC",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "$--border"
+          },
+          "padding": [
+            16,
+            32
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "PpX9A",
+              "fill": "$--foreground",
+              "content": "SimplyCPF",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "pBnQq",
+              "name": "Nav",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "X3xuY",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Home",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "6fIRc",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Docs",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "yslz7",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "FAQ",
+                      "fill": "$--foreground"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XFxij",
+          "name": "Main",
+          "width": "fill_container",
+          "fill": "$--background",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            40,
+            32
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "nsQAT",
+              "name": "Inner",
+              "width": 1040,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Yt4dg",
+                  "name": "Breadcrumb",
+                  "fill": "$--muted-foreground",
+                  "content": "Home / FAQ / General",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "QIvVY",
+                  "name": "Doc Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    0,
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "eaVcn",
+                      "name": "titleC",
+                      "fill": "$--foreground",
+                      "content": "General CPF Questions",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Pnqh2",
+                      "name": "metaC",
+                      "fill": "$--muted-foreground",
+                      "content": "Essential CPF concepts, interest rates, account types, and how SimplyCPF works",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "2Qmzw",
+                  "name": "Accordion Card",
+                  "width": "fill_container",
+                  "fill": "$--card",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--border"
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    28,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "id": "wyOr8",
+                      "type": "ref",
+                      "ref": "u:pfIN1",
+                      "name": "accC1",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How are CPF contributions calculated in Singapore?"
+                        },
+                        "u:IaDRg": {
+                          "content": "CPF contributions are calculated based on your monthly gross income and age group. There are 8 age brackets, each with different employee and employer contribution rates. Your income is subject to CPF contributions up to the current income ceiling, which is rising progressively from $6,000 to $8,000 by September 2026 following Budget 2023. SimplyCPF handles all these variables automatically — just enter your income and birth date to get your exact contribution amounts."
+                        }
+                      }
+                    },
+                    {
+                      "id": "tUwdZ",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC2",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What are the CPF contribution rates by age group?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "FYcyX",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC3",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How does the CPF income ceiling change affect my take-home pay?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "v2cTa",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC4",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What is the difference between OA, SA, and MA in CPF?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "12evt",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC5",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Does SimplyCPF collect any of my data?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "l6Ka2",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC6",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Do I need to sign up or log in to use SimplyCPF?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "wGgDY",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC7",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How are CPF interest rates determined?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "h2QRR",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC8",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What is the difference between floor rate and pegged rate?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "btujE",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC9",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Why does my SMRA earn more than 4% sometimes?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "gMx82",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC10",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How does the 10-year Singapore Government Securities (SGS) yield affect my CPF?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "4tcxV",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC11",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Is SimplyCPF affiliated with the CPF Board?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "i6Bhj",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accC12",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "I am a developer and I wish to contribute changes. How may I do so?"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "lN04U",
+      "x": 4800,
+      "y": 14900,
+      "name": "Page — FAQ — Projection",
+      "clip": true,
+      "width": 1440,
+      "height": 1400,
+      "fill": "$--background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "szGFr",
+          "name": "hdrD",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "$--border"
+          },
+          "padding": [
+            16,
+            32
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "ukk8t",
+              "fill": "$--foreground",
+              "content": "SimplyCPF",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "Lxenm",
+              "name": "Nav",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "VMiPn",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Home",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "nV8Yo",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "Docs",
+                      "fill": "$--foreground"
+                    }
+                  }
+                },
+                {
+                  "id": "ePXwC",
+                  "type": "ref",
+                  "ref": "u:3f2VW",
+                  "descendants": {
+                    "u:AeXMI": {
+                      "enabled": false
+                    },
+                    "u:UZfKV": {
+                      "content": "FAQ",
+                      "fill": "$--foreground"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "JGrIp",
+          "name": "Main",
+          "width": "fill_container",
+          "fill": "$--background",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            40,
+            32
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "HIK34",
+              "name": "Inner",
+              "width": 1040,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "imxxv",
+                  "name": "Breadcrumb",
+                  "fill": "$--muted-foreground",
+                  "content": "Home / FAQ / Projection",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "pWx5m",
+                  "name": "Doc Header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    0,
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5MF4F",
+                      "name": "titleD",
+                      "fill": "$--foreground",
+                      "content": "CPF Career Projection",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "egexl",
+                      "name": "metaD",
+                      "fill": "$--muted-foreground",
+                      "content": "Long-term CPF balance projections, milestones, and CPF LIFE estimates",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "loGy7",
+                  "name": "Accordion Card",
+                  "width": "fill_container",
+                  "fill": "$--card",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--border"
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    28,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "id": "spv56",
+                      "type": "ref",
+                      "ref": "u:pfIN1",
+                      "name": "accD1",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How much CPF will I have at 65?"
+                        },
+                        "u:IaDRg": {
+                          "content": "That depends on your income, age, citizenship status, housing usage, and whether you top up or transfer savings along the way. SimplyCPF projects your balances using CPF floor interest rates and the current contribution rules so you can see a conservative estimate instead of guessing."
+                        }
+                      }
+                    },
+                    {
+                      "id": "XBMO4",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accD2",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "What happens to my CPF at age 55?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "B2RZV",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accD3",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "How does the extra 1% CPF interest work in the projection?"
+                        }
+                      }
+                    },
+                    {
+                      "id": "JyI1N",
+                      "type": "ref",
+                      "ref": "u:spbsy",
+                      "name": "accD4",
+                      "width": "fill_container",
+                      "descendants": {
+                        "u:CPImI": {
+                          "content": "Are the CPF LIFE figures official quotes?"
+                        }
+                      }
                     }
                   ]
                 }

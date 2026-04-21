@@ -68,6 +68,11 @@ const SECTIONS: PolicySection[] = [
     title: "Account allocations and age 55",
     body: "Contribution shares across OA, SA, and MA vary by age band. At age 55, savings are set aside for retirement in the Retirement Account, which often affects how later contributions are allocated. Refer to age-specific rates for planning accuracy.",
   },
+  {
+    id: "age-55-and-beyond",
+    title: "Age 55 and beyond",
+    body: "From age 55, savings up to the Full Retirement Sum are moved into the Retirement Account. CPF LIFE payouts can start from 65, with options to defer for higher monthly income. The Retirement Sum Scheme bridges members who do not qualify for CPF LIFE.",
+  },
 ];
 
 const FAQIndex = () => {

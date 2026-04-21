@@ -16,13 +16,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { BASE_URL } from "@/config";
 import faqProjectionData from "@/data/faq-projection.json";
 import {
@@ -84,7 +77,7 @@ const ProjectionFAQ = () => {
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col gap-6">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -101,48 +94,50 @@ const ProjectionFAQ = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <Card
+        <header className="flex flex-col gap-2">
+          <h1 className="font-bold text-[28px] text-foreground tracking-tight md:text-[32px]">
+            CPF Career Projection
+          </h1>
+          <p className="text-[13px] text-muted-foreground">
+            Long-term CPF balance projections, milestones, and CPF LIFE
+            estimates
+          </p>
+        </header>
+
+        <section
           data-content-block="faq"
           itemScope
           itemProp="mainEntity"
           itemType="https://schema.org/FAQPage"
+          className="flex flex-col rounded-lg border border-border bg-card p-6 shadow-sm"
         >
-          <CardHeader>
-            <CardTitle>CPF Career Projection</CardTitle>
-            <CardDescription>
-              Questions about long-term balance projections, milestones, and CPF
-              LIFE estimates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Accordion className="w-full">
-              {faqProjectionData.map(({ question, answer }) => {
-                const index = `${question}-${answer}`;
-                return (
-                  <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
+          <Accordion className="w-full">
+            {faqProjectionData.map(({ question, answer }) => {
+              const index = `${question}-${answer}`;
+              return (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  itemScope
+                  itemProp="mainEntity"
+                  itemType="https://schema.org/Question"
+                >
+                  <AccordionTrigger className="text-left">
+                    <span itemProp="name">{question}</span>
+                  </AccordionTrigger>
+                  <AccordionContent
+                    className="text-muted-foreground"
                     itemScope
-                    itemProp="mainEntity"
-                    itemType="https://schema.org/Question"
+                    itemProp="acceptedAnswer"
+                    itemType="https://schema.org/Answer"
                   >
-                    <AccordionTrigger className="text-left">
-                      <span itemProp="name">{question}</span>
-                    </AccordionTrigger>
-                    <AccordionContent
-                      className="text-muted-foreground"
-                      itemScope
-                      itemProp="acceptedAnswer"
-                      itemType="https://schema.org/Answer"
-                    >
-                      <span itemProp="text">{answer}</span>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
-          </CardContent>
-        </Card>
+                    <span itemProp="text">{answer}</span>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        </section>
       </div>
     </>
   );
