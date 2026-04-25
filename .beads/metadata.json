@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "simplycpf",
+  "project_id": "56777477-f73b-4bed-bca5-2692ff2bdeeb"
+}
