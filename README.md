@@ -44,15 +44,15 @@ The core calculators and planning tools work without sign-up. Email is only requ
 - **Charts**: Recharts
 - **Testing**: Vitest with React Testing Library
 - **Linting**: Biome
-- **Package Manager**: pnpm 10.x
+- **Package Manager**: pnpm 11.x (RC)
 - **Deployment**: Vercel
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm 10.x (automatically enforced via `packageManager` field)
+- Node.js 22+
+- pnpm 11.x (RC — automatically enforced via `packageManager` field)
 
 ### Installation
 
@@ -61,11 +61,8 @@ The core calculators and planning tools work without sign-up. Email is only requ
 git clone https://github.com/ruchernchong/simplycpf.git
 cd simplycpf
 
-# Install dependencies
+# Install dependencies (Husky hooks initialise automatically via the `prepare` script)
 pnpm install
-
-# Initialise Git hooks (required — .npmrc sets ignore-scripts=true for security)
-pnpm run prepare
 
 # Start development server via Portless
 pnpm dev

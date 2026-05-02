@@ -84,5 +84,5 @@
       "pnpm biome check --write"
     ]
   },
-  "packageManager": "pnpm@10.22.0"
+  "packageManager": "pnpm@11.0.3"
 }
