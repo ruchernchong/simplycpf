@@ -1,3 +1,6 @@
+packages:
+  - .
+
 allowBuilds:
   '@heroui-pro/react': true
   core-js: false
