@@ -5,14 +5,18 @@
       "type": "remote",
       "url": "https://mcp.heroui.pro/mcp",
       "headers": {
-        "x-heroui-personal-token": "{env:HEROUI_PERSONAL_TOKEN}"
+        "x-heroui-personal-token": "{env:HEROUI_PERSONAL_TOKEN}",
       },
-      "enabled": true
+      "enabled": true,
     },
     "heroui-react": {
       "type": "local",
       "command": ["bunx", "-y", "@heroui/react-mcp@latest"],
-      "enabled": true
-    }
-  }
+      "enabled": true,
+    },
+    "shadcn": {
+      "type": "local",
+      "command": ["bunx", "shadcn@latest", "mcp"],
+    },
+  },
 }
