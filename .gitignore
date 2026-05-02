@@ -93,3 +93,4 @@ coverage
 .dolt/
 *.db
 .beads-credential-key
+.env*.local
