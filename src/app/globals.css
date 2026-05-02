@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@heroui/styles";
+@import "@heroui-pro/react/css";
 @import "tw-animate-css";
 
 @import "fumadocs-ui/css/neutral.css";

@@ -1,6 +1,8 @@
 allowBuilds:
+  '@heroui-pro/react': true
   core-js: false
   esbuild: false
+  heroui-pro: true
   msw: false
   protobufjs: false
   sharp: false
