@@ -83,12 +83,21 @@ When an error occurs, the API returns an appropriate HTTP status code with an er
 |--------|-------------|
 | 200 | Success |
 | 400 | Bad Request - Invalid parameters |
+| 429 | Too Many Requests - Rate limit exceeded |
 | 404 | Not Found - Endpoint does not exist |
 | 500 | Internal Server Error |
 
 ## Rate Limits
 
-There are currently no rate limits on the API. However, please use the API responsibly.
+Production CPF API endpoints are limited to **10 requests per 10 seconds per client IP**. If you exceed the limit, the API returns HTTP `429`:
+
+```json
+{
+  "error": "Rate limit exceeded"
+}
+```
+
+Back off and retry after the current 10-second window before sending more requests.
 
 ## Next Steps
 

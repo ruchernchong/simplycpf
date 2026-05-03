@@ -11,6 +11,18 @@ The SimplyCPF API provides 12 endpoints organised into 5 categories.
 https://simplycpf.com/api/cpf
 ```
 
+## Rate Limits
+
+Production CPF API endpoints are limited to **10 requests per 10 seconds per client IP**. Requests above this limit return HTTP `429` with this JSON body:
+
+```json
+{
+  "error": "Rate limit exceeded"
+}
+```
+
+Clients should back off and retry after the current 10-second window.
+
 ## Endpoints Overview
 
 ### Calculation
