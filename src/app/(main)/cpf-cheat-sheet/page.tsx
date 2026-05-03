@@ -72,7 +72,7 @@ export default function CpfCheatSheetPage() {
             <p className="text-muted-foreground text-sm">{data.subtitle}</p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/api/lead-magnets/cpf-cheat-sheet"
+                href="/api/resources/cpf-cheat-sheet"
                 className={cn(buttonVariants({ size: "lg" }), "justify-center")}
               >
                 Download the PDF
