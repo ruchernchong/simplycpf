@@ -187,6 +187,24 @@
       "sourceType": "github",
       "computedHash": "252f58c9993ea38761a6b6cc6f0bbe83fb13f94387a925a57049ca3ca3793b6b"
     },
+    "upstash": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash/SKILL.md",
+      "computedHash": "ecb7021da9b46148653e83b743fecb6e593b8c1d7577b9f5a47c02957583b589"
+    },
+    "upstash-ratelimit-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-ratelimit-js/SKILL.md",
+      "computedHash": "a50677d24615b67727a585862a6eb694c1a70448c61b9f76d446d44c75578df2"
+    },
+    "upstash-redis-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-redis-js/SKILL.md",
+      "computedHash": "1861252eeb08829208e936559cd9c7625986ab2c41a72fa3900be41e31fd2df5"
+    },
     "vercel-cli-with-tokens": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

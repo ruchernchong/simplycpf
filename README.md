@@ -73,6 +73,15 @@ PORTLESS=0 pnpm dev
 
 The application will be available at `https://simplycpf.localhost` by default, or `http://localhost:3000` when Portless is disabled.
 
+### Environment Variables
+
+API rate limiting is enabled when these Upstash Redis variables are configured. Without them, local and preview environments fail open and skip rate limiting.
+
+```bash
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```
+
 ### Development Commands
 
 ```bash
