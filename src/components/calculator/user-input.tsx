@@ -6,12 +6,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import posthog from "posthog-js";
-import {
-  type ChangeEvent,
-  useCallback,
-  useState,
-  useTransition,
-} from "react";
+import { type ChangeEvent, useCallback, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
