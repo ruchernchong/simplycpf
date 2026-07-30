@@ -86,13 +86,18 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 - React component tests exist but are excluded from main test runs
 
 ### UI Components
-- UI components in `src/components/ui/` are from shadcn/ui (excluded from Biome linting)
-- Custom components use Base UI primitives with Tailwind CSS
-- Charts use Recharts library for data visualisation
+- Public product screens use HeroUI v3 OSS (`@heroui/react`) and HeroUI Pro (`@heroui-pro/react`) with no provider; theme tokens live in `src/app/globals.css` using the HeroUI default variable names with SimplyCPF brand values (warm paper/ink/forest, OKLCH)
+- Appearance comes from HeroUI props and theme tokens; `className` on component roots is for composition only (layout, sizing, gaps) — never hardcoded colours
+- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars — fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `PageHeader`/`Eyebrow`, `StatBand`, `Wordmark`
+- Product-facing icons use Lucide; `cn` is imported from `@heroui/react`
+- Use named function declarations for components and exported functions, not arrow-function constants
+- React Aria formatting is pinned to `en-SG` via `I18nProvider` in `src/app/providers.tsx`
+- `src/components/ui/` (shadcn/ui) is DEPRECATED: kept only for not-yet-migrated pages, bridged by the LEGACY-ALIAS token block in `globals.css`; no new imports from it
+- Charts use HeroUI Pro chart wrappers (Recharts underneath) where a real chart exists
 
 ### Route Groups
 The application uses Next.js route groups for organisation:
-- `(main)` - Main application routes (home, calculator, projection, what-if, cpf-life, cpf-cheat-sheet, retirement-readiness, about, privacy, interest-rates, investments)
+- `(main)` - Main application routes (home, calculator, at-55, accrued-interest, what-if, cpf-life, cpf-cheat-sheet, cpf-check, projection, retirement-readiness, about, privacy, interest-rates, investments)
 - `(docs)` - Developer portal routes powered by Fumadocs
 
 ### Developer Portal
@@ -121,7 +126,7 @@ RESTful API endpoints under `/api/cpf/` provide programmatic access to CPF calcu
 
 Other API routes:
 - `/api/search` - Full-text search across documentation
-- `/api/lead-magnets/cpf-cheat-sheet` - Generates the public cheat sheet PDF
+- `/api/resources/cpf-cheat-sheet` - Generates the public cheat sheet PDF
 
 ### LLM Integration Routes
 Routes for AI/LLM consumption following the llms.txt specification:
@@ -147,7 +152,10 @@ Located in `src/hooks/`:
 - **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline showing the progression of CPF income ceiling changes from pre-2023 to final 2026 ceiling
 - **PDF Export** (`cpf-results-pdf.tsx`, `download-pdf.tsx`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
 - **Lead Magnet Components** (`src/components/lead-magnets/`): On-page readiness score assessment form and result view for the `/retirement-readiness` page
-- **Home Page Components**: `hero-section.tsx`, `insight-banner.tsx`, `quick-actions.tsx` for the landing page
+- **Home Page Components** (`src/components/home/`): `home-hero.tsx` (global salary/DOB/citizenship inputs + short-answer card), `home-confusions.tsx`, `home-three-ages.tsx`
+- **At 55** (`src/components/at-55/`): projected day-before/day-after balances around the SA closure, cohort retirement sums for `/at-55`
+- **Accrued Interest** (`src/components/housing/`): OA housing accrued-interest illustration for `/accrued-interest`, powered by `src/lib/calculate-accrued-interest.ts`
+- **CPF Check** (`src/components/check/`): five self-assessment cards for `/cpf-check` (local state only, nothing recorded)
 - **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
 - **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
 - **CPF LIFE Components** (`src/components/cpf-life/`): CPF LIFE payout estimator inputs, plan comparison cards, and retirement sum references for the `/cpf-life` page
@@ -158,8 +166,8 @@ See `.claude/skills/design-language-system/SKILL.md` for complete design system 
 
 ### Key Principles
 
-- **Aesthetic:** Refined Financial Simplicity (slate, teal)
-- **Colours:** OKLCH colour space via CSS variables in `globals.css`
+- **Aesthetic:** Warm paper, ink, one green (forest) — \"look accurate\": numbers are the hero
+- **Colours:** HeroUI default theme variable names with brand values in OKLCH via `globals.css`; fixed chart encoding, clay for caveats
 - **Typography:** Geist font family
 
 ### Spacing Rules (IMPORTANT)
@@ -196,8 +204,8 @@ Philosophy: **"Push Down, Not Pull Up"** — Elements push content below them ra
 
 ### Off-Limits
 
-- **DO NOT modify** `src/components/ui/*` - shadcn/ui components are styled via CSS variables
-- **Dark mode** - Currently out of scope, do not modify `.dark` selector styles
+- **DO NOT import** from `src/components/ui/*` in new code — deprecated shadcn/ui, pending removal together with the LEGACY-ALIAS block in `globals.css`
+- **Dark mode** is fully supported: `.dark` token block in `globals.css` mirrors the light tokens with the brand's dark values
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
