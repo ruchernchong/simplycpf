@@ -8,140 +8,359 @@
 @import "fumadocs-twoslash/twoslash.css";
 @import "fumadocs-openapi/css/preset.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Only tokens HeroUI does not already provide belong here. Every --color-*
+ * mapping for background, foreground, surface, overlay, muted, default,
+ * accent, success, warning, danger, border, separator, link and focus is
+ * declared by @heroui/styles (dist/themes/shared/theme.css) and would be
+ * duplicated by restating it.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
+
+  /* Brand text tints HeroUI has no equivalent for. --muted is the brand's
+     Secondary; these are Body (long-form paragraphs) and Muted (eyebrows,
+     footnotes, disclaimers — never body copy). */
+  --color-body: var(--body);
+  --color-subtle: var(--subtle);
+
+  --color-band: var(--band);
+
+  /* Pro sets the --chart-* values but ships no --color-chart-* mapping. */
   --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-track: var(--chart-track);
+
+  /* LEGACY-ALIAS mappings for src/components/ui/* (scheduled for removal) */
+  --color-card: var(--surface);
+  --color-card-foreground: var(--surface-foreground);
+  --color-popover: var(--overlay);
+  --color-popover-foreground: var(--overlay-foreground);
+  --color-primary: var(--foreground);
+  --color-primary-foreground: var(--background);
+  --color-secondary: var(--surface-tertiary);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted);
+  --color-destructive: var(--danger);
+  --color-input: var(--field-border);
+  --color-ring: var(--focus);
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--surface-foreground);
+  --color-sidebar-primary: var(--foreground);
+  --color-sidebar-primary-foreground: var(--background);
+  --color-sidebar-accent: var(--surface-tertiary);
+  --color-sidebar-accent-foreground: var(--foreground);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--focus);
+}
+
+/*
+ * The brand radius ladder. Declared with plain @theme (not `inline`) so the
+ * values are emitted as custom properties and can be referenced from the
+ * component overrides below as well as from rounded-* utilities. HeroUI's
+ * multiplicative scale already supplies 8px (--radius-lg) and 12px
+ * (--radius-xl); these four it cannot express.
+ */
+@theme {
+  --radius-thumb: 7px;
+  --radius-control: 9px;
+  --radius-card: 14px;
+  --radius-hero: 18px;
+
+  /*
+   * The two brand type steps HeroUI's Typography has no slot for. Display is
+   * the home-hero headline; Lead is the "short answer" sentence that follows a
+   * page title. Both carry their own line-height and tracking.
+   */
+  --text-display: 3.625rem; /* 58px */
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.035em;
+  --text-lead: 1.1875rem; /* 19px */
+  --text-lead--line-height: 1.45;
+  --text-lead--letter-spacing: -0.01em;
+}
+
+@layer components {
+  /*
+   * Brand card radii. HeroUI defaults to min(32px, var(--radius-3xl)) = 24px;
+   * the brand kit specifies 14px for the flat card that is the default for
+   * grids and lists. The 18px hero card is opt-in via `rounded-hero`, and is
+   * used once per screen, on the answer.
+   */
+  .card {
+    border-radius: var(--radius-card);
+  }
+
+  /*
+   * HeroUI's Typography retuned to the brand type scale. Overriding the BEM
+   * classes once beats passing className at every call site, and makes
+   * <Typography type="h1"> correct by default.
+   *
+   * Tracking tightens as size grows: -.035em at 58px, 0 below 15px.
+   * Sizes below 36px that the brand does not specify (h4-h6, body-sm)
+   * continue the ramp rather than inventing a second system.
+   */
+  .typography--h1 {
+    font-size: 2.25rem; /* 36px */
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+
+  .typography--h2 {
+    font-size: 1.875rem; /* 30px */
+    line-height: 1.1;
+    letter-spacing: -0.028em;
+    font-weight: 600;
+  }
+
+  /* Figure: the step dollar amounts are set in. */
+  .typography--h3 {
+    font-size: 1.75rem; /* 28px */
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  .typography--h4 {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.25;
+    letter-spacing: -0.018em;
+    font-weight: 600;
+  }
+
+  .typography--h5 {
+    font-size: 1.09375rem; /* 17.5px */
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  .typography--h6 {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  .typography--body {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.55;
+    letter-spacing: normal;
+    color: var(--body);
+  }
+
+  .typography--body-sm {
+    font-size: 0.84375rem; /* 13.5px */
+    line-height: 1.5;
+    letter-spacing: normal;
+    color: var(--body);
+  }
+
+  /* Small: disclaimers, footnotes, fine print. */
+  .typography--body-xs {
+    font-size: 0.78125rem; /* 12.5px */
+    line-height: 1.55;
+    letter-spacing: normal;
+    color: var(--subtle);
+  }
+
+  /*
+   * Redeclared after the type steps so an explicit `color` prop still wins
+   * over the per-step default above.
+   */
+  .typography--color-default {
+    color: var(--foreground);
+  }
+
+  .typography--color-muted {
+    color: var(--muted);
+  }
+
+  /*
+   * The brand caps weight at 600 — the lockup is 600, so 700 has no
+   * sanctioned use. Kept as a guardrail against `weight="bold"`.
+   */
+  .typography--weight-bold {
+    font-weight: 600;
+  }
 }
 
 :root {
-  /* Background - Cool off-white */
-  --background: oklch(0.985 0.003 250);
-  --foreground: oklch(0.2 0.02 250);
+  --radius: 0.5rem;
 
-  /* Card - Clean white */
-  --card: oklch(0.995 0.002 250);
-  --card-foreground: oklch(0.2 0.02 250);
+  /* Surfaces — warm paper */
+  --background: oklch(0.9555 0.014 88.68); /* Bone #F4F0E6 */
+  --foreground: oklch(0.2627 0.0151 124.17); /* Ink #23261E */
+  --surface: oklch(0.9939 0.0082 91.48); /* Card #FFFDF7 */
+  --surface-foreground: var(--foreground);
+  --surface-secondary: oklch(0.9733 0.0111 89.72); /* #F9F6EE */
+  --surface-secondary-foreground: var(--foreground);
+  --surface-tertiary: oklch(0.9437 0.0168 88); /* Fill #F1ECE0 */
+  --surface-tertiary-foreground: var(--foreground);
+  --overlay: oklch(0.9939 0.0082 91.48);
+  --overlay-foreground: var(--foreground);
+  --band: oklch(0.9374 0.0181 89.36); /* #EFEADD — stat band strips */
 
-  /* Popover */
-  --popover: oklch(0.995 0.002 250);
-  --popover-foreground: oklch(0.2 0.02 250);
+  /* Text tints — four steps, each with a distinct job.
+     Primary is --foreground; Secondary is --muted. */
+  --body: oklch(0.4829 0.0176 119.47); /* #5D6055 — explanatory paragraphs */
+  --muted: oklch(0.5426 0.0171 119.38); /* #6E7166 — legends, sub-values */
+  --subtle: oklch(0.6348 0.0177 114.58); /* #8A8C80 — eyebrows, footnotes */
+  --scrollbar: oklch(0.8765 0.0226 89.81); /* Rule #DCD6C6 */
 
-  /* Primary - Cool Slate */
-  --primary: oklch(0.25 0.02 250);
-  --primary-foreground: oklch(0.98 0.005 250);
+  /* Neutral controls */
+  --default: oklch(0.9437 0.0168 88); /* Fill */
+  --default-foreground: oklch(0.3644 0.0176 125.05); /* #3C4036 */
 
-  /* Secondary - Light Slate */
-  --secondary: oklch(0.92 0.01 250);
-  --secondary-foreground: oklch(0.25 0.02 250);
+  /* One green — Forest. Green means CPF money or a next step, never decoration. */
+  --accent: oklch(0.4421 0.0705 159.34); /* Forest #2C5F45 */
+  --accent-foreground: oklch(0.9555 0.014 88.68); /* Bone */
+  /* Forest deep — hover and pressed states only. Overrides HeroUI's computed
+     --accent-hover, which would otherwise mix towards the foreground. */
+  --accent-hover: oklch(0.3453 0.0543 161.03); /* #1C4230 */
 
-  /* Muted - Slate gray */
-  --muted: oklch(0.94 0.008 250);
-  --muted-foreground: oklch(0.5 0.02 250);
+  /* Form fields. HeroUI's default theme sets --field-border-width to 0, which
+     would leave the hairline below invisible. */
+  --field-background: oklch(0.9733 0.0111 89.72); /* card2 */
+  --field-foreground: var(--foreground);
+  --field-placeholder: var(--subtle);
+  --field-border: oklch(0.2627 0.0151 124.17 / 13%);
+  --field-border-width: 1px;
 
-  /* Accent - Teal */
-  --accent: oklch(0.55 0.15 180);
-  --accent-foreground: oklch(0.98 0.005 180);
+  /* Status */
+  --success: oklch(0.6381 0.0821 158.54); /* Green mid #5E9B79 */
+  --success-foreground: oklch(0.2627 0.0151 124.17);
+  --warning: oklch(0.5138 0.0829 59.76); /* Clay #8A5B33 */
+  --warning-foreground: oklch(0.9939 0.0082 91.48);
+  --danger: oklch(0.4951 0.1422 31.23); /* #A33A2A */
+  --danger-foreground: oklch(0.9939 0.0082 91.48);
 
-  /* Destructive - Muted red */
-  --destructive: oklch(0.55 0.18 25);
+  /* Segmented controls */
+  --segment: oklch(0.9939 0.0082 91.48); /* Card thumb */
+  --segment-foreground: var(--foreground);
 
-  /* Border - Neutral slate */
-  --border: oklch(0.88 0.01 250);
-  --input: oklch(0.92 0.008 250);
-  --ring: oklch(0.55 0.15 180);
+  /* Hairlines — ink at low alpha, 1px, never heavier */
+  --border: oklch(0.2627 0.0151 124.17 / 12%);
+  --separator: oklch(0.2627 0.0151 124.17 / 9%);
 
-  /* Chart colours - Teal/Slate gradient */
-  --chart-1: oklch(0.55 0.15 180);
-  --chart-2: oklch(0.45 0.12 200);
-  --chart-3: oklch(0.65 0.1 180);
-  --chart-4: oklch(0.5 0.02 250);
-  --chart-5: oklch(0.7 0.08 200);
+  --focus: var(--accent);
+  --link: var(--accent);
+  --backdrop: oklch(0.2627 0.0151 124.17 / 40%);
+  --background-inverse: var(--foreground);
 
-  --radius: 0.625rem;
+  /* Shadows: one 1px seat + a wide soft lift for the hero card */
+  --surface-shadow: 0 1px 2px oklch(0.2627 0.0151 124.17 / 5%);
+  --overlay-shadow:
+    0 1px 2px oklch(0.2627 0.0151 124.17 / 5%),
+    0 18px 40px -22px oklch(0.2627 0.0151 124.17 / 22%);
+  --field-shadow: 0 1px 2px oklch(0.2627 0.0151 124.17 / 5%);
 
-  /* Sidebar */
-  --sidebar: oklch(0.985 0.003 250);
-  --sidebar-foreground: oklch(0.2 0.02 250);
-  --sidebar-primary: oklch(0.25 0.02 250);
-  --sidebar-primary-foreground: oklch(0.98 0.005 250);
-  --sidebar-accent: oklch(0.94 0.008 250);
-  --sidebar-accent-foreground: oklch(0.25 0.02 250);
-  --sidebar-border: oklch(0.88 0.01 250);
-  --sidebar-ring: oklch(0.55 0.15 180);
+  /* Fixed chart encoding — never rotated:
+     1 OA/Forest · 2 SA-RA/"You" · 3 MA/Employer · 4 Take-home/Ink · 5 Above-ceiling/Clay */
+  --chart-1: oklch(0.4421 0.0705 159.34);
+  --chart-2: oklch(0.6381 0.0821 158.54);
+  --chart-3: oklch(0.7846 0.0545 158.53);
+  --chart-4: oklch(0.2627 0.0151 124.17);
+  --chart-5: oklch(0.5138 0.0829 59.76);
+  /* Unfilled remainder of any bar. */
+  --chart-track: oklch(0.2627 0.0151 124.17 / 8%);
 }
 
 .dark {
-  --background: oklch(0.15 0.015 250);
-  --foreground: oklch(0.93 0.01 250);
-  --card: oklch(0.18 0.015 250);
-  --card-foreground: oklch(0.93 0.01 250);
-  --popover: oklch(0.18 0.015 250);
-  --popover-foreground: oklch(0.93 0.01 250);
-  --primary: oklch(0.85 0.015 250);
-  --primary-foreground: oklch(0.18 0.015 250);
-  --secondary: oklch(0.25 0.015 250);
-  --secondary-foreground: oklch(0.9 0.01 250);
-  --muted: oklch(0.25 0.012 250);
-  --muted-foreground: oklch(0.65 0.02 250);
-  --accent: oklch(0.55 0.12 180);
-  --accent-foreground: oklch(0.97 0.005 180);
-  --destructive: oklch(0.65 0.18 25);
-  --border: oklch(0.35 0.015 250);
-  --input: oklch(0.28 0.015 250);
-  --ring: oklch(0.55 0.12 180);
-  --chart-1: oklch(0.65 0.14 180);
-  --chart-2: oklch(0.55 0.1 200);
-  --chart-3: oklch(0.72 0.08 180);
-  --chart-4: oklch(0.6 0.04 250);
-  --chart-5: oklch(0.78 0.06 200);
-  --sidebar: oklch(0.18 0.015 250);
-  --sidebar-foreground: oklch(0.93 0.01 250);
-  --sidebar-primary: oklch(0.6 0.04 250);
-  --sidebar-primary-foreground: oklch(0.93 0.01 250);
-  --sidebar-accent: oklch(0.25 0.012 250);
-  --sidebar-accent-foreground: oklch(0.9 0.01 250);
-  --sidebar-border: oklch(0.35 0.015 250);
-  --sidebar-ring: oklch(0.55 0.12 180);
+  --background: oklch(0.1885 0.008 118.58); /* #131410 */
+  --foreground: oklch(0.9311 0.0194 90.55); /* #EDE8DA */
+  --surface: oklch(0.235 0.0116 122.3); /* #1D1F19 */
+  --surface-foreground: var(--foreground);
+  --surface-secondary: oklch(0.2557 0.0131 120.29); /* #22241D */
+  --surface-secondary-foreground: var(--foreground);
+  --surface-tertiary: oklch(0.264 0.013 120.26); /* #24261F */
+  --surface-tertiary-foreground: var(--foreground);
+  --overlay: oklch(0.235 0.0116 122.3);
+  --overlay-foreground: var(--foreground);
+  --band: oklch(0.2217 0.0135 120.47); /* #1A1C15 */
+
+  --body: oklch(0.7303 0.0184 110.42); /* #A8A99C */
+  --muted: oklch(0.6906 0.0187 113.99); /* #9B9D90 */
+  --subtle: oklch(0.6481 0.0176 114.57); /* #8E9084 */
+  --scrollbar: oklch(0.3266 0.0176 120.96); /* #33362C */
+
+  --default: oklch(0.264 0.013 120.26);
+  --default-foreground: oklch(0.8667 0.021 91.6); /* #D8D3C4 */
+
+  --accent: oklch(0.7232 0.0953 158.25); /* #6FB88F */
+  --accent-foreground: oklch(0.2036 0.0174 118.14); /* #16180F */
+  --accent-hover: oklch(0.8414 0.0675 158.75); /* #A6D9BB — lifts on dark */
+
+  --field-background: oklch(0.2557 0.0131 120.29);
+  --field-foreground: var(--foreground);
+  --field-placeholder: var(--subtle);
+  --field-border: oklch(0.9311 0.0194 90.55 / 13%);
+  --field-border-width: 1px;
+
+  --success: oklch(0.8414 0.0675 158.75); /* #A6D9BB */
+  --success-foreground: oklch(0.2036 0.0174 118.14);
+  --warning: oklch(0.6838 0.0829 59.76); /* Clay, lightened */
+  --warning-foreground: oklch(0.2036 0.0174 118.14);
+  --danger: oklch(0.6551 0.1422 31.23); /* lightened */
+  --danger-foreground: oklch(0.2036 0.0174 118.14);
+
+  --segment: oklch(0.3266 0.0176 120.96);
+  --segment-foreground: var(--foreground);
+
+  --border: oklch(0.9311 0.0194 90.55 / 12%);
+  --separator: oklch(0.9311 0.0194 90.55 / 9%);
+
+  --focus: var(--accent);
+  --link: var(--accent);
+  --backdrop: oklch(0 0 0 / 60%);
+  --background-inverse: var(--foreground);
+
+  --surface-shadow: 0 1px 2px oklch(0 0 0 / 40%);
+  --overlay-shadow:
+    0 1px 2px oklch(0 0 0 / 40%), 0 18px 40px -22px oklch(0 0 0 / 75%);
+  --field-shadow: 0 0 0 0 transparent;
+
+  /* The ramp must keep reading OA -> SA -> MA as increasing lightness, so
+     chart-3 lifts past chart-2 rather than staying at its light-mode value. */
+  --chart-1: oklch(0.7232 0.0953 158.25); /* #6FB88F */
+  --chart-2: oklch(0.8414 0.0675 158.75); /* #A6D9BB */
+  --chart-3: oklch(0.9027 0.0466 158.6); /* #C9E7D5 */
+  --chart-4: oklch(0.9311 0.0194 90.55); /* ink-inverse */
+  --chart-5: oklch(0.6838 0.0829 59.76); /* clay, lightened */
+  --chart-track: oklch(0.9311 0.0194 90.55 / 10%);
+}
+
+/* LEGACY-ALIAS: shadcn token names consumed by src/components/ui/* and
+   not-yet-migrated pages. Remove together with src/components/ui/*. */
+:root,
+.dark {
+  --card: var(--surface);
+  --card-foreground: var(--surface-foreground);
+  --popover: var(--overlay);
+  --popover-foreground: var(--overlay-foreground);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: var(--surface-tertiary);
+  --secondary-foreground: var(--foreground);
+  --muted-foreground: var(--muted);
+  --destructive: var(--danger);
+  --input: var(--field-border);
+  --ring: var(--focus);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--surface-foreground);
+  --sidebar-primary: var(--foreground);
+  --sidebar-primary-foreground: var(--background);
+  --sidebar-accent: var(--surface-tertiary);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--focus);
 }
 
 @layer base {
@@ -150,5 +369,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-variant-numeric: tabular-nums;
   }
 }
