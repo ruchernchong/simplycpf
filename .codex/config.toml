@@ -1,3 +1,6 @@
 [mcp_servers.heroui-pro]
+enabled = true
 url = "https://mcp.heroui.pro/mcp"
-headers = { "x-heroui-personal-token" = "${HEROUI_PERSONAL_TOKEN}" }
+
+[mcp_servers.heroui-pro.env_http_headers]
+x-heroui-personal-token = "HEROUI_PERSONAL_TOKEN"
