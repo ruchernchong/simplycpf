@@ -66,11 +66,13 @@ export default defineConfig({
         "src/components/what-if/**",
         "src/components/cpf-life/**",
         "src/components/lead-magnets/**",
+        "src/components/at-55/**",
+        "src/components/check/**",
+        "src/components/housing/**",
+        "src/components/cheat-sheet/**",
+        "src/components/shared/**",
         // Layout components requiring context mocking
-        "src/components/layout/banner.tsx",
-        "src/components/layout/navigation-tabs.tsx",
         "src/components/layout/theme-toggle.tsx",
-        "src/components/layout/mobile-nav.tsx",
         "src/components/layout/header.tsx",
         // Error boundary (requires complex error simulation)
         "src/components/error-fallback.tsx",
