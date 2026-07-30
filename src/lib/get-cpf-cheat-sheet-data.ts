@@ -25,9 +25,15 @@ export interface CheatSheetSection {
   rows: string[][];
 }
 
+export interface CheatSheetKeyAge {
+  label: string;
+  value: string;
+}
+
 export interface CheatSheetData {
   title: string;
   subtitle: string;
+  keyAges: CheatSheetKeyAge[];
   sections: CheatSheetSection[];
 }
 
@@ -39,6 +45,13 @@ export function getCpfCheatSheetData(): CheatSheetData {
     title: "SimplyCPF CPF Cheat Sheet",
     subtitle:
       "Contribution rates, account distribution, ceilings, retirement sums, and CPF planning reference points in one printable PDF.",
+    keyAges: [
+      { label: "RA opens, SA closes", value: "55" },
+      { label: "Statutory retirement age", value: "64" },
+      { label: "Re-employment age", value: "69" },
+      { label: "Payout eligibility age", value: "65" },
+      { label: "Latest payout start", value: "70" },
+    ],
     sections: [
       {
         title: "CPF Contribution Rates by Age",
