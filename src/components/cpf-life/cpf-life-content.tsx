@@ -1,258 +1,317 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  Chip,
+  cn,
+  Label,
+  Link,
+  Separator,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@heroui/react";
+import { type Key, useEffect, useMemo, useState } from "react";
+import { useCpfStore } from "@/hooks/use-cpf-store";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
-import { estimateCpfLife } from "@/lib/calculate-cpf-projection";
+  calculateCpfProjection,
+  estimateCpfLife,
+} from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
+import { selectFormStep, selectProjectionInputs } from "@/stores/selectors";
 
-type CpfLifePlan = "standard" | "escalating" | "basic" | "defer-to-70";
+/** Mirrors CPF_LIFE_DEFER_ANNUAL_INCREASE in calculate-cpf-projection.ts. */
+const DEFER_ANNUAL_INCREASE = 0.07;
+const ESCALATION_RATE = 0.02;
 
-const defaultAge = 65;
-const defaultRaBalance = 220_400;
+const RA_OPTIONS = [200_000, 400_000, 600_000] as const;
+const DEFAULT_RA = 400_000;
+const PROJECTION_KEY = "projection";
 
-function parseNumericInput(value: string): number {
-  return Number.parseFloat(value) || 0;
+function firstKey(keys: Set<Key>): string | undefined {
+  const [key] = [...keys];
+  return key === undefined ? undefined : String(key);
 }
 
-const planOptions: { label: string; value: CpfLifePlan }[] = [
-  { label: "Standard", value: "standard" },
-  { label: "Escalating", value: "escalating" },
-  { label: "Basic", value: "basic" },
-  { label: "Defer to 70", value: "defer-to-70" },
-];
+function monthly(value: number): string {
+  return formatCurrency(value, 0);
+}
 
-export default function CpfLifeContent() {
-  const [age, setAge] = useState(defaultAge);
-  const [raBalance, setRaBalance] = useState(defaultRaBalance);
-  const [selectedPlan, setSelectedPlan] = useState<CpfLifePlan>("standard");
+interface MiniBarsProps {
+  values: number[];
+  max: number;
+  color: string;
+}
 
-  const estimate = estimateCpfLife(raBalance, age);
-  const currentYear = new Date().getFullYear();
-  const retirementSums = getRetirementSumsForYear(currentYear);
+function MiniBars({ values, max, color }: MiniBarsProps) {
+  return (
+    <div aria-hidden className="flex h-16 items-end gap-2">
+      {values.map((value, index) => (
+        <div
+          className={cn("flex-1 rounded-t-sm", color)}
+          // biome-ignore lint/suspicious/noArrayIndexKey: bars are positional (65/75/85)
+          key={index}
+          style={{ height: `${Math.max(8, (value / max) * 64)}px` }}
+        />
+      ))}
+    </div>
+  );
+}
 
-  const selectedPayout =
-    selectedPlan === "standard"
-      ? estimate.standardMonthly
-      : selectedPlan === "escalating"
-        ? estimate.escalatingStartMonthly
-        : selectedPlan === "basic"
-          ? estimate.basicMonthly
-          : estimate.deferredTo70Monthly;
+export function CpfLifeContent() {
+  const [mounted, setMounted] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
-  const payoutCards = [
+  useEffect(() => setMounted(true), []);
+
+  const formStep = useCpfStore(selectFormStep);
+  const projectionInputs = useCpfStore(selectProjectionInputs);
+
+  const hasProjection = mounted && formStep >= 2;
+
+  const projectedRa65 = useMemo(() => {
+    if (!hasProjection) return 0;
+    const projection = calculateCpfProjection({
+      monthlyIncome: projectionInputs.monthlyIncome,
+      birthDate: projectionInputs.birthDate,
+      endAge: 65,
+      citizenship: projectionInputs.citizenshipStatus,
+    });
+    return Math.round(projection.milestones.age65.ra);
+  }, [
+    hasProjection,
+    projectionInputs.monthlyIncome,
+    projectionInputs.birthDate,
+    projectionInputs.citizenshipStatus,
+  ]);
+
+  const activeKey =
+    selectedKey ??
+    (hasProjection && projectedRa65 > 0 ? PROJECTION_KEY : String(DEFAULT_RA));
+
+  const raBalance =
+    activeKey === PROJECTION_KEY ? projectedRa65 : Number(activeKey);
+
+  const estimate = estimateCpfLife(raBalance, 65);
+  const standard = estimate.standardMonthly;
+  const escalating = estimate.escalatingStartMonthly;
+  const basic = estimate.basicMonthly;
+
+  const escalating75 = Math.round(escalating * (1 + ESCALATION_RATE) ** 10);
+  const escalating85 = Math.round(escalating * (1 + ESCALATION_RATE) ** 20);
+  const basic85 = Math.round(basic * 0.85);
+
+  const standard68 = Math.round(standard * (1 + DEFER_ANNUAL_INCREASE * 3));
+  const standard70 = estimate.deferredTo70Monthly;
+
+  const maxBar = Math.max(standard, escalating85, basic, 1);
+
+  const plans = [
     {
-      label: "Standard plan",
-      value: estimate.standardMonthly,
-      description: "Higher starting payout based on the current RA balance.",
+      name: "Standard",
+      swatch: "bg-chart-1",
+      value: standard,
+      suffix: "/month, flat",
+      bars: [standard, standard, standard],
+      ages: ["65", "75", "85"],
+      body: "The same amount every month for life. Because it does not increase, its purchasing power falls as prices rise.",
     },
     {
-      label: "Escalating plan",
-      value: estimate.escalatingStartMonthly,
-      description: "Starts lower, then grows over time.",
+      name: "Escalating",
+      swatch: "bg-chart-2",
+      value: escalating,
+      suffix: "/month, +2% a year",
+      bars: [escalating, escalating75, escalating85],
+      ages: [
+        "65",
+        `75 · ${monthly(escalating75)}`,
+        `85 · ${monthly(escalating85)}`,
+      ],
+      body: "Starts lower, rises 2% every year to keep pace with prices. Crosses the Standard payout in the mid-seventies.",
     },
     {
-      label: "Basic plan",
-      value: estimate.basicMonthly,
-      description: "Lower monthly payout with more money left in RA early on.",
-    },
-    {
-      label: "If you defer to age 70",
-      value: estimate.deferredTo70Monthly,
-      description:
-        "Uses the simplified deferment uplift based on your current age.",
+      name: "Basic",
+      swatch: "bg-chart-3",
+      value: basic,
+      suffix: "/month, can fall",
+      bars: [basic, basic, basic85],
+      ages: ["65", "75", "85"],
+      body: "Lowest starting payout, and it steps down once combined balances fall below $60,000. A larger bequest is not guaranteed.",
     },
   ];
 
+  const deferralRows = [
+    {
+      age: "65",
+      value: monthly(standard),
+      note: "Standard, starting at eligibility age",
+      accent: false,
+    },
+    {
+      age: "68",
+      value: monthly(standard68),
+      note: "Three years of extra interest and a shorter horizon",
+      accent: false,
+    },
+    {
+      age: "70",
+      value: monthly(standard70),
+      note: "The latest start permitted",
+      accent: true,
+    },
+  ];
+
+  const method = [
+    "Scaled from CPF's published anchor: an Enhanced Retirement Sum set aside at 55 in 2025 corresponds to payouts of about $3,300 a month from 65.",
+    "Escalating shown at roughly four-fifths of Standard at 65, then compounding 2% a year.",
+    "Actual payouts depend on your cohort, sex, and the CPF LIFE parameters at the time.",
+  ];
+
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>CPF LIFE Inputs</CardTitle>
-          <CardDescription>
-            Enter your Retirement Account balance and age to estimate CPF LIFE
-            payouts.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="cpf-life-age">Current age</Label>
-            <Input
-              id="cpf-life-age"
-              type="number"
-              min={55}
-              max={70}
-              value={age}
-              onChange={(event) =>
-                setAge(
-                  Math.min(
-                    70,
-                    Math.max(55, parseNumericInput(event.target.value)),
-                  ),
-                )
-              }
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="cpf-life-ra-balance">
-              Retirement Account balance
-            </Label>
-            <Input
-              id="cpf-life-ra-balance"
-              type="number"
-              min={0}
-              value={raBalance}
-              onChange={(event) =>
-                setRaBalance(parseNumericInput(event.target.value))
-              }
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="cpf-life-plan">Focus plan</Label>
-            <Select
-              items={planOptions}
-              value={selectedPlan}
-              onValueChange={(value) => {
-                setSelectedPlan(value as CpfLifePlan);
-              }}
-            >
-              <SelectTrigger id="cpf-life-plan" className="w-full rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {planOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
+    <div className="flex flex-col gap-8">
+      <Card>
+        <Card.Content className="flex flex-col gap-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <Label>Retirement Account at 65</Label>
+              <ToggleButtonGroup
+                aria-label="Retirement Account at 65"
+                disallowEmptySelection
+                selectedKeys={[activeKey]}
+                selectionMode="single"
+                size="sm"
+                onSelectionChange={(keys) => {
+                  const key = firstKey(keys);
+                  if (key) setSelectedKey(key);
+                }}
+              >
+                <ToggleButton
+                  id={PROJECTION_KEY}
+                  isDisabled={!hasProjection || projectedRa65 <= 0}
+                >
+                  {hasProjection && projectedRa65 > 0
+                    ? `Your projection · ${monthly(projectedRa65)}`
+                    : "Your projection"}
+                </ToggleButton>
+                {RA_OPTIONS.map((option) => (
+                  <ToggleButton id={String(option)} key={option}>
+                    {`$${option / 1000}k`}
+                  </ToggleButton>
                 ))}
-              </SelectContent>
-            </Select>
+              </ToggleButtonGroup>
+            </div>
+            <Chip size="sm" variant="soft">
+              Payouts estimated from published CPF anchor figures
+            </Chip>
           </div>
 
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-muted-foreground text-sm">
-              These are simplified estimates for planning and comparison.
-              Official CPF LIFE payouts can differ.
+          {!hasProjection && (
+            <p className="text-muted text-xs">
+              Enter salary and DOB on the <Link href="/">home page</Link> to use
+              your own projection.
             </p>
-          </div>
-        </CardContent>
+          )}
+
+          <p className="max-w-[64ch] text-[19px] leading-relaxed">
+            A Retirement Account of {monthly(raBalance)} at 65 supports roughly{" "}
+            {monthly(standard)} a month on the Standard plan,{" "}
+            {monthly(escalating)} rising 2% a year on Escalating, or{" "}
+            {monthly(basic)} on Basic. Over twenty years the Escalating payout
+            reaches {monthly(escalating85)}.
+          </p>
+        </Card.Content>
       </Card>
 
-      <div className="flex flex-col gap-6">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardDescription>
-              Estimated payout for the{" "}
-              {planOptions
-                .find((plan) => plan.value === selectedPlan)
-                ?.label.toLowerCase()}{" "}
-              plan
-            </CardDescription>
-            <CardTitle className="text-3xl">
-              {formatCurrency(selectedPayout, 0)}
-              <span className="pl-2 font-normal text-muted-foreground text-sm">
-                per month
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
-            {age < 65
-              ? `This estimate assumes payouts start from age 65. If you defer further, the defer-to-70 figure uses only the remaining years available to defer.`
-              : `This estimate is based on your current age of ${age} and the RA balance entered above.`}
-          </CardContent>
+      <div className="grid gap-8 md:grid-cols-3">
+        {plans.map((plan) => (
+          <Card key={plan.name}>
+            <Card.Header className="flex-row items-center gap-2">
+              <span
+                aria-hidden
+                className={cn("size-2 rounded-full", plan.swatch)}
+              />
+              <Card.Title className="font-semibold text-base tracking-tight">
+                {plan.name}
+              </Card.Title>
+            </Card.Header>
+            <Card.Content className="flex flex-col gap-4">
+              <p className="flex items-baseline gap-2">
+                <span className="font-semibold text-[32px] leading-none tracking-tight">
+                  {monthly(plan.value)}
+                </span>
+                <span className="text-muted text-xs">{plan.suffix}</span>
+              </p>
+              <MiniBars color={plan.swatch} max={maxBar} values={plan.bars} />
+              <div className="flex items-baseline justify-between gap-2 font-mono text-[10.5px] text-muted">
+                {plan.ages.map((age) => (
+                  <span key={age}>{age}</span>
+                ))}
+              </div>
+              <p className="text-[12.5px] leading-relaxed">{plan.body}</p>
+            </Card.Content>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-2">
+        <Card>
+          <Card.Header>
+            <Card.Title className="font-semibold text-base tracking-tight">
+              Starting later instead
+            </Card.Title>
+            <Card.Description>
+              Payouts can begin any time between 65 and 70. Each year deferred
+              raises the monthly amount permanently.
+            </Card.Description>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4">
+            {deferralRows.map((row) => (
+              <div className="flex items-baseline gap-4" key={row.age}>
+                <span className="w-8 font-mono text-[10.5px] text-muted tracking-[0.12em]">
+                  {row.age}
+                </span>
+                <span
+                  className={cn(
+                    "w-28 font-semibold text-xl tracking-tight",
+                    row.accent && "text-accent",
+                  )}
+                >
+                  {row.value}
+                </span>
+                <span className="flex-1 text-[12.5px] text-muted leading-relaxed">
+                  {row.note}
+                </span>
+              </div>
+            ))}
+          </Card.Content>
         </Card>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          {payoutCards.map((card) => (
-            <Card key={card.label} className="shadow-md">
-              <CardHeader>
-                <CardDescription>{card.label}</CardDescription>
-                <CardTitle>
-                  {formatCurrency(card.value, 0)}
-                  <span className="pl-2 font-normal text-muted-foreground text-sm">
-                    per month
+        <Card>
+          <Card.Header>
+            <Card.Title className="font-semibold text-base tracking-tight">
+              How these numbers were produced
+            </Card.Title>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4">
+            <ol className="flex flex-col gap-3">
+              {method.map((item, index) => (
+                <li className="flex gap-3" key={item}>
+                  <span className="font-mono text-[10.5px] text-muted tracking-[0.12em]">
+                    {String(index + 1).padStart(2, "0")}
                   </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground text-sm">
-                {card.description}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>{currentYear} retirement sums</CardTitle>
-            <CardDescription>
-              Reference checkpoints for comparing your RA balance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                BRS
-              </p>
-              <p className="font-semibold text-xl">
-                {formatCurrency(retirementSums.brs, 0)}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                FRS
-              </p>
-              <p className="font-semibold text-xl">
-                {formatCurrency(retirementSums.frs, 0)}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                ERS
-              </p>
-              <p className="font-semibold text-xl">
-                {formatCurrency(retirementSums.ers, 0)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>How to read this estimate</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 text-muted-foreground text-sm">
-            <p>
-              SimplyCPF uses a simplified payout factor to estimate CPF LIFE
-              from your Retirement Account balance.
+                  <span className="text-[12.5px] leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ol>
+            <Separator />
+            <p className="text-muted text-xs">
+              Indicative only. Use CPF's own payout estimator for figures tied
+              to your record. SimplyCPF does not recommend a plan.
             </p>
-            <ul className="flex list-disc flex-col gap-2 pl-6">
-              <li>Standard, Escalating, and Basic are shown side by side.</li>
-              <li>Defer-to-70 adjusts the uplift based on your current age.</li>
-              <li>
-                Balances below S$60,000 are treated as below the current
-                simplified estimate threshold.
-              </li>
-            </ul>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
     </div>
   );
 }
+
+export default CpfLifeContent;
