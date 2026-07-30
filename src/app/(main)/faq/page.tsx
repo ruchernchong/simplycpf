@@ -1,36 +1,16 @@
+import { Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BASE_URL } from "@/config";
+import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
 import faqData from "@/data/faq.json";
 import faqCalculatorData from "@/data/faq-calculator.json";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
 import faqProjectionData from "@/data/faq-projection.json";
-import {
-  buildBreadcrumbList,
-  buildFAQPage,
-  buildGraph,
-  buildPageSchema,
-} from "@/lib/build-schema";
 
 export const metadata: Metadata = {
-  title: "CPF FAQ — Common Questions Answered",
+  title: "CPF FAQ: Common Questions Answered",
   description:
     "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
   keywords:
@@ -39,25 +19,18 @@ export const metadata: Metadata = {
     canonical: "/faq",
   },
   openGraph: {
-    title: "CPF FAQ — Common Questions Answered",
+    title: "CPF FAQ: Common Questions Answered",
     description:
       "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
     url: `${BASE_URL}/faq`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF FAQ — Common Questions Answered",
-      },
-    ],
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CPF FAQ — Common Questions Answered",
+    title: "CPF FAQ: Common Questions Answered",
     description:
       "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [OG_IMAGE.url],
   },
 };
 
@@ -70,19 +43,42 @@ const FAQIndex = () => {
     ...faqCpfLifeData,
   ];
 
-  const schema: Graph = buildGraph([
-    buildPageSchema({
-      name: "CPF FAQ — Common Questions Answered",
-      description:
-        "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
-      url: `${BASE_URL}/faq`,
-    }),
-    buildBreadcrumbList([
-      { name: "Home", url: BASE_URL },
-      { name: "FAQ", url: `${BASE_URL}/faq` },
-    ]),
-    buildFAQPage(allFaqs),
-  ]);
+  const schema: Graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/faq/#webpage`,
+        name: "CPF FAQ: Common Questions Answered",
+        description:
+          "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
+        url: `${BASE_URL}/faq`,
+        inLanguage: "en-SG",
+        isPartOf: { "@id": WEBSITE_ID },
+        speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1"] },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "FAQ",
+            item: `${BASE_URL}/faq`,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: allFaqs.map(({ question, answer }) => ({
+          "@type": "Question" as const,
+          name: question,
+          acceptedAnswer: { "@type": "Answer" as const, text: answer },
+        })),
+      },
+    ],
+  };
 
   const categories = [
     {
@@ -115,27 +111,20 @@ const FAQIndex = () => {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-6 p-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>FAQ</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Breadcrumbs>
+          <Breadcrumbs.Item href="/">Home</Breadcrumbs.Item>
+          <Breadcrumbs.Item>FAQ</Breadcrumbs.Item>
+        </Breadcrumbs>
 
         <Card>
-          <CardHeader>
-            <CardTitle>CPF FAQ</CardTitle>
-            <CardDescription>
+          <Card.Header>
+            <Card.Title>CPF FAQ</Card.Title>
+            <Card.Description>
               Common questions answered about CPF contributions, projections,
               CPF LIFE, and retirement planning in Singapore
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </Card.Description>
+          </Card.Header>
+          <Card.Content>
             <div className="grid gap-4 sm:grid-cols-2">
               {categories.map((category) => (
                 <Link
@@ -150,20 +139,22 @@ const FAQIndex = () => {
                   className="group"
                 >
                   <Card className="h-full transition-colors hover:border-accent">
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between text-lg">
+                    <Card.Header>
+                      <Card.Title className="flex items-center justify-between text-lg">
                         {category.title}
                         <span className="rounded-full bg-accent/10 px-2 py-0.5 font-medium text-accent text-xs">
                           {category.count}
                         </span>
-                      </CardTitle>
-                      <CardDescription>{category.description}</CardDescription>
-                    </CardHeader>
+                      </Card.Title>
+                      <Card.Description>
+                        {category.description}
+                      </Card.Description>
+                    </Card.Header>
                   </Card>
                 </Link>
               ))}
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
     </>

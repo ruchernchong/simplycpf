@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/docs/og/"],
+      // /ph/ is the first-party PostHog proxy, analytics plumbing, not content.
+      disallow: ["/api/", "/docs/og/", "/ph/"],
     },
     sitemap: `${BASE_URL}/sitemap.xml`,
   };
