@@ -163,6 +163,21 @@ export const selectFormStep = (state: CpfState): FormStep => {
 };
 
 /**
+ * Select the inputs shared by the projection-based screens
+ * (At 55, CPF LIFE "your projection", Compare).
+ *
+ * @param state - The CPF store state
+ * @returns Monthly income, birth date, and citizenship status
+ */
+export const selectProjectionInputs = (state: CpfState) => {
+  return {
+    monthlyIncome: selectMonthlyGrossIncome(state),
+    birthDate: selectBirthDate(state),
+    citizenshipStatus: selectCitizenshipStatus(state),
+  };
+};
+
+/**
  * Select the computed CPF contribution result.
  *
  * Calculates the CPF contribution based on current income, income ceiling date,
