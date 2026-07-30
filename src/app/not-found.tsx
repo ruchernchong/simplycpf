@@ -1,28 +1,29 @@
+import { Button, Card } from "@heroui/react";
 import { Home01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: "This page does not exist on SimplyCPF.",
+  // A 404 has nothing worth indexing, and should not inherit the site canonical.
+  robots: { index: false, follow: true },
+};
 
 const NotFound = () => (
   <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
     <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-3xl">404</CardTitle>
-        <CardDescription>Page not found</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+      <Card.Header>
+        <Card.Title className="text-3xl">404</Card.Title>
+        <Card.Description>Page not found</Card.Description>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
         <p className="text-muted-foreground text-sm">
           The page you're looking for doesn't exist.
         </p>
         <Link href="/" className="w-full">
-          <Button className="w-full" variant="default">
+          <Button className="w-full" variant="primary">
             <HugeiconsIcon
               icon={Home01Icon}
               className="mr-2 size-4"
@@ -31,7 +32,7 @@ const NotFound = () => (
             Back to Home
           </Button>
         </Link>
-      </CardContent>
+      </Card.Content>
     </Card>
   </div>
 );

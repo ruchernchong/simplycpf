@@ -14,7 +14,7 @@ const confusions: {
     title: "“My Special Account is closing?”",
     body: "1.4 million SAs closed in Jan 2025. See your own SA → RA → OA split, in dollars.",
     linkLabel: "What happens at 55 →",
-    href: "/at-55" as Route,
+    href: "/cpf-at-55" as Route,
   },
   {
     eyebrow: "Confusion 02",

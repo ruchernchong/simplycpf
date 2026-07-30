@@ -1,99 +1,103 @@
+import { Accordion, buttonVariants, Card } from "@heroui/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BASE_URL } from "@/config";
+import { BASE_URL, WEBSITE_ID } from "@/config";
 import faqData from "@/data/faq.json";
-import {
-  buildBreadcrumbList,
-  buildFAQPage,
-  buildGraph,
-  buildPageSchema,
-  buildSpeakable,
-} from "@/lib/build-schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "About SimplyCPF | Free Singapore CPF Contribution Calculator",
+  title: "About SimplyCPF: Free Singapore CPF Contribution Calculator",
   description:
-    "About SimplyCPF — a free, open-source CPF contribution calculator for Singapore employees and employers. Learn how SimplyCPF calculates CPF contributions by age group, tracks income ceiling changes, and helps you plan your retirement savings.",
+    "About SimplyCPF, a free, open-source CPF contribution calculator for Singapore employees and employers. Learn how SimplyCPF calculates CPF contributions by age group, tracks income ceiling changes, and helps you plan your retirement savings.",
   keywords:
     "About SimplyCPF, CPF calculator Singapore, CPF contribution accuracy, CPF age groups, CPF income ceiling, Singapore CPF contribution rates, how CPF is calculated, CPF FAQ",
   alternates: {
     canonical: "/about",
   },
   openGraph: {
-    title: "About SimplyCPF | Free Singapore CPF Contribution Calculator",
+    title: "About SimplyCPF: Free Singapore CPF Contribution Calculator",
     description:
-      "Learn about SimplyCPF — the free, open-source CPF contribution calculator for Singapore employees and employers.",
+      "Learn about SimplyCPF, the free, open-source CPF contribution calculator for Singapore employees and employers.",
     url: `${BASE_URL}/about`,
     images: [
       {
         url: `${BASE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: "About SimplyCPF — Free CPF Contribution Calculator",
+        alt: "About SimplyCPF: Free CPF Contribution Calculator",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "About SimplyCPF | Free Singapore CPF Contribution Calculator",
+    title: "About SimplyCPF: Free Singapore CPF Contribution Calculator",
     description:
-      "Learn about SimplyCPF — the free, open-source CPF contribution calculator for Singapore employees and employers.",
+      "Learn about SimplyCPF, the free, open-source CPF contribution calculator for Singapore employees and employers.",
     images: [`${BASE_URL}/opengraph-image`],
   },
 };
 
 const About = () => {
-  const schema: Graph = buildGraph([
-    buildPageSchema({
-      name: "About SimplyCPF",
-      description:
-        "About SimplyCPF — a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
-      url: `${BASE_URL}/about`,
-      speakableSelectors: ["h1", "[data-content-block='faq']"],
-    }),
-    buildBreadcrumbList([
-      { name: "Home", url: BASE_URL },
-      { name: "About", url: `${BASE_URL}/about` },
-    ]),
-    buildFAQPage(faqData),
-    buildSpeakable(["h1", "[data-content-block='faq']"]),
-  ]);
+  const schema: Graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/about/#webpage`,
+        name: "About SimplyCPF",
+        description:
+          "About SimplyCPF, a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
+        url: `${BASE_URL}/about`,
+        inLanguage: "en-SG",
+        isPartOf: { "@id": WEBSITE_ID },
+        speakable: {
+          "@type": "SpeakableSpecification",
+          cssSelector: ["h1", "[data-content-block='faq']"],
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "About",
+            item: `${BASE_URL}/about`,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqData.map(({ question, answer }) => ({
+          "@type": "Question" as const,
+          name: question,
+          acceptedAnswer: { "@type": "Answer" as const, text: answer },
+        })),
+      },
+    ],
+  };
 
   return (
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8 p-6">
         <Card>
-          <CardHeader>
-            <CardTitle>About SimplyCPF</CardTitle>
-            <CardDescription>
+          <Card.Header>
+            <Card.Title>About SimplyCPF</Card.Title>
+            <Card.Description>
               No guesswork. The core tools stay free and sign-up is optional.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+            </Card.Description>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4">
             <p>
               SimplyCPF is a free, open-source tool that helps Singapore
               Citizens and Permanent Residents see exactly where their CPF
-              retirement money goes — based on income, age group, and the latest
+              retirement money goes, based on income, age group, and the latest
               ceiling changes. The main calculators and planning tools work
               without sign-up.
             </p>
@@ -102,8 +106,8 @@ const About = () => {
               contributions are distributed differently across your Ordinary
               Account (OA), Special Account (SA), and MediSave Account (MA)
               depending on your age. SimplyCPF handles all of this automatically
-              so you get the numbers that matter — your take-home pay and
-              retirement savings — without cross-referencing government tables.
+              so you get the numbers that matter: your take-home pay and
+              retirement savings, without cross-referencing government tables.
             </p>
             <p>
               All calculation logic is open-source and verifiable on GitHub.
@@ -128,17 +132,17 @@ const About = () => {
               how much more of your income becomes retirement savings over time.
               Whether you are an employee estimating your take-home pay, an
               employer verifying contribution amounts, or a financial planner
-              comparing CPF growth with other investments — SimplyCPF gives you
+              comparing CPF growth with other investments: SimplyCPF gives you
               the numbers in seconds.
             </p>
-          </CardContent>
+          </Card.Content>
         </Card>
 
         <Card className="border-orange-200 bg-orange-50">
-          <CardHeader>
-            <CardTitle>Important Disclaimer</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <Card.Header>
+            <Card.Title>Important Disclaimer</Card.Title>
+          </Card.Header>
+          <Card.Content>
             <p className="mb-4">
               This calculator is an independent tool to help with CPF
               contribution calculations. It is not affiliated with, endorsed by,
@@ -159,54 +163,41 @@ const About = () => {
               </a>{" "}
               or contact CPF Board directly.
             </p>
-          </CardContent>
+          </Card.Content>
         </Card>
 
-        <Card
-          data-content-block="faq"
-          itemScope
-          itemProp="mainEntity"
-          itemType="https://schema.org/FAQPage"
-        >
-          <CardHeader>
-            <CardTitle>Frequently Asked Questions</CardTitle>
-            <CardDescription>
+        <Card data-content-block="faq">
+          <Card.Header>
+            <Card.Title>Frequently Asked Questions</Card.Title>
+            <Card.Description>
               Common questions about CPF contributions and this calculator
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Accordion className="w-full">
+            </Card.Description>
+          </Card.Header>
+          <Card.Content>
+            <Accordion className="w-full" variant="surface">
               {faqData.map(({ question, answer }) => {
                 const index = `${question}-${answer}`;
                 return (
-                  <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
-                    itemScope
-                    itemProp="mainEntity"
-                    itemType="https://schema.org/Question"
-                  >
-                    <AccordionTrigger className="text-left">
-                      <span itemProp="name">{question}</span>
-                    </AccordionTrigger>
-                    <AccordionContent
-                      className="text-muted-foreground"
-                      itemScope
-                      itemProp="acceptedAnswer"
-                      itemType="https://schema.org/Answer"
-                    >
-                      <span itemProp="text">{answer}</span>
-                    </AccordionContent>
-                  </AccordionItem>
+                  <Accordion.Item key={index} id={`item-${index}`}>
+                    <Accordion.Heading>
+                      <Accordion.Trigger className="text-left">
+                        {question}
+                        <Accordion.Indicator />
+                      </Accordion.Trigger>
+                    </Accordion.Heading>
+                    <Accordion.Panel>
+                      <Accordion.Body>{answer}</Accordion.Body>
+                    </Accordion.Panel>
+                  </Accordion.Item>
                 );
               })}
             </Accordion>
-          </CardContent>
+          </Card.Content>
         </Card>
 
         <div className="text-center">
           <p className="mb-4 font-medium text-foreground text-lg">
-            Try the calculator — free, instant, no sign-up required
+            Try the calculator. Free, instant, no sign-up required
           </p>
           <Link
             href="/calculator"

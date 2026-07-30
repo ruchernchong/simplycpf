@@ -1,40 +1,59 @@
+import { Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BASE_URL } from "@/config";
-import {
-  buildGraph,
-  buildPageSchema,
-  pageBreadcrumb,
-} from "@/lib/build-schema";
+import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
 
 const PRIVACY_DESCRIPTION =
   "SimplyCPF works without signing up. No account, no email, no backend database. Only anonymous usage analytics and a theme preference cookie.";
 
+const PAGE_URL = `${BASE_URL}/privacy`;
+
 export const metadata: Metadata = {
-  title: "Privacy | SimplyCPF",
+  title: "Privacy",
   description: PRIVACY_DESCRIPTION,
   alternates: {
     canonical: "/privacy",
   },
+  openGraph: {
+    title: "Privacy",
+    description: PRIVACY_DESCRIPTION,
+    url: PAGE_URL,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy",
+    description: PRIVACY_DESCRIPTION,
+    images: [OG_IMAGE.url],
+  },
 };
 
-const schema: Graph = buildGraph([
-  buildPageSchema({
-    name: "Privacy",
-    description: PRIVACY_DESCRIPTION,
-    url: `${BASE_URL}/privacy`,
-    speakableSelectors: ["h1", "[data-privacy-summary]"],
-  }),
-  pageBreadcrumb("Privacy", `${BASE_URL}/privacy`),
-]);
+const schema: Graph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${PAGE_URL}/#webpage`,
+      name: "Privacy",
+      description: PRIVACY_DESCRIPTION,
+      url: PAGE_URL,
+      inLanguage: "en-SG",
+      isPartOf: { "@id": WEBSITE_ID },
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-privacy-summary]"],
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+        { "@type": "ListItem", position: 2, name: "Privacy", item: PAGE_URL },
+      ],
+    },
+  ],
+};
 
 export default function PrivacyPage() {
   return (
@@ -56,13 +75,13 @@ export default function PrivacyPage() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>What stays in your browser</CardTitle>
-            <CardDescription>
+          <Card.Header>
+            <Card.Title>What stays in your browser</Card.Title>
+            <Card.Description>
               Calculator inputs never leave your device
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 text-muted-foreground">
+            </Card.Description>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
             <p>
               Salary, age, citizenship, and other inputs you enter into the
               calculator, projection, what-if, and CPF LIFE tools are held in
@@ -74,17 +93,17 @@ export default function PrivacyPage() {
               there is no backend database. The CPF calculations run in your
               browser.
             </p>
-          </CardContent>
+          </Card.Content>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Anonymous usage analytics</CardTitle>
-            <CardDescription>
+          <Card.Header>
+            <Card.Title>Anonymous usage analytics</Card.Title>
+            <Card.Description>
               PostHog, routed through a first-party proxy
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 text-muted-foreground">
+            </Card.Description>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
             <p>
               SimplyCPF uses PostHog to understand how the tools are used in
               aggregate. It captures anonymous events such as page views,
@@ -96,14 +115,14 @@ export default function PrivacyPage() {
               not attached to these events. PostHog may set its own cookies or
               local storage entries for session analytics.
             </p>
-          </CardContent>
+          </Card.Content>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Cookies</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 text-muted-foreground">
+          <Card.Header>
+            <Card.Title>Cookies</Card.Title>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
             <p>
               A theme preference cookie is set so that your light or dark mode
               choice persists between visits.
@@ -112,14 +131,14 @@ export default function PrivacyPage() {
               Beyond that and the PostHog entries noted above, SimplyCPF does
               not set cookies of its own.
             </p>
-          </CardContent>
+          </Card.Content>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>What we do not do</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 text-muted-foreground">
+          <Card.Header>
+            <Card.Title>What we do not do</Card.Title>
+          </Card.Header>
+          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
             <p>We do not sell your personal data.</p>
             <p>
               We do not require sign-up to use the CPF calculators and planning
@@ -133,7 +152,7 @@ export default function PrivacyPage() {
               We do not claim to replace the official CPF Board website for
               formal account actions or government services.
             </p>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
     </>

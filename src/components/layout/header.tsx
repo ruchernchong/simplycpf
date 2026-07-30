@@ -23,7 +23,7 @@ interface NavItem {
 const questionNavItems: NavItem[] = [
   { href: "/" as Route, label: "Home" },
   { href: "/calculator" as Route, label: "This month" },
-  { href: "/at-55" as Route, label: "At 55" },
+  { href: "/cpf-at-55" as Route, label: "At 55" },
   { href: "/accrued-interest" as Route, label: "Home & OA" },
   { href: "/cpf-life" as Route, label: "CPF LIFE" },
   { href: "/what-if" as Route, label: "Compare" },

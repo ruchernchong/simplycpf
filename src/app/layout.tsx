@@ -7,16 +7,27 @@ import type { ReactNode } from "react";
 import type { Graph } from "schema-dts";
 import { Providers } from "@/app/providers";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, title } from "@/config";
+import {
+  BASE_URL,
+  description,
+  ORGANIZATION_ID,
+  title,
+  WEBSITE_ID,
+} from "@/config";
 
 const geist = Geist({ subsets: ["latin"] });
 
-const description =
-  "Your CPF, simplified. Calculate contributions, project retirement balances, compare CPF LIFE payouts, and test CPF scenarios for Singapore.";
-
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title,
+  /*
+   * Pages set a bare title; the template appends the site name. Without this
+   * every page hand-wrote its own suffix, and they disagreed, a pipe on most,
+   * an em dash on /faq/cpf-life, nothing at all on /faq/general.
+   */
+  title: {
+    default: title,
+    template: `%s | ${title}`,
+  },
   description,
   keywords: [
     "CPF calculator",
@@ -46,7 +57,7 @@ export const metadata: Metadata = {
         url: `${BASE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: "SimplyCPF - Your CPF, simplified.",
+        alt: "SimplyCPF. Your CPF, simplified.",
       },
     ],
   },
@@ -61,6 +72,24 @@ export const metadata: Metadata = {
 const schema: Graph = {
   "@context": "https://schema.org",
   "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": WEBSITE_ID,
+      name: title,
+      url: BASE_URL,
+      description,
+      inLanguage: "en-SG",
+      publisher: { "@id": ORGANIZATION_ID },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${BASE_URL}/docs?q={search_term_string}`,
+        },
+        // @ts-expect-error schema-dts types query-input as a Thing property
+        "query-input": "required name=search_term_string",
+      },
+    },
     {
       "@type": "WebApplication",
       name: "SimplyCPF",
@@ -81,9 +110,10 @@ const schema: Graph = {
     },
     {
       "@type": "Organization",
+      "@id": ORGANIZATION_ID,
       name: "SimplyCPF",
       url: BASE_URL,
-      logo: `${BASE_URL}/icon.svg`,
+      logo: `${BASE_URL}/simplycpf-icon.svg`,
       description:
         "Free, open-source CPF planning tools for Singapore employees and Permanent Residents.",
       founder: {
@@ -154,7 +184,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={geist.className} suppressHydrationWarning>
+    <html lang="en-SG" className={geist.className} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
           <Providers>
