@@ -3,6 +3,7 @@ import CpfLifeContent from "@/components/cpf-life/cpf-life-content";
 import CpfLifeDefinitionBlock from "@/components/seo/cpf-life-definition-block";
 import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import { StructuredData } from "@/components/seo/structured-data";
+import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
 import {
@@ -51,7 +52,7 @@ const schema = buildGraph([
     description:
       "Estimate CPF LIFE monthly payouts using your Retirement Account balance and compare the Standard, Escalating, Basic, and defer-to-70 scenarios.",
     url: `${BASE_URL}/cpf-life`,
-    speakableSelectors: ["h1", "[data-cpf-life-intro]"],
+    speakableSelectors: ["h1"],
     keywords:
       "CPF LIFE estimator, CPF LIFE payout calculator, Standard plan, Escalating plan, Basic plan",
   }),
@@ -73,19 +74,11 @@ export default function CpfLifePage() {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            How Much CPF LIFE Could You Get?
-          </h1>
-          <p
-            data-cpf-life-intro
-            className="mx-auto max-w-3xl text-muted-foreground"
-          >
-            Estimate your monthly CPF LIFE payout from your Retirement Account
-            balance and compare the Standard, Escalating, Basic, and defer-to-70
-            scenarios without logging in.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="CPF LIFE"
+          title="One balance, three payout shapes"
+          lede="The plans differ in shape, not in generosity: the same Retirement Account buys a flat payout, a rising one that starts lower, or a lower one that can fall further. We show all three side by side and rank none of them."
+        />
         <CpfLifeContent />
         <CpfLifeDefinitionBlock />
         <CpfRetirementSumsBlock />
