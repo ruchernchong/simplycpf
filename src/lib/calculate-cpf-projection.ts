@@ -26,7 +26,11 @@ import type {
   YearlyBalance,
 } from "@/types";
 
-const CPF_LIFE_PAYOUT_FACTOR = 0.008;
+// Anchored to the CPF Board's published example: the 2025 ERS of $426,000 set
+// aside at 55 corresponds to payouts of about $3,300/month from 65. The RA
+// grows at the 4% floor for the 10 years in between, so the factor applies to
+// the balance at payout start. https://www.cpf.gov.sg/member/infohub/news/media-news/why-it-pays-to-plan-for-retirement-income-of-up-to-3300-from-your-cpf
+const CPF_LIFE_PAYOUT_FACTOR = 3300 / (426_000 * 1.04 ** 10);
 const CPF_LIFE_ESCALATING_START_RATIO = 0.8;
 const CPF_LIFE_BASIC_RATIO = 0.9;
 const CPF_LIFE_DEFER_ANNUAL_INCREASE = 0.07;
