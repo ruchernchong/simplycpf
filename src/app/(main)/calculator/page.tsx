@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import type { Graph } from "schema-dts";
+import { CalculatorActions } from "@/components/calculator/calculator-actions";
 import CalculatorContent from "@/components/calculator/calculator-content";
 import CpfAgeSpecificBlock from "@/components/seo/cpf-age-specific-block";
 import IncomeCeilingDefinitionBlock from "@/components/seo/income-ceiling-definition-block";
 import { StructuredData } from "@/components/seo/structured-data";
+import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL } from "@/config";
 import faqCalculatorData from "@/data/faq-calculator.json";
 import {
@@ -98,11 +100,11 @@ export async function generateMetadata({
   };
 }
 
-const CalculatorPage = async ({
+async function CalculatorPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) => {
+}) {
   const { age } = await searchParamsCache.parse(searchParams);
   const ageGroup = age ? findAgeGroup(age) : null;
 
@@ -162,39 +164,17 @@ const CalculatorPage = async ({
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            How Much of Your Pay Goes to CPF?
-          </h1>
-          <p className="mx-auto mb-4 max-w-2xl text-muted-foreground">
-            Enter your monthly income and age to see your full CPF breakdown —
-            employee and employer contributions, distribution across your OA,
-            SA, and MA, and how the progressive income ceiling changes affect
-            your take-home pay.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-muted-foreground text-sm">
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block size-1.5 rounded-full bg-accent"
-                aria-hidden="true"
-              />{" "}
-              Free — no sign-up
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block size-1.5 rounded-full bg-accent"
-                aria-hidden="true"
-              />{" "}
-              Results update instantly
-            </span>
-          </div>
-        </div>
+        <PageHeader
+          actions={<CalculatorActions />}
+          eyebrow="This month"
+          title="Where this month's money went"
+        />
         <CalculatorContent />
         {ageGroup && <CpfAgeSpecificBlock ageGroup={ageGroup} />}
         <IncomeCeilingDefinitionBlock />
       </div>
     </>
   );
-};
+}
 
 export default CalculatorPage;
