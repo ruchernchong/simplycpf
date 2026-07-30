@@ -1,473 +1,380 @@
 "use client";
 
 import {
-  parseAsInteger,
-  parseAsString,
-  parseAsStringLiteral,
-  useQueryStates,
-} from "nuqs";
-import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+  Chip,
+  Link,
+  Separator,
+  Skeleton,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@heroui/react";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import type { Key } from "react-aria-components";
+import { PageHeader } from "@/components/shared/section-header";
+import { useCpfStore } from "@/hooks/use-cpf-store";
+import { estimateCpfLife } from "@/lib/calculate-cpf-projection";
 import {
   calculateAgeComparisonScenario,
   calculateOaToSaScenario,
   calculateSalaryChangeScenario,
   calculateVoluntaryTopUpScenario,
 } from "@/lib/calculate-what-if";
-import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
-import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
-import AgeComparisonForm, {
-  type AgeComparisonFormValues,
-} from "./age-comparison-form";
-import OaToSaForm, { type OaToSaFormValues } from "./oa-to-sa-form";
-import SalaryChangeForm, {
-  type SalaryChangeFormValues,
-} from "./salary-change-form";
-import ScenarioComparisonChart from "./scenario-comparison-chart";
-import ScenarioResults from "./scenario-results";
-import ScenarioSelector, {
-  isScenarioType,
-  type ScenarioType,
-} from "./scenario-selector";
-import VoluntaryTopUpForm, {
-  type VoluntaryTopUpFormValues,
-} from "./voluntary-top-up-form";
+import { formatCurrency } from "@/lib/format";
+import {
+  selectAge,
+  selectBirthDate,
+  selectCitizenshipStatus,
+  selectFormStep,
+  selectMonthlyGrossIncome,
+} from "@/stores/selectors";
+import type {
+  AccountBalances,
+  ProjectionResult,
+  ScenarioResult,
+} from "@/types";
 
-const defaultSalaryValues: SalaryChangeFormValues = {
-  monthlyIncome: 5000,
-  newIncome: 6000,
-  birthDate: "01/1995",
-  endAge: 65,
-  citizenship: "citizen",
+const scenarioKeys = ["topup", "oasa", "salary", "later"] as const;
+
+type ScenarioKey = (typeof scenarioKeys)[number];
+
+const scenarioChips: { key: ScenarioKey; label: string }[] = [
+  { key: "topup", label: "Yearly top-up to SA" },
+  { key: "oasa", label: "One-off OA → SA transfer" },
+  { key: "salary", label: "Higher salary" },
+  { key: "later", label: "Start five years later" },
+];
+
+const scenarioColumnLabels: Record<ScenarioKey, string> = {
+  topup: "with a yearly SA top-up",
+  oasa: "with an OA to SA transfer",
+  salary: "on a higher salary",
+  later: "starting five years later",
 };
 
-const defaultTransferValues: OaToSaFormValues = {
-  monthlyIncome: 5000,
-  birthDate: "01/1995",
-  endAge: 65,
-  citizenship: "citizen",
-  transferAmount: 10000,
-  transferTiming: "now",
-};
+const TOP_UP_AMOUNT = 5_000;
+const OA_TO_SA_AMOUNT = 30_000;
+const SALARY_DELTA = 1_000;
+const YEARS_LATER = 5;
+const END_AGE = 65;
 
-const defaultTopUpValues: VoluntaryTopUpFormValues = {
-  monthlyIncome: 5000,
-  birthDate: "01/1995",
-  endAge: 65,
-  citizenship: "citizen",
-  topUpAmount: 8000,
-  topUpAccount: "SA",
-};
+const MONO_LABEL = "font-mono text-[10px] uppercase tracking-[0.12em]";
 
-const defaultAgeComparisonValues: AgeComparisonFormValues = {
-  monthlyIncome: 5000,
-  endAge: 65,
-  citizenship: "citizen",
-  baselineStartAge: 25,
-  scenarioStartAge: 35,
-};
+const assumptions = [
+  "Salary held flat, no raises, no gaps in employment, no bonuses.",
+  "OA 2.50%, SA / MA / RA 4.00%, plus 1% on the first $60,000 combined.",
+  "No OA used for housing, and the MediSave Basic Healthcare Sum cap is not modelled.",
+  "Interest compounded yearly; contribution rates as published for 1 January 2026.",
+];
 
-const scenarioTypes = [
-  "salary",
-  "transfer",
-  "top-up",
-  "age-comparison",
-] as const;
+interface ComparisonRow {
+  label: string;
+  baseline: number;
+  scenario: number;
+  isAccent?: boolean;
+}
 
-const citizenshipStatuses = [
-  "citizen",
-  "spr-year1",
-  "spr-year2",
-  "spr-year3-plus",
-] as const;
+function balancesAt65(result: ProjectionResult): AccountBalances {
+  const milestone = result.milestones.age65;
+  const total = milestone.oa + milestone.sa + milestone.ma + milestone.ra;
 
-const transferTimings = ["now", "yearly"] as const;
-const topUpAccounts = ["SA", "MA", "RA"] as const;
-
-const whatIfSearchParams = {
-  scenario: parseAsStringLiteral(scenarioTypes).withDefault("salary"),
-  monthlyIncome: parseAsInteger.withDefault(defaultSalaryValues.monthlyIncome),
-  birthDate: parseAsString.withDefault(defaultSalaryValues.birthDate),
-  endAge: parseAsInteger.withDefault(defaultSalaryValues.endAge),
-  citizenship: parseAsStringLiteral(citizenshipStatuses).withDefault(
-    defaultSalaryValues.citizenship,
-  ),
-  newIncome: parseAsInteger.withDefault(defaultSalaryValues.newIncome),
-  transferAmount: parseAsInteger.withDefault(
-    defaultTransferValues.transferAmount,
-  ),
-  transferTiming: parseAsStringLiteral(transferTimings).withDefault(
-    defaultTransferValues.transferTiming,
-  ),
-  topUpAmount: parseAsInteger.withDefault(defaultTopUpValues.topUpAmount),
-  topUpAccount: parseAsStringLiteral(topUpAccounts).withDefault(
-    defaultTopUpValues.topUpAccount,
-  ),
-  baselineStartAge: parseAsInteger.withDefault(
-    defaultAgeComparisonValues.baselineStartAge,
-  ),
-  scenarioStartAge: parseAsInteger.withDefault(
-    defaultAgeComparisonValues.scenarioStartAge,
-  ),
-};
-
-function getScenarioSummary(
-  scenario: ScenarioType,
-  salaryValues: SalaryChangeFormValues,
-  transferValues: OaToSaFormValues,
-  topUpValues: VoluntaryTopUpFormValues,
-  ageComparisonValues: AgeComparisonFormValues,
-) {
-  switch (scenario) {
-    case "salary":
-      return {
-        title: "What if your salary changes?",
-        description:
-          "Compare your current monthly income against a higher or lower salary and see how the change flows through to your CPF balances.",
-        baselineLabel: `Current income (${salaryValues.monthlyIncome.toLocaleString("en-SG")})`,
-        scenarioLabel: `New income (${salaryValues.newIncome.toLocaleString("en-SG")})`,
-      };
-    case "transfer":
-      return {
-        title: "What if you move OA to SA?",
-        description:
-          "See how shifting money from OA into SA could change your compounding and retirement outcome.",
-        baselineLabel: "No OA to SA transfer",
-        scenarioLabel:
-          transferValues.transferTiming === "yearly"
-            ? "Repeat OA to SA transfer"
-            : "One-off OA to SA transfer",
-      };
-    case "top-up":
-      return {
-        title: "What if you do annual top-ups?",
-        description:
-          "Estimate the combined effect of yearly top-ups, higher compounding, and CPF LIFE payout changes.",
-        baselineLabel: "No annual top-up",
-        scenarioLabel: `Annual ${topUpValues.topUpAccount} top-up`,
-      };
-    case "age-comparison":
-      return {
-        title: "What if you start later?",
-        description:
-          "Compare two starting ages to see the cost of delay on CPF contributions and compounding.",
-        baselineLabel: `Start at age ${ageComparisonValues.baselineStartAge}`,
-        scenarioLabel: `Start at age ${ageComparisonValues.scenarioStartAge}`,
-      };
+  if (total > 0) {
+    return milestone;
   }
+
+  return (
+    result.yearlyBalances.at(-1)?.balances ?? { oa: 0, sa: 0, ma: 0, ra: 0 }
+  );
+}
+
+function buildRows(
+  baseline: ProjectionResult,
+  scenario: ProjectionResult,
+): ComparisonRow[] {
+  const baselineAt65 = balancesAt65(baseline);
+  const scenarioAt65 = balancesAt65(scenario);
+
+  const baselineTotal =
+    baselineAt65.oa + baselineAt65.sa + baselineAt65.ma + baselineAt65.ra;
+  const scenarioTotal =
+    scenarioAt65.oa + scenarioAt65.sa + scenarioAt65.ma + scenarioAt65.ra;
+
+  return [
+    {
+      label: "Total contributed to 65",
+      baseline: baseline.totalContributed,
+      scenario: scenario.totalContributed,
+    },
+    {
+      label: "Interest earned",
+      baseline: baseline.totalInterestEarned,
+      scenario: scenario.totalInterestEarned,
+    },
+    {
+      label: "All accounts at 65",
+      baseline: baselineTotal,
+      scenario: scenarioTotal,
+    },
+    {
+      label: "Retirement Account at 65",
+      baseline: baselineAt65.ra,
+      scenario: scenarioAt65.ra,
+    },
+    {
+      label: "CPF LIFE Standard, monthly",
+      baseline: estimateCpfLife(baselineAt65.ra).standardMonthly,
+      scenario: estimateCpfLife(scenarioAt65.ra).standardMonthly,
+      isAccent: true,
+    },
+  ];
+}
+
+function formatDelta(value: number): string {
+  const rounded = Math.round(value);
+  const sign = rounded < 0 ? "−" : "+";
+
+  return `${sign}${formatCurrency(Math.abs(rounded), 0)}`;
+}
+
+interface ValueRowProps {
+  label: string;
+  value: number;
+  delta?: number;
+  isAccent?: boolean;
+}
+
+function ValueRow({ label, value, delta, isAccent }: ValueRowProps) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-3">
+      <span className="text-muted text-sm">{label}</span>
+      <span className="flex items-baseline gap-2">
+        {delta !== undefined && (
+          <span
+            className={isAccent ? "text-accent text-xs" : "text-muted text-xs"}
+          >
+            {formatDelta(delta)}
+          </span>
+        )}
+        <span className="font-semibold text-sm">
+          {formatCurrency(value, 0)}
+        </span>
+      </span>
+    </div>
+  );
+}
+
+interface ColumnCardProps {
+  title: string;
+  tag: string;
+  rows: ComparisonRow[];
+  isScenario?: boolean;
+}
+
+function ColumnCard({ title, tag, rows, isScenario }: ColumnCardProps) {
+  return (
+    <Card className={isScenario ? "border-accent/30" : undefined}>
+      <Card.Header className="flex flex-row items-center justify-between gap-4">
+        <Card.Title className="text-base">{title}</Card.Title>
+        <Chip size="sm" color={isScenario ? "accent" : "default"}>
+          <Chip.Label className={MONO_LABEL}>{tag}</Chip.Label>
+        </Chip>
+      </Card.Header>
+      <Card.Content className="flex flex-col">
+        {rows.map((row, index) => (
+          <Fragment key={row.label}>
+            {index > 0 && <Separator />}
+            <ValueRow
+              label={row.label}
+              value={isScenario ? row.scenario : row.baseline}
+              delta={isScenario ? row.scenario - row.baseline : undefined}
+              isAccent={row.isAccent}
+            />
+          </Fragment>
+        ))}
+      </Card.Content>
+    </Card>
+  );
+}
+
+function EmptyState() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Enter your salary and date of birth</Card.Title>
+        <Card.Description>
+          The comparison runs on your own numbers. Add them on the home page and
+          this screen fills in.
+        </Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <Link href="/">Go to the home page</Link>
+      </Card.Content>
+    </Card>
+  );
+}
+
+function ComparisonSkeleton() {
+  return <Skeleton className="h-96 w-full rounded-lg" />;
+}
+
+function AssumptionsCard() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title className="text-base">What both columns assume</Card.Title>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-6">
+        <div className="grid gap-6 sm:grid-cols-2">
+          {assumptions.map((assumption, index) => (
+            <div key={assumption} className="flex gap-4">
+              <span className={`${MONO_LABEL} text-muted`}>
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+                {assumption}
+              </p>
+            </div>
+          ))}
+        </div>
+        <Separator />
+        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+          A projection is a calculation about assumptions, not a forecast about
+          you. Estimates only, not financial advice.
+        </p>
+      </Card.Content>
+    </Card>
+  );
 }
 
 export default function WhatIfContent() {
-  const [queryValues, setQueryValues] = useQueryStates(whatIfSearchParams, {
-    urlKeys: {
-      monthlyIncome: "income",
-      transferAmount: "transfer",
-      topUpAmount: "topUp",
-      baselineStartAge: "baselineAge",
-      scenarioStartAge: "scenarioAge",
-    },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [linkCopied, setLinkCopied] = useState(false);
-
-  const scenario = queryValues.scenario;
-  const salaryValues: SalaryChangeFormValues = {
-    monthlyIncome: queryValues.monthlyIncome,
-    newIncome: queryValues.newIncome,
-    birthDate: queryValues.birthDate,
-    endAge: queryValues.endAge,
-    citizenship: queryValues.citizenship,
-  };
-  const transferValues: OaToSaFormValues = {
-    monthlyIncome: queryValues.monthlyIncome,
-    birthDate: queryValues.birthDate,
-    endAge: queryValues.endAge,
-    citizenship: queryValues.citizenship,
-    transferAmount: queryValues.transferAmount,
-    transferTiming: queryValues.transferTiming,
-  };
-  const topUpValues: VoluntaryTopUpFormValues = {
-    monthlyIncome: queryValues.monthlyIncome,
-    birthDate: queryValues.birthDate,
-    endAge: queryValues.endAge,
-    citizenship: queryValues.citizenship,
-    topUpAmount: queryValues.topUpAmount,
-    topUpAccount: queryValues.topUpAccount,
-  };
-  const ageComparisonValues: AgeComparisonFormValues = {
-    monthlyIncome: queryValues.monthlyIncome,
-    endAge: queryValues.endAge,
-    citizenship: queryValues.citizenship,
-    baselineStartAge: queryValues.baselineStartAge,
-    scenarioStartAge: queryValues.scenarioStartAge,
-  };
-
-  const salaryHasValidBirthDate = isValidDateFormat(salaryValues.birthDate);
-  const salaryCurrentAge = salaryHasValidBirthDate
-    ? convertBirthDateToAge(salaryValues.birthDate)
-    : null;
-  const salaryHasValidRange =
-    salaryCurrentAge === null || salaryValues.endAge >= salaryCurrentAge;
-
-  const transferHasValidBirthDate = isValidDateFormat(transferValues.birthDate);
-  const transferCurrentAge = transferHasValidBirthDate
-    ? convertBirthDateToAge(transferValues.birthDate)
-    : null;
-  const transferHasValidRange =
-    transferCurrentAge === null || transferValues.endAge >= transferCurrentAge;
-
-  const topUpHasValidBirthDate = isValidDateFormat(topUpValues.birthDate);
-  const topUpCurrentAge = topUpHasValidBirthDate
-    ? convertBirthDateToAge(topUpValues.birthDate)
-    : null;
-  const topUpHasValidRange =
-    topUpCurrentAge === null || topUpValues.endAge >= topUpCurrentAge;
-
-  const ageComparisonHasValidRange =
-    ageComparisonValues.endAge >
-    Math.max(
-      ageComparisonValues.baselineStartAge,
-      ageComparisonValues.scenarioStartAge,
-    );
-
-  const scenarioSummary = getScenarioSummary(
-    scenario,
-    salaryValues,
-    transferValues,
-    topUpValues,
-    ageComparisonValues,
+  const [scenario, setScenario] = useQueryState(
+    "scenario",
+    parseAsStringLiteral(scenarioKeys).withDefault("topup"),
   );
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  const result = (() => {
-    if (scenario === "salary") {
-      if (
-        salaryValues.monthlyIncome <= 0 ||
-        salaryValues.newIncome <= 0 ||
-        !salaryHasValidBirthDate ||
-        !salaryHasValidRange
-      ) {
-        return null;
-      }
+  const formStep = useCpfStore(selectFormStep);
+  const age = useCpfStore(selectAge);
+  const monthlyIncome = useCpfStore(selectMonthlyGrossIncome);
+  const birthDate = useCpfStore(selectBirthDate);
+  const citizenshipStatus = useCpfStore(selectCitizenshipStatus);
 
-      return calculateSalaryChangeScenario({
-        projection: {
-          monthlyIncome: salaryValues.monthlyIncome,
-          birthDate: salaryValues.birthDate,
-          endAge: salaryValues.endAge,
-          citizenship: salaryValues.citizenship,
-        },
-        newMonthlyIncome: salaryValues.newIncome,
-      });
-    }
-
-    if (scenario === "transfer") {
-      if (
-        transferValues.monthlyIncome <= 0 ||
-        transferValues.transferAmount <= 0 ||
-        !transferHasValidBirthDate ||
-        !transferHasValidRange
-      ) {
-        return null;
-      }
-
-      return calculateOaToSaScenario({
-        projection: {
-          monthlyIncome: transferValues.monthlyIncome,
-          birthDate: transferValues.birthDate,
-          endAge: transferValues.endAge,
-          citizenship: transferValues.citizenship,
-        },
-        transferAmount: transferValues.transferAmount,
-        timing: transferValues.transferTiming,
-      });
-    }
-
-    if (scenario === "top-up") {
-      if (
-        topUpValues.monthlyIncome <= 0 ||
-        topUpValues.topUpAmount <= 0 ||
-        !topUpHasValidBirthDate ||
-        !topUpHasValidRange
-      ) {
-        return null;
-      }
-
-      return calculateVoluntaryTopUpScenario({
-        projection: {
-          monthlyIncome: topUpValues.monthlyIncome,
-          birthDate: topUpValues.birthDate,
-          endAge: topUpValues.endAge,
-          citizenship: topUpValues.citizenship,
-        },
-        amount: topUpValues.topUpAmount,
-        account: topUpValues.topUpAccount,
-      });
-    }
-
-    if (
-      ageComparisonValues.monthlyIncome <= 0 ||
-      ageComparisonValues.baselineStartAge ===
-        ageComparisonValues.scenarioStartAge ||
-      !ageComparisonHasValidRange
-    ) {
+  const result: ScenarioResult | null = useMemo(() => {
+    if (formStep < 2) {
       return null;
     }
 
-    return calculateAgeComparisonScenario({
-      monthlyIncome: ageComparisonValues.monthlyIncome,
-      endAge: ageComparisonValues.endAge,
-      citizenship: ageComparisonValues.citizenship,
-      baselineStartAge: ageComparisonValues.baselineStartAge,
-      scenarioStartAge: ageComparisonValues.scenarioStartAge,
-    });
-  })();
+    const projection = {
+      monthlyIncome,
+      birthDate,
+      endAge: END_AGE,
+      citizenship: citizenshipStatus,
+    };
 
-  const handleSharedChange = (nextValues: Partial<typeof queryValues>) => {
-    startTransition(() => {
-      void setQueryValues(nextValues);
-    });
-  };
-
-  const handleBirthDateChange = (rawValue: string) => {
-    const birthDate = formatDateInput(rawValue, queryValues.birthDate);
-
-    startTransition(() => {
-      void setQueryValues({
-        birthDate: birthDate.length > 0 ? birthDate : null,
-      });
-    });
-  };
-
-  const handleCopyWhatIfLink = async () => {
-    try {
-      await navigator.clipboard.writeText(
-        globalThis.window?.location.href ?? "",
-      );
-      setLinkCopied(true);
-      globalThis.window.setTimeout(() => setLinkCopied(false), 2000);
-    } catch {
-      setLinkCopied(false);
+    switch (scenario) {
+      case "topup":
+        return calculateVoluntaryTopUpScenario({
+          projection,
+          amount: TOP_UP_AMOUNT,
+          account: "SA",
+          frequency: "yearly",
+        });
+      case "oasa":
+        return calculateOaToSaScenario({
+          projection,
+          transferAmount: OA_TO_SA_AMOUNT,
+          timing: "now",
+        });
+      case "salary":
+        return calculateSalaryChangeScenario({
+          projection,
+          newMonthlyIncome: monthlyIncome + SALARY_DELTA,
+        });
+      default:
+        return calculateAgeComparisonScenario({
+          monthlyIncome,
+          endAge: END_AGE,
+          citizenship: citizenshipStatus,
+          baselineStartAge: age,
+          scenarioStartAge: age + YEARS_LATER,
+        });
     }
+  }, [formStep, monthlyIncome, birthDate, citizenshipStatus, scenario, age]);
+
+  const descriptions: Record<ScenarioKey, string> = {
+    topup: `${formatCurrency(TOP_UP_AMOUNT, 0)} added to your Special Account every year until 55, on top of mandatory contributions.`,
+    oasa: `${formatCurrency(OA_TO_SA_AMOUNT, 0)} moved from OA to SA once, this year. Irreversible — SA savings cannot be used for housing.`,
+    salary: `${formatCurrency(monthlyIncome + SALARY_DELTA, 0)} a month instead of ${formatCurrency(monthlyIncome, 0)}, held flat to 65.`,
+    later: `First contribution at age ${age + YEARS_LATER} instead of ${age} — five fewer years of contributions and compounding.`,
   };
+
+  const rows = result ? buildRows(result.baseline, result.scenario) : [];
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-      <Tabs
-        value={scenario}
-        onValueChange={(value) => {
-          if (isScenarioType(value)) {
-            handleSharedChange({ scenario: value });
-          }
-        }}
-      >
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>{scenarioSummary.title}</CardTitle>
-            <CardDescription>{scenarioSummary.description}</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6">
-            <ScenarioSelector />
+    <div className="flex flex-col gap-12">
+      <PageHeader
+        eyebrow="Compare"
+        title="Two sets of assumptions, side by side"
+        lede="Change one thing and see what the arithmetic does. This tool states differences; it does not suggest which column you should prefer."
+      />
 
-            <TabsContent value="salary">
-              <SalaryChangeForm
-                values={salaryValues}
-                currentAge={salaryCurrentAge}
-                hasValidBirthDate={salaryHasValidBirthDate}
-                hasValidRange={salaryHasValidRange}
-                onBirthDateChange={handleBirthDateChange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
+      <Card>
+        <Card.Header>
+          <span className={`${MONO_LABEL} text-muted`}>
+            Change one assumption
+          </span>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-4">
+          <ToggleButtonGroup
+            isDetached
+            disallowEmptySelection
+            selectionMode="single"
+            size="sm"
+            selectedKeys={new Set<Key>([scenario])}
+            onSelectionChange={(keys) => {
+              const [next] = [...keys];
+              const match = scenarioKeys.find((key) => key === next);
+              if (match) {
+                void setScenario(match);
+              }
+            }}
+            className="flex-wrap"
+          >
+            {scenarioChips.map(({ key, label }) => (
+              <ToggleButton key={key} id={key}>
+                {label}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+          <p className="max-w-[64ch] text-[13px] text-muted leading-relaxed">
+            {mounted ? descriptions[scenario] : null}
+          </p>
+        </Card.Content>
+      </Card>
 
-            <TabsContent value="transfer">
-              <OaToSaForm
-                values={transferValues}
-                currentAge={transferCurrentAge}
-                hasValidBirthDate={transferHasValidBirthDate}
-                hasValidRange={transferHasValidRange}
-                onBirthDateChange={handleBirthDateChange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
+      {!mounted ? (
+        <ComparisonSkeleton />
+      ) : result === null ? (
+        <EmptyState />
+      ) : (
+        <div className="grid gap-8 md:grid-cols-2">
+          <ColumnCard
+            title="Column A · as you are now"
+            tag="Baseline"
+            rows={rows}
+          />
+          <ColumnCard
+            isScenario
+            title={`Column B · ${scenarioColumnLabels[scenario]}`}
+            tag="Scenario"
+            rows={rows}
+          />
+        </div>
+      )}
 
-            <TabsContent value="top-up">
-              <VoluntaryTopUpForm
-                values={topUpValues}
-                currentAge={topUpCurrentAge}
-                hasValidBirthDate={topUpHasValidBirthDate}
-                hasValidRange={topUpHasValidRange}
-                onBirthDateChange={handleBirthDateChange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
-
-            <TabsContent value="age-comparison">
-              <AgeComparisonForm
-                values={ageComparisonValues}
-                hasValidRange={ageComparisonHasValidRange}
-                onChange={handleSharedChange}
-              />
-            </TabsContent>
-          </CardContent>
-        </Card>
-      </Tabs>
-
-      <div className="flex flex-col gap-6">
-        {result ? (
-          <>
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={handleCopyWhatIfLink}>
-                {linkCopied ? "Link copied" : "Copy share link"}
-              </Button>
-            </div>
-            <ScenarioComparisonChart
-              baseline={result.baseline}
-              scenario={result.scenario}
-              baselineLabel={scenarioSummary.baselineLabel}
-              scenarioLabel={scenarioSummary.scenarioLabel}
-            />
-            <ScenarioResults
-              result={result}
-              baselineLabel={scenarioSummary.baselineLabel}
-              scenarioLabel={scenarioSummary.scenarioLabel}
-            />
-          </>
-        ) : (
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Your what-if comparison will appear here</CardTitle>
-              <CardDescription>
-                Fill in the scenario inputs to compare the baseline and the
-                alternative outcome.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 text-muted-foreground text-sm">
-              <p>
-                This simulator reuses the same CPF projection engine as the
-                projection page, then layers a second scenario on top for a
-                side-by-side comparison.
-              </p>
-              <ul className="flex list-disc flex-col gap-2 pl-6">
-                <li>Salary change shows the impact of higher or lower pay.</li>
-                <li>OA to SA transfer highlights extra compounding.</li>
-                <li>Top-up compares voluntary contributions and tax relief.</li>
-                <li>Age comparison shows the cost of delay.</li>
-              </ul>
-              {isPending ? (
-                <p className="text-accent">Updating your scenario…</p>
-              ) : null}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      <AssumptionsCard />
     </div>
   );
 }
