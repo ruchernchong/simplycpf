@@ -1,79 +1,133 @@
-import {
-  CodeIcon,
-  Home01Icon,
-  InformationCircleIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+"use client";
+
+import { Segment } from "@heroui-pro/react";
 import type { Route } from "next";
 import Link from "next/link";
-import MobileNav from "@/components/layout/mobile-nav";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import ThemeToggle from "@/components/layout/theme-toggle";
-import { Logo } from "@/components/logo";
+import { Wordmark } from "@/components/shared/wordmark";
+import { useCpfStore } from "@/hooks/use-cpf-store";
+import { formatCurrency } from "@/lib/format";
+import {
+  selectAge,
+  selectFormStep,
+  selectMonthlyGrossIncome,
+} from "@/stores/selectors";
+
+interface NavItem {
+  href: Route;
+  label: string;
+}
+
+const questionNavItems: NavItem[] = [
+  { href: "/" as Route, label: "Home" },
+  { href: "/calculator" as Route, label: "This month" },
+  { href: "/at-55" as Route, label: "At 55" },
+  { href: "/accrued-interest" as Route, label: "Home & OA" },
+  { href: "/cpf-life" as Route, label: "CPF LIFE" },
+  { href: "/what-if" as Route, label: "Compare" },
+];
+
+const referenceNavItems: NavItem[] = [
+  { href: "/interest-rates" as Route, label: "Rates" },
+  { href: "/cpf-cheat-sheet" as Route, label: "Cheat sheet" },
+  { href: "/cpf-check" as Route, label: "Check" },
+];
+
+function NavSegment({ items }: { items: NavItem[] }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const selectedKey =
+    items.find((item) => item.href === pathname)?.href ?? null;
+
+  return (
+    <Segment
+      size="sm"
+      selectedKey={selectedKey}
+      onSelectionChange={(key) => {
+        if (key) router.push(key as Route);
+      }}
+    >
+      {items.map((item) => (
+        <Segment.Item key={item.href} id={item.href}>
+          {item.label}
+        </Segment.Item>
+      ))}
+    </Segment>
+  );
+}
+
+function InputSummary() {
+  const age = useCpfStore(selectAge);
+  const income = useCpfStore(selectMonthlyGrossIncome);
+  const formStep = useCpfStore(selectFormStep);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || formStep < 2) return null;
+
+  return (
+    <span className="hidden text-muted text-xs xl:block">
+      Age {age} · {formatCurrency(income, 0)}/mo
+    </span>
+  );
+}
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-border/50 border-b bg-background/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 w-full border-border border-b bg-background">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground"
       >
         Skip to content
       </a>
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="group flex items-center gap-4">
-              <Logo className="size-9 shadow-sm" />
-              <span className="font-semibold text-foreground text-xl tracking-tight transition-colors group-hover:text-primary">
-                SimplyCPF
-              </span>
-            </Link>
+      <div className="container mx-auto flex h-18 items-center justify-between gap-4 px-4">
+        <Wordmark />
 
-            <nav className="hidden items-center gap-2 md:flex">
-              <Link
-                href="/"
-                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
-              >
-                <HugeiconsIcon
-                  icon={Home01Icon}
-                  className="size-4"
-                  strokeWidth={2}
-                />
-                Home
-              </Link>
-              <Link
-                href="/about"
-                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
-              >
-                <HugeiconsIcon
-                  icon={InformationCircleIcon}
-                  className="size-4"
-                  strokeWidth={2}
-                />
-                About
-              </Link>
-              <Link
-                href={"/docs" as Route}
-                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-muted-foreground text-sm transition-all hover:bg-muted hover:text-foreground"
-              >
-                <HugeiconsIcon
-                  icon={CodeIcon}
-                  className="size-4"
-                  strokeWidth={2}
-                />
-                Developer
-              </Link>
-            </nav>
-          </div>
+        <nav aria-label="Main" className="hidden items-center gap-2 lg:flex">
+          <NavSegment items={questionNavItems} />
+          <span aria-hidden className="h-5 w-px bg-foreground/15" />
+          <NavSegment items={referenceNavItems} />
+        </nav>
 
-          <div className="flex items-center gap-2">
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
-            <MobileNav />
-          </div>
+        <div className="flex items-center gap-3">
+          <InputSummary />
+          <ThemeToggle />
         </div>
       </div>
+
+      <nav
+        aria-label="Main"
+        className="flex gap-4 overflow-x-auto px-4 pb-2 lg:hidden"
+      >
+        {[...questionNavItems, ...referenceNavItems].map((item) => (
+          <MobileNavLink key={item.href} item={item} />
+        ))}
+      </nav>
     </header>
+  );
+}
+
+function MobileNavLink({ item }: { item: NavItem }) {
+  const pathname = usePathname();
+  const isActive = pathname === item.href;
+
+  return (
+    <Link
+      href={item.href}
+      aria-current={isActive ? "page" : undefined}
+      className={
+        isActive
+          ? "whitespace-nowrap font-medium text-foreground text-sm"
+          : "whitespace-nowrap text-muted text-sm"
+      }
+    >
+      {item.label}
+    </Link>
   );
 }
