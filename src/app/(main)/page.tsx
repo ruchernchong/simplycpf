@@ -1,24 +1,23 @@
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
-import HeroSection from "@/components/home/hero-section";
-import InsightBanner from "@/components/home/insight-banner";
-import QuickActions from "@/components/home/quick-actions";
+import { HomeConfusions } from "@/components/home/home-confusions";
+import { HomeHero } from "@/components/home/home-hero";
+import { HomeThreeAges } from "@/components/home/home-three-ages";
 import CpfDefinitionBlock from "@/components/seo/cpf-definition-block";
 import CpfStatisticBlock from "@/components/seo/cpf-statistic-block";
 import { StructuredData } from "@/components/seo/structured-data";
-import CPFIncomeCeilingTimeline from "@/components/timeline/cpf-income-ceiling-timeline";
-import { buttonVariants } from "@/components/ui/button";
+import { StatBand } from "@/components/shared/stat-band";
 import { BASE_URL } from "@/config";
+import { CPF_INCOME_CEILING } from "@/constants";
+import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
+import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import {
   buildBreadcrumbList,
   buildDataset,
   buildGraph,
   buildSpeakable,
 } from "@/lib/build-schema";
-import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "SimplyCPF — Free CPF Calculator and Planning Tools for Singapore",
@@ -52,7 +51,36 @@ export const metadata: Metadata = {
   },
 };
 
-const HomePage = () => {
+export default function HomePage() {
+  const { brs, frs, ers } = getRetirementSumsForYear(2026);
+  const statBandItems = [
+    {
+      label: "OA interest",
+      value: `${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`,
+      note: "Floor rate",
+    },
+    {
+      label: "SA · MA · RA",
+      value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
+      note: "Plus 1% on first $60k",
+    },
+    {
+      label: "Wage ceiling",
+      value: formatCurrency(CPF_INCOME_CEILING["2026-01-01"], 0),
+      note: "Final step, Jan 2026",
+    },
+    {
+      label: "FRS 2026",
+      value: formatCurrency(frs, 0),
+      note: `BRS ${formatCurrency(brs, 0)}`,
+    },
+    {
+      label: "ERS 2026",
+      value: formatCurrency(ers, 0),
+      note: "4 × BRS since 2025",
+    },
+  ];
+
   const schema: Graph = buildGraph([
     {
       "@type": "SoftwareApplication" as const,
@@ -98,38 +126,20 @@ const HomePage = () => {
       ],
       temporalCoverage: "2023/2026",
     }),
-    buildSpeakable(["h1", ".hero-description", ".insight-banner"]),
+    buildSpeakable(["h1"]),
   ]);
 
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-6">
-        <HeroSection />
-        <div className="grid gap-6 md:grid-cols-2">
-          <CPFIncomeCeilingTimeline />
-          <div className="flex flex-col gap-6">
-            <InsightBanner />
-            <QuickActions />
-          </div>
-        </div>
+      <HomeHero />
+      <HomeConfusions />
+      <HomeThreeAges />
+      <StatBand items={statBandItems} />
+      <div className="flex flex-col gap-12">
         <CpfDefinitionBlock />
         <CpfStatisticBlock />
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
-            Ready to see your CPF breakdown?
-          </p>
-          <Link
-            href="/calculator"
-            className={cn(buttonVariants({ size: "lg" }), "gap-2")}
-          >
-            Calculate My CPF Now
-            <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
-          </Link>
-        </div>
       </div>
     </>
   );
-};
-
-export default HomePage;
+}
