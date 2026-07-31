@@ -45,14 +45,24 @@ describe("POST /api/cpf/calculate", () => {
     expect(data.distribution).toHaveProperty("MA");
   });
 
-  it("should calculate CPF contribution for older age group", async () => {
-    const req = createRequest({ income: 5000, date: "2025-01-01", age: 58 });
+  // Senior rates and allocations per the CPF Board tables effective 1 Jan 2026.
+  it.each([
+    // age, employee, employer, total, OA, RA/SA, MA
+    [58, 900, 800, 1700, 600.1, 574.94, 524.96],
+    [62, 625, 625, 1250, 175, 550, 525],
+    [67, 375, 450, 825, 50.08, 249.97, 524.95],
+  ])("applies the 1 Jan 2026 senior rates at age %i", async (age, employee, employer, total, oa, sa, ma) => {
+    const req = createRequest({ income: 5000, date: "2026-01-01", age });
     const response = await POST(req);
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.contribution.employee).toBe(750);
-    expect(data.contribution.employer).toBe(725);
+    expect(data.contribution.employee).toBe(employee);
+    expect(data.contribution.employer).toBe(employer);
+    expect(data.contribution.totalContribution).toBe(total);
+    expect(data.distribution.OA).toBe(oa);
+    expect(data.distribution.SA).toBe(sa);
+    expect(data.distribution.MA).toBe(ma);
   });
 
   it("should cap income at ceiling", async () => {

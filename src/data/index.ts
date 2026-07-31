@@ -4,6 +4,21 @@ import {
 } from "@/config";
 import type { AgeGroup } from "@/types";
 
+/**
+ * Contribution and allocation rates for Singapore Citizens and PRs from the
+ * 3rd year onwards, on monthly wages above $750. Effective 1 January 2026.
+ *
+ * Contribution rates: CPF Contribution Rate Table from 1 January 2026 (Table 1)
+ * https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFcontributionratesfrom1Jan2026.pdf
+ *
+ * Allocation rates: CPF Allocation Rates from 1 January 2026
+ * https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFAllocationRatesfromJanuary2026.pdf
+ *
+ * For ages 55 and above the `SA` key carries the Retirement Account share;
+ * the Special Account no longer receives contributions after its closure.
+ * Per CPF, those contributions go to the RA up to the Full Retirement Sum, and
+ * are channelled to the Ordinary Account once the FRS has been set aside.
+ */
 export const ageGroups: AgeGroup[] = [
   {
     description: "35 and below",
@@ -49,22 +64,22 @@ export const ageGroups: AgeGroup[] = [
     description: "Above 55 to 60",
     minAge: 55,
     maxAge: 60,
-    contributionRate: { employee: 0.15, employer: 0.145 },
-    distributionRate: { OA: 0.4069, SA: 0.2372, MA: 0.3559 },
+    contributionRate: { employee: 0.18, employer: 0.16 },
+    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
   },
   {
     description: "Above 60 to 65",
     minAge: 60,
     maxAge: 65,
-    contributionRate: { employee: 0.095, employer: 0.11 },
-    distributionRate: { OA: 0.1709, SA: 0.317, MA: 0.5121 },
+    contributionRate: { employee: 0.125, employer: 0.125 },
+    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
   },
   {
     description: "Above 65 to 70",
     minAge: 65,
     maxAge: 70,
-    contributionRate: { employee: 0.07, employer: 0.085 },
-    distributionRate: { OA: 0.0646, SA: 0.258, MA: 0.6774 },
+    contributionRate: { employee: 0.075, employer: 0.09 },
+    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
   },
   {
     description: "Above 70",

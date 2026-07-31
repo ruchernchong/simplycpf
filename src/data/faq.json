@@ -1,27 +1,27 @@
 [
   {
     "question": "How are CPF contributions calculated in Singapore?",
-    "answer": "CPF contributions are calculated based on your monthly gross income and age group. There are 8 age brackets, each with different employee and employer contribution rates. Your income is subject to CPF contributions up to the current income ceiling, which is rising progressively from $6,000 to $8,000 by September 2026 following Budget 2023. SimplyCPF handles all these variables automatically — just enter your income and birth date to get your exact contribution amounts."
+    "answer": "CPF contributions are calculated based on your monthly gross income and age group. There are 8 age brackets, each with different employee and employer contribution rates. Your income is subject to CPF contributions up to the current income ceiling, which rose in stages from $6,000 to $8,000 between September 2023 and January 2026 following Budget 2023. SimplyCPF handles all these variables automatically. Just enter your income and birth date to get your exact contribution amounts."
   },
   {
     "question": "What are the CPF contribution rates by age group?",
-    "answer": "CPF contribution rates vary by age group. For employees aged 55 and below, the total contribution rate is 37% (20% employee + 17% employer). Rates gradually decrease for older age groups: 56–60 years (26.5% total), 61–65 years (16.5% total), 66–70 years (12.5% total), and even lower for those above 70. The distribution across OA, SA, and MA also changes with age — older workers see more allocated to SA and MA rather than OA. Use the calculator to see the exact rates for your age group."
+    "answer": "CPF contribution rates vary by age group. For employees aged 55 and below, the total contribution rate is 37% (20% employee + 17% employer). Rates step down for older age groups: above 55 to 60 (34% total), above 60 to 65 (25% total), above 65 to 70 (16.5% total), and above 70 (12.5% total). The allocation across accounts also changes with age: older workers see more allocated to MediSave rather than the Ordinary Account, and from 55 the middle share goes to the Retirement Account because the Special Account no longer receives contributions. Rates shown are those effective 1 January 2026. Use the calculator to see the exact rates for your age group."
   },
   {
     "question": "How does the CPF income ceiling change affect my take-home pay?",
-    "answer": "The CPF income ceiling is rising from $6,000 to $8,000 in stages from September 2023 to September 2026. If your monthly income is above the old ceiling of $6,000, more of your income becomes subject to CPF contributions as the ceiling increases. This means your employee CPF contribution goes up and your take-home pay decreases slightly, but your total CPF savings (including employer contributions) increase. SimplyCPF's ceiling comparison feature shows you the exact dollar impact on both your take-home pay and your retirement savings."
+    "answer": "The CPF income ceiling rose from $6,000 to $8,000 in stages between September 2023 and January 2026. If your monthly income is above the old ceiling of $6,000, more of your income becomes subject to CPF contributions as the ceiling increases. This means your employee CPF contribution goes up and your take-home pay decreases slightly, but your total CPF savings (including employer contributions) increase. SimplyCPF's ceiling comparison feature shows you the exact dollar impact on both your take-home pay and your retirement savings."
   },
   {
     "question": "What is the difference between OA, SA, and MA in CPF?",
-    "answer": "CPF contributions are distributed across three accounts: the Ordinary Account (OA) for housing, insurance, investment, and education; the Special Account (SA) for retirement and retirement-related investments; and the MediSave Account (MA) for healthcare and medical insurance. The distribution varies by age — younger workers have more allocated to OA, while older workers see more going to SA and MA. The OA earns 2.5% p.a. (floor rate), while SA and MA earn a minimum of 4% p.a. with the potential to earn more when market rates are higher."
+    "answer": "CPF contributions are distributed across three accounts: the Ordinary Account (OA) for housing, insurance, investment, and education; the Special Account (SA) for retirement and retirement-related investments; and the MediSave Account (MA) for healthcare and medical insurance. The distribution varies by age: younger workers have more allocated to OA, while older workers see more going to SA and MA. The OA earns 2.5% p.a. (floor rate), while SA and MA earn a minimum of 4% p.a. with the potential to earn more when market rates are higher."
   },
   {
     "question": "Does SimplyCPF collect any of my data?",
-    "answer": "No data are being collected. The inputs are wiped on browser refresh. However, if you have checked the \"Store input on this browser\" checkbox, your input will be stored locally on your own browser only — no data are sent to or stored on any servers."
+    "answer": "No data are being collected. The inputs are wiped on browser refresh. However, if you have checked the \"Store input on this browser\" checkbox, your input will be stored locally on your own browser only, no data are sent to or stored on any servers."
   },
   {
     "question": "Do I need to sign up or log in to use SimplyCPF?",
-    "answer": "No sign-up or login is required. SimplyCPF is completely free and ungated — you can start calculating your CPF contributions immediately without creating an account or providing any personal information."
+    "answer": "No sign-up or login is required. SimplyCPF is completely free and ungated. You can start calculating your CPF contributions immediately without creating an account or providing any personal information."
   },
   {
     "question": "How are CPF interest rates determined?",
@@ -45,6 +45,6 @@
   },
   {
     "question": "I am a developer and I wish to contribute changes. How may I do so?",
-    "answer": "SimplyCPF is an open-source project released under the MIT licence. All contributions are welcome. Feel free to clone or fork the repository on GitHub and create a pull request. The project also provides a Developer API with 12 endpoints for programmatic access to CPF calculations — visit the developer documentation for details."
+    "answer": "SimplyCPF is an open-source project released under the MIT licence. All contributions are welcome. Feel free to clone or fork the repository on GitHub and create a pull request. The project also provides a Developer API with 12 endpoints for programmatic access to CPF calculations. Visit the developer documentation for details."
   }
 ]
