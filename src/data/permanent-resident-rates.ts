@@ -1,5 +1,22 @@
 import type { AgeGroup } from "@/types";
 
+/**
+ * Graduated (G/G) contribution rates for Permanent Residents in their 1st and
+ * 2nd year of SPR status, on monthly wages above $750. Allocation rates do not
+ * vary by residency status; they are the same age-based ratios used for
+ * citizens in src/data/index.ts.
+ *
+ * Contribution rates: CPF Contribution Rate Table from 1 January 2026,
+ * Tables 2 and 3. Unchanged since 1 January 2016.
+ * https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFcontributionratesfrom1Jan2026.pdf
+ *
+ * Allocation rates: CPF Allocation Rates from 1 January 2026.
+ * https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFAllocationRatesfromJanuary2026.pdf
+ *
+ * Not modelled: PRs whose employer has an approved joint application to
+ * contribute at full employer / full employee (F/F) rates, who use the
+ * citizen table instead.
+ */
 export const permanentResidentYear1Rates: AgeGroup[] = [
   {
     description: "35 and below",
@@ -34,21 +51,21 @@ export const permanentResidentYear1Rates: AgeGroup[] = [
     minAge: 55,
     maxAge: 60,
     contributionRate: { employee: 0.05, employer: 0.04 },
-    distributionRate: { OA: 0.4069, SA: 0.2372, MA: 0.3559 },
+    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
   },
   {
     description: "Above 60 to 65",
     minAge: 60,
     maxAge: 65,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.1709, SA: 0.317, MA: 0.5121 },
+    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
   },
   {
     description: "Above 65 to 70",
     minAge: 65,
     maxAge: 70,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.0646, SA: 0.258, MA: 0.6774 },
+    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
   },
   {
     description: "Above 70",
@@ -92,21 +109,21 @@ export const permanentResidentYear2Rates: AgeGroup[] = [
     minAge: 55,
     maxAge: 60,
     contributionRate: { employee: 0.125, employer: 0.06 },
-    distributionRate: { OA: 0.4069, SA: 0.2372, MA: 0.3559 },
+    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
   },
   {
     description: "Above 60 to 65",
     minAge: 60,
     maxAge: 65,
     contributionRate: { employee: 0.075, employer: 0.035 },
-    distributionRate: { OA: 0.1709, SA: 0.317, MA: 0.5121 },
+    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
   },
   {
     description: "Above 65 to 70",
     minAge: 65,
     maxAge: 70,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.0646, SA: 0.258, MA: 0.6774 },
+    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
   },
   {
     description: "Above 70",

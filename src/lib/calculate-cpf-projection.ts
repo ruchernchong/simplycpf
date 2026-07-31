@@ -7,6 +7,7 @@ import {
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
 } from "@/constants/cpf-interest-tiers";
+import { CPF_LIFE_AUTO_INCLUSION_BALANCE } from "@/constants/cpf-life";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
 import {
@@ -30,7 +31,6 @@ const CPF_LIFE_ESCALATING_START_RATIO = 0.8;
 const CPF_LIFE_BASIC_RATIO = 0.9;
 const CPF_LIFE_DEFER_ANNUAL_INCREASE = 0.07;
 const CPF_LIFE_MAX_DEFER_YEARS = 5;
-const CPF_LIFE_MIN_RETIREMENT_SAVINGS = 60_000;
 const TAX_RELIEF_SELF = 8_000;
 
 function getAgeGroupsForCitizenship(citizenship: CitizenshipStatus) {
@@ -197,7 +197,7 @@ export function estimateCpfLife(
   raBalance: number,
   currentAge = 65,
 ): CpfLifeEstimate {
-  if (raBalance < CPF_LIFE_MIN_RETIREMENT_SAVINGS) {
+  if (raBalance < CPF_LIFE_AUTO_INCLUSION_BALANCE) {
     return {
       standardMonthly: 0,
       escalatingStartMonthly: 0,
