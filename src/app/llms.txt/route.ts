@@ -10,6 +10,7 @@ import {
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
 } from "@/constants";
 import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
+import { CPF_DATA_AS_OF_LABEL } from "@/constants/cpf-data-as-of";
 import {
   CPF_INTEREST_FLOOR_RATES,
   PEGGED_RATE_MARKUP,
@@ -25,6 +26,7 @@ import {
   permanentResidentYear1Rates,
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
+import { formatNumber } from "@/lib/format";
 
 export const revalidate = false;
 
@@ -49,7 +51,7 @@ const distributionRatesSection = ageGroups
   .join("\n");
 
 const ceilingEntries = Object.entries(CPF_INCOME_CEILING)
-  .map(([date, ceiling]) => `| ${date} | S$${ceiling.toLocaleString()} |`)
+  .map(([date, ceiling]) => `| ${date} | S$${formatNumber(ceiling)} |`)
   .join("\n");
 
 const prYear1Section = permanentResidentYear1Rates
@@ -69,12 +71,12 @@ const prYear2Section = permanentResidentYear2Rates
 const retirementSumsSection = Object.entries(CPF_RETIREMENT_SUMS)
   .map(
     ([year, sums]) =>
-      `| ${year} | S$${sums.brs.toLocaleString()} | S$${sums.frs.toLocaleString()} | S$${sums.ers.toLocaleString()} |`,
+      `| ${year} | S$${formatNumber(sums.brs)} | S$${formatNumber(sums.frs)} | S$${formatNumber(sums.ers)} |`,
   )
   .join("\n");
 
 const bhsSection = Object.entries(CPF_BASIC_HEALTHCARE_SUM)
-  .map(([year, bhs]) => `| ${year} | S$${bhs.toLocaleString()} |`)
+  .map(([year, bhs]) => `| ${year} | S$${formatNumber(bhs)} |`)
   .join("\n");
 
 const llmsTxt = `# ${title}
@@ -109,11 +111,11 @@ ${distributionRatesSection}
 
 ## CPF Income Ceiling Timeline (Budget 2023)
 
-The CPF income ceiling is increasing progressively from S$6,000 to S$8,000 by 2026.
+The CPF income ceiling rose in stages from S$6,000 to S$8,000, reaching S$8,000 on 1 January 2026.
 
 | Effective Date | Monthly Income Ceiling |
 |---------------|----------------------|
-| Pre-September 2023 | S$${CPF_INCOME_CEILING_BEFORE_SEPT_2023.toLocaleString()} |
+| Pre-September 2023 | S$${formatNumber(CPF_INCOME_CEILING_BEFORE_SEPT_2023)} |
 ${ceilingEntries}
 
 - Income above the ceiling is NOT subject to CPF contributions
@@ -133,8 +135,8 @@ ${ceilingEntries}
 
 ## CPF Extra Interest Tiers
 
-- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${CPF_EXTRA_INTEREST_CAP.toLocaleString()} combined
-- OA portion eligible for the extra interest is capped at the first S$${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()}
+- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${formatNumber(CPF_EXTRA_INTEREST_CAP)} combined
+- OA portion eligible for the extra interest is capped at the first S$${formatNumber(CPF_OA_EXTRA_INTEREST_CAP)}
 - After age 55, the extra interest on the OA portion is redirected to the Retirement Account
 
 ## CPF Retirement Sums
@@ -167,7 +169,7 @@ ${prYear2Section}
 
 For an employee with monthly income I, age group G, and ceiling C:
 
-1. Capped Income = min(I, C) — income above the ceiling is excluded
+1. Capped Income = min(I, C), income above the ceiling is excluded
 2. Employee Contribution = Employee Rate × Capped Income
 3. Employer Contribution = Employer Rate × Capped Income
 4. Total CPF Contribution = Employee + Employer Contributions
@@ -229,9 +231,15 @@ For an employee with monthly income I, age group G, and ceiling C:
 - Free and open-source (MIT licence)
 - Core tools work without sign-up or an account
 - Email is only requested when a user asks for a CPF resource or report
-- Rates sourced from CPF Board publications
+- Rates sourced from CPF Board publications, effective ${CPF_DATA_AS_OF_LABEL}
 - Calculation logic is fully transparent and verifiable on GitHub
 - Not affiliated with the CPF Board or any government agency
+
+## Currency and Disclaimer
+
+All rates, ceilings, retirement sums and Basic Healthcare Sum values on this page are effective ${CPF_DATA_AS_OF_LABEL}.
+
+SimplyCPF is independent and not affiliated with the CPF Board. Figures are estimates based on published rates and are not financial advice.
 `;
 
 export async function GET(): Promise<Response> {
