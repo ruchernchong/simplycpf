@@ -23,8 +23,7 @@ export function Footer() {
           <p className="max-w-[74ch] text-muted text-xs leading-relaxed">
             SimplyCPF is an independent, open-source tool. Not affiliated with
             or endorsed by the CPF Board. Figures are estimates based on
-            published rates and the assumptions you enter — not financial
-            advice.
+            published rates and the assumptions you enter, not financial advice.
           </p>
           <nav aria-label="Footer" className="flex items-center gap-4 text-sm">
             {primaryLinks.map((link) => (

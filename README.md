@@ -52,7 +52,7 @@ The core calculators and planning tools work without sign-up. Email is only requ
 ### Prerequisites
 
 - Node.js 22+
-- pnpm 11.x (RC — automatically enforced via `packageManager` field)
+- pnpm 11.x (RC, automatically enforced via `packageManager` field)
 
 ### Installation
 

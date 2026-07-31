@@ -132,7 +132,7 @@ function buildRows(
 
 function formatDelta(value: number): string {
   const rounded = Math.round(value);
-  const sign = rounded < 0 ? "−" : "+";
+  const sign = rounded < 0 ? "-" : "+";
 
   return `${sign}${formatCurrency(Math.abs(rounded), 0)}`;
 }
@@ -305,9 +305,9 @@ export default function WhatIfContent() {
 
   const descriptions: Record<ScenarioKey, string> = {
     topup: `${formatCurrency(TOP_UP_AMOUNT, 0)} added to your Special Account every year until 55, on top of mandatory contributions.`,
-    oasa: `${formatCurrency(OA_TO_SA_AMOUNT, 0)} moved from OA to SA once, this year. Irreversible — SA savings cannot be used for housing.`,
+    oasa: `${formatCurrency(OA_TO_SA_AMOUNT, 0)} moved from OA to SA once, this year. Irreversible: SA savings cannot be used for housing.`,
     salary: `${formatCurrency(monthlyIncome + SALARY_DELTA, 0)} a month instead of ${formatCurrency(monthlyIncome, 0)}, held flat to 65.`,
-    later: `First contribution at age ${age + YEARS_LATER} instead of ${age} — five fewer years of contributions and compounding.`,
+    later: `First contribution at age ${age + YEARS_LATER} instead of ${age}, five fewer years of contributions and compounding.`,
   };
 
   const rows = result ? buildRows(result.baseline, result.scenario) : [];

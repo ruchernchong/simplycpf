@@ -27,7 +27,7 @@ import type { ProjectionResult } from "@/types";
 const PAGE_HEADER = {
   eyebrow: "At 55",
   title: "Your Special Account closes. Here is where the money goes.",
-  lede: "The CPF Board closed the Special Accounts of about 1.4 million members aged 55 and above on 19 January 2025. If you turn 55 after that date, it happens on your birthday. Nothing is taken away — it moves, and the two destinations behave differently.",
+  lede: "The CPF Board closed the Special Accounts of about 1.4 million members aged 55 and above on 19 January 2025. If you turn 55 after that date, it happens on your birthday. Nothing is taken away, it moves, and the two destinations behave differently.",
 } as const;
 
 const MONO_LABEL = "font-mono text-[10px] uppercase tracking-[0.12em]";
@@ -199,7 +199,7 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
             <AccountRow
               highlight
               amount={figures.dayAfter.ra}
-              body={`Filled to your Full Retirement Sum — ${money(figures.fromSa)} from SA first, then ${money(figures.fromOa)} from OA. Keeps earning 4.00%. Locked until payouts.`}
+              body={`Filled to your Full Retirement Sum, ${money(figures.fromSa)} from SA first, then ${money(figures.fromOa)} from OA. Keeps earning 4.00%. Locked until payouts.`}
               code="RA"
               label="Retirement Account · new"
             />
@@ -222,7 +222,7 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
         >
           Nothing is lost in the move: the same {money(figures.total)} is still
           yours. What changes is the interest rate on each part and when you can
-          reach it — {money(figures.dayAfter.ra)} is committed to payouts at
+          reach it, {money(figures.dayAfter.ra)} is committed to payouts at
           4.00%, and {money(figures.dayAfter.oa)} sits in OA at 2.50%,
           withdrawable whenever you want it.
         </Surface>
@@ -297,19 +297,19 @@ function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
     {
       code: "BRS",
       amount: figures.brs,
-      note: "Basic — possible with a property pledge",
+      note: "Basic, possible with a property pledge",
       highlight: false,
     },
     {
       code: "FRS",
       amount: figures.frs,
-      note: "Full — the default set-aside, 2 × BRS",
+      note: "Full, the default set-aside, 2 × BRS",
       highlight: true,
     },
     {
       code: "ERS",
       amount: figures.ers,
-      note: "Enhanced — the ceiling on voluntary top-ups, 4 × BRS",
+      note: "Enhanced, the ceiling on voluntary top-ups, 4 × BRS",
       highlight: false,
     },
   ];

@@ -87,8 +87,8 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 
 ### UI Components
 - Public product screens use HeroUI v3 OSS (`@heroui/react`) and HeroUI Pro (`@heroui-pro/react`) with no provider; theme tokens live in `src/app/globals.css` using the HeroUI default variable names with SimplyCPF brand values (warm paper/ink/forest, OKLCH)
-- Appearance comes from HeroUI props and theme tokens; `className` on component roots is for composition only (layout, sizing, gaps) — never hardcoded colours
-- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars — fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `PageHeader`/`Eyebrow`, `StatBand`, `Wordmark`
+- Appearance comes from HeroUI props and theme tokens; `className` on component roots is for composition only (layout, sizing, gaps), never hardcoded colours
+- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `PageHeader`/`Eyebrow`, `StatBand`, `Wordmark`
 - Product-facing icons use Lucide; `cn` is imported from `@heroui/react`
 - Use named function declarations for components and exported functions, not arrow-function constants
 - React Aria formatting is pinned to `en-SG` via `I18nProvider` in `src/app/providers.tsx`
@@ -166,15 +166,15 @@ See `.claude/skills/design-language-system/SKILL.md` for complete design system 
 
 ### Key Principles
 
-- **Aesthetic:** Warm paper, ink, one green (forest) — \"look accurate\": numbers are the hero
+- **Aesthetic:** Warm paper, ink, one green (forest). \"Look accurate\": numbers are the hero
 - **Colours:** HeroUI default theme variable names with brand values in OKLCH via `globals.css`; fixed chart encoding, clay for caveats
 - **Typography:** Geist font family
 
 ### Spacing Rules (IMPORTANT)
 
-Philosophy: **"Push Down, Not Pull Up"** — Elements push content below them rather than pulling from above.
+Philosophy: **"Push Down, Not Pull Up"**. Elements push content below them rather than pulling from above.
 
-- **NO `mt-*` or `pt-*`** — Use `mb-*`, `pb-*`, and `gap-*` instead
+- **NO `mt-*` or `pt-*`**. Use `mb-*`, `pb-*`, and `gap-*` instead
 - **Use `gap-*`** for flex/grid containers
 - **Exception:** `pt-*` allowed only for sticky elements offsetting fixed headers
 
@@ -194,7 +194,7 @@ Philosophy: **"Push Down, Not Pull Up"** — Elements push content below them ra
 | `8` | 32px | Large (between cards) |
 | `12` | 48px | Page sections |
 
-**Avoid:** `1`, `3`, `5`, `7` — not 8px multiples
+**Avoid:** `1`, `3`, `5`, `7` (not 8px multiples)
 
 ### Tailwind CSS v4 Conventions
 
@@ -204,7 +204,7 @@ Philosophy: **"Push Down, Not Pull Up"** — Elements push content below them ra
 
 ### Off-Limits
 
-- **DO NOT import** from `src/components/ui/*` in new code — deprecated shadcn/ui, pending removal together with the LEGACY-ALIAS block in `globals.css`
+- **DO NOT import** from `src/components/ui/*` in new code. Deprecated shadcn/ui, pending removal together with the LEGACY-ALIAS block in `globals.css`
 - **Dark mode** is fully supported: `.dark` token block in `globals.css` mirrors the light tokens with the brand's dark values
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
@@ -223,9 +223,9 @@ bd close <id>         # Complete work
 
 ### Rules
 
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
+- Use `bd` for ALL task tracking; do NOT use TodoWrite, TaskCreate, or markdown TODO lists
 - Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
+- Use `bd remember` for persistent knowledge; do NOT use MEMORY.md files
 
 ## Session Completion
 

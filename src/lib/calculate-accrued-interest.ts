@@ -8,7 +8,7 @@ export interface AccruedInterestYearRow {
 export interface AccruedInterestResult {
   principal: number;
   yearsHeld: number;
-  /** Principal plus accrued interest — refundable to CPF on sale */
+  /** Principal plus accrued interest, refundable to CPF on sale */
   totalOwed: number;
   accruedInterest: number;
   yearlyRows: AccruedInterestYearRow[];
@@ -22,7 +22,7 @@ export interface AccruedInterestResult {
  * OA money used for a property keeps a running tab: the interest it would
  * have earned at the OA floor rate had it stayed. On sale, the principal plus
  * that accrued interest returns to CPF before any cash is paid out. A refund
- * to yourself, not a penalty — but it changes what a sale actually pays out.
+ * to yourself, not a penalty, but it changes what a sale actually pays out.
  *
  * Models a single lump-sum withdrawal compounding yearly. Monthly instalments,
  * valuation limits, appreciation, fees and post-55 rules are not modelled.

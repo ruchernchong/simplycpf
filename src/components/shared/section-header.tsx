@@ -8,7 +8,7 @@ interface EyebrowProps {
 }
 
 /**
- * Mono uppercase eyebrow label — the "machine produced" register. Optionally
+ * Mono uppercase eyebrow label, the "machine produced" register. Optionally
  * led by the live-data forest dot.
  */
 export function Eyebrow({
