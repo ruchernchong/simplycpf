@@ -18,6 +18,26 @@ export const formatCurrency = (
   }).format(numericValue);
 };
 
+/**
+ * Group-separated number, pinned to en-SG.
+ *
+ * Prefer this over a bare `value.toLocaleString()`, which follows the server's
+ * or the visitor's default locale. That renders differently on the server and
+ * the client, a hydration mismatch, and in the SEO content blocks, indexed
+ * text that differs from what a reader sees.
+ */
+export const formatNumber = (
+  value: number | string,
+  decimalPlaces = 0,
+): string => {
+  const numericValue = typeof value === "string" ? Number(value) : value;
+
+  return new Intl.NumberFormat("en-SG", {
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  }).format(numericValue);
+};
+
 export const formatDate = (
   date: Date | string,
   dateFormat = "dd MMMM yyyy",
