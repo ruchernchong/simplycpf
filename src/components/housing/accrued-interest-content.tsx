@@ -25,7 +25,7 @@ const searchParams = {
 };
 
 const NOT_MODELLED = [
-  "Monthly instalments paid from OA after the down payment — each one adds to the tab.",
+  "Monthly instalments paid from OA after the down payment, each one adds to the tab.",
   "Property appreciation, agent fees, stamp duty, or outstanding loan.",
   "Valuation and withdrawal limits, which cap how much OA you may use.",
   "The rules that apply after 55, when a retirement sum must be set aside.",
@@ -109,8 +109,8 @@ export function AccruedInterestContent() {
 
           <Card variant="tertiary">
             <Card.Content className="text-[12.5px] leading-relaxed">
-              Accrued interest compounds at <strong>2.50%</strong> a year — the
-              OA floor rate — on the amount withdrawn, from the month it is
+              Accrued interest compounds at <strong>2.50%</strong> a year, the
+              OA floor rate, on the amount withdrawn, from the month it is
               withdrawn.
             </Card.Content>
           </Card>
@@ -131,7 +131,7 @@ export function AccruedInterestContent() {
               {formatCurrency(result.accruedInterest, 0)} of accrued interest
               builds up alongside it. On sale,{" "}
               {formatCurrency(result.totalOwed, 0)} goes back into your CPF
-              before any cash reaches you — that is {uplift.toFixed(1)}% more
+              before any cash reaches you, that is {uplift.toFixed(1)}% more
               than you took out.
             </p>
             <div className="grid gap-4 sm:grid-cols-3">

@@ -104,7 +104,7 @@ export function HomeHero() {
         <p className="max-w-[47ch] text-pretty text-[17.5px] text-muted leading-relaxed">
           Where this month&rsquo;s money went. What happens at 55. What a flat
           really costs your OA. What arrives every month at 65. No sign-up, no
-          jargon, no advice — just the arithmetic, with every assumption shown.
+          jargon, no advice, just the arithmetic, with every assumption shown.
         </p>
 
         <div className="flex flex-col gap-4 sm:flex-row">
@@ -195,7 +195,7 @@ export function HomeHero() {
         <p className="max-w-[54ch] text-muted text-xs leading-relaxed">
           Nothing leaves your browser. SimplyCPF is independent and not
           affiliated with the CPF Board. Every figure is an estimate from
-          published rates — not financial advice.
+          published rates, not financial advice.
         </p>
       </div>
 
@@ -216,7 +216,7 @@ export function HomeHero() {
             You keep <span className="font-semibold">{currency(takeHome)}</span>{" "}
             of your {currency(gross)} salary.{" "}
             <span className="font-semibold">{currency(totalContribution)}</span>{" "}
-            goes into your CPF accounts — and only {currency(employee)} of that
+            goes into your CPF accounts, and only {currency(employee)} of that
             came out of your pay.
           </p>
 

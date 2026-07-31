@@ -93,7 +93,7 @@ export function CeilingComparisonCard({ figures }: CeilingComparisonCardProps) {
         >
           {figures.gross <= previousCeiling
             ? `Your salary sits below both the ${formatDate(previousDate, "yyyy")} and ${currentLabel} ceilings, so the increase changed nothing for you.`
-            : `The ceiling rose from ${formatCurrency(previousCeiling, 0)} to ${formatCurrency(figures.ceiling, 0)}, so ${formatCurrency(deltaBase)} more of your salary is now CPF-eligible. You see ${formatCurrency(takeHomeDrop)} less in the bank and ${formatCurrency(cpfGain)} more in CPF each month — of which ${formatCurrency(employerDelta)} is your employer's money, not yours.`}
+            : `The ceiling rose from ${formatCurrency(previousCeiling, 0)} to ${formatCurrency(figures.ceiling, 0)}, so ${formatCurrency(deltaBase)} more of your salary is now CPF-eligible. You see ${formatCurrency(takeHomeDrop)} less in the bank and ${formatCurrency(cpfGain)} more in CPF each month, of which ${formatCurrency(employerDelta)} is your employer's money, not yours.`}
         </Surface>
       </Card.Content>
     </Card>

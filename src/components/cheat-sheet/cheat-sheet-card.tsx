@@ -96,7 +96,7 @@ export function CheatSheetCard() {
               />
               <SheetRow
                 label="Additional wage ceiling"
-                value={`${money(CPF_ADDITIONAL_WAGE_CEILING)} − OW`}
+                value={`${money(CPF_ADDITIONAL_WAGE_CEILING)} - OW`}
               />
             </Block>
             <Block title="Interest">
@@ -211,7 +211,7 @@ export function CheatSheetCard() {
         <p className="max-w-[76ch] text-muted leading-relaxed">
           Figures as published by the CPF Board; employee share stated first.
           Retirement sums apply to the cohort turning 55 in that year and stay
-          fixed for life. Independent tool — estimates only, not financial
+          fixed for life. Independent tool, estimates only, not financial
           advice.
         </p>
         <span className="font-mono text-muted">simplycpf.com</span>

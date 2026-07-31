@@ -68,8 +68,7 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
           {figures.isIllustrative && (
             <p className="text-muted text-xs">
               Illustrative figures for {formatCurrency(ILLUSTRATIVE_INCOME, 0)}{" "}
-              a month at {ILLUSTRATIVE_AGE} — enter your own numbers on the
-              left.
+              a month at {ILLUSTRATIVE_AGE}, enter your own numbers on the left.
             </p>
           )}
         </Card.Content>

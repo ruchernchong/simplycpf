@@ -9,7 +9,7 @@ interface StatBandProps {
 }
 
 /**
- * Full-bleed reference strip of headline figures on the band surface —
+ * Full-bleed reference strip of headline figures on the band surface:
  * the "numbers are the hero" close to a screen.
  */
 export function StatBand({ items }: StatBandProps) {
