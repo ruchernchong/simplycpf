@@ -1,13 +1,6 @@
+import { buttonVariants, Card } from "@heroui/react";
 import type { Route } from "next";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import type { ReadinessResult } from "@/lib/calculate-retirement-readiness";
 import { cn } from "@/lib/utils";
 
@@ -19,12 +12,12 @@ export default function ReadinessScoreResult({
   result,
 }: ReadinessScoreResultProps) {
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Your readiness score: {result.score}/100</CardTitle>
-        <CardDescription>{result.bucketLabel}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+    <Card>
+      <Card.Header>
+        <Card.Title>Your readiness score: {result.score}/100</Card.Title>
+        <Card.Description>{result.bucketLabel}</Card.Description>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
         <p className="font-medium text-foreground">{result.headline}</p>
         <p className="text-muted-foreground">{result.summary}</p>
         <div className="flex flex-col gap-2">
@@ -41,7 +34,7 @@ export default function ReadinessScoreResult({
         >
           {result.primaryActionLabel}
         </Link>
-      </CardContent>
+      </Card.Content>
     </Card>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Card, Label, NumberField, Slider, Table } from "@heroui/react";
 import posthog from "posthog-js";
 import { useState } from "react";
 import {
@@ -12,18 +13,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 
@@ -39,7 +28,7 @@ const INVESTMENT_SCENARIOS: InvestmentScenario[] = [
   {
     name: "CPF OA",
     rate: CPF_INTEREST_FLOOR_RATES.OA,
-    description: "Ordinary Account - Fixed floor rate",
+    description: "Ordinary Account, fixed floor rate",
     riskLevel: "Low",
     color: "#3b82f6",
   },
@@ -146,7 +135,7 @@ export function CPFInvestmentComparison() {
     <div className="flex flex-col gap-6">
       {/* Disclaimer Banner */}
       <Card className="border-amber-200 bg-amber-50">
-        <CardContent>
+        <Card.Content>
           <p className="text-amber-900 text-sm">
             <strong>Disclaimer:</strong> The investment returns shown are
             historical averages and do not guarantee future performance.
@@ -154,45 +143,54 @@ export function CPFInvestmentComparison() {
             savings are guaranteed by the Singapore Government. Always consult a
             financial adviser before making investment decisions.
           </p>
-        </CardContent>
+        </Card.Content>
       </Card>
 
       {/* Calculator Section */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Investment Returns Calculator</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6">
+      <Card>
+        <Card.Header>
+          <Card.Title>Investment Returns Calculator</Card.Title>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-6">
           {/* Input Controls */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="principal">Initial Amount (S$)</Label>
-              <Input
-                id="principal"
-                type="number"
-                min="1000"
-                step="1000"
-                value={principal}
-                onChange={(e) => setPrincipal(Number(e.target.value))}
-                className="text-lg"
-              />
-            </div>
+            <NumberField
+              className="flex flex-col gap-2"
+              formatOptions={{
+                style: "currency",
+                currency: "SGD",
+                currencyDisplay: "narrowSymbol",
+                maximumFractionDigits: 0,
+              }}
+              minValue={1000}
+              onChange={(value) =>
+                setPrincipal(Number.isNaN(value) ? 1000 : value)
+              }
+              step={1000}
+              value={principal}
+            >
+              <Label>Initial amount</Label>
+              <NumberField.Group className="w-full grid-cols-1">
+                <NumberField.Input className="w-full" />
+              </NumberField.Group>
+            </NumberField>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="years" className="mb-2 block">
-                Investment Period: {years} years
-              </Label>
-              <Slider
-                id="years"
-                min={1}
-                max={40}
-                step={1}
-                value={[years]}
-                onValueChange={(value) =>
-                  setYears(Array.isArray(value) ? value[0] : value)
-                }
-              />
-            </div>
+            <Slider
+              className="flex flex-col gap-2"
+              maxValue={40}
+              minValue={1}
+              onChange={(value) =>
+                setYears(Array.isArray(value) ? value[0] : value)
+              }
+              step={1}
+              value={years}
+            >
+              <Label>Investment period: {years} years</Label>
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider>
           </div>
 
           {/* Scenario Selection */}
@@ -285,83 +283,94 @@ export function CPFInvestmentComparison() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
+        </Card.Content>
       </Card>
 
       {/* Comparison Table */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Final Value Comparison ({years} years)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Investment Type</TableHead>
-                <TableHead>Rate p.a.</TableHead>
-                <TableHead>Risk Level</TableHead>
-                <TableHead className="text-right">Final Value</TableHead>
-                <TableHead className="text-right">Total Gain</TableHead>
-                <TableHead className="text-right">Gain vs CPF OA</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {finalValues.map((item) => {
-                const cpfOaGain =
-                  finalValues.find((v) => v.name === "CPF OA")?.totalGain || 0;
-                const gainVsCpfOa = item.totalGain - cpfOaGain;
+      <Card>
+        <Card.Header>
+          <Card.Title>Final Value Comparison ({years} years)</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <Table variant="secondary">
+            <Table.ScrollContainer>
+              <Table.Content aria-label="Investment scenario comparison">
+                <Table.Header>
+                  <Table.Column isRowHeader>Investment Type</Table.Column>
+                  <Table.Column>Rate p.a.</Table.Column>
+                  <Table.Column>Risk Level</Table.Column>
+                  <Table.Column className="text-right">
+                    Final Value
+                  </Table.Column>
+                  <Table.Column className="text-right">Total Gain</Table.Column>
+                  <Table.Column className="text-right">
+                    Gain vs CPF OA
+                  </Table.Column>
+                </Table.Header>
+                <Table.Body>
+                  {finalValues.map((item) => {
+                    const cpfOaGain =
+                      finalValues.find((v) => v.name === "CPF OA")?.totalGain ||
+                      0;
+                    const gainVsCpfOa = item.totalGain - cpfOaGain;
 
-                return (
-                  <TableRow key={item.name}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>
-                      {formatPercentage(item.rate / 100, { decimalPlaces: 1 })}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`rounded px-2 py-1 text-xs ${
-                          item.riskLevel === "Low"
-                            ? "bg-green-100 text-green-700"
-                            : item.riskLevel === "Medium"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {item.riskLevel}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">
-                      {formatCurrency(item.finalValue)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(item.totalGain)}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-medium ${
-                        gainVsCpfOa > 0
-                          ? "text-green-600"
-                          : gainVsCpfOa < 0
-                            ? "text-red-600"
-                            : ""
-                      }`}
-                    >
-                      {gainVsCpfOa > 0 ? "+" : ""}
-                      {formatCurrency(gainVsCpfOa)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
+                    return (
+                      <Table.Row key={item.name} id={item.name}>
+                        <Table.Cell className="font-medium">
+                          {item.name}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {formatPercentage(item.rate / 100, {
+                            decimalPlaces: 1,
+                          })}
+                        </Table.Cell>
+                        <Table.Cell>
+                          <span
+                            className={`rounded px-2 py-1 text-xs ${
+                              item.riskLevel === "Low"
+                                ? "bg-green-100 text-green-700"
+                                : item.riskLevel === "Medium"
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {item.riskLevel}
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell className="text-right font-semibold">
+                          {formatCurrency(item.finalValue)}
+                        </Table.Cell>
+                        <Table.Cell className="text-right">
+                          {formatCurrency(item.totalGain)}
+                        </Table.Cell>
+                        <Table.Cell
+                          className={`text-right font-medium ${
+                            gainVsCpfOa > 0
+                              ? "text-green-600"
+                              : gainVsCpfOa < 0
+                                ? "text-red-600"
+                                : ""
+                          }`}
+                        >
+                          {gainVsCpfOa > 0 ? "+" : ""}
+                          {formatCurrency(gainVsCpfOa)}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table.Content>
+            </Table.ScrollContainer>
           </Table>
-        </CardContent>
+        </Card.Content>
       </Card>
 
       {/* Key Considerations */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Key Considerations</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+      <Card>
+        <Card.Header>
+          <Card.Title>Key Considerations</Card.Title>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-4">
           <div className="flex flex-col gap-4 text-sm">
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
               <h4 className="mb-2 font-semibold text-blue-900">
@@ -401,7 +410,7 @@ export function CPFInvestmentComparison() {
               </ul>
             </div>
           </div>
-        </CardContent>
+        </Card.Content>
       </Card>
     </div>
   );

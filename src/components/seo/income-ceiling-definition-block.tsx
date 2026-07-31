@@ -1,21 +1,21 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 
 const IncomeCeilingDefinitionBlock = () => (
   <section
     aria-labelledby="income-ceiling-definition"
     data-content-block="definition"
   >
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle id="income-ceiling-definition">
+    <Card>
+      <Card.Header>
+        <Card.Title id="income-ceiling-definition">
           What is the CPF Income Ceiling?
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+        </Card.Title>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
         <p>
           The <strong>CPF income ceiling</strong> is the maximum amount of
           monthly salary subject to CPF contributions. Any income above this
-          ceiling is not subject to CPF — meaning both employee and employer do
+          ceiling is not subject to CPF, meaning both employee and employer do
           not pay CPF on the excess amount.
         </p>
         <p>
@@ -35,7 +35,7 @@ const IncomeCeilingDefinitionBlock = () => (
           decreases slightly, total retirement savings (including employer
           contributions) increase.
         </p>
-      </CardContent>
+      </Card.Content>
     </Card>
   </section>
 );

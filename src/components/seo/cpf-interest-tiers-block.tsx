@@ -1,19 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import {
   CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
 } from "@/constants/cpf-interest-tiers";
+import { formatNumber } from "@/lib/format";
 
 const CpfInterestTiersBlock = () => (
   <section aria-labelledby="cpf-interest-tiers" data-content-block="definition">
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle id="cpf-interest-tiers">
+    <Card>
+      <Card.Header>
+        <Card.Title id="cpf-interest-tiers">
           CPF Extra Interest: How the 1% Bonus Works
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+        </Card.Title>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
         <p>
           CPF members earn <strong>extra interest</strong> on top of base rates
           to boost retirement savings. This bonus interest applies to the first
@@ -27,8 +28,8 @@ const CpfInterestTiersBlock = () => (
               +{CPF_EXTRA_INTEREST_RATE * 100}%
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              On the first S${CPF_EXTRA_INTEREST_CAP.toLocaleString()} of
-              combined OA + SA + MA balances
+              On the first S${formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined
+              OA + SA + MA balances
             </p>
             <p className="mt-2 text-muted-foreground text-xs">
               Max extra interest: S$
@@ -44,11 +45,11 @@ const CpfInterestTiersBlock = () => (
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
               Base tier: +{CPF_EXTRA_INTEREST_RATE * 100}% on first S$
-              {CPF_EXTRA_INTEREST_CAP.toLocaleString()} of combined balances
+              {formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined balances
               <br />
               Senior tier: Additional +{CPF_EXTRA_INTEREST_RATE * 100}% on first
-              S${CPF_ADDITIONAL_SENIOR_INTEREST_CAP.toLocaleString()} of
-              combined balances
+              S${formatNumber(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)} of combined
+              balances
             </p>
             <p className="mt-2 text-muted-foreground text-xs">
               Max extra interest: S$
@@ -73,7 +74,7 @@ const CpfInterestTiersBlock = () => (
           MA earns an extra S${(50000 * 0.01).toFixed(0)} per year (S$
           {((50000 * 0.01) / 12).toFixed(0)} per month) on top of base rates.
         </p>
-      </CardContent>
+      </Card.Content>
     </Card>
   </section>
 );

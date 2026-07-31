@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import { formatCurrency } from "@/lib/format";
 import type { AccountBalances, ProjectionResult } from "@/types";
 
@@ -44,12 +38,12 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       {milestones.map((milestone) => (
-        <Card key={milestone.age} className="shadow-md">
-          <CardHeader>
-            <CardTitle>Age {milestone.age}</CardTitle>
-            <CardDescription>{milestone.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card key={milestone.age}>
+          <Card.Header>
+            <Card.Title>Age {milestone.age}</Card.Title>
+            <Card.Description>{milestone.description}</Card.Description>
+          </Card.Header>
+          <Card.Content>
             {milestone.available && milestone.balances ? (
               <div className="flex flex-col gap-4">
                 <div>
@@ -85,7 +79,7 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
                 milestone.
               </p>
             )}
-          </CardContent>
+          </Card.Content>
         </Card>
       ))}
     </div>
