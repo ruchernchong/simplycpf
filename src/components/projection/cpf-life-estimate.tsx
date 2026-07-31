@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import { formatCurrency } from "@/lib/format";
 import type { ProjectionResult } from "@/types";
 
@@ -40,15 +34,15 @@ export default function CpfLifeEstimate({ result }: CpfLifeEstimateProps) {
   ];
 
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Estimated CPF LIFE Payouts</CardTitle>
-        <CardDescription>
+    <Card>
+      <Card.Header>
+        <Card.Title>Estimated CPF LIFE Payouts</Card.Title>
+        <Card.Description>
           Based on your projected Retirement Account balance of{" "}
           {formatCurrency(finalYear.balances.ra, 0)} at age {finalYear.age}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+        </Card.Description>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
         {result.cpfLifeEstimate.standardMonthly > 0 ? (
           <div className="grid gap-4 lg:grid-cols-2">
             {payoutOptions.map((option) => (
@@ -83,7 +77,7 @@ export default function CpfLifeEstimate({ result }: CpfLifeEstimateProps) {
             </p>
           </div>
         )}
-      </CardContent>
+      </Card.Content>
     </Card>
   );
 }

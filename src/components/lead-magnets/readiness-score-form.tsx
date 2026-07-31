@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@heroui/react";
 import { useState } from "react";
 import ReadinessScoreResult from "@/components/lead-magnets/readiness-score-result";
-import { Button } from "@/components/ui/button";
 import {
   calculateRetirementReadiness,
   type ReadinessAnswers,

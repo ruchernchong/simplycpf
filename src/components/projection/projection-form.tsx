@@ -1,25 +1,17 @@
 "use client";
 
+import {
+  Button,
+  Card,
+  Input,
+  Label,
+  NumberField,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@heroui/react";
 import { FlashIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type {
   CitizenshipStatus,
   OaToSaTransfer,
@@ -69,7 +61,7 @@ const transferTimingOptions: {
   { label: "Repeat yearly", value: "yearly" },
 ];
 
-function parseNumericInput(value: string): number {
+function _parseNumericInput(value: string): number {
   return Number.parseFloat(value) || 0;
 }
 
@@ -100,13 +92,13 @@ export default function ProjectionForm({
   onReset,
 }: ProjectionFormProps) {
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Projection Assumptions</CardTitle>
-        <CardDescription>
+    <Card>
+      <Card.Header>
+        <Card.Title>Projection Assumptions</Card.Title>
+        <Card.Description>
           Start with your income and birth month, then adjust optional CPF
           planning moves.
-        </CardDescription>
+        </Card.Description>
         <div className="flex items-center gap-2 rounded-md bg-accent/5 px-4 py-2 text-accent text-xs">
           <HugeiconsIcon
             icon={FlashIcon}
@@ -115,214 +107,231 @@ export default function ProjectionForm({
           />
           Uses conservative floor rates: OA 2.5% p.a., SA/MA/RA 4.0% p.a.
         </div>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-6">
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-6">
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-income">Gross monthly income</Label>
-            <Input
-              id="projection-income"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={values.monthlyIncome || ""}
-              onChange={(event) =>
-                onChange({
-                  monthlyIncome: parseNumericInput(event.target.value),
-                })
-              }
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-birth-date">Birth month and year</Label>
-            <Input
-              id="projection-birth-date"
-              type="text"
-              maxLength={7}
-              placeholder="MM/YYYY"
-              value={values.birthDate}
-              onChange={(event) => onBirthDateChange(event.target.value)}
-              className={
-                values.birthDate && !hasValidBirthDate
-                  ? "border-accent focus-visible:ring-accent"
-                  : undefined
-              }
-            />
+          <NumberField
+            className="flex flex-col gap-2"
+            formatOptions={{
+              style: "currency",
+              currency: "SGD",
+              currencyDisplay: "narrowSymbol",
+              maximumFractionDigits: 0,
+            }}
+            minValue={0}
+            onChange={(value) =>
+              onChange({ monthlyIncome: Number.isNaN(value) ? 0 : value })
+            }
+            step={100}
+            value={values.monthlyIncome}
+          >
+            <Label>Gross monthly income</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
+          </NumberField>
+
+          <TextField
+            className="flex flex-col gap-2"
+            isInvalid={Boolean(values.birthDate) && !hasValidBirthDate}
+            onChange={onBirthDateChange}
+            value={values.birthDate}
+          >
+            <Label>Birth month and year</Label>
+            <Input inputMode="numeric" maxLength={7} placeholder="MM/YYYY" />
             {values.birthDate && !hasValidBirthDate ? (
-              <p className="text-accent text-xs">
+              <span className="text-danger text-xs">
                 Enter a valid month and year between 1901 and the current year.
-              </p>
+              </span>
             ) : null}
             {currentAge !== null ? (
-              <p className="text-muted-foreground text-xs">
+              <span className="text-muted text-xs">
                 Current age: {currentAge}
-              </p>
+              </span>
             ) : null}
-          </div>
+          </TextField>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-citizenship">Citizenship status</Label>
-            <Select
-              items={citizenshipOptions}
-              value={values.citizenship}
-              onValueChange={(value) => {
-                if (isCitizenshipStatus(value)) {
-                  onChange({ citizenship: value });
+            <Label id="projection-citizenship-label">Citizenship status</Label>
+            <ToggleButtonGroup
+              aria-labelledby="projection-citizenship-label"
+              className="flex flex-wrap gap-2"
+              disallowEmptySelection
+              isDetached
+              onSelectionChange={(keys) => {
+                const [next] = Array.from(keys);
+                if (isCitizenshipStatus(String(next))) {
+                  onChange({ citizenship: next as CitizenshipStatus });
                 }
               }}
+              selectedKeys={[values.citizenship]}
+              selectionMode="single"
+              size="sm"
             >
-              <SelectTrigger className="w-full rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {citizenshipOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {citizenshipOptions.map((option) => (
+                <ToggleButton id={option.value} key={option.value}>
+                  {option.label}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-end-age">Project until age</Label>
-            <Input
-              id="projection-end-age"
-              type="number"
-              min={Math.max(currentAge ?? 0, 1)}
-              max={80}
-              value={values.endAge}
-              onChange={(event) =>
-                onChange({
-                  endAge: Math.max(parseNumericInput(event.target.value), 1),
-                })
-              }
-            />
+
+          <NumberField
+            className="flex flex-col gap-2"
+            maxValue={80}
+            minValue={Math.max(currentAge ?? 0, 1)}
+            onChange={(value) =>
+              onChange({ endAge: Number.isNaN(value) ? 1 : Math.max(value, 1) })
+            }
+            value={values.endAge}
+          >
+            <Label>Project until age</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
             {hasValidBirthDate && !hasValidRange ? (
-              <p className="text-accent text-xs">
+              <span className="text-danger text-xs">
                 Choose an end age above your current age.
-              </p>
+              </span>
             ) : null}
-          </div>
+          </NumberField>
         </div>
 
         <div className="border-border border-t" />
+
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-housing-withdrawal">
-              Monthly housing withdrawal from OA
-            </Label>
-            <Input
-              id="projection-housing-withdrawal"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={values.housingWithdrawal || ""}
-              onChange={(event) =>
-                onChange({
-                  housingWithdrawal: parseNumericInput(event.target.value),
-                })
-              }
-            />
-            <p className="text-muted-foreground text-xs">
+          <NumberField
+            className="flex flex-col gap-2"
+            formatOptions={{
+              style: "currency",
+              currency: "SGD",
+              currencyDisplay: "narrowSymbol",
+              maximumFractionDigits: 0,
+            }}
+            minValue={0}
+            onChange={(value) =>
+              onChange({ housingWithdrawal: Number.isNaN(value) ? 0 : value })
+            }
+            step={100}
+            value={values.housingWithdrawal}
+          >
+            <Label>Monthly housing withdrawal from OA</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
+            <span className="text-muted text-xs">
               Use this if you regularly use OA for your housing loan.
-            </p>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-top-up-amount">
-              Annual voluntary top-up
-            </Label>
-            <Input
-              id="projection-top-up-amount"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={values.topUpAmount || ""}
-              onChange={(event) =>
-                onChange({ topUpAmount: parseNumericInput(event.target.value) })
-              }
-            />
-            <p className="text-muted-foreground text-xs">
+            </span>
+          </NumberField>
+
+          <NumberField
+            className="flex flex-col gap-2"
+            formatOptions={{
+              style: "currency",
+              currency: "SGD",
+              currencyDisplay: "narrowSymbol",
+              maximumFractionDigits: 0,
+            }}
+            minValue={0}
+            onChange={(value) =>
+              onChange({ topUpAmount: Number.isNaN(value) ? 0 : value })
+            }
+            step={500}
+            value={values.topUpAmount}
+          >
+            <Label>Annual voluntary top-up</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
+            <span className="text-muted text-xs">
               The current model treats this as a yearly top-up and caps tax
               relief at S$8,000.
-            </p>
-          </div>
+            </span>
+          </NumberField>
+
           <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-top-up-account">Top-up account</Label>
-            <Select
-              value={values.topUpAccount}
-              onValueChange={(value) => {
-                if (isTopUpAccount(value)) {
-                  onChange({ topUpAccount: value });
+            <Label id="projection-top-up-account-label">Top-up account</Label>
+            <ToggleButtonGroup
+              aria-labelledby="projection-top-up-account-label"
+              className="flex flex-wrap gap-2"
+              disallowEmptySelection
+              isDetached
+              onSelectionChange={(keys) => {
+                const [next] = Array.from(keys);
+                if (isTopUpAccount(String(next))) {
+                  onChange({
+                    topUpAccount: next as VoluntaryTopUp["account"],
+                  });
                 }
               }}
+              selectedKeys={[values.topUpAccount]}
+              selectionMode="single"
+              size="sm"
             >
-              <SelectTrigger
-                id="projection-top-up-account"
-                className="w-full rounded-lg"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {topUpAccounts.map((account) => (
-                  <SelectItem key={account} value={account}>
-                    {account}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {topUpAccounts.map((account) => (
+                <ToggleButton id={account} key={account}>
+                  {account}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="projection-transfer-amount">
-              OA to SA transfer
-            </Label>
-            <Input
-              id="projection-transfer-amount"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={values.transferAmount || ""}
-              onChange={(event) =>
-                onChange({
-                  transferAmount: parseNumericInput(event.target.value),
-                })
-              }
-            />
-          </div>
+
+          <NumberField
+            className="flex flex-col gap-2"
+            formatOptions={{
+              style: "currency",
+              currency: "SGD",
+              currencyDisplay: "narrowSymbol",
+              maximumFractionDigits: 0,
+            }}
+            minValue={0}
+            onChange={(value) =>
+              onChange({ transferAmount: Number.isNaN(value) ? 0 : value })
+            }
+            step={1000}
+            value={values.transferAmount}
+          >
+            <Label>OA to SA transfer</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
+          </NumberField>
+
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="projection-transfer-timing">Transfer timing</Label>
-            <Select
-              items={transferTimingOptions}
-              value={values.transferTiming}
-              onValueChange={(value) => {
-                if (isTransferTiming(value)) {
-                  onChange({ transferTiming: value });
+            <Label id="projection-transfer-timing-label">Transfer timing</Label>
+            <ToggleButtonGroup
+              aria-labelledby="projection-transfer-timing-label"
+              className="flex flex-wrap gap-2"
+              disallowEmptySelection
+              isDetached
+              onSelectionChange={(keys) => {
+                const [next] = Array.from(keys);
+                if (isTransferTiming(String(next))) {
+                  onChange({
+                    transferTiming: next as OaToSaTransfer["timing"],
+                  });
                 }
               }}
+              selectedKeys={[values.transferTiming]}
+              selectionMode="single"
+              size="sm"
             >
-              <SelectTrigger
-                id="projection-transfer-timing"
-                className="w-full rounded-lg sm:max-w-xs"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {transferTimingOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {transferTimingOptions.map((option) => (
+                <ToggleButton id={option.value} key={option.value}>
+                  {option.label}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
           </div>
         </div>
-      </CardContent>
-      <CardFooter className="justify-end">
-        <Button variant="outline" onClick={onReset} disabled={isPending}>
+      </Card.Content>
+      <Card.Footer className="justify-end">
+        <Button variant="outline" onPress={onReset} isDisabled={isPending}>
           Reset assumptions
         </Button>
-      </CardFooter>
+      </Card.Footer>
     </Card>
   );
 }
