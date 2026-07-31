@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="SimplyCPF">
+  <title>SimplyCPF</title>
+  <rect width="32" height="32" rx="9" fill="#F4F0E6"></rect>
+  <rect x="7" y="8" width="18" height="10" rx="2.4" fill="#23261E"></rect>
+  <rect x="7" y="21" width="18" height="3.4" rx="1.7" fill="#2C5F45"></rect>
+</svg>

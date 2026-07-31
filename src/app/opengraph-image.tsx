@@ -7,15 +7,10 @@ import {
 
 export default function Image() {
   return createOgImage({
-    background: "#ffffff",
-    logoBackground: "#f8fafc",
-    logoBorder: "#e2e8f0",
-    barColor: "#475569",
-    accentColor: "#14b8a6",
-    titleColor: "#0f172a",
-    subtitleColor: "#64748b",
-    chipBackground: "#f1f5f9",
-    chipTextColor: "#0f172a",
+    tone: "paper",
+    title: "Your CPF, simplified.",
+    subtitle:
+      "Work out your contributions, project your balances, and see what changes at 55.",
   });
 }
 
