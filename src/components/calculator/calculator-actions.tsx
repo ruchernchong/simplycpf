@@ -4,16 +4,14 @@ import { Button } from "@heroui/react";
 import { Check, Download, Link2 } from "lucide-react";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
-import {
-  CPF_ACCOUNT_MAP,
-  CPF_ADDITIONAL_WAGE_CEILING,
-  CPF_INCOME_CEILING,
-} from "@/constants";
+import { CPF_ACCOUNT_MAP, CPF_INCOME_CEILING } from "@/constants";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import {
   selectAge,
   selectAgeGroup,
+  selectCitizenshipStatus,
   selectFormStep,
   selectLatestIncomeCeilingDate,
   selectMonthlyGrossIncome,
@@ -33,6 +31,7 @@ export function CalculatorActions() {
   const income = useCpfStore(selectMonthlyGrossIncome);
   const age = useCpfStore(selectAge);
   const ageGroup = useCpfStore(selectAgeGroup);
+  const citizenship = useCpfStore(selectCitizenshipStatus);
 
   useEffect(() => {
     if (!isCopied) return;
@@ -57,17 +56,19 @@ export function CalculatorActions() {
             income,
             age,
             ageGroup,
+            citizenship,
             ceilingDate,
             isIllustrative: false,
           })
         : buildIllustrativeFigures(ceilingDate);
 
     const previousDate = findPreviousCeilingDate(figures.ceilingDate);
-    const previousResult = calculateCpfContribution(
-      figures.gross,
-      previousDate,
-      { ageGroup: figures.ageGroup },
-    );
+    const previousResult = calculateCpfContribution({
+      contributionMonth: previousDate,
+      ordinaryWages: figures.gross,
+      citizenship: figures.citizenship,
+      age: figures.age,
+    });
 
     posthog.capture("pdf_download_click");
     setIsGeneratingPdf(true);
@@ -87,7 +88,8 @@ export function CalculatorActions() {
         totalContribution: figures.total,
         remainingAW: Math.max(
           0,
-          CPF_ADDITIONAL_WAGE_CEILING - figures.gross * 12,
+          CPF_POLICY_CATALOGUE.rules.wageBands.annualAdditionalWageCeiling -
+            figures.contributable * 12,
         ),
         ceilingComparison: {
           preCeiling: CPF_INCOME_CEILING[previousDate],
@@ -99,7 +101,10 @@ export function CalculatorActions() {
         },
         distribution: [
           { key: "OA", value: figures.oa },
-          { key: "SA", value: figures.sa },
+          {
+            key: figures.isRetirementAccount ? "RA" : "SA",
+            value: figures.sa,
+          },
           { key: "MA", value: figures.ma },
         ].map(({ key, value }) => ({
           name: `${CPF_ACCOUNT_MAP[key]} (${key})`,

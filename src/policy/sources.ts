@@ -87,6 +87,13 @@ export const POLICY_SOURCES = {
       "Which CPF contribution rate applies when an employee enters the next age group?",
     url: "https://www.cpf.gov.sg/service/article/which-cpf-contribution-rate-should-be-applied-when-my-employee-enters-the-next-age-group",
   },
+  sprYearTransition: {
+    id: "cpf-spr-year-transition",
+    agency: "CPF Board",
+    title:
+      "CPF contribution years for an employee who recently obtained SPR status",
+    url: "https://www.cpf.gov.sg/service/article/do-i-need-to-pay-cpf-contributions-for-my-foreign-employee-who-has-recently-obtained-singapore-permanent-residence-status",
+  },
   allocationTransition: {
     id: "cpf-allocation-transition",
     agency: "CPF Board",
@@ -207,6 +214,7 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
       "contributionCurrent",
       "contribution2027",
       "ageGroupTransition",
+      "sprYearTransition",
     ],
     scope:
       "Private-sector and non-pensionable employees who are Singapore Citizens or SPRs using default graduated rates.",
@@ -239,7 +247,7 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   },
   "cpf-retirement-sums": {
     label: "Basic, Full and Enhanced Retirement Sums",
-    effectiveFrom: "2024-01-01",
+    effectiveFrom: "1995-07-01",
     sourceKeys: [
       "retirementSums",
       "historicalFullRetirementSums",
@@ -264,11 +272,7 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-life-reference-payouts": {
     label: "CPF LIFE eligibility and reference payouts",
     effectiveFrom: "2026-01-01",
-    sourceKeys: [
-      "cpfLife",
-      "cpfLifeReferencePayouts",
-      "cpfLifeEligibility",
-    ],
+    sourceKeys: ["cpfLife", "cpfLifeReferencePayouts", "cpfLifeEligibility"],
   },
   "cpf-retirement-top-ups": {
     label: "CPF retirement top-up rules",

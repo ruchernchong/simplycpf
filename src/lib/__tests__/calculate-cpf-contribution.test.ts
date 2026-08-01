@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   type ContributionPolicyError,
   CPF_CONTRIBUTION_SCHEDULES,
+  resolveSprContributionYear,
 } from "@/policy";
 import {
   CITIZEN_MAXIMUM_OW_GOLDEN,
+  CPF_BOARD_CALCULATOR_REGRESSION,
   PR_MAXIMUM_OW_GOLDEN,
 } from "@/policy/__fixtures__/contribution-golden";
 import {
@@ -33,6 +35,30 @@ describe("calculateCpfContribution official golden vectors", () => {
     expect(fixture.source).toMatch(/^https:\/\/www\.cpf\.gov\.sg\//);
     expect(result.policy.contribution.status).toBe("official");
     expect(result.policy.contribution.verifiedAt).toBe("2026-08-01");
+  });
+
+  it.each(
+    CPF_BOARD_CALCULATOR_REGRESSION,
+  )("matches the CPF Board calculator for $citizenship at OW $ordinaryWages", (fixture) => {
+    const result = calculateCpfContribution({
+      contributionMonth: fixture.contributionMonth,
+      ordinaryWages: fixture.ordinaryWages,
+      citizenship: fixture.citizenship,
+      birthMonth: fixture.birthMonth,
+    });
+
+    expect(result.contribution).toEqual({
+      totalContribution: fixture.total,
+      employee: fixture.employee,
+      employer: fixture.employer,
+    });
+    expect(fixture.calculatorLabel).toBe(
+      "CPF Board CPF contribution calculator",
+    );
+    expect(fixture.verifiedAt).toBe("2026-08-01");
+    expect(fixture.sourceUrl).toMatch(/^https:\/\/www\.cpf\.gov\.sg\//);
+    expect(fixture.calculatorUrl).toMatch(/^https:\/\/www\.cpf\.gov\.sg\//);
+    expect(fixture.note).toContain("Synthetic input");
   });
 });
 
@@ -124,6 +150,30 @@ describe("age and birthday-month transitions", () => {
     });
     expect(age55Month.age.contributionBand).toBe("55-and-below");
     expect(after55Month.age.contributionBand).toBe("above-55-to-60");
+  });
+});
+
+describe("SPR contribution-year transitions", () => {
+  it.each([
+    ["2026-01", "spr-year1"],
+    ["2027-01", "spr-year1"],
+    ["2027-02", "spr-year2"],
+    ["2028-01", "spr-year2"],
+    ["2028-02", "spr-year3-plus"],
+  ] as const)("resolves %s from a 15 January 2026 conversion as %s", (contributionMonth, expected) => {
+    expect(resolveSprContributionYear("2026-01-15", contributionMonth)).toBe(
+      expected,
+    );
+  });
+
+  it("rejects contribution months before SPR conversion", () => {
+    expect(() =>
+      resolveSprContributionYear("2026-01-15", "2025-12"),
+    ).toThrowError(
+      expect.objectContaining<Partial<ContributionPolicyError>>({
+        code: "INVALID_INPUT",
+      }),
+    );
   });
 });
 
@@ -228,6 +278,23 @@ describe("OW/AW ceilings and routing", () => {
 });
 
 describe("policy support and invariants", () => {
+  it("rejects unsupported citizenship values at runtime", () => {
+    expect(() =>
+      Reflect.apply(calculateCpfContribution, undefined, [
+        {
+          contributionMonth: "2026-01",
+          ordinaryWages: 8000,
+          citizenship: "unsupported",
+          age: 30,
+        },
+      ]),
+    ).toThrowError(
+      expect.objectContaining<Partial<ContributionPolicyError>>({
+        code: "INVALID_INPUT",
+      }),
+    );
+  });
+
   it("rejects unsupported official years and only freezes for projections", () => {
     expect(() =>
       calculateCpfContribution({
@@ -302,6 +369,19 @@ describe("policy support and invariants", () => {
     });
     expect(result.warnings).toContainEqual(
       expect.objectContaining({ code: "legacy-input" }),
+    );
+  });
+
+  it("labels the legacy historical-ceiling comparison as an assumption", () => {
+    const result = calculateCpfContribution(8000, "2026-01", {
+      age: 30,
+      useCeilingBeforeSep2023: true,
+    });
+    expect(result.schedule.ordinaryWageCeiling).toBe(6000);
+    expect(result.schedule.status).toBe("assumed");
+    expect(result.policy.wageCeiling.status).toBe("assumed");
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "legacy-rate-override" }),
     );
   });
 });

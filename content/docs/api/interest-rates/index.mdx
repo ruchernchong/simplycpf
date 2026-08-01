@@ -10,14 +10,14 @@ SimplyCPF exposes CPF Board's quarterly declarations. API v2 removes the unsourc
 Returns official quarterly observations through 2026 Q3. Each row contains:
 
 ```typescript
-interface QuarterlyInterestObservation {
+interface QuarterlyInterestDeclaration {
   quarter: string;
   effectiveFrom: string;
   effectiveTo: string;
-  oaRate: number;
-  saRate: number;
-  maRate: number;
-  raRate: number;
+  oa: number;
+  sa: number;
+  ma: number;
+  ra: number;
   sourceUrl: string;
   status: "official";
   verifiedAt: string;
@@ -26,7 +26,9 @@ interface QuarterlyInterestObservation {
 
 SA, MA, and RA are separate fields because their declared rates were not identical in every historical quarter.
 
-The response also includes CPF Board's methodology:
+The response envelope is `{ quarterlyRates, methodology, metadata }`. `metadata` is the full `PolicyMetadata` record for the interest dataset plus `latestPublishedQuarter`.
+
+The methodology block records:
 
 - OA: three-month average of major local banks' interest rates, subject to the 2.5% legislated floor.
 - SMRA: 12-month average yield of 10-year Singapore Government Securities plus one percentage point, subject to the current 4% floor through 2026.
@@ -47,6 +49,7 @@ curl "https://simplycpf.com/api/cpf/interest-rates/smra?averageSgsYield=3.1"
   "peggedRate": 4.1,
   "floorApplied": false,
   "actualRate": 4.1,
+  "methodology": "12-month average yield of 10-year Singapore Government Securities plus 1 percentage point, subject to the current 4% floor",
   "warnings": []
 }
 ```
@@ -55,6 +58,6 @@ curl "https://simplycpf.com/api/cpf/interest-rates/smra?averageSgsYield=3.1"
 
 ## GET `/interest-rates/trend`
 
-Returns the official quarterly observations in chronological order. This is a declaration timeline, not a synthetic SGS-yield series.
+Returns `{ observations, methodology, policy }`. `observations` contains the same official quarters in chronological order, normalised to `oaRate`, `saRate`, `maRate`, and `raRate`; `policy` supplies the per-dataset source and verification metadata. This is a declaration timeline, not a synthetic SGS-yield series.
 
 Policy responses use 24-hour edge caching with stale revalidation and are not immutable.

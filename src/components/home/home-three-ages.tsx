@@ -1,33 +1,42 @@
 import { Card, Chip, Separator, Typography } from "@heroui/react";
 import { Fragment } from "react";
-
-const ages: { figure: string; note?: string; label: string; body: string }[] = [
-  {
-    figure: "55",
-    label: "Retirement Account opens",
-    body: "SA closes. SA then OA savings move to RA up to the applicable retirement sum; withdrawal eligibility depends on CPF's rules.",
-  },
-  {
-    figure: "64",
-    note: "from 1 Jul 2026",
-    label: "Statutory retirement age",
-    body: "For people born on or after 1 Jul 1963. Earlier cohorts retain retirement ages 62 or 63; the re-employment age is 69.",
-  },
-  {
-    figure: "65",
-    label: "Payout eligibility age",
-    body: "Monthly retirement payouts can start. Deferring to 70 can increase payouts by up to 7% for each year deferred.",
-  },
-];
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
 export function HomeThreeAges() {
+  const lifecycle = CPF_POLICY_CATALOGUE.rules.lifecycleAges;
+  const employment = CPF_POLICY_CATALOGUE.rules.statutoryEmploymentAges;
+  const deferral = CPF_POLICY_CATALOGUE.cpfLife.payoutStart.deferral;
+  const ages: {
+    figure: string;
+    note?: string;
+    label: string;
+    body: string;
+  }[] = [
+    {
+      figure: String(lifecycle.retirementAccountCreated),
+      label: "Retirement Account opens",
+      body: "SA closes. SA then OA savings move to RA up to the applicable retirement sum; withdrawal eligibility depends on CPF's rules.",
+    },
+    {
+      figure: String(employment.retirementAge),
+      note: `from ${employment.effectiveDate}`,
+      label: "Statutory retirement age",
+      body: `The applicable minimum retirement age depends on birth cohort. The published re-employment age for this schedule is ${employment.reEmploymentAge}.`,
+    },
+    {
+      figure: String(lifecycle.cpfLifePayoutEligibility),
+      label: "Payout eligibility age",
+      body: `Monthly retirement payouts can start. Deferring to ${lifecycle.latestCpfLifePayoutStart} can increase payouts by up to ${deferral.maximumIncreasePerYearPercent}% for each year deferred.`,
+    },
+  ];
+
   return (
     <Card>
       <Card.Header className="flex flex-col gap-2">
         <Card.Title>Three ages, and they are not the same age</Card.Title>
         <Card.Description>
           Raising one does not move the others. This is the most common mix-up
-          of 2026.
+          in the current published rules.
         </Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-6 md:flex-row md:gap-8">

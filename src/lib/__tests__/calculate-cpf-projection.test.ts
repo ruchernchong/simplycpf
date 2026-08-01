@@ -67,9 +67,9 @@ describe("calculateCpfProjection monthly ledger", () => {
   it("keeps the age-55 rate through the birthday month", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 8_000,
-      birthDate: "12/1970",
+      birthDate: "12/1971",
       startMonth: "2026-12",
-      endAge: 56,
+      endAge: 55,
       citizenship: "citizen",
       initialBalances: zeroBalances(),
     });
@@ -81,9 +81,9 @@ describe("calculateCpfProjection monthly ledger", () => {
   it("moves to the next contribution band in the month after the birthday", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 8_000,
-      birthDate: "12/1970",
+      birthDate: "12/1971",
       startMonth: "2027-01",
-      endAge: 56,
+      endAge: 55,
       citizenship: "citizen",
       initialBalances: zeroBalances(),
     });
@@ -113,19 +113,54 @@ describe("calculateCpfProjection monthly ledger", () => {
     expect(row.distribution.sa).toBe(0);
   });
 
+  it("moves graduated SPR rates in the month after each anniversary", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 5_000,
+      birthDate: "02/1996",
+      startMonth: "2026-01",
+      endAge: 30,
+      citizenship: "spr-year1",
+      permanentResidentSince: "2025-01",
+      initialBalances: zeroBalances(),
+    });
+    const row2026 = result.yearlyBalances.find(({ year }) => year === 2026);
+
+    expect(row2026?.contributions.total).toBe(450 + 1_200 * 11);
+    expect(result.warnings).not.toContainEqual(
+      expect.objectContaining({ code: "pr-anniversary-not-modelled" }),
+    );
+  });
+
+  it("warns when a legacy graduated SPR request omits its conversion month", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 5_000,
+      birthDate: "02/1996",
+      startMonth: "2026-01",
+      endAge: 30,
+      citizenship: "spr-year1",
+      initialBalances: zeroBalances(),
+    });
+    const row2026 = result.yearlyBalances.find(({ year }) => year === 2026);
+
+    expect(row2026?.contributions.total).toBe(450 * 12);
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "pr-anniversary-not-modelled" }),
+    );
+  });
+
   it("closes SA and routes SA then OA into RA at age 55", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 0,
       birthDate: "12/1971",
-      startMonth: "2026-11",
+      startMonth: "2026-12",
       endAge: 55,
       citizenship: "citizen",
-      initialBalances: { oa: 100_000, sa: 150_000, ma: 0, ra: 0 },
+      initialBalances: { oa: 70_400, sa: 150_000, ma: 0, ra: 0 },
     });
 
     expect(result.milestones.age55.sa).toBe(0);
-    expect(result.milestones.age55.ra).toBeGreaterThan(220_400);
-    expect(result.milestones.age55.oa).toBeGreaterThan(29_000);
+    expect(result.milestones.age55.ra).toBe(220_400);
+    expect(result.milestones.age55.oa).toBe(0);
   });
 
   it("keeps both official retirement-routing contexts available", () => {
@@ -253,6 +288,12 @@ describe("calculateCpfProjection monthly ledger", () => {
     expect(row.balances.ma).toBe(79_000);
     expect(row.balances.sa).toBeGreaterThan(220_400);
     expect(row.balances.oa).toBeGreaterThan(0);
+    expect(
+      row.distribution.oa +
+        row.distribution.sa +
+        row.distribution.ma +
+        row.distribution.ra,
+    ).toBeCloseTo(row.contributions.total, 2);
   });
 
   it("applies monthly top-ups every month and tracks relief separately", () => {
@@ -278,6 +319,32 @@ describe("calculateCpfProjection monthly ledger", () => {
     expect(row2027?.topUpTaxReliefEligible).toBe(1_000);
   });
 
+  it("repeats yearly top-ups on the projection-start anniversary", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 0,
+      birthDate: "02/1996",
+      startMonth: "2026-12",
+      endAge: 31,
+      citizenship: "citizen",
+      initialBalances: zeroBalances(),
+      voluntaryTopUp: {
+        amount: 1_000,
+        account: "retirement",
+        frequency: "yearly",
+      },
+    });
+
+    expect(
+      result.yearlyBalances.find(({ year }) => year === 2026)?.voluntaryTopUp,
+    ).toBe(1_000);
+    expect(
+      result.yearlyBalances.find(({ year }) => year === 2027)?.voluntaryTopUp,
+    ).toBe(1_000);
+    expect(
+      result.yearlyBalances.find(({ year }) => year === 2028)?.voluntaryTopUp,
+    ).toBeUndefined();
+  });
+
   it("does not cap the actual retirement top-up at the tax-relief cap", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 0,
@@ -296,6 +363,65 @@ describe("calculateCpfProjection monthly ledger", () => {
 
     expect(row.voluntaryTopUp).toBe(12_000);
     expect(row.topUpTaxReliefEligible).toBe(8_000);
+  });
+
+  it("counts net SA investment withdrawals towards the under-55 FRS limit", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 0,
+      birthDate: "01/1996",
+      startMonth: "2026-12",
+      endAge: 30,
+      citizenship: "citizen",
+      initialBalances: { oa: 0, sa: 200_000, ma: 0, ra: 0 },
+      netSaSavingsWithdrawnForInvestments: 20_000,
+      voluntaryTopUp: {
+        amount: 1_000,
+        account: "retirement",
+        frequency: "yearly",
+      },
+    });
+
+    expect(result.yearlyBalances[0].voluntaryTopUp).toBe(400);
+    expect(result.warnings).not.toContainEqual(
+      expect.objectContaining({
+        code: "retirement-top-up-capacity-context-missing",
+      }),
+    );
+  });
+
+  it("accepts a legacy SA top-up destination with an explicit warning", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 0,
+      birthDate: "01/1996",
+      startMonth: "2026-12",
+      endAge: 30,
+      citizenship: "citizen",
+      initialBalances: zeroBalances(),
+      voluntaryTopUp: { amount: 1_000, account: "SA", frequency: "yearly" },
+    });
+
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "legacy-top-up-account" }),
+    );
+    expect(result.yearlyBalances[0].balances.sa).toBe(1_000);
+  });
+
+  it("does not invent MediSave tax relief without annual CPF context", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 0,
+      birthDate: "01/1996",
+      startMonth: "2026-12",
+      endAge: 30,
+      citizenship: "citizen",
+      initialBalances: zeroBalances(),
+      voluntaryTopUp: { amount: 1_000, account: "MA", frequency: "yearly" },
+    });
+
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "ma-tax-relief-not-estimated" }),
+    );
+    expect(result.yearlyBalances[0].voluntaryTopUp).toBe(1_000);
+    expect(result.yearlyBalances[0].topUpTaxReliefEligible).toBeUndefined();
   });
 
   it("routes retirement transfers to SA below 55 and RA from 55", () => {

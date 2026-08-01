@@ -15,8 +15,11 @@ export function CeilingComparisonCard({ figures }: CeilingComparisonCardProps) {
   const previousDate = findPreviousCeilingDate(figures.ceilingDate);
   const previousCeiling = CPF_INCOME_CEILING[previousDate];
 
-  const previousResult = calculateCpfContribution(figures.gross, previousDate, {
-    ageGroup: figures.ageGroup,
+  const previousResult = calculateCpfContribution({
+    contributionMonth: previousDate,
+    ordinaryWages: figures.gross,
+    citizenship: figures.citizenship,
+    age: figures.age,
   });
 
   const previousTakeHome = previousResult.afterCpfContribution;

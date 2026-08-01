@@ -40,21 +40,36 @@ Send one to 100 `ContributionInput` objects in `scenarios`. Results preserve req
 ```typescript
 interface ProjectionInput {
   monthlyIncome: number;
-  birthDate: string;
+  birthDate: string; // MM/YYYY
   startMonth: string;
   initialBalances: { oa: number; sa: number; ma: number; ra: number };
   citizenship: "citizen" | "spr-year1" | "spr-year2" | "spr-year3-plus";
+  permanentResidentSince?: string; // YYYY-MM; required by the UI for SPR Y1/Y2
+  netSaSavingsWithdrawnForInvestments?: number;
   endAge?: number;
+  housingWithdrawal?: number;
+  voluntaryTopUp?: {
+    amount: number;
+    account: "retirement" | "MA" | "SA" | "RA";
+    frequency: "monthly" | "yearly";
+  };
   retirementTransfer?: {
     amount: number;
     timing: "now" | "monthly" | "yearly";
   };
+  retirementRouting?:
+    | "full-retirement-sum"
+    | "basic-retirement-sum-with-property";
 }
 ```
 
 The engine runs a monthly ledger and returns annual snapshots. It applies monthly contributions, birthday transitions, the 2025 SA closure, age-65 BHS freezing, MA overflow, FRS routing, monthly interest accrual, and annual crediting.
 
-Every annual row has policy metadata. Published dates are `official`; post-publication policies held constant are `assumed`. Fixed salary, CPF floor interest, and retirement-routing choices are returned under `assumptions` rather than presented as CPF Board facts.
+Every annual row includes balances, contributions, account allocation, interest, BHS, retirement sums, and policy metadata. Its policy block separately identifies contribution, allocation, wage-ceiling, BHS, current and cohort retirement-sum, interest, extra-interest, SA-closure, top-up, and tax-relief datasets. Published dates are `official`; post-publication policies held constant are `assumed`.
+
+Fixed salary, CPF floor interest, housing withdrawals, and retirement-routing choices are returned as SimplyCPF or caller assumptions rather than presented as CPF Board facts. Top-up capacity is separate from `topUpTaxReliefEligible`; the latter follows the S$8,000 IRAS tax-relief cap and is not the amount a member is necessarily permitted to top up. Pre-55 net SA savings withdrawn for investments count towards the FRS limit. If `netSaSavingsWithdrawnForInvestments` is omitted when relevant, calculated capacity can be overstated and the engine returns `retirement-top-up-capacity-context-missing`.
+
+For SPR Year 1/2 projections, `permanentResidentSince` lets the monthly ledger move from Year 1 to Year 2 and then Year 3+ on the correct anniversaries. A legacy request that omits it holds the selected graduated year constant and returns `pr-anniversary-not-modelled`; if the supplied citizenship label conflicts with the anniversary date, the resolved date wins and the response warns.
 
 `cpfLifeReference` contains CPF Board's exact 2026 male Standard Plan reference rows. `cpfLifeEstimate` is deprecated and always `null`; use CPF Board's personalised planner for an estimate.
 
@@ -65,5 +80,7 @@ Accepted for one release cycle with warnings:
 - `income` → `ordinaryWages`
 - `date` → `contributionMonth`
 - `oaToSaTransfer` → age-aware `retirementTransfer`
+- projection `income`, `age`, and `years` → `monthlyIncome`, `birthDate`, `startMonth`, `initialBalances`, and `endAge`
+- projection `startAge` → an exact `birthDate`
 
-A legacy projection may omit starting balances and default them to zero only when an explicit warning is returned.
+A legacy projection may omit starting balances and default them to zero only when an explicit warning is returned. The compatibility response includes `deprecatedInput` and `projections`; new integrations should use `yearlyBalances`.

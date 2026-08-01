@@ -14,6 +14,7 @@ import {
   getContributionRatesForCitizenship,
   normaliseContributionMonth,
   type ResolvedContributionSchedule,
+  resolveContributionAgeFromBirthMonth,
   resolveContributionSchedule,
 } from "@/policy";
 import type { AgeGroup, IncomeOptions } from "@/types";
@@ -127,6 +128,9 @@ function calculateContribution(
   const ordinaryWageCeiling =
     options.legacyOverrides?.ordinaryWageCeiling ??
     resolvedSchedule.schedule.ordinaryWageCeiling;
+  const usesLegacyWhatIfCeiling =
+    options.legacyOverrides?.ordinaryWageCeiling !== undefined &&
+    ordinaryWageCeiling !== resolvedSchedule.schedule.ordinaryWageCeiling;
   const subjectOrdinaryWagesCents = Math.min(
     ordinaryWagesCents,
     toCents(ordinaryWageCeiling),
@@ -154,7 +158,22 @@ function calculateContribution(
   );
 
   const grossWagesCents = ordinaryWagesCents + additionalWagesCents;
-  const policy = buildPolicyMetadata(resolvedSchedule, contributionMonth);
+  const basePolicy = buildPolicyMetadata(resolvedSchedule, contributionMonth);
+  const policy: ContributionCalculationResult["policy"] =
+    usesLegacyWhatIfCeiling
+      ? {
+          ...basePolicy,
+          wageCeiling: {
+            ...basePolicy.wageCeiling,
+            version: `${basePolicy.wageCeiling.version}-legacy-what-if`,
+            status: "assumed",
+            notes: [
+              ...(basePolicy.wageCeiling.notes ?? []),
+              "The S$6,000 pre-September 2023 ceiling was applied as an explicit SimplyCPF what-if comparison outside its original effective period.",
+            ],
+          },
+        }
+      : basePolicy;
 
   return {
     contribution: {
@@ -185,7 +204,7 @@ function calculateContribution(
       employerRate: contributionBand.employerBasisPoints / 10000,
       ordinaryWageCeiling,
       additionalWageCeiling: resolvedSchedule.schedule.additionalWageCeiling,
-      status: resolvedSchedule.status,
+      status: usesLegacyWhatIfCeiling ? "assumed" : resolvedSchedule.status,
     },
     ...(allocation.routing ? { routing: allocation.routing } : {}),
     warnings,
@@ -194,10 +213,33 @@ function calculateContribution(
 }
 
 function validateInput(input: ContributionInput): void {
+  const supportedCitizenships = new Set<string>([
+    "citizen",
+    "spr-year1",
+    "spr-year2",
+    "spr-year3-plus",
+  ]);
+  if (!supportedCitizenships.has(input.citizenship)) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "citizenship must be citizen, spr-year1, spr-year2 or spr-year3-plus.",
+    );
+  }
+
   validateMoney(input.ordinaryWages, "ordinaryWages");
   validateMoney(input.additionalWages ?? 0, "additionalWages");
 
-  if ("age" in input && input.age !== undefined) {
+  const hasAge = "age" in input && input.age !== undefined;
+  const hasBirthMonth =
+    "birthMonth" in input && typeof input.birthMonth === "string";
+  if (hasAge === hasBirthMonth) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "Provide exactly one of completed age or birthMonth.",
+    );
+  }
+
+  if (hasAge) {
     if (!Number.isInteger(input.age) || input.age < 0 || input.age > 150) {
       throw new ContributionPolicyError(
         "INVALID_INPUT",
@@ -244,40 +286,14 @@ function resolveAge(
     };
   }
 
-  const birthMonth = normaliseContributionMonth(input.birthMonth);
-  const contributionParts = contributionMonth.split("-").map(Number);
-  const birthParts = birthMonth.split("-").map(Number);
-  const contributionYear = contributionParts[0];
-  const contributionMonthNumber = contributionParts[1];
-  const birthYear = birthParts[0];
-  const birthMonthNumber = birthParts[1];
-
-  if (
-    contributionYear === undefined ||
-    contributionMonthNumber === undefined ||
-    birthYear === undefined ||
-    birthMonthNumber === undefined
-  ) {
-    throw new ContributionPolicyError(
-      "INVALID_INPUT",
-      "Unable to resolve contributionMonth or birthMonth.",
-    );
-  }
-
-  const monthsSinceBirth =
-    (contributionYear - birthYear) * 12 +
-    contributionMonthNumber -
-    birthMonthNumber;
-  if (monthsSinceBirth < 0) {
-    throw new ContributionPolicyError(
-      "INVALID_INPUT",
-      "birthMonth cannot be after contributionMonth.",
-    );
-  }
+  const resolved = resolveContributionAgeFromBirthMonth(
+    input.birthMonth,
+    contributionMonth,
+  );
 
   return {
-    completedAge: Math.floor(monthsSinceBirth / 12),
-    monthsSinceBirth,
+    completedAge: resolved.completedAge,
+    monthsSinceBirth: resolved.ageInMonths,
     transitionAppliedFromBirthMonth: true,
   };
 }
@@ -527,6 +543,13 @@ function normaliseLegacyInput(
   const overrides = options?.useCeilingBeforeSep2023
     ? { ordinaryWageCeiling: 6000 }
     : undefined;
+  if (overrides) {
+    warnings.push({
+      code: "legacy-rate-override",
+      message:
+        "The deprecated pre-September 2023 ceiling override applies S$6,000; when that differs from the contribution-month schedule it is an explicit what-if comparison, not official policy for that month.",
+    });
+  }
 
   return {
     input: {

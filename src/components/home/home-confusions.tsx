@@ -1,45 +1,51 @@
 import { Card, Typography } from "@heroui/react";
 import type { Route } from "next";
 import Link from "next/link";
-
-const confusions: {
-  eyebrow: string;
-  title: string;
-  body: string;
-  linkLabel: string;
-  href: Route;
-}[] = [
-  {
-    eyebrow: "Confusion 01",
-    title: "“My Special Account is closing?”",
-    body: "SA closed for members 55+ in Jan 2025. See the official SA → RA → OA routing branches.",
-    linkLabel: "What happens at 55 →",
-    href: "/cpf-at-55" as Route,
-  },
-  {
-    eyebrow: "Confusion 02",
-    title: "“Accrued interest? On my own money?”",
-    body: "A single OA housing withdrawal accumulates accrued interest at the applicable OA rate; sale proceeds can cap the refund.",
-    linkLabel: "Work out the refund →",
-    href: "/accrued-interest" as Route,
-  },
-  {
-    eyebrow: "Confusion 03",
-    title: "“Which CPF LIFE plan is which?”",
-    body: "Three official payout shapes, plus CPF Board's exact 2026 Standard Plan reference rows.",
-    linkLabel: "Compare the plans →",
-    href: "/cpf-life" as Route,
-  },
-  {
-    eyebrow: "Confusion 04",
-    title: "“Why did my January pay drop?”",
-    body: "The OW ceiling reached $8,000 in Jan 2026, so more wages can attract both employee and employer contributions.",
-    linkLabel: "See both sides →",
-    href: "/calculator" as Route,
-  },
-];
+import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
 export function HomeConfusions() {
+  const schedule = resolveContributionSchedule("2026-08").schedule;
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+  const lifeReference = CPF_POLICY_CATALOGUE.cpfLife.reference;
+  const confusions: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    linkLabel: string;
+    href: Route;
+  }[] = [
+    {
+      eyebrow: "Confusion 01",
+      title: "“My Special Account is closing?”",
+      body: `SA closes from age ${retirementAge}. See the official SA → RA → OA routing branches.`,
+      linkLabel: `What happens at ${retirementAge} →`,
+      href: "/cpf-at-55" as Route,
+    },
+    {
+      eyebrow: "Confusion 02",
+      title: "“Accrued interest? On my own money?”",
+      body: "A single OA housing withdrawal accumulates accrued interest at the applicable OA rate; sale proceeds can cap the refund.",
+      linkLabel: "Work out the refund →",
+      href: "/accrued-interest" as Route,
+    },
+    {
+      eyebrow: "Confusion 03",
+      title: "“Which CPF LIFE plan is which?”",
+      body: `Three official payout shapes, plus CPF Board's exact ${lifeReference.year} ${lifeReference.plan} Plan reference rows.`,
+      linkLabel: "Compare the plans →",
+      href: "/cpf-life" as Route,
+    },
+    {
+      eyebrow: "Confusion 04",
+      title: "“Why did my January pay drop?”",
+      body: `The OW ceiling is ${formatCurrency(schedule.ordinaryWageCeiling, 0)} under the ${schedule.effectiveFrom.slice(0, 4)} schedule, so more wages can attract both employee and employer contributions.`,
+      linkLabel: "See both sides →",
+      href: "/calculator" as Route,
+    },
+  ];
+
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-wrap items-baseline justify-between gap-4">

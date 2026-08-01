@@ -13,6 +13,11 @@ import {
 import { ArrowRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { PageHeader } from "@/components/shared/section-header";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
+const lifecycle = CPF_POLICY_CATALOGUE.rules.lifecycleAges;
+const employment = CPF_POLICY_CATALOGUE.rules.statutoryEmploymentAges;
+const escalatingPlan = CPF_POLICY_CATALOGUE.cpfLife.plans.escalating;
 
 const PAGE_HEADER = {
   eyebrow: "Check",
@@ -31,10 +36,10 @@ interface CheckItem {
 const CHECK_ITEMS: CheckItem[] = [
   {
     id: "at-55",
-    title: "I know what happens to my accounts on my 55th birthday",
+    title: `I know what happens to my accounts on my ${lifecycle.retirementAccountCreated}th birthday`,
     body: "A Retirement Account is created, the Special Account closes, and savings move in a set order.",
     href: "/cpf-at-55",
-    linkLabel: "What happens at 55",
+    linkLabel: `What happens at ${lifecycle.retirementAccountCreated}`,
   },
   {
     id: "accrued-interest",
@@ -46,14 +51,14 @@ const CHECK_ITEMS: CheckItem[] = [
   {
     id: "cpf-life",
     title: "I can tell the three CPF LIFE plans apart",
-    body: "Standard stays flat, Escalating rises 2% a year from a lower start, Basic can step down.",
+    body: `Standard stays steady, Escalating rises ${escalatingPlan.annualIncreasePercent}% a year from a lower start, and Basic can progressively decrease.`,
     href: "/cpf-life",
     linkLabel: "CPF LIFE, the three plans",
   },
   {
     id: "three-ages",
     title: "I know my retirement age and my payout age are different numbers",
-    body: "Statutory retirement age is 64 from July 2026. Payout eligibility age remains 65.",
+    body: `The published statutory retirement age is ${employment.retirementAge} from ${employment.effectiveDate}, while CPF payout eligibility starts at ${lifecycle.cpfLifePayoutEligibility}.`,
     href: "/",
     linkLabel: "Three ages, on the home page",
   },

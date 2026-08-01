@@ -1,89 +1,101 @@
-import { Card, Typography } from "@heroui/react";
-import {
-  CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
-  CPF_EXTRA_INTEREST_CAP,
-  CPF_EXTRA_INTEREST_RATE,
-  CPF_OA_EXTRA_INTEREST_CAP,
-} from "@/constants/cpf-interest-tiers";
+import { Card, Link, Typography } from "@heroui/react";
 import { formatNumber } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
-const CpfInterestTiersBlock = () => (
-  <section aria-labelledby="cpf-interest-tiers" data-content-block="definition">
-    <Card>
-      <Card.Header>
-        <Card.Title id="cpf-interest-tiers">
-          CPF Extra Interest: How the Tiers Work
-        </Card.Title>
-      </Card.Header>
-      <Card.Content className="flex flex-col gap-4">
-        <Typography>
-          CPF members earn <strong>extra interest</strong> on top of base rates
-          to boost retirement savings. This bonus interest applies to the first
-          portion of your combined CPF balances.
-        </Typography>
+export default function CpfInterestTiersBlock() {
+  const policy = CPF_POLICY_CATALOGUE.rules.extraInterest;
+  const below55 = policy.below55;
+  const senior = policy.age55AndAbove;
+  const under55Maximum =
+    below55.balanceCap * (below55.extraPercentagePoints / 100);
+  const seniorMaximum =
+    senior.firstTier.balanceCap *
+      (senior.firstTier.extraPercentagePoints / 100) +
+    senior.secondTier.balanceCap *
+      (senior.secondTier.extraPercentagePoints / 100);
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-surface-secondary p-4">
-            <Typography className="mb-2" type="body-sm" weight="semibold">
-              Under Age 55
-            </Typography>
-            <Typography type="h3" weight="bold">
-              +{CPF_EXTRA_INTEREST_RATE * 100}%
-            </Typography>
-            <Typography className="mt-1" color="muted" type="body-sm">
-              On the first S${formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined
-              balances, with no more than S$
-              {formatNumber(CPF_OA_EXTRA_INTEREST_CAP)} from OA
-            </Typography>
-            <Typography className="mt-2" color="muted" type="body-xs">
-              Max extra interest: S$
-              {(CPF_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE).toFixed(0)}{" "}
-              per year
-            </Typography>
+  return (
+    <section
+      aria-labelledby="cpf-interest-tiers"
+      data-content-block="definition"
+    >
+      <Card>
+        <Card.Header>
+          <Card.Title id="cpf-interest-tiers">
+            CPF Extra Interest: How the Tiers Work
+          </Card.Title>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-4">
+          <Typography>
+            CPF members earn <strong>extra interest</strong> on top of base
+            rates on the first portion of their combined CPF balances.
+          </Typography>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-secondary p-4">
+              <Typography type="body-sm" weight="semibold">
+                Under Age 55
+              </Typography>
+              <Typography type="h3" weight="bold">
+                +{below55.extraPercentagePoints}%
+              </Typography>
+              <Typography color="muted" type="body-sm">
+                On the first S${formatNumber(below55.balanceCap)} of combined
+                balances, with no more than S$
+                {formatNumber(policy.ordinaryAccountCap)} from OA
+              </Typography>
+              <Typography color="muted" type="body-xs">
+                Maximum extra interest at the stated caps: S$
+                {formatNumber(under55Maximum)} a year
+              </Typography>
+            </div>
+            <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-secondary p-4">
+              <Typography type="body-sm" weight="semibold">
+                Age 55 and Above
+              </Typography>
+              <Typography type="h3" weight="bold">
+                +{senior.firstTier.extraPercentagePoints}% then +
+                {senior.secondTier.extraPercentagePoints}%
+              </Typography>
+              <Typography color="muted" type="body-sm">
+                +{senior.firstTier.extraPercentagePoints}% on the first S$
+                {formatNumber(senior.firstTier.balanceCap)}, then +
+                {senior.secondTier.extraPercentagePoints}% on the next S$
+                {formatNumber(senior.secondTier.balanceCap)}
+              </Typography>
+              <Typography color="muted" type="body-xs">
+                Maximum extra interest at the stated caps: S$
+                {formatNumber(seniorMaximum)} a year
+              </Typography>
+            </div>
           </div>
-          <div className="rounded-2xl border border-border bg-surface-secondary p-4">
-            <Typography className="mb-2" type="body-sm" weight="semibold">
-              Age 55 and Above
-            </Typography>
-            <Typography type="h3" weight="bold">
-              +{CPF_EXTRA_INTEREST_RATE * 100}% +{" "}
-              {CPF_EXTRA_INTEREST_RATE * 100}%
-            </Typography>
-            <Typography className="mt-1" color="muted" type="body-sm">
-              Base tier: +{CPF_EXTRA_INTEREST_RATE * 100}% on first S$
-              {formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined balances
-              <br />
-              Senior tier: Additional +{CPF_EXTRA_INTEREST_RATE * 100}% on first
-              S${formatNumber(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)} of combined
-              balances
-            </Typography>
-            <Typography className="mt-2" color="muted" type="body-xs">
-              Max extra interest: S$
-              {(
-                CPF_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE +
-                CPF_ADDITIONAL_SENIOR_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE
-              ).toFixed(0)}{" "}
-              per year
-            </Typography>
-          </div>
-        </div>
 
-        <Typography color="muted" type="body-sm">
-          <strong>Balance order:</strong> CPF Board counts RA first (including
-          any CPF LIFE premium balance), then OA up to S$
-          {formatNumber(CPF_OA_EXTRA_INTEREST_CAP)}, SA, and MA. Extra interest
-          earned on OA goes to SA below 55 or RA from 55; extra interest earned
-          on the other accounts stays in the respective account.
-        </Typography>
+          <Typography color="muted" type="body-sm">
+            <strong>Balance order:</strong> CPF Board counts RA first (including
+            any CPF LIFE premium balance), then OA up to S$
+            {formatNumber(policy.ordinaryAccountCap)}, SA, and MA. Extra
+            interest earned on OA goes to {below55.oaExtraInterestCreditedTo}{" "}
+            below 55 or {senior.oaExtraInterestCreditedTo} from 55; extra
+            interest earned on the other accounts stays in the respective
+            account.
+          </Typography>
 
-        <Typography color="muted" type="body-sm">
-          CPF interest is computed monthly and credited annually. Transactions
-          during a month affect which balances earn interest, so a simple annual
-          percentage multiplication is not always the credited amount.
-        </Typography>
-      </Card.Content>
-    </Card>
-  </section>
-);
+          <Typography color="muted" type="body-sm">
+            CPF interest is computed monthly and credited annually. Transactions
+            during a month affect which balances earn interest, so a simple
+            annual percentage multiplication is not always the credited amount.
+          </Typography>
 
-export default CpfInterestTiersBlock;
+          <Link
+            href={policy.sourceUrls[0]}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            CPF Board extra-interest rules
+            <Link.Icon aria-hidden="true" />
+          </Link>
+        </Card.Content>
+      </Card>
+    </section>
+  );
+}

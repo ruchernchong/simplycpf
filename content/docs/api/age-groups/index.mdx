@@ -21,9 +21,23 @@ interface AgeGroupsResponse {
     description: string;
     minAgeExclusive?: number;
     maxAgeInclusive?: number;
-    retirementAccount: "SA" | "RA";
+    retirementAccount: "SA" | "RA" | "age-dependent";
+    retirementRouting:
+      | { type: "fixed"; account: "SA" | "RA" }
+      | {
+          type: "age-dependent";
+          thresholdAge: 55;
+          belowThresholdAccount: "SA";
+          atOrAboveThresholdAccount: "RA";
+        };
     contributionRate: { employee: number; employer: number };
-    allocationRate: { OA: number; SA?: number; RA?: number; MA: number };
+    allocationRate: {
+      OA: number;
+      SA?: number;
+      RA?: number;
+      retirement?: number;
+      MA: number;
+    };
   }>;
   policy: {
     contribution: PolicyMetadata;
@@ -32,7 +46,7 @@ interface AgeGroupsResponse {
 }
 ```
 
-Following the 2025 SA closure, responses identify `RA` explicitly for members aged 55 and above, including exact age 55. They do not describe that allocation as SA.
+Following the 2025 SA closure, the generic above-50-to-55 allocation band crosses the age-55 boundary. It therefore returns `retirementAccount: "age-dependent"`, a `retirement` allocation rate, and an explicit SA-below-55/RA-from-55 routing object. It does not silently label the whole band SA or RA.
 
 ```bash
 curl "https://simplycpf.com/api/cpf/age-groups?contributionMonth=2026-08&citizenship=citizen"
@@ -40,7 +54,7 @@ curl "https://simplycpf.com/api/cpf/age-groups?contributionMonth=2026-08&citizen
 
 ## GET `/age-group/find`
 
-Supply either completed `age` or `birthMonth`, plus `contributionMonth`. The response flattens the matching group fields and adds `contributionMonth`, `citizenship`, `schedule`, and the same contribution/allocation policy metadata:
+Supply either completed `age` or `birthMonth`, plus `contributionMonth`. The response flattens the matching group fields and adds `contributionMonth`, `citizenship`, `schedule`, and the same contribution/allocation policy metadata. Because the member's age is known, the routing is fixed: an exact age-55 lookup after the SA closure returns `retirementAccount: "RA"` and `allocationRate.RA`.
 
 ```bash
 curl "https://simplycpf.com/api/cpf/age-group/find?birthMonth=1971-08&contributionMonth=2026-08"
@@ -50,6 +64,14 @@ If both age inputs are supplied, or neither is supplied, the API returns `422`. 
 
 ## GET `/age/from-birthdate`
 
-Resolves completed age for a contribution month and indicates whether the month-after-birthday transition has taken effect.
+Use the deterministic v2 query:
+
+```bash
+curl "https://simplycpf.com/api/cpf/age/from-birthdate?birthMonth=1971-08&contributionMonth=2026-08"
+```
+
+The response returns `completedAge`, `ageInMonths`, `isBirthdayMonth`, the contribution and allocation band IDs, the month-after-birthday rule, age-only schedule metadata, provenance, and warnings. Explicit month requests use the 24-hour policy cache.
+
+`birthDate=MM/YYYY` remains a deprecated alias for one compatibility cycle. If that path omits `contributionMonth`, the server uses the current Singapore month, includes legacy `birthDate` and `age` fields plus warnings, and returns `private, no-store` because the result is not deterministic. Invalid combinations return `422`; an unsupported policy month returns `404`.
 
 Source: [CPF Board — Which rate applies when an employee enters the next age group?](https://www.cpf.gov.sg/service/article/which-cpf-contribution-rate-should-be-applied-when-my-employee-enters-the-next-age-group).

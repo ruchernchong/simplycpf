@@ -1,84 +1,409 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import type {
+  AccountBalances,
   CitizenshipStatus,
   OaToSaTransfer,
   ProjectionParams,
+  ProjectionWarning,
+  RetirementRouting,
+  RetirementTransfer,
   VoluntaryTopUp,
 } from "@/types";
 
-interface LegacyProjectionRequest {
-  income?: number;
-  age?: number;
-  years?: number;
-}
-
-interface FullProjectionRequest {
-  monthlyIncome?: number;
-  birthDate?: string;
-  startAge?: number;
-  endAge?: number;
-  housingWithdrawal?: number;
-  voluntaryTopUp?: VoluntaryTopUp;
-  oaToSaTransfer?: OaToSaTransfer;
-  citizenship?: CitizenshipStatus;
-}
-
-type ProjectionRequest = LegacyProjectionRequest & FullProjectionRequest;
-
 const MAX_YEARS = 50;
 
-const citizenshipStatuses: CitizenshipStatus[] = [
-  "citizen",
-  "spr-year1",
-  "spr-year2",
-  "spr-year3-plus",
-];
-const topUpAccounts: VoluntaryTopUp["account"][] = ["SA", "MA", "RA"];
-const topUpFrequencies: VoluntaryTopUp["frequency"][] = ["monthly", "yearly"];
-const transferTimings: OaToSaTransfer["timing"][] = ["now", "yearly"];
+class ProjectionRequestError extends Error {}
 
-function isCitizenshipStatus(value: unknown): value is CitizenshipStatus {
-  return (
-    typeof value === "string" &&
-    citizenshipStatuses.includes(value as CitizenshipStatus)
-  );
+interface NormalisedProjectionRequest {
+  params: ProjectionParams;
+  legacyInput?: Record<string, unknown>;
+  warnings: ProjectionWarning[];
 }
 
-function isTopUpAccount(value: unknown): value is VoluntaryTopUp["account"] {
-  return (
-    typeof value === "string" &&
-    topUpAccounts.includes(value as VoluntaryTopUp["account"])
-  );
-}
+export const POST = async (request: NextRequest): Promise<NextResponse> => {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
+  }
 
-function isTopUpFrequency(
+  try {
+    const normalised = normaliseProjectionRequest(body);
+    const result = calculateCpfProjection(normalised.params);
+    const response = {
+      ...result,
+      warnings: [...result.warnings, ...normalised.warnings],
+      ...(normalised.legacyInput
+        ? {
+            deprecatedInput: normalised.legacyInput,
+            projections: buildLegacyProjections(result),
+          }
+        : {}),
+    };
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error) {
+    if (
+      error instanceof ProjectionRequestError ||
+      error instanceof RangeError
+    ) {
+      return NextResponse.json(
+        { error: error.message, code: "INVALID_INPUT" },
+        { status: 422 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Unable to calculate the CPF projection." },
+      { status: 500 },
+    );
+  }
+};
+
+function normaliseProjectionRequest(
   value: unknown,
-): value is VoluntaryTopUp["frequency"] {
-  return (
-    typeof value === "string" &&
-    topUpFrequencies.includes(value as VoluntaryTopUp["frequency"])
+): NormalisedProjectionRequest {
+  if (!isRecord(value)) {
+    throw invalid("Request body must be a JSON object.");
+  }
+
+  const usesLegacyEnvelope =
+    value.income !== undefined ||
+    value.age !== undefined ||
+    value.years !== undefined;
+  return usesLegacyEnvelope
+    ? normaliseLegacyRequest(value)
+    : normaliseModernRequest(value);
+}
+
+function normaliseLegacyRequest(
+  value: Record<string, unknown>,
+): NormalisedProjectionRequest {
+  const income = requiredNonNegativeNumber(value.income, "income");
+  const age = requiredWholeNumber(value.age, "age", 0);
+  const years = requiredWholeNumber(value.years, "years", 1);
+  if (years > MAX_YEARS) {
+    throw invalid(`Maximum ${MAX_YEARS} years allowed.`);
+  }
+
+  const startMonth = optionalString(value.startMonth, "startMonth");
+  const effectiveStartMonth = startMonth ?? currentMonth();
+  const birthDate =
+    optionalString(value.birthDate, "birthDate") ??
+    birthDateForCompletedAge(age, effectiveStartMonth);
+  const citizenship = parseCitizenship(value.citizenship, true);
+  const enhancements = parseEnhancements(value);
+  const params: ProjectionParams = {
+    monthlyIncome: income,
+    birthDate,
+    ...(startMonth ? { startMonth } : {}),
+    startAge: age,
+    endAge: age + years - 1,
+    citizenship,
+    ...enhancements,
+  };
+
+  return {
+    params,
+    legacyInput: { income, age, years },
+    warnings: [
+      {
+        code: "legacy-projection-input",
+        message:
+          "income, age and years are deprecated projection fields. Migrate to monthlyIncome, birthDate, startMonth, initialBalances and endAge.",
+      },
+    ],
+  };
+}
+
+function normaliseModernRequest(
+  value: Record<string, unknown>,
+): NormalisedProjectionRequest {
+  const monthlyIncome = requiredNonNegativeNumber(
+    value.monthlyIncome,
+    "monthlyIncome",
   );
+  const startMonth = optionalString(value.startMonth, "startMonth");
+  const hasInitialBalances = value.initialBalances !== undefined;
+  if ((startMonth === undefined) !== !hasInitialBalances) {
+    throw invalid(
+      "startMonth and initialBalances must be supplied together for the v2 request.",
+    );
+  }
+
+  const initialBalances = hasInitialBalances
+    ? parseBalances(value.initialBalances)
+    : undefined;
+  const startAge = optionalWholeNumber(value.startAge, "startAge", 0);
+  const birthDateValue = optionalString(value.birthDate, "birthDate");
+  if (!birthDateValue && startAge === undefined) {
+    throw invalid("birthDate is required for v2 requests.");
+  }
+  const effectiveStartMonth = startMonth ?? currentMonth();
+  const birthDate =
+    birthDateValue ??
+    birthDateForCompletedAge(startAge ?? 0, effectiveStartMonth);
+  const endAge = optionalWholeNumber(value.endAge, "endAge", 0);
+  if (startAge !== undefined && endAge !== undefined && endAge < startAge) {
+    throw invalid("endAge must be greater than or equal to startAge.");
+  }
+  if (
+    startAge !== undefined &&
+    endAge !== undefined &&
+    endAge - startAge + 1 > MAX_YEARS
+  ) {
+    throw invalid(`Maximum ${MAX_YEARS} years allowed.`);
+  }
+
+  const citizenship = parseCitizenship(value.citizenship, false);
+  const enhancements = parseEnhancements(value);
+  const usesCompatibilityDefaults =
+    startMonth === undefined && initialBalances === undefined;
+  const warnings: ProjectionWarning[] = [];
+  if (usesCompatibilityDefaults || !birthDateValue) {
+    warnings.push({
+      code: "legacy-projection-input",
+      message:
+        "This compatibility request omitted v2 starting context. Add birthDate, startMonth and initialBalances; zero balances or an inferred birth month are not complete personal data.",
+    });
+  }
+
+  return {
+    params: {
+      monthlyIncome,
+      birthDate,
+      ...(startMonth ? { startMonth } : {}),
+      ...(initialBalances ? { initialBalances } : {}),
+      ...(startAge === undefined ? {} : { startAge }),
+      ...(endAge === undefined ? {} : { endAge }),
+      citizenship,
+      ...enhancements,
+    },
+    warnings,
+  };
 }
 
-function isTransferTiming(value: unknown): value is OaToSaTransfer["timing"] {
-  return (
-    typeof value === "string" &&
-    transferTimings.includes(value as OaToSaTransfer["timing"])
+function parseEnhancements(
+  value: Record<string, unknown>,
+): Pick<
+  ProjectionParams,
+  | "housingWithdrawal"
+  | "voluntaryTopUp"
+  | "retirementTransfer"
+  | "oaToSaTransfer"
+  | "retirementRouting"
+  | "permanentResidentSince"
+  | "netSaSavingsWithdrawnForInvestments"
+> {
+  const housingWithdrawal = optionalNonNegativeNumber(
+    value.housingWithdrawal,
+    "housingWithdrawal",
   );
+  const voluntaryTopUp = parseVoluntaryTopUp(value.voluntaryTopUp);
+  const retirementTransfer = parseRetirementTransfer(value.retirementTransfer);
+  const oaToSaTransfer = parseLegacyTransfer(value.oaToSaTransfer);
+  if (retirementTransfer && oaToSaTransfer) {
+    throw invalid(
+      "Supply retirementTransfer or the deprecated oaToSaTransfer, not both.",
+    );
+  }
+  const retirementRouting = parseRetirementRouting(value.retirementRouting);
+  const permanentResidentSince = optionalString(
+    value.permanentResidentSince,
+    "permanentResidentSince",
+  );
+  const netSaSavingsWithdrawnForInvestments = optionalNonNegativeNumber(
+    value.netSaSavingsWithdrawnForInvestments,
+    "netSaSavingsWithdrawnForInvestments",
+  );
+
+  return {
+    ...(housingWithdrawal === undefined ? {} : { housingWithdrawal }),
+    ...(voluntaryTopUp ? { voluntaryTopUp } : {}),
+    ...(retirementTransfer ? { retirementTransfer } : {}),
+    ...(oaToSaTransfer ? { oaToSaTransfer } : {}),
+    ...(retirementRouting ? { retirementRouting } : {}),
+    ...(permanentResidentSince ? { permanentResidentSince } : {}),
+    ...(netSaSavingsWithdrawnForInvestments === undefined
+      ? {}
+      : { netSaSavingsWithdrawnForInvestments }),
+  };
 }
 
-function isNonNegativeNumber(value: unknown): value is number {
-  return typeof value === "number" && value >= 0;
+function parseBalances(value: unknown): AccountBalances {
+  if (!isRecord(value)) {
+    throw invalid("initialBalances must be an object.");
+  }
+  return {
+    oa: requiredNonNegativeNumber(value.oa, "initialBalances.oa"),
+    sa: requiredNonNegativeNumber(value.sa, "initialBalances.sa"),
+    ma: requiredNonNegativeNumber(value.ma, "initialBalances.ma"),
+    ra: requiredNonNegativeNumber(value.ra, "initialBalances.ra"),
+  };
 }
 
-function isPositiveNumber(value: unknown): value is number {
-  return typeof value === "number" && value > 0;
+function parseVoluntaryTopUp(value: unknown): VoluntaryTopUp | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) throw invalid("voluntaryTopUp must be an object.");
+
+  const amount = requiredPositiveNumber(value.amount, "voluntaryTopUp.amount");
+  const account = value.account;
+  if (
+    account !== "retirement" &&
+    account !== "MA" &&
+    account !== "SA" &&
+    account !== "RA"
+  ) {
+    throw invalid("voluntaryTopUp.account must be retirement, MA, SA, or RA.");
+  }
+  const frequency = value.frequency;
+  if (frequency !== "monthly" && frequency !== "yearly") {
+    throw invalid("voluntaryTopUp.frequency must be monthly or yearly.");
+  }
+  return { amount, account, frequency };
+}
+
+function parseRetirementTransfer(
+  value: unknown,
+): RetirementTransfer | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) throw invalid("retirementTransfer must be an object.");
+
+  const amount = requiredPositiveNumber(
+    value.amount,
+    "retirementTransfer.amount",
+  );
+  const timing = value.timing;
+  if (timing !== "now" && timing !== "monthly" && timing !== "yearly") {
+    throw invalid("retirementTransfer.timing must be now, monthly, or yearly.");
+  }
+  return { amount, timing };
+}
+
+function parseLegacyTransfer(value: unknown): OaToSaTransfer | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) throw invalid("oaToSaTransfer must be an object.");
+
+  const amount = requiredPositiveNumber(value.amount, "oaToSaTransfer.amount");
+  const timing = value.timing;
+  if (timing !== "now" && timing !== "yearly") {
+    throw invalid("oaToSaTransfer.timing must be now or yearly.");
+  }
+  return { amount, timing };
+}
+
+function parseRetirementRouting(value: unknown): RetirementRouting | undefined {
+  if (value === undefined) return undefined;
+  if (
+    value !== "full-retirement-sum" &&
+    value !== "basic-retirement-sum-with-property"
+  ) {
+    throw invalid(
+      "retirementRouting must be full-retirement-sum or basic-retirement-sum-with-property.",
+    );
+  }
+  return value;
+}
+
+function parseCitizenship(
+  value: unknown,
+  allowDefault: boolean,
+): CitizenshipStatus {
+  if (value === undefined && allowDefault) return "citizen";
+  if (
+    value !== "citizen" &&
+    value !== "spr-year1" &&
+    value !== "spr-year2" &&
+    value !== "spr-year3-plus"
+  ) {
+    throw invalid(
+      "citizenship must be citizen, spr-year1, spr-year2, or spr-year3-plus.",
+    );
+  }
+  return value;
+}
+
+function birthDateForCompletedAge(age: number, startMonth: string): string {
+  const match = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(startMonth);
+  if (!match) throw invalid("startMonth must be in YYYY-MM format.");
+  return `${match[2]}/${Number(match[1]) - age}`;
+}
+
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function requiredNonNegativeNumber(value: unknown, field: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    throw invalid(`${field} must be a non-negative number.`);
+  }
+  return value;
+}
+
+function optionalNonNegativeNumber(
+  value: unknown,
+  field: string,
+): number | undefined {
+  if (value === undefined) return undefined;
+  return requiredNonNegativeNumber(value, field);
+}
+
+function requiredPositiveNumber(value: unknown, field: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    throw invalid(`${field} must be a positive number.`);
+  }
+  return value;
+}
+
+function requiredWholeNumber(
+  value: unknown,
+  field: string,
+  minimum: number,
+): number {
+  if (
+    !Number.isInteger(value) ||
+    typeof value !== "number" ||
+    value < minimum
+  ) {
+    throw invalid(`${field} must be a whole number of at least ${minimum}.`);
+  }
+  return value;
+}
+
+function optionalWholeNumber(
+  value: unknown,
+  field: string,
+  minimum: number,
+): number | undefined {
+  if (value === undefined) return undefined;
+  return requiredWholeNumber(value, field, minimum);
+}
+
+function optionalString(value: unknown, field: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || value.length === 0) {
+    throw invalid(`${field} must be a non-empty string.`);
+  }
+  return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function invalid(message: string): ProjectionRequestError {
+  return new ProjectionRequestError(message);
 }
 
 function buildLegacyProjections(
   result: ReturnType<typeof calculateCpfProjection>,
-) {
+): Array<Record<string, unknown>> {
   let cumulativeEmployee = 0;
   let cumulativeEmployer = 0;
   let cumulativeTotal = 0;
@@ -87,7 +412,6 @@ function buildLegacyProjections(
     cumulativeEmployee += entry.contributions.employee;
     cumulativeEmployer += entry.contributions.employer;
     cumulativeTotal += entry.contributions.total;
-
     return {
       year: entry.year,
       age: entry.age,
@@ -105,233 +429,3 @@ function buildLegacyProjections(
     };
   });
 }
-
-function validateTopUp(topUp: unknown): string | null {
-  if (topUp === undefined) {
-    return null;
-  }
-
-  if (typeof topUp !== "object" || topUp === null) {
-    return "voluntaryTopUp must be an object";
-  }
-
-  const candidate = topUp as Partial<VoluntaryTopUp>;
-
-  if (!isPositiveNumber(candidate.amount)) {
-    return "voluntaryTopUp.amount must be a positive number";
-  }
-
-  if (!isTopUpAccount(candidate.account)) {
-    return "voluntaryTopUp.account must be SA, MA, or RA";
-  }
-
-  if (!isTopUpFrequency(candidate.frequency)) {
-    return "voluntaryTopUp.frequency must be monthly or yearly";
-  }
-
-  return null;
-}
-
-function validateTransfer(transfer: unknown): string | null {
-  if (transfer === undefined) {
-    return null;
-  }
-
-  if (typeof transfer !== "object" || transfer === null) {
-    return "oaToSaTransfer must be an object";
-  }
-
-  const candidate = transfer as Partial<OaToSaTransfer>;
-
-  if (!isPositiveNumber(candidate.amount)) {
-    return "oaToSaTransfer.amount must be a positive number";
-  }
-
-  if (!isTransferTiming(candidate.timing)) {
-    return "oaToSaTransfer.timing must be now or yearly";
-  }
-
-  return null;
-}
-
-function normalizeProjectionRequest(body: ProjectionRequest):
-  | {
-      projectionParams: ProjectionParams;
-      responseInput: Record<string, unknown>;
-    }
-  | { error: string } {
-  const usingLegacyFields =
-    body.income !== undefined ||
-    body.age !== undefined ||
-    body.years !== undefined;
-
-  if (usingLegacyFields) {
-    if (body.income === undefined || body.income === null) {
-      return { error: "income is required" };
-    }
-
-    if (!isNonNegativeNumber(body.income)) {
-      return { error: "income must be a non-negative number" };
-    }
-
-    if (body.age === undefined || body.age === null) {
-      return { error: "age is required" };
-    }
-
-    if (!isNonNegativeNumber(body.age)) {
-      return { error: "age must be a non-negative number" };
-    }
-
-    if (body.years === undefined || body.years === null) {
-      return { error: "years is required" };
-    }
-
-    if (!isPositiveNumber(body.years)) {
-      return { error: "years must be a positive number" };
-    }
-
-    if (body.years > MAX_YEARS) {
-      return { error: `Maximum ${MAX_YEARS} years allowed` };
-    }
-
-    return {
-      projectionParams: {
-        monthlyIncome: body.income,
-        birthDate: body.birthDate ?? "",
-        startAge: body.age,
-        endAge: body.age + body.years - 1,
-        housingWithdrawal: body.housingWithdrawal,
-        voluntaryTopUp: body.voluntaryTopUp,
-        oaToSaTransfer: body.oaToSaTransfer,
-        citizenship: body.citizenship ?? "citizen",
-      },
-      responseInput: {
-        income: body.income,
-        age: body.age,
-        years: body.years,
-      },
-    };
-  }
-
-  if (body.monthlyIncome === undefined || body.monthlyIncome === null) {
-    return { error: "monthlyIncome is required" };
-  }
-
-  if (!isNonNegativeNumber(body.monthlyIncome)) {
-    return { error: "monthlyIncome must be a non-negative number" };
-  }
-
-  if (body.startAge !== undefined && !isNonNegativeNumber(body.startAge)) {
-    return { error: "startAge must be a non-negative number" };
-  }
-
-  if (body.endAge !== undefined && !isPositiveNumber(body.endAge)) {
-    return { error: "endAge must be a positive number" };
-  }
-
-  if (
-    body.startAge === undefined &&
-    (body.birthDate === undefined || body.birthDate.length === 0)
-  ) {
-    return { error: "birthDate or startAge is required" };
-  }
-
-  if (
-    body.startAge !== undefined &&
-    body.endAge !== undefined &&
-    body.endAge < body.startAge
-  ) {
-    return { error: "endAge must be greater than or equal to startAge" };
-  }
-
-  if (
-    body.startAge !== undefined &&
-    body.endAge !== undefined &&
-    body.endAge - body.startAge + 1 > MAX_YEARS
-  ) {
-    return { error: `Maximum ${MAX_YEARS} years allowed` };
-  }
-
-  if (
-    body.housingWithdrawal !== undefined &&
-    !isNonNegativeNumber(body.housingWithdrawal)
-  ) {
-    return { error: "housingWithdrawal must be a non-negative number" };
-  }
-
-  if (
-    body.citizenship !== undefined &&
-    !isCitizenshipStatus(body.citizenship)
-  ) {
-    return {
-      error:
-        "citizenship must be citizen, spr-year1, spr-year2, or spr-year3-plus",
-    };
-  }
-
-  const topUpError = validateTopUp(body.voluntaryTopUp);
-  if (topUpError) {
-    return { error: topUpError };
-  }
-
-  const transferError = validateTransfer(body.oaToSaTransfer);
-  if (transferError) {
-    return { error: transferError };
-  }
-
-  return {
-    projectionParams: {
-      monthlyIncome: body.monthlyIncome,
-      birthDate: body.birthDate ?? "",
-      ...(body.startAge !== undefined ? { startAge: body.startAge } : {}),
-      ...(body.endAge !== undefined ? { endAge: body.endAge } : {}),
-      ...(body.housingWithdrawal !== undefined
-        ? { housingWithdrawal: body.housingWithdrawal }
-        : {}),
-      ...(body.voluntaryTopUp ? { voluntaryTopUp: body.voluntaryTopUp } : {}),
-      ...(body.oaToSaTransfer ? { oaToSaTransfer: body.oaToSaTransfer } : {}),
-      citizenship: body.citizenship ?? "citizen",
-    },
-    responseInput: {
-      monthlyIncome: body.monthlyIncome,
-      ...(body.birthDate ? { birthDate: body.birthDate } : {}),
-      ...(body.startAge !== undefined ? { startAge: body.startAge } : {}),
-      ...(body.endAge !== undefined ? { endAge: body.endAge } : {}),
-      ...(body.housingWithdrawal !== undefined
-        ? { housingWithdrawal: body.housingWithdrawal }
-        : {}),
-      ...(body.voluntaryTopUp ? { voluntaryTopUp: body.voluntaryTopUp } : {}),
-      ...(body.oaToSaTransfer ? { oaToSaTransfer: body.oaToSaTransfer } : {}),
-      citizenship: body.citizenship ?? "citizen",
-    },
-  };
-}
-
-export const POST = async (request: NextRequest): Promise<NextResponse> => {
-  try {
-    const body: ProjectionRequest = await request.json();
-    const normalized = normalizeProjectionRequest(body);
-
-    if ("error" in normalized) {
-      return NextResponse.json({ error: normalized.error }, { status: 400 });
-    }
-
-    const result = calculateCpfProjection(normalized.projectionParams);
-    const projections = buildLegacyProjections(result);
-
-    return NextResponse.json(
-      {
-        ...result,
-        input: normalized.responseInput,
-        projectionInput: result.input,
-        projections,
-      },
-      { status: 200 },
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 },
-    );
-  }
-};

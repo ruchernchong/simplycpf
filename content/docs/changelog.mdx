@@ -18,12 +18,15 @@ description: SimplyCPF API compatibility and policy-data changes
 - Implemented the official S$50/S$500/S$750 wage bands, month-after-birthday transition, integer-cent calculation, contribution rounding, employee-share truncation, and employer-as-remainder rules.
 - Responses now identify the wage band, effective schedule, post-55 RA routing branches, warnings, and provenance.
 - Age bands use inclusive `maxAgeInclusive` bounds. RA is returned explicitly after the 2025 SA closure.
+- Generic bands that cross age 55 now expose age-dependent SA-to-RA routing; exact lookups resolve a fixed destination.
+- `/age/from-birthdate` now accepts deterministic `birthMonth` plus `contributionMonth` and returns complete CPF transition context.
 
 ### Projection and CPF LIFE
 
 - Replaced annual shortcuts with a monthly ledger and required `startMonth` plus starting OA, SA, MA, and RA balances for new clients.
 - Added per-year policy status and explicit fixed-salary, floor-interest, retirement-routing, and frozen-future-policy assumptions.
 - Replaced OA-to-SA-only transfers with age-aware `retirementTransfer`.
+- Added `permanentResidentSince` for SPR anniversary transitions and `netSaSavingsWithdrawnForInvestments` for under-55 top-up/transfer capacity.
 - Removed SimplyCPF's personalised CPF LIFE estimate. `cpfLifeReference` now contains CPF Board's exact 2026 male Standard Plan rows; deprecated `cpfLifeEstimate` is always `null`.
 
 ### Interest rates
@@ -38,6 +41,9 @@ Accepted for one release cycle, with migration warnings:
 
 - `income` → `ordinaryWages`
 - `date` → `contributionMonth`
+- projection `income`, `age`, and `years` → the v2 monthly projection fields
+- projection `startAge` → exact `birthDate`
+- age utility `birthDate=MM/YYYY` → `birthMonth=YYYY-MM` plus `contributionMonth=YYYY-MM`
 - `oaToSaTransfer` → `retirementTransfer`
 - `sgsYield` → `averageSgsYield`
 

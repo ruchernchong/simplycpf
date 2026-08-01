@@ -11,13 +11,6 @@ interface ParsedContributionRequest {
   warnings: ContributionWarning[];
 }
 
-const CITIZENSHIP_VALUES = new Set<ContributionCitizenship>([
-  "citizen",
-  "spr-year1",
-  "spr-year2",
-  "spr-year3-plus",
-]);
-
 export function parseContributionRequest(
   value: unknown,
 ): ParsedContributionRequest {
@@ -42,14 +35,17 @@ export function parseContributionRequest(
   const citizenship = value.citizenship;
   if (
     typeof citizenship !== "string" ||
-    !CITIZENSHIP_VALUES.has(citizenship as ContributionCitizenship)
+    !isContributionCitizenship(citizenship)
   ) {
     throw invalid(
       "citizenship must be citizen, spr-year1, spr-year2, or spr-year3-plus.",
     );
   }
 
-  const additionalWages = optionalNumber(value.additionalWages, "additionalWages");
+  const additionalWages = optionalNumber(
+    value.additionalWages,
+    "additionalWages",
+  );
   const additionalWageCeilingContext = parseAdditionalWageContext(
     value.additionalWageCeilingContext,
   );
@@ -110,8 +106,7 @@ function parseAdditionalWageContext(
     throw invalid("additionalWageCeilingContext must be an object.");
   }
 
-  const annualOrdinaryWagesSubjectToCpf =
-    value.annualOrdinaryWagesSubjectToCpf;
+  const annualOrdinaryWagesSubjectToCpf = value.annualOrdinaryWagesSubjectToCpf;
   const priorAdditionalWagesSubjectToCpf =
     value.priorAdditionalWagesSubjectToCpf;
   if (
@@ -143,6 +138,17 @@ function optionalBoolean(value: unknown, field: string): boolean | undefined {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isContributionCitizenship(
+  value: string,
+): value is ContributionCitizenship {
+  return (
+    value === "citizen" ||
+    value === "spr-year1" ||
+    value === "spr-year2" ||
+    value === "spr-year3-plus"
+  );
 }
 
 function invalid(message: string): ContributionPolicyError {

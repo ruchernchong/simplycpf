@@ -17,9 +17,9 @@ All endpoints are served below `https://simplycpf.com/api/cpf`. Policy responses
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/age-groups` | Official bands with inclusive upper bounds |
-| GET | `/age-group/find` | Month-aware band lookup |
-| GET | `/age/from-birthdate` | Resolve completed age for a contribution month |
+| GET | `/age-groups` | Official bands with inclusive bounds and explicit age-dependent routing |
+| GET | `/age-group/find` | Exact month-aware band and fixed SA/RA destination |
+| GET | `/age/from-birthdate` | Resolve age and CPF transition context for two months |
 
 ## Official policy reference
 

@@ -35,9 +35,16 @@ export const GET = async (request: Request): Promise<NextResponse> => {
       searchParams.get("age"),
       searchParams.get("birthMonth"),
     );
-    const { ageGroup, ageGroups: _, ...context } = findPolicyAgeGroup(input);
+    const resolved = findPolicyAgeGroup(input);
     return NextResponse.json(
-      { ...ageGroup, completedAge: context.completedAge, ...context },
+      {
+        ...resolved.ageGroup,
+        completedAge: resolved.completedAge,
+        contributionMonth: resolved.contributionMonth,
+        citizenship: resolved.citizenship,
+        schedule: resolved.schedule,
+        policy: resolved.policy,
+      },
       { status: 200, headers: CACHE_HEADERS.policy },
     );
   } catch (error) {

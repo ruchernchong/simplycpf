@@ -23,6 +23,7 @@ import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
 import { findAgeGroup } from "@/lib/find-age-group";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 import {
   selectAgeGroup,
   selectLatestIncomeCeilingDate,
@@ -41,13 +42,6 @@ const citizenshipOptions: { id: CitizenshipStatus; label: string }[] = [
   { id: "spr-year3-plus", label: "PR 3rd+" },
 ];
 
-const accountMeta: Record<string, { note: string; fill: string }> = {
-  OA: { note: "housing, loans · 2.50%", fill: "bg-chart-1" },
-  SA: { note: "retirement · 4.00%", fill: "bg-chart-2" },
-  RA: { note: "retirement · 4.00%", fill: "bg-chart-2" },
-  MA: { note: "healthcare · 4.00%", fill: "bg-chart-3" },
-};
-
 function currency(value: number): string {
   return formatCurrency(value, 0);
 }
@@ -65,6 +59,27 @@ export function HomeHero() {
   );
   const storeAgeGroup = useCpfStore(selectAgeGroup);
   const ceilingDate = useCpfStore(selectLatestIncomeCeilingDate);
+  const schedule = resolveContributionSchedule(ceilingDate).schedule;
+  const interest = CPF_POLICY_CATALOGUE.interestRateMethodology;
+  const lifecycleAges = CPF_POLICY_CATALOGUE.rules.lifecycleAges;
+  const accountMeta: Record<string, { note: string; fill: string }> = {
+    OA: {
+      note: `housing, loans · ${interest.ordinaryAccount.floorRate.toFixed(2)}% floor`,
+      fill: "bg-chart-1",
+    },
+    SA: {
+      note: `retirement · ${interest.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}% floor`,
+      fill: "bg-chart-2",
+    },
+    RA: {
+      note: `retirement · ${interest.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}% floor`,
+      fill: "bg-chart-2",
+    },
+    MA: {
+      note: `healthcare · ${interest.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}% floor`,
+      fill: "bg-chart-3",
+    },
+  };
 
   const setIncome = useCpfStore((state) => state.setIncome);
   const setBirthDate = useCpfStore((state) => state.setBirthDate);
@@ -82,27 +97,37 @@ export function HomeHero() {
   const gross = hasIncome ? monthlyGrossIncome : EXAMPLE_INCOME;
   const isExample = !(hasBirthDate && hasIncome);
 
-  const result = calculateCpfContribution(gross, ceilingDate, { ageGroup });
+  const result = calculateCpfContribution({
+    contributionMonth: ceilingDate,
+    ordinaryWages: gross,
+    citizenship: mounted ? citizenshipStatus : "citizen",
+    age,
+  });
   const { employee, employer, totalContribution } = result.contribution;
   const takeHome = result.afterCpfContribution;
   const totalPackage = gross + employer;
 
-  const accounts = Object.entries(result.distribution).map(([name, value]) => {
-    const key = name === "SA" && age >= 55 ? "RA" : name;
-    return { key, value, ...accountMeta[key] };
-  });
+  const accounts = Object.entries(result.distribution).map(([key, value]) => ({
+    key,
+    value,
+    ...accountMeta[key],
+  }));
 
   return (
     <section className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr]">
       <div className="flex flex-col gap-6">
-        <Eyebrow withDot>Updated for 1 Jan 2026 rates</Eyebrow>
+        <Eyebrow withDot>
+          Updated for the {schedule.effectiveFrom.slice(0, 4)} schedule
+        </Eyebrow>
         <Typography className="text-balance" type="h1">
           Five questions about CPF, answered in plain English.
         </Typography>
         <Typography className="max-w-[47ch] text-pretty" color="muted">
-          Where this month&rsquo;s money went. What happens at 55. What a flat
-          really costs your OA. What arrives every month at 65. No sign-up, no
-          jargon, no advice, just the arithmetic, with every assumption shown.
+          Where this month&rsquo;s money went. What happens at{" "}
+          {lifecycleAges.retirementAccountCreated}. What a flat really costs
+          your OA. What can arrive every month from{" "}
+          {lifecycleAges.cpfLifePayoutEligibility}. No sign-up, no jargon, no
+          advice, just the arithmetic, with every assumption shown.
         </Typography>
 
         <div className="flex flex-col gap-4 sm:flex-row">

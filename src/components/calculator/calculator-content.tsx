@@ -6,6 +6,7 @@ import { useCpfStore } from "@/hooks/use-cpf-store";
 import {
   selectAge,
   selectAgeGroup,
+  selectCitizenshipStatus,
   selectFormStep,
   selectLatestIncomeCeilingDate,
   selectMonthlyGrossIncome,
@@ -22,6 +23,7 @@ function CalculatorContent() {
   const income = useCpfStore(selectMonthlyGrossIncome);
   const age = useCpfStore(selectAge);
   const ageGroup = useCpfStore(selectAgeGroup);
+  const citizenship = useCpfStore(selectCitizenshipStatus);
 
   useEffect(() => {
     setIsMounted(true);
@@ -36,10 +38,19 @@ function CalculatorContent() {
       income,
       age,
       ageGroup,
+      citizenship,
       ceilingDate,
       isIllustrative: false,
     });
-  }, [isMounted, formStep, income, age, ageGroup, ceilingDate]);
+  }, [
+    isMounted,
+    formStep,
+    income,
+    age,
+    ageGroup,
+    citizenship,
+    ceilingDate,
+  ]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">

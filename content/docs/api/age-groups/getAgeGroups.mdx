@@ -1,8 +1,9 @@
 ---
 title: List official age bands
 description: >-
-  Returns sourced age bands with `maxAgeInclusive`. From 2025, members aged 55
-  and above have RA rather than SA. Rates still depend on contribution month and
+  Returns sourced age bands with `maxAgeInclusive`. From 2025, a generic band
+  that crosses age 55 exposes explicit age-dependent SA-to-RA routing; an exact
+  lookup resolves age 55 to RA. Rates still depend on contribution month and
   citizenship; use `/calculate` for an exact result.
 full: true
 _openapi:
@@ -12,8 +13,9 @@ _openapi:
     headings: []
     contents:
       - content: >-
-          Returns sourced age bands with `maxAgeInclusive`. From 2025, members
-          aged 55 and above have RA rather than SA. Rates still depend on
+          Returns sourced age bands with `maxAgeInclusive`. From 2025, a generic
+          band that crosses age 55 exposes explicit age-dependent SA-to-RA
+          routing; an exact lookup resolves age 55 to RA. Rates still depend on
           contribution month and citizenship; use `/calculate` for an exact
           result.
 ---

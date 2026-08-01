@@ -12,10 +12,10 @@ import {
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/section-header";
-import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import {
   selectAge,
   selectBirthDate,
@@ -24,10 +24,17 @@ import {
 } from "@/stores/selectors";
 import type { ProjectionResult } from "@/types";
 
+const retirementAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+const payoutEligibilityAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
+const interest = CPF_POLICY_CATALOGUE.interestRateMethodology;
+const closure = CPF_POLICY_CATALOGUE.rules.specialAccountClosure;
+
 const PAGE_HEADER = {
-  eyebrow: "At 55",
+  eyebrow: `At ${retirementAge}`,
   title: "Your Special Account closes. Here is where the money goes.",
-  lede: "The CPF Board closed the Special Accounts of about 1.4 million members aged 55 and above on 19 January 2025. If you turn 55 after that date, it happens on your birthday. Nothing is taken away, it moves, and the two destinations behave differently.",
+  lede: `CPF Board's Special Account closure took effect on ${closure.effectiveDate}. From age ${retirementAge}, retirement savings route to RA up to the applicable limit and then OA; the destinations have different uses and rates.`,
 } as const;
 
 interface At55Figures {
@@ -40,6 +47,7 @@ interface At55Figures {
   fromSa: number;
   fromOa: number;
   total: number;
+  retirementPolicyStatus: "official" | "assumed";
 }
 
 /**
@@ -54,11 +62,14 @@ function deriveFigures(
   year55: number,
 ): At55Figures | null {
   const dayBeforeEntry = projection.yearlyBalances
-    .filter((entry) => entry.age < 55)
+    .filter((entry) => entry.age < retirementAge)
     .at(-1);
-  if (!dayBeforeEntry) return null;
+  const age55Entry = projection.yearlyBalances.find(
+    (entry) => entry.age === retirementAge,
+  );
+  if (!dayBeforeEntry || !age55Entry) return null;
 
-  const { brs, frs, ers } = getRetirementSumsForYear(year55);
+  const { brs, frs, ers } = age55Entry.retirementSums;
   const { oa, sa, ma } = dayBeforeEntry.balances;
 
   const fromSa = Math.min(sa, frs);
@@ -76,6 +87,7 @@ function deriveFigures(
     fromSa,
     fromOa,
     total: oa + sa + ma,
+    retirementPolicyStatus: age55Entry.policy.retirementSums.status,
   };
 }
 
@@ -163,7 +175,7 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
           Your projected balances the day before, and the day after
         </Card.Title>
         <Typography color="muted" type="body-xs">
-          You turn 55 in {figures.year55} · FRS for that cohort{" "}
+          You turn {retirementAge} in {figures.year55} · FRS used{" "}
           {money(figures.frs)}
         </Typography>
       </Card.Header>
@@ -171,7 +183,7 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
         <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex flex-col gap-4">
             <Typography color="muted" type="body-xs">
-              Day before · age 54
+              Day before · age {retirementAge - 1}
             </Typography>
             <AccountRow
               amount={figures.dayBefore.sa}
@@ -192,18 +204,18 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
           <MovesDivider />
           <div className="flex flex-col gap-4">
             <Typography className="text-accent" type="body-xs">
-              Day after · age 55
+              Day after · age {retirementAge}
             </Typography>
             <AccountRow
               highlight
               amount={figures.dayAfter.ra}
-              body={`Filled to your Full Retirement Sum, ${money(figures.fromSa)} from SA first, then ${money(figures.fromOa)} from OA. Keeps earning 4.00%. Locked until payouts.`}
+              body={`Filled towards the Full Retirement Sum used by this scenario: ${money(figures.fromSa)} from SA first, then ${money(figures.fromOa)} from OA. The published RA floor is ${interest.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}%; funds are reserved for retirement payouts, subject to CPF withdrawal rules.`}
               code="RA"
               label="Retirement Account · new"
             />
             <AccountRow
               amount={figures.dayAfter.oa}
-              body="Everything left over, including former SA savings above the FRS. Earns 2.50%. Withdrawable on demand from 55."
+              body={`Everything left over, including former SA savings above the FRS. The published OA floor is ${interest.ordinaryAccount.floorRate.toFixed(2)}%; withdrawal eligibility depends on CPF's age and set-aside rules.`}
               code="OA"
               label="Ordinary Account"
             />
@@ -219,8 +231,11 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
             Nothing is lost in the move: the same {money(figures.total)} is
             still yours. What changes is the interest rate on each part and when
             you can reach it, {money(figures.dayAfter.ra)} is committed to
-            payouts at 4.00%, and {money(figures.dayAfter.oa)} sits in OA at
-            2.50%, withdrawable whenever you want it.
+            retirement savings at a published floor of{" "}
+            {interest.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}%,
+            while {money(figures.dayAfter.oa)} sits in OA at a published floor
+            of {interest.ordinaryAccount.floorRate.toFixed(2)}%. Access to
+            either amount remains subject to CPF withdrawal rules.
           </Typography>
         </Surface>
       </Card.Content>
@@ -232,22 +247,22 @@ const CHANGE_NOTES = [
   {
     tone: "accent" as const,
     lead: "Changed:",
-    text: "savings that can be withdrawn on demand now earn the short-term rate. That is the stated reason for closing the SA at 55.",
+    text: `savings above the retirement set-aside move to OA and earn its applicable rate. That is the stated reason for closing SA from age ${retirementAge}.`,
   },
   {
     tone: "accent" as const,
     lead: "Changed:",
-    text: "new contributions after 55 no longer go to an SA. They go to OA, MA and RA.",
+    text: `new contributions from age ${retirementAge} no longer go to SA. They route among OA, MA and RA under the applicable allocation table.`,
   },
   {
     tone: "chart-3" as const,
     lead: "Unchanged:",
-    text: "your total balance, your FRS requirement, and your payout eligibility age of 65.",
+    text: `the money remains in your CPF accounts, while payout eligibility remains from age ${payoutEligibilityAge}.`,
   },
   {
     tone: "chart-3" as const,
     lead: "Unchanged:",
-    text: "members below 55 still have an SA earning the long-term rate.",
+    text: `members below age ${retirementAge} still have an SA earning the applicable long-term rate.`,
   },
 ];
 
@@ -288,6 +303,8 @@ function ChangedCard(): ReactNode {
 }
 
 function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
+  const frsMultiple = Math.round(figures.frs / figures.brs);
+  const ersMultiple = Math.round(figures.ers / figures.brs);
   const rows = [
     {
       code: "BRS",
@@ -298,13 +315,13 @@ function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
     {
       code: "FRS",
       amount: figures.frs,
-      note: "Full, the default set-aside, 2 × BRS",
+      note: `Full, the default set-aside, ${frsMultiple} × BRS`,
       highlight: true,
     },
     {
       code: "ERS",
       amount: figures.ers,
-      note: "Enhanced, the ceiling on voluntary top-ups, 4 × BRS",
+      note: `Enhanced, the ceiling on voluntary top-ups, ${ersMultiple} × BRS`,
       highlight: false,
     },
   ];
@@ -352,10 +369,13 @@ function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
           ))}
         </ul>
         <Typography className="max-w-[64ch]" color="muted" type="body-xs">
-          Sums for the cohort turning 55 in {figures.year55}, projected from
-          published figures at 3.5% a year beyond 2026. Balances projected from
-          a zero starting balance today, with your salary held flat; housing use
-          is not modelled. Estimates, not advice.
+          The {figures.year55} retirement sums are{" "}
+          {figures.retirementPolicyStatus === "official"
+            ? "published official values"
+            : "the last published values held constant and marked assumed"}
+          . Balances start from zero because this screen does not collect your
+          current account balances; salary is held flat and housing use is not
+          modelled. This is a SimplyCPF scenario, not a forecast.
         </Typography>
       </Card.Content>
     </Card>
@@ -396,7 +416,7 @@ export default function At55Content(): ReactNode {
   );
 
   const figures = useMemo(() => {
-    if (formStep < 2 || age >= 55) return null;
+    if (formStep < 2 || age >= retirementAge) return null;
 
     const birthYear = Number(birthDate.split("/")[1]);
     if (!birthYear) return null;
@@ -404,14 +424,14 @@ export default function At55Content(): ReactNode {
     const projection = calculateCpfProjection({
       monthlyIncome,
       birthDate,
-      endAge: 65,
+      endAge: payoutEligibilityAge,
       citizenship: citizenshipStatus,
     });
 
-    return deriveFigures(projection, birthYear + 55);
+    return deriveFigures(projection, birthYear + retirementAge);
   }, [formStep, age, birthDate, monthlyIncome, citizenshipStatus]);
 
-  const alreadyPast = mounted && formStep >= 2 && age >= 55;
+  const alreadyPast = mounted && formStep >= 2 && age >= retirementAge;
 
   return (
     <div className="flex flex-col gap-12">
@@ -429,9 +449,9 @@ export default function At55Content(): ReactNode {
 
       {alreadyPast && (
         <PromptCard title="This has already happened for you">
-          You are 55 or older, so your Special Account has closed and your
+          You are {retirementAge} or older, so your Special Account has closed and your
           Retirement Account already exists. This screen projects the move for
-          members who have not reached 55 yet, so there is nothing left to
+          members who have not reached {retirementAge} yet, so there is nothing left to
           project for you. The two explanations below still apply.
         </PromptCard>
       )}

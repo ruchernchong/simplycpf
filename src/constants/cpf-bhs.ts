@@ -1,27 +1,34 @@
 import type { PolicyMetadata } from "@/policy";
-import { getPolicyMetadata, POLICY_SOURCES } from "@/policy";
+import {
+  CPF_BASIC_HEALTHCARE_SUM_ROWS,
+  CPF_POLICY_RULES,
+  CPF_POLICY_VERIFIED_AT,
+  getPolicyMetadata,
+  POLICY_SOURCES,
+} from "@/policy";
 
 export const CPF_BHS_SOURCE_URL = POLICY_SOURCES.basicHealthcareSum.url;
 
-export const CPF_BHS_VERIFIED_AT = "2026-08-01";
+export const CPF_BHS_VERIFIED_AT = CPF_POLICY_VERIFIED_AT;
 
 /**
  * Published BHS amounts for members below 65 and for the cohort turning 65 in
  * each year. Members born in 1951 or earlier have a fixed BHS of S$49,800.
  */
-export const CPF_BASIC_HEALTHCARE_SUM: Record<string, number> = {
-  "2016": 49_800,
-  "2017": 52_000,
-  "2018": 54_500,
-  "2019": 57_200,
-  "2020": 60_000,
-  "2021": 63_000,
-  "2022": 66_000,
-  "2023": 68_500,
-  "2024": 71_500,
-  "2025": 75_500,
-  "2026": 79_000,
-};
+export const CPF_BASIC_HEALTHCARE_SUM = CPF_BASIC_HEALTHCARE_SUM_ROWS.reduce<
+  Record<string, number>
+>((amounts, row) => {
+  amounts[String(row.year)] = row.amount;
+  return amounts;
+}, {});
+
+const earliestPublishedBhs = CPF_BASIC_HEALTHCARE_SUM_ROWS[0];
+const latestPublishedBhs =
+  CPF_BASIC_HEALTHCARE_SUM_ROWS[CPF_BASIC_HEALTHCARE_SUM_ROWS.length - 1];
+
+if (!earliestPublishedBhs || !latestPublishedBhs) {
+  throw new Error("The canonical BHS policy catalogue is empty.");
+}
 
 export interface BhsPolicyValue {
   value: number;
@@ -57,17 +64,18 @@ export function getBhsForProjection(
   year: number,
   memberBirthYear: number,
 ): BhsPolicyValue {
-  const cohortYear = memberBirthYear + 65;
+  const cohortYear =
+    memberBirthYear + CPF_POLICY_RULES.lifecycleAges.basicHealthcareSumFrozen;
   const applicableYear = Math.min(year, cohortYear);
 
-  if (applicableYear <= 2016) {
+  if (applicableYear <= earliestPublishedBhs.year) {
     return {
-      value: CPF_BASIC_HEALTHCARE_SUM["2016"],
+      value: earliestPublishedBhs.amount,
       cohortYear,
       metadata: {
-        ...officialMetadata(2016),
+        ...officialMetadata(earliestPublishedBhs.year),
         notes: [
-          "CPF Board publishes S$49,800 for members born in 1951 or earlier (the 2016-or-earlier cohort).",
+          `CPF Board publishes S$${earliestPublishedBhs.amount.toLocaleString("en-SG")} for members born in ${earliestPublishedBhs.cohortBirthYearAtOrBefore} or earlier.`,
         ],
       },
     };
@@ -83,15 +91,15 @@ export function getBhsForProjection(
   }
 
   return {
-    value: CPF_BASIC_HEALTHCARE_SUM["2026"],
+    value: latestPublishedBhs.amount,
     cohortYear,
     metadata: getPolicyMetadata("cpf-basic-healthcare-sum", {
-      version: `${year}-freeze-2026`,
+      version: `${year}-freeze-${latestPublishedBhs.year}`,
       status: "assumed",
       effectiveFrom: `${year}-01-01`,
       effectiveTo: `${year}-12-31`,
       notes: [
-        "No later BHS has been published; the 2026 BHS is held constant without extrapolation.",
+        `No later BHS has been published; the ${latestPublishedBhs.year} BHS is held constant without extrapolation.`,
       ],
     }),
   };

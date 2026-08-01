@@ -11,7 +11,9 @@ Public policy endpoints return only values published by CPF Board. They do not s
 | `/bhs?year=YYYY` | BHS cohorts from 2016 through 2026 | `404` |
 | `/retirement-sums?year=YYYY` | BRS, FRS, and ERS from 2023 through 2027 | `404` |
 
-Each response carries `PolicyMetadata`, including `status`, effective dates, verification date, and a first-party source URL. Public values are `official`.
+Omit `year` from the BHS or retirement-sums endpoint to receive all published observations and the latest published value. A year-specific response carries `status: "official"` and `metadata`; the collection carries the same dataset metadata once at the envelope level.
+
+Each response carries `PolicyMetadata`, including `status`, effective dates, verification date, and first-party sources. Public values are `official`.
 
 Projections use different semantics: when a later BHS or retirement sum has not been published, the last published amount is frozen and each affected projection row is marked `assumed`, with its base year and a warning.
 

@@ -21,7 +21,7 @@ export const GET = async (): Promise<NextResponse> => {
       }),
     },
     {
-    status: 200,
+      status: 200,
       headers: CACHE_HEADERS.policy,
     },
   );

@@ -1,12 +1,11 @@
 import { Card, Link, Table, Typography } from "@heroui/react";
-import {
-  CPF_INTEREST_RATE_METHODOLOGY,
-  QUARTERLY_CPF_RATES,
-} from "@/constants/cpf-interest-rates";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
 const LATEST_QUARTERS = 6;
 
-const rows = QUARTERLY_CPF_RATES.slice(-LATEST_QUARTERS);
+const rows = CPF_POLICY_CATALOGUE.quarterlyInterestRates.slice(
+  -LATEST_QUARTERS,
+);
 const latestRow = rows.at(-1);
 
 /** Rates as declared by the CPF Board each quarter, newest last. */
@@ -26,7 +25,9 @@ export function QuarterlyRatesTable() {
               <Table.Header>
                 <Table.Column isRowHeader>Quarter</Table.Column>
                 <Table.Column className="text-right">OA</Table.Column>
-                <Table.Column className="text-right">SMRA</Table.Column>
+                <Table.Column className="text-right">SA</Table.Column>
+                <Table.Column className="text-right">MA</Table.Column>
+                <Table.Column className="text-right">RA</Table.Column>
               </Table.Header>
               <Table.Body>
                 {rows.map((row) => (
@@ -38,6 +39,12 @@ export function QuarterlyRatesTable() {
                     <Table.Cell className="text-right">
                       {row.sa.toFixed(2)}%
                     </Table.Cell>
+                    <Table.Cell className="text-right">
+                      {row.ma.toFixed(2)}%
+                    </Table.Cell>
+                    <Table.Cell className="text-right">
+                      {row.ra.toFixed(2)}%
+                    </Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>
@@ -48,9 +55,10 @@ export function QuarterlyRatesTable() {
       <Card.Footer>
         <div className="flex flex-col gap-2">
           <Typography color="muted" type="body-sm">
-            No monthly SGS values are inferred.{" "}
-            {CPF_INTEREST_RATE_METHODOLOGY.SMRA.description} Data verified 1
-            August 2026.
+            No monthly SGS values are inferred. The published SMRA method uses
+            the 12-month average yield of 10-year Singapore Government
+            Securities plus the documented margin. Data verified{" "}
+            {CPF_POLICY_CATALOGUE.verifiedAt}.
           </Typography>
           {latestRow && (
             <Link

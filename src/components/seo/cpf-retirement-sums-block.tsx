@@ -1,30 +1,24 @@
 import { Card, Typography } from "@heroui/react";
-import {
-  CPF_RETIREMENT_SUMS,
-  getRetirementSumsForYear,
-} from "@/constants/cpf-retirement-sums";
 import { formatNumber } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
-const CpfRetirementSumsBlock = () => {
-  const currentYear = new Date().getFullYear();
-  const sums = getRetirementSumsForYear(currentYear);
+export default function CpfRetirementSumsBlock() {
+  const sums = CPF_POLICY_CATALOGUE.retirementSums.find(
+    (row) => row.year === 2026,
+  );
+  if (!sums) throw new Error("Current CPF retirement sums are unavailable.");
 
-  // Derived rather than hardcoded: the ERS moved from 3x to 4x the BRS in 2025.
   const frsMultiple = Math.round(sums.frs / sums.brs);
-  const ersMultiple = Math.round(sums.ers / sums.brs);
-
-  // Find next few years with data for projections
-  const futureYears = Object.keys(CPF_RETIREMENT_SUMS)
-    .map(Number)
-    .filter((y) => y > currentYear)
-    .slice(0, 3);
+  const futureRows = CPF_POLICY_CATALOGUE.retirementSums.filter(
+    (row) => row.year > sums.year,
+  );
 
   return (
     <section aria-labelledby="cpf-retirement-sums" data-content-block="dataset">
       <Card>
         <Card.Header>
           <Card.Title id="cpf-retirement-sums">
-            CPF Retirement Sums ({currentYear})
+            CPF Retirement Sums ({sums.year})
           </Card.Title>
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
@@ -56,8 +50,8 @@ const CpfRetirementSumsBlock = () => {
                 S${formatNumber(sums.frs)}
               </Typography>
               <Typography className="mt-1" color="muted" type="body-xs">
-                {frsMultiple}× BRS. The default amount set aside in RA at age
-                55 when sufficient savings are available.
+                {frsMultiple}× BRS. The default amount set aside in RA at age 55
+                when sufficient savings are available.
               </Typography>
             </div>
             <div className="rounded-lg border border-border bg-muted/50 p-4">
@@ -68,29 +62,25 @@ const CpfRetirementSumsBlock = () => {
                 S${formatNumber(sums.ers)}
               </Typography>
               <Typography className="mt-1" color="muted" type="body-xs">
-                {ersMultiple}× BRS. The prevailing maximum to which eligible
-                members can top up RA for higher retirement payouts.
+                {sums.ersMultipleOfBrs}× BRS. The prevailing maximum to which
+                eligible members can top up RA for higher retirement payouts.
               </Typography>
             </div>
           </div>
 
-          {futureYears.length > 0 && (
+          {futureRows.length > 0 && (
             <>
               <Typography weight="medium">
                 Retirement Sums for Coming Years:
               </Typography>
               <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
-                {futureYears.map((year) => {
-                  const yearSums = getRetirementSumsForYear(year);
-                  return (
-                    <li key={year}>
-                      <strong>{year}:</strong> BRS S$
-                      {formatNumber(yearSums.brs)}, FRS S$
-                      {formatNumber(yearSums.frs)}, ERS S$
-                      {formatNumber(yearSums.ers)}
-                    </li>
-                  );
-                })}
+                {futureRows.map((row) => (
+                  <li key={row.year}>
+                    <strong>{row.year}:</strong> BRS S$
+                    {formatNumber(row.brs)}, FRS S${formatNumber(row.frs)}, ERS
+                    S${formatNumber(row.ers)}
+                  </li>
+                ))}
               </ul>
             </>
           )}
@@ -104,6 +94,4 @@ const CpfRetirementSumsBlock = () => {
       </Card>
     </section>
   );
-};
-
-export default CpfRetirementSumsBlock;
+}

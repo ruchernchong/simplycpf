@@ -322,6 +322,16 @@ export interface ResolvedContributionSchedule {
   warning?: ContributionWarning;
 }
 
+export interface ResolvedContributionAge {
+  birthMonth: string;
+  contributionMonth: string;
+  completedAge: number;
+  ageInMonths: number;
+  isBirthdayMonth: boolean;
+  /** CPF Board applies the next age-band rate from the following month. */
+  nextAgeBandStartsMonthAfterBirthday: true;
+}
+
 export function resolveContributionSchedule(
   contributionMonth: string,
   mode: "official-only" | "freeze-latest" = "official-only",
@@ -379,6 +389,106 @@ export function getContributionRatesForCitizenship(
 
 export function normaliseContributionMonth(value: string): string {
   return normaliseMonth(value);
+}
+
+/**
+ * Resolve chronological age at contribution-month precision. Consumers that
+ * select a CPF age band must compare `ageInMonths` with the inclusive upper
+ * boundary, so the birthday month remains in the younger contribution band.
+ */
+export function resolveContributionAgeFromBirthMonth(
+  birthMonthValue: string,
+  contributionMonthValue: string,
+): ResolvedContributionAge {
+  const birthMonth = normaliseMonth(birthMonthValue, "birthMonth");
+  const contributionMonth = normaliseMonth(contributionMonthValue);
+  const birthYear = Number(birthMonth.slice(0, 4));
+  const birthMonthNumber = Number(birthMonth.slice(5, 7));
+  const contributionYear = Number(contributionMonth.slice(0, 4));
+  const contributionMonthNumber = Number(contributionMonth.slice(5, 7));
+  const ageInMonths =
+    (contributionYear - birthYear) * 12 +
+    contributionMonthNumber -
+    birthMonthNumber;
+
+  if (ageInMonths < 0) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "birthMonth cannot be after contributionMonth.",
+    );
+  }
+  if (ageInMonths >= 151 * 12) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "birthMonth must resolve to a completed age from 0 to 150.",
+    );
+  }
+
+  return {
+    birthMonth,
+    contributionMonth,
+    completedAge: Math.floor(ageInMonths / 12),
+    ageInMonths,
+    isBirthdayMonth: ageInMonths % 12 === 0,
+    nextAgeBandStartsMonthAfterBirthday: true,
+  };
+}
+
+/**
+ * Resolve the default graduated SPR contribution year. The first year runs
+ * through the month of the first anniversary; each later year starts on the
+ * first day of the following month.
+ */
+export function resolveSprContributionYear(
+  sprConversionDate: string,
+  contributionMonth: string,
+): Extract<
+  ContributionCitizenship,
+  "spr-year1" | "spr-year2" | "spr-year3-plus"
+> {
+  const conversionMatch =
+    /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.exec(sprConversionDate);
+  if (!conversionMatch) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "sprConversionDate must be in YYYY-MM-DD format.",
+    );
+  }
+
+  const month = normaliseMonth(contributionMonth);
+  const conversionYear = Number(conversionMatch[1]);
+  const conversionMonthNumber = Number(conversionMatch[2]);
+  const conversionDay = Number(conversionMatch[3]);
+  const parsedConversionDate = new Date(
+    Date.UTC(conversionYear, conversionMonthNumber - 1, conversionDay),
+  );
+  if (
+    parsedConversionDate.getUTCFullYear() !== conversionYear ||
+    parsedConversionDate.getUTCMonth() + 1 !== conversionMonthNumber ||
+    parsedConversionDate.getUTCDate() !== conversionDay
+  ) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "sprConversionDate must be a valid calendar date.",
+    );
+  }
+
+  const contributionYear = Number(month.slice(0, 4));
+  const contributionMonthNumber = Number(month.slice(5, 7));
+  const elapsedMonths =
+    (contributionYear - conversionYear) * 12 +
+    contributionMonthNumber -
+    conversionMonthNumber;
+
+  if (elapsedMonths < 0) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "contributionMonth cannot be before the SPR conversion month.",
+    );
+  }
+  if (elapsedMonths <= 12) return "spr-year1";
+  if (elapsedMonths <= 24) return "spr-year2";
+  return "spr-year3-plus";
 }
 
 function rateBand(
@@ -512,7 +622,11 @@ function schedule(
       notes: [
         `Official schedule for ${year}; G/G SPR rates have been unchanged since 1 January 2016.`,
       ],
-      sources: [sources.contribution, POLICY_SOURCES.ageGroupTransition],
+      sources: [
+        sources.contribution,
+        POLICY_SOURCES.ageGroupTransition,
+        POLICY_SOURCES.sprYearTransition,
+      ],
     }),
     allocationMetadata: getPolicyMetadata("cpf-allocation-rates", {
       version,
@@ -578,15 +692,34 @@ function getScheduleSources(id: string): {
   throw new Error(`Unknown CPF contribution schedule: ${id}.`);
 }
 
-function normaliseMonth(value: string): string {
+function normaliseMonth(
+  value: string,
+  field: "contributionMonth" | "birthMonth" = "contributionMonth",
+): string {
   const match = /^(\d{4})-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/.exec(
     value,
   );
   if (!match) {
     throw new ContributionPolicyError(
       "INVALID_INPUT",
-      "contributionMonth must be in YYYY-MM or YYYY-MM-DD format.",
+      `${field} must be in YYYY-MM or YYYY-MM-DD format.`,
     );
+  }
+  if (match[3]) {
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() + 1 !== month ||
+      date.getUTCDate() !== day
+    ) {
+      throw new ContributionPolicyError(
+        "INVALID_INPUT",
+        `${field} must contain a valid calendar date.`,
+      );
+    }
   }
   return `${match[1]}-${match[2]}`;
 }

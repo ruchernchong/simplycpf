@@ -10,11 +10,16 @@ import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL, WEBSITE_ID } from "@/config";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
+const firstDeclaration = CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(0);
+const latestDeclaration = CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(-1);
+const latestQuarter =
+  latestDeclaration?.quarter ?? "the latest published quarter";
 
 export const metadata: Metadata = {
   title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
-  description:
-    "See CPF Board's declared quarterly OA and SMRA rates through 2026 Q3, the published floor rates, and the documented 3-month bank-rate and 12-month 10YSGS methodologies.",
+  description: `See CPF Board's declared quarterly OA, SA, MA and RA rates through ${latestQuarter}, the published floor rates, and the documented rate-setting methodologies.`,
   keywords:
     "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, SGS yield, CPF distribution rates, CPF contribution distribution by age, Singapore CPF rates, SMRA interest rate",
   alternates: {
@@ -22,8 +27,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
-    description:
-      "See official quarterly CPF interest declarations through 2026 Q3 and understand the published OA and SMRA methodologies.",
+    description: `See official quarterly CPF interest declarations through ${latestQuarter} and understand the published OA and SMRA methodologies.`,
     url: `${BASE_URL}/interest-rates`,
     images: [
       {
@@ -37,8 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
-    description:
-      "See official quarterly CPF interest declarations through 2026 Q3 and understand the published OA and SMRA methodologies.",
+    description: `See official quarterly CPF interest declarations through ${latestQuarter} and understand the published OA and SMRA methodologies.`,
     images: [`${BASE_URL}/opengraph-image`],
   },
 };
@@ -55,6 +58,7 @@ export default function InterestRatesPage() {
           "View CPF Board's quarterly OA and SMRA declarations, floor rates, and published rate-setting methodologies.",
         url: `${BASE_URL}/interest-rates`,
         inLanguage: "en-SG",
+        dateModified: CPF_POLICY_CATALOGUE.verifiedAt,
         isPartOf: { "@id": WEBSITE_ID },
         keywords:
           "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, CPF distribution rates, Singapore CPF rates",
@@ -78,12 +82,12 @@ export default function InterestRatesPage() {
       {
         "@type": "Dataset",
         name: "CPF Interest Rates Historical Data",
-      description:
-        "Official quarterly CPF interest declarations for OA, SA, MA, and RA accounts, with source URLs and verification dates. No reconstructed monthly SGS series is included.",
+        description:
+          "Official quarterly CPF interest declarations for OA, SA, MA, and RA accounts, with source URLs and verification dates. No reconstructed monthly SGS series is included.",
         url: `${BASE_URL}/api/cpf/interest-rates`,
         creator: { "@id": `${BASE_URL}/#organization` },
         isAccessibleForFree: true,
-        license: "https://creativecommons.org/licenses/by/4.0/",
+        dateModified: CPF_POLICY_CATALOGUE.verifiedAt,
         distribution: [
           {
             "@type": "DataDownload",
@@ -101,10 +105,13 @@ export default function InterestRatesPage() {
           "SA interest rate",
           "MA interest rate",
           "RA interest rate",
-          "SMRA pegged rate",
-          "10-year SGS yield",
+          "Published OA peg methodology",
+          "Published SMRA peg methodology",
         ],
-        temporalCoverage: "2024/2026-Q3",
+        temporalCoverage:
+          firstDeclaration && latestDeclaration
+            ? `${firstDeclaration.effectiveFrom}/${latestDeclaration.effectiveTo}`
+            : undefined,
       },
     ],
   };

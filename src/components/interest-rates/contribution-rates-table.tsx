@@ -1,21 +1,31 @@
 import { Card, Table, Typography } from "@heroui/react";
-import { CPF_TOTAL_CONTRIBUTION_RATES_2027 } from "@/constants/cpf-contribution-rates-2027";
-import { ageGroups } from "@/data";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
 function pct(rate: number) {
   return `${(rate * 100).toFixed(1)}%`;
 }
 
-const rows = ageGroups.map((group) => {
-  const { employee, employer } = group.contributionRate;
-  const rate2027 = CPF_TOTAL_CONTRIBUTION_RATES_2027[group.description];
+const currentSchedule = resolveContributionSchedule("2026-08").schedule;
+const nextSchedule = resolveContributionSchedule("2027-01").schedule;
+const rows = currentSchedule.citizenRates.map((group) => {
+  const nextRate = nextSchedule.citizenRates.find(
+    (candidate) => candidate.id === group.id,
+  );
+  const employee = group.employeeBasisPoints / 10000;
+  const employer = group.employerBasisPoints / 10000;
 
   return {
     band: group.description,
     employee: pct(employee),
     employer: pct(employer),
     total: pct(employee + employer),
-    total2027: rate2027 ? `${rate2027.toFixed(1)}%` : "no change",
+    totalNext:
+      nextRate === undefined
+        ? "not published"
+        : pct(
+            (nextRate.employeeBasisPoints + nextRate.employerBasisPoints) /
+              10000,
+          ),
   };
 });
 
@@ -26,7 +36,8 @@ export function ContributionRatesTable() {
       <Card.Header>
         <Card.Title>Contribution rates by age</Card.Title>
         <Card.Description>
-          Citizens and PRs from the 3rd year · wages above $750
+          Citizens and PRs from the 3rd year · wages above $
+          {CPF_POLICY_CATALOGUE.rules.wageBands.fullRatesAbove}
         </Card.Description>
       </Card.Header>
       <Card.Content>
@@ -37,8 +48,12 @@ export function ContributionRatesTable() {
                 <Table.Column isRowHeader>Age band</Table.Column>
                 <Table.Column className="text-right">You</Table.Column>
                 <Table.Column className="text-right">Employer</Table.Column>
-                <Table.Column className="text-right">Total 2026</Table.Column>
-                <Table.Column className="text-right">Total 2027</Table.Column>
+                <Table.Column className="text-right">
+                  Total {currentSchedule.effectiveFrom.slice(0, 4)}
+                </Table.Column>
+                <Table.Column className="text-right">
+                  Total {nextSchedule.effectiveFrom.slice(0, 4)}
+                </Table.Column>
               </Table.Header>
               <Table.Body>
                 {rows.map((row) => (
@@ -54,7 +69,7 @@ export function ContributionRatesTable() {
                       {row.total}
                     </Table.Cell>
                     <Table.Cell className="text-right text-accent">
-                      {row.total2027}
+                      {row.totalNext}
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -65,9 +80,9 @@ export function ContributionRatesTable() {
       </Card.Content>
       <Card.Footer>
         <Typography color="muted" type="body-sm">
-          Rates for ages above 55 to 65 rose on 1 January 2026 and are
-          legislated to rise again in 2027, moving senior rates towards the
-          under-55 rate.
+          The next published schedule changes the two senior bands immediately
+          above age 55. Rate changes apply from the month after a threshold
+          birthday.
         </Typography>
       </Card.Footer>
     </Card>

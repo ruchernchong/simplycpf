@@ -10,11 +10,13 @@ describe("GET /api/cpf/interest-rates", () => {
     expect(data).toHaveProperty("methodology");
     expect(data).toHaveProperty("metadata");
     expect(data).not.toHaveProperty("sgsYields");
-    expect(data.metadata).toEqual({
+    expect(data.metadata).toMatchObject({
+      dataset: "cpf-interest-rates",
       status: "official",
       verifiedAt: "2026-08-01",
       latestPublishedQuarter: "2026 Q3",
     });
+    expect(data.metadata.sources.length).toBeGreaterThan(0);
   });
 
   it("should return quarterly rates with correct structure", async () => {

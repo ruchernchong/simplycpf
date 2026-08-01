@@ -1,4 +1,8 @@
-import type { PolicyMetadata, PolicyStatus } from "@/policy";
+import type {
+  ContributionDistribution,
+  PolicyMetadata,
+  PolicyStatus,
+} from "@/policy";
 
 export type { PolicyMetadata, PolicyStatus } from "@/policy";
 
@@ -46,7 +50,7 @@ export interface DistributionResult {
 // Interface for the computed result summary
 export interface ComputedResult {
   contribution: ContributionResult;
-  distribution: DistributionRate;
+  distribution: ContributionDistribution;
   afterCpfContribution: number;
 }
 
@@ -78,20 +82,6 @@ export interface QuarterlyRate {
   sa: number;
   ma: number;
   ra: number;
-}
-
-// Interface for monthly SGS yield data
-export interface MonthlyYield {
-  month: string;
-  yield: number;
-}
-
-// Interface for interest rate trend data (computed)
-export interface InterestRateTrendData {
-  month: string;
-  sgsYield: number;
-  peggedRate: number;
-  actualRate: number;
 }
 
 // Projection types
@@ -137,12 +127,16 @@ export interface ProjectionParams {
   startAge?: number;
   endAge?: number;
   housingWithdrawal?: number;
+  /** Net SA savings withdrawn for CPFIS, counted towards the under-55 FRS limit. */
+  netSaSavingsWithdrawnForInvestments?: number;
   voluntaryTopUp?: VoluntaryTopUp;
   retirementTransfer?: RetirementTransfer;
   /** @deprecated Use `retirementTransfer`. */
   oaToSaTransfer?: OaToSaTransfer;
   retirementRouting?: RetirementRouting;
   citizenship: CitizenshipStatus;
+  /** SPR conversion month in YYYY-MM; required by the UI for anniversary transitions. */
+  permanentResidentSince?: string;
 }
 
 export interface AccountBalances {
@@ -217,6 +211,7 @@ export interface CpfLifeReference {
   plan: "Standard";
   profile: "male";
   rows: CpfLifeReferenceRow[];
+  policy: PolicyMetadata;
   sourceUrl: string;
   personalisedEstimatorUrl: string;
   verifiedAt: string;
@@ -230,14 +225,25 @@ export interface ProjectionPolicyMetadata {
   wageCeiling: PolicyMetadata;
   bhs: PolicyMetadata;
   retirementSums: PolicyMetadata;
+  cohortRetirementSum: PolicyMetadata;
   interest: PolicyMetadata;
+  extraInterest: PolicyMetadata;
+  specialAccountClosure: PolicyMetadata;
+  retirementTopUps: PolicyMetadata;
+  taxRelief: PolicyMetadata;
 }
 
 export interface ProjectionWarning {
   code:
     | "initial-balances-defaulted"
     | "start-month-defaulted"
+    | "legacy-projection-input"
     | "legacy-transfer-field"
+    | "legacy-top-up-account"
+    | "ma-tax-relief-not-estimated"
+    | "retirement-top-up-capacity-context-missing"
+    | "pr-anniversary-not-modelled"
+    | "pr-year-resolved-from-date"
     | "future-policy-frozen"
     | "retirement-routing-assumed"
     | "cpf-life-estimate-removed";

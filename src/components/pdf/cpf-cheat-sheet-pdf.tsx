@@ -88,6 +88,12 @@ const styles = StyleSheet.create({
   bodyCellText: {
     color: SLATE_900,
   },
+  sourceText: {
+    color: SLATE_500,
+    fontSize: 7,
+    lineHeight: 1.35,
+    marginTop: 5,
+  },
   footer: {
     position: "absolute",
     bottom: 18,
@@ -146,12 +152,27 @@ function SectionTable({ section }: { section: CheatSheetSection }) {
         <View style={[styles.row, styles.headerRow]}>{headerCells}</View>
         {bodyRows}
       </View>
+      <Text style={styles.sourceText}>
+        {section.status.toUpperCase()} · verified {section.verifiedAt}
+        {"\n"}
+        {section.sourceUrls.join("\n")}
+      </Text>
     </View>
   );
 }
 
 export function CpfCheatSheetPdf() {
   const data = getCpfCheatSheetData();
+  const keyAgeSection: CheatSheetSection = {
+    title: "Key ages",
+    description:
+      "CPF account and payout ages, plus statutory employment ages effective from July 2026.",
+    columns: ["Rule", "Age"],
+    rows: data.keyAges.map((age) => [age.label, age.value]),
+    status: "official",
+    verifiedAt: data.verifiedAt,
+    sourceUrls: [...new Set(data.keyAges.map((age) => age.sourceUrl))],
+  };
 
   return (
     <Document>
@@ -160,13 +181,19 @@ export function CpfCheatSheetPdf() {
           <Text style={styles.overline}>SimplyCPF</Text>
           <Text style={styles.title}>{data.title}</Text>
           <Text style={styles.subtitle}>{data.subtitle}</Text>
+          <Text style={styles.sourceText}>
+            Effective {data.effectiveFrom} · verified {data.verifiedAt}
+            {"\n"}
+            Scope: {data.scope}
+          </Text>
         </View>
+        <SectionTable section={keyAgeSection} />
         {data.sections.map((section) => (
           <SectionTable key={section.title} section={section} />
         ))}
         <Text style={styles.footer}>
-          SimplyCPF cheat sheet for quick CPF reference. Always verify final
-          decisions against the latest CPF Board publications.
+          Official datasets verified {data.verifiedAt}. SimplyCPF is an
+          independent reference tool; verify personal decisions with CPF Board.
         </Text>
       </Page>
     </Document>

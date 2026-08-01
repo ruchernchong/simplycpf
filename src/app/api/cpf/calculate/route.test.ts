@@ -1,117 +1,151 @@
 import type { NextRequest } from "next/server";
-import { vi } from "vitest";
 import { POST } from "./route";
 
-vi.mock("@/constants", () => ({
-  CPF_INCOME_CEILING: {
-    "2023-01-01": 6000,
-    "2023-09-01": 6300,
-    "2024-01-01": 6800,
-    "2025-01-01": 7400,
-    "2026-01-01": 8000,
-  },
-  CPF_INCOME_CEILING_BEFORE_SEPT_2023: 6000,
-}));
+function createRequest(body: unknown): NextRequest {
+  return { json: async () => body } as unknown as NextRequest;
+}
 
 describe("POST /api/cpf/calculate", () => {
-  const createRequest = (body: unknown) => {
-    return {
-      json: async () => body,
-    } as unknown as NextRequest;
-  };
-
-  it("should calculate CPF contribution with income only", async () => {
-    const req = createRequest({ income: 5000, date: "2025-01-01" });
-    const response = await POST(req);
+  it("calculates a modern, source-backed contribution request", async () => {
+    const response = await POST(
+      createRequest({
+        contributionMonth: "2026-08",
+        ordinaryWages: 5000,
+        citizenship: "citizen",
+        age: 30,
+      }),
+    );
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data).toHaveProperty("contribution");
-    expect(data).toHaveProperty("distribution");
-    expect(data).toHaveProperty("afterCpfContribution");
-    expect(data.contribution.employee).toBe(1000);
-    expect(data.contribution.employer).toBe(850);
-    expect(data.contribution.totalContribution).toBe(1850);
+    expect(data.contribution).toEqual({
+      employee: 1000,
+      employer: 850,
+      totalContribution: 1850,
+    });
+    expect(data.wageBand).toBe("full-rates");
+    expect(data.schedule.id).toBe("cpf-2026");
+    expect(data.schedule.status).toBe("official");
+    expect(data.policy.contribution.verifiedAt).toBe("2026-08-01");
   });
 
-  it("should calculate CPF contribution with age parameter", async () => {
-    const req = createRequest({ income: 5000, date: "2025-01-01", age: 30 });
-    const response = await POST(req);
-    const data = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(data.distribution).toHaveProperty("OA");
-    expect(data.distribution).toHaveProperty("SA");
-    expect(data.distribution).toHaveProperty("MA");
-  });
-
-  // Senior rates and allocations per the CPF Board tables effective 1 Jan 2026.
   it.each([
-    // age, employee, employer, total, OA, RA/SA, MA
     [58, 900, 800, 1700, 600.1, 574.94, 524.96],
     [62, 625, 625, 1250, 175, 550, 525],
-    [67, 375, 450, 825, 50.08, 249.97, 524.95],
-  ])("applies the 1 Jan 2026 senior rates at age %i", async (age, employee, employer, total, oa, sa, ma) => {
-    const req = createRequest({ income: 5000, date: "2026-01-01", age });
-    const response = await POST(req);
+    [67, 375, 450, 825, 50.07, 249.98, 524.95],
+  ])("applies the official 2026 senior rates at age %i", async (age, employee, employer, total, oa, ra, ma) => {
+    const response = await POST(
+      createRequest({
+        contributionMonth: "2026-01",
+        ordinaryWages: 5000,
+        citizenship: "citizen",
+        age,
+      }),
+    );
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.contribution.employee).toBe(employee);
-    expect(data.contribution.employer).toBe(employer);
-    expect(data.contribution.totalContribution).toBe(total);
-    expect(data.distribution.OA).toBe(oa);
-    expect(data.distribution.SA).toBe(sa);
-    expect(data.distribution.MA).toBe(ma);
+    expect(data.contribution).toEqual({
+      employee,
+      employer,
+      totalContribution: total,
+    });
+    expect(data.distribution).toEqual({ OA: oa, RA: ra, MA: ma });
+    expect(data.routing.selected).toBe("undetermined");
+    expect(data.routing.branches.afterFullRetirementSum.RA).toBe(0);
   });
 
-  it("should cap income at ceiling", async () => {
-    const req = createRequest({ income: 10000, date: "2025-01-01" });
-    const response = await POST(req);
+  it("caps Ordinary Wages at the resolved monthly ceiling", async () => {
+    const response = await POST(
+      createRequest({
+        contributionMonth: "2025-01",
+        ordinaryWages: 10000,
+        citizenship: "citizen",
+        age: 30,
+      }),
+    );
     const data = await response.json();
 
     expect(response.status).toBe(200);
+    expect(data.subjectWages.ordinaryWages).toBe(7400);
     expect(data.contribution.employee).toBe(1480);
     expect(data.contribution.employer).toBe(1258);
   });
 
-  it("should return 400 if income is missing", async () => {
-    const req = createRequest({});
-    const response = await POST(req);
+  it("accepts income and date for one compatibility cycle with a warning", async () => {
+    const response = await POST(
+      createRequest({
+        income: 5000,
+        date: "2026-08-01",
+        citizenship: "citizen",
+        age: 30,
+      }),
+    );
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("income is required");
+    expect(response.status).toBe(200);
+    expect(data.warnings).toContainEqual(
+      expect.objectContaining({ code: "legacy-input" }),
+    );
   });
 
-  it("should return 400 if income is negative", async () => {
-    const req = createRequest({ income: -1000 });
-    const response = await POST(req);
+  it("returns 422 rather than guessing an Additional Wage ceiling", async () => {
+    const response = await POST(
+      createRequest({
+        contributionMonth: "2026-08",
+        ordinaryWages: 5000,
+        additionalWages: 1000,
+        citizenship: "citizen",
+        age: 30,
+      }),
+    );
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("income must be a positive number");
+    expect(response.status).toBe(422);
+    expect(data.code).toBe("AW_CONTEXT_REQUIRED");
   });
 
-  it("should return 400 if age is negative", async () => {
-    const req = createRequest({ income: 5000, age: -5 });
-    const response = await POST(req);
+  it("returns 404 for an unsupported policy month", async () => {
+    const response = await POST(
+      createRequest({
+        contributionMonth: "2028-01",
+        ordinaryWages: 5000,
+        citizenship: "citizen",
+        age: 30,
+      }),
+    );
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("age must be a positive number");
+    expect(response.status).toBe(404);
+    expect(data.code).toBe("UNSUPPORTED_POLICY_MONTH");
   });
 
-  it("should return 400 for invalid JSON body", async () => {
-    const req = {
+  it.each([
+    [{}, "ordinaryWages is required and must be a number."],
+    [
+      { ordinaryWages: 5000 },
+      "contributionMonth is required and must be a string.",
+    ],
+    [
+      { ordinaryWages: 5000, contributionMonth: "2026-08" },
+      "citizenship must be citizen, spr-year1, spr-year2, or spr-year3-plus.",
+    ],
+  ])("returns 422 for invalid input", async (body, message) => {
+    const response = await POST(createRequest(body));
+    const data = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(data.error).toBe(message);
+  });
+
+  it("returns 400 for malformed JSON", async () => {
+    const response = await POST({
       json: async () => {
         throw new Error("Invalid JSON");
       },
-    } as unknown as NextRequest;
-    const response = await POST(req);
-    const data = await response.json();
+    } as unknown as NextRequest);
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe("Invalid request body");
+    expect(await response.json()).toEqual({ error: "Invalid request body" });
   });
 });

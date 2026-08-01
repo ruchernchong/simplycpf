@@ -1,44 +1,165 @@
 import { NextResponse } from "next/server";
 import { CACHE_HEADERS } from "@/lib/cache-headers";
-import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
-import { loadSearchParams } from "./search-params";
+import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
+import {
+  ContributionPolicyError,
+  CPF_POLICY_VERIFIED_AT,
+  POLICY_SOURCES,
+  resolveContributionAgeFromBirthMonth,
+} from "@/policy";
+
+interface AgeConversionWarning {
+  code: "deprecated-birth-date-alias" | "contribution-month-defaulted";
+  message: string;
+}
 
 export const GET = async (request: Request): Promise<NextResponse> => {
-  const { birthDate } = await loadSearchParams(request);
+  const searchParams = new URL(request.url).searchParams;
+  const birthMonthInput = searchParams.get("birthMonth");
+  const birthDateAlias = searchParams.get("birthDate");
 
-  if (!birthDate) {
-    return NextResponse.json(
-      { error: "birthDate is required" },
-      { status: 400 },
+  if ((birthMonthInput === null) === (birthDateAlias === null)) {
+    return invalidInput(
+      "Supply exactly one of birthMonth or the deprecated birthDate alias.",
     );
   }
 
-  const birthDatePattern = /^\d{2}\/\d{4}$/;
-  if (!birthDatePattern.test(birthDate)) {
-    return NextResponse.json(
-      { error: "birthDate must be in MM/YYYY format" },
-      { status: 400 },
-    );
+  const warnings: AgeConversionWarning[] = [];
+  let birthMonth = birthMonthInput;
+  if (birthDateAlias !== null) {
+    try {
+      birthMonth = convertLegacyBirthDate(birthDateAlias);
+    } catch (error) {
+      if (error instanceof ContributionPolicyError) {
+        return invalidInput(error.message);
+      }
+      throw error;
+    }
+    warnings.push({
+      code: "deprecated-birth-date-alias",
+      message:
+        "birthDate=MM/YYYY is deprecated; use birthMonth=YYYY-MM for one-cycle compatibility.",
+    });
+  }
+
+  let contributionMonth = searchParams.get("contributionMonth");
+  const contributionMonthDefaulted = contributionMonth === null;
+  if (contributionMonthDefaulted) {
+    if (birthDateAlias === null) {
+      return invalidInput("contributionMonth is required with birthMonth.");
+    }
+    contributionMonth = currentSingaporeMonth();
+    warnings.push({
+      code: "contribution-month-defaulted",
+      message:
+        "contributionMonth defaulted to the current Singapore month for legacy compatibility; supply it explicitly for deterministic results.",
+    });
   }
 
   try {
-    const age = convertBirthDateToAge(birthDate);
-
-    if (age < 0) {
-      return NextResponse.json(
-        { error: "birthDate cannot be in the future" },
-        { status: 400 },
+    if (birthMonth === null || contributionMonth === null) {
+      throw new ContributionPolicyError(
+        "INVALID_INPUT",
+        "birthMonth and contributionMonth are required.",
       );
     }
 
-    return NextResponse.json(
-      { birthDate, age },
-      { status: 200, headers: CACHE_HEADERS.static },
+    const age = resolveContributionAgeFromBirthMonth(
+      birthMonth,
+      contributionMonth,
     );
-  } catch {
+    const calculation = calculateCpfContribution({
+      birthMonth: age.birthMonth,
+      contributionMonth: age.contributionMonth,
+      ordinaryWages: 0,
+      citizenship: "citizen",
+    });
+    const legacyFields =
+      birthDateAlias === null
+        ? {}
+        : { birthDate: birthDateAlias, age: age.completedAge };
+
     return NextResponse.json(
-      { error: "Invalid birthDate format" },
-      { status: 400 },
+      {
+        ...legacyFields,
+        birthMonth: age.birthMonth,
+        contributionMonth: age.contributionMonth,
+        completedAge: age.completedAge,
+        ageInMonths: age.ageInMonths,
+        isBirthdayMonth: age.isBirthdayMonth,
+        cpfRateTransition: {
+          contributionBand: calculation.age.contributionBand,
+          allocationBand: calculation.age.allocationBand,
+          nextAgeBandStartsMonthAfterBirthday:
+            age.nextAgeBandStartsMonthAfterBirthday,
+        },
+        schedule: {
+          id: calculation.schedule.id,
+          effectiveFrom: calculation.schedule.effectiveFrom,
+          effectiveTo: calculation.schedule.effectiveTo,
+          status: calculation.schedule.status,
+        },
+        policy: {
+          contribution: calculation.policy.contribution,
+          allocation: calculation.policy.allocation,
+          ageTransition: {
+            status: "official",
+            verifiedAt: CPF_POLICY_VERIFIED_AT,
+            sources: [POLICY_SOURCES.ageGroupTransition],
+          },
+        },
+        warnings,
+      },
+      {
+        status: 200,
+        headers: contributionMonthDefaulted
+          ? { "Cache-Control": "private, no-store" }
+          : CACHE_HEADERS.policy,
+      },
+    );
+  } catch (error) {
+    if (error instanceof ContributionPolicyError) {
+      const status = error.code === "UNSUPPORTED_POLICY_MONTH" ? 404 : 422;
+      return NextResponse.json(
+        { error: error.message, code: error.code },
+        { status },
+      );
+    }
+    return NextResponse.json(
+      { error: "Unable to resolve age from birth month." },
+      { status: 500 },
     );
   }
 };
+
+function convertLegacyBirthDate(value: string): string {
+  const match = /^(0[1-9]|1[0-2])\/(\d{4})$/.exec(value);
+  if (!match) {
+    throw new ContributionPolicyError(
+      "INVALID_INPUT",
+      "birthDate must be in MM/YYYY format.",
+    );
+  }
+  return `${match[2]}-${match[1]}`;
+}
+
+function currentSingaporeMonth(): string {
+  const parts = new Intl.DateTimeFormat("en-SG", {
+    timeZone: "Asia/Singapore",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(new Date());
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  if (!year || !month) {
+    throw new Error("Unable to determine the current Singapore month.");
+  }
+  return `${year}-${month}`;
+}
+
+function invalidInput(message: string): NextResponse {
+  return NextResponse.json(
+    { error: message, code: "INVALID_INPUT" },
+    { status: 422 },
+  );
+}

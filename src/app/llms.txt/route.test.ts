@@ -1,3 +1,4 @@
+import openapi from "../../../openapi.json";
 import { GET } from "./route";
 
 describe("GET /llms.txt", () => {
@@ -36,6 +37,8 @@ describe("GET /llms.txt", () => {
     expect(text).toContain("`ordinaryWages`");
     expect(text).toContain("annual OW/prior-AW context");
     expect(text).toContain("starting OA/SA/MA/RA balances");
+    expect(text).toContain("`permanentResidentSince`");
+    expect(text).toContain("age-dependent SA-to-RA routing");
     expect(text).toContain("Deprecated `cpfLifeEstimate` is null");
   });
 
@@ -64,5 +67,31 @@ describe("GET /llms.txt", () => {
     expect(response.headers.get("Cache-Control")).toBe(
       "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
     );
+  });
+
+  it("publishes the Fumadocs-compatible API v2 OpenAPI contract", () => {
+    expect(openapi.openapi).toBe("3.1.0");
+    expect(openapi.info.version).toBe("2.0.0");
+    expect(openapi.paths).toHaveProperty("/calculate");
+    expect(openapi.paths).toHaveProperty("/projection");
+    expect(openapi.paths).toHaveProperty("/bhs");
+    expect(openapi.paths).toHaveProperty("/retirement-sums");
+
+    const serialised = JSON.stringify(openapi);
+    expect(serialised).toContain("contributionMonth");
+    expect(serialised).toContain("maxAgeInclusive");
+    expect(serialised).toContain("cpfLifeReference");
+    expect(serialised).toContain("permanentResidentSince");
+    expect(serialised).toContain("netSaSavingsWithdrawnForInvestments");
+    expect(serialised).toContain("cohortRetirementSum");
+    expect(serialised).toContain("AgeConversionResponse");
+    expect(serialised).toContain("AgeConversionCache");
+    expect(serialised).toContain("age-dependent");
+    expect(serialised).toContain("InterestTrendResponse");
+    expect(serialised).toContain("latestPublishedQuarter");
+    expect(serialised).toContain(
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+    );
+    expect(serialised).not.toContain("sgsYields");
   });
 });

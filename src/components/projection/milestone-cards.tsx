@@ -1,5 +1,6 @@
 import { Card, Typography } from "@heroui/react";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_RULES } from "@/policy";
 import type { AccountBalances, ProjectionResult } from "@/types";
 
 interface MilestoneCardsProps {
@@ -11,27 +12,39 @@ function getTotalBalance(balances: AccountBalances): number {
 }
 
 export default function MilestoneCards({ result }: MilestoneCardsProps) {
+  const retirementAccountAge =
+    CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
+  const payoutEligibilityAge =
+    CPF_POLICY_RULES.lifecycleAges.cpfLifePayoutEligibility;
+  const latestPayoutStartAge =
+    CPF_POLICY_RULES.lifecycleAges.latestCpfLifePayoutStart;
   const milestones = [
     {
-      age: 55,
+      age: retirementAccountAge,
       balances: result.milestones.age55,
-      available: result.yearlyBalances.some(({ age }) => age === 55),
+      available: result.yearlyBalances.some(
+        ({ age }) => age === retirementAccountAge,
+      ),
       description:
         result.assumptions.retirementRouting === "full-retirement-sum"
           ? "SA, then OA, is routed to RA up to the cohort FRS; remaining SA moves to OA after closure."
-          : "Shows the selected BRS cash branch with an eligible property pledge; actual eligibility must be confirmed with CPF.",
+          : "Shows the selected BRS cash branch with an eligible property pledge. Later contributions and MediSave overflow still refill RA towards the cohort FRS; actual eligibility must be confirmed with CPF.",
     },
     {
-      age: 65,
+      age: payoutEligibilityAge,
       balances: result.milestones.age65,
-      available: result.yearlyBalances.some(({ age }) => age === 65),
+      available: result.yearlyBalances.some(
+        ({ age }) => age === payoutEligibilityAge,
+      ),
       description:
         "A useful checkpoint for retirement readiness and CPF LIFE planning.",
     },
     {
-      age: 70,
+      age: latestPayoutStartAge,
       balances: result.milestones.age70,
-      available: result.yearlyBalances.some(({ age }) => age === 70),
+      available: result.yearlyBalances.some(
+        ({ age }) => age === latestPayoutStartAge,
+      ),
       description:
         "A balance checkpoint only; CPF LIFE payout deferment is not estimated here.",
     },

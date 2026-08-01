@@ -67,11 +67,6 @@
         "responses": {
           "200": {
             "description": "Successful source-backed calculation",
-            "headers": {
-              "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -190,7 +185,7 @@
               },
               "example": {
                 "monthlyIncome": 6000,
-                "birthDate": "1990-04",
+                "birthDate": "04/1990",
                 "startMonth": "2026-08",
                 "initialBalances": {
                   "oa": 90000,
@@ -231,7 +226,7 @@
       "get": {
         "operationId": "getAgeGroups",
         "summary": "List official age bands",
-        "description": "Returns sourced age bands with `maxAgeInclusive`. From 2025, members aged 55 and above have RA rather than SA. Rates still depend on contribution month and citizenship; use `/calculate` for an exact result.",
+        "description": "Returns sourced age bands with `maxAgeInclusive`. From 2025, a generic band that crosses age 55 exposes explicit age-dependent SA-to-RA routing; an exact lookup resolves age 55 to RA. Rates still depend on contribution month and citizenship; use `/calculate` for an exact result.",
         "tags": ["Age Groups"],
         "parameters": [
           {
@@ -256,6 +251,11 @@
         "responses": {
           "200": {
             "description": "Official age bands and policy provenance",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -294,6 +294,9 @@
           "404": {
             "$ref": "#/components/responses/UnsupportedPolicy"
           },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           }
@@ -313,8 +316,9 @@
             "required": false,
             "description": "Completed age. Supply this or `birthMonth`.",
             "schema": {
-              "type": "number",
-              "minimum": 0
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 150
             }
           },
           {
@@ -325,6 +329,14 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          },
+          {
+            "name": "citizenship",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Citizenship"
             }
           },
           {
@@ -340,6 +352,11 @@
         "responses": {
           "200": {
             "description": "Matching band",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -347,9 +364,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
           },
           "404": {
             "$ref": "#/components/responses/UnsupportedPolicy"
@@ -363,14 +377,15 @@
     "/age/from-birthdate": {
       "get": {
         "operationId": "getAgeFromBirthdate",
-        "summary": "Resolve completed age for a contribution month",
-        "description": "Resolves completed age and whether the new CPF age band applies in the requested contribution month.",
+        "summary": "Resolve month-aware age and CPF transition context",
+        "description": "Supply `birthMonth=YYYY-MM` and `contributionMonth=YYYY-MM` for deterministic CPF age-band treatment. The deprecated `birthDate=MM/YYYY` alias may omit contributionMonth for one compatibility cycle; that path defaults to the current Singapore month, warns, and is returned with `private, no-store` caching.",
         "tags": ["Age Groups"],
         "parameters": [
           {
             "name": "birthMonth",
             "in": "query",
-            "required": true,
+            "required": false,
+            "description": "Birth month in YYYY-MM format. Supply this or the deprecated birthDate alias.",
             "schema": {
               "type": "string",
               "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
@@ -379,46 +394,43 @@
           {
             "name": "contributionMonth",
             "in": "query",
-            "required": true,
+            "required": false,
+            "description": "Required with birthMonth. May be omitted only on the deprecated birthDate compatibility path.",
             "schema": {
               "type": "string",
               "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          },
+          {
+            "name": "birthDate",
+            "in": "query",
+            "required": false,
+            "deprecated": true,
+            "description": "Deprecated MM/YYYY alias for birthMonth.",
+            "schema": {
+              "type": "string",
+              "pattern": "^(0[1-9]|1[0-2])/\\d{4}$"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Resolved age context",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/AgeConversionCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "birthMonth": {
-                      "type": "string"
-                    },
-                    "contributionMonth": {
-                      "type": "string"
-                    },
-                    "completedAge": {
-                      "type": "integer"
-                    },
-                    "nextBandApplies": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "birthMonth",
-                    "contributionMonth",
-                    "completedAge",
-                    "nextBandApplies"
-                  ]
+                  "$ref": "#/components/schemas/AgeConversionResponse"
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
           },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
@@ -436,7 +448,7 @@
           {
             "name": "contributionMonth",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
@@ -456,6 +468,11 @@
         "responses": {
           "200": {
             "description": "Official OW and annual AW ceilings",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -482,6 +499,11 @@
         "responses": {
           "200": {
             "description": "Official ceiling schedule",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -490,7 +512,7 @@
                     "timeline": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/WageCeilingResponse"
+                        "$ref": "#/components/schemas/WageCeilingTimelineItem"
                       }
                     },
                     "policy": {
@@ -515,7 +537,7 @@
           {
             "name": "year",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "integer",
               "minimum": 2016,
@@ -526,10 +548,22 @@
         "responses": {
           "200": {
             "description": "Published BHS amount and provenance",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReferenceAmountResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/BhsResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BhsCollectionResponse"
+                    }
+                  ]
                 }
               }
             }
@@ -553,7 +587,7 @@
           {
             "name": "year",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "integer",
               "minimum": 2023,
@@ -564,28 +598,22 @@
         "responses": {
           "200": {
             "description": "Published retirement sums and provenance",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "year": {
-                      "type": "integer"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/RetirementSumsResponse"
                     },
-                    "brs": {
-                      "type": "number"
-                    },
-                    "frs": {
-                      "type": "number"
-                    },
-                    "ers": {
-                      "type": "number"
-                    },
-                    "policy": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
+                    {
+                      "$ref": "#/components/schemas/RetirementSumsCollectionResponse"
                     }
-                  },
-                  "required": ["year", "brs", "frs", "ers", "policy"]
+                  ]
                 }
               }
             }
@@ -608,6 +636,11 @@
         "responses": {
           "200": {
             "description": "Official quarterly observations and methodology",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -654,6 +687,11 @@
         "responses": {
           "200": {
             "description": "Peg calculation",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -707,14 +745,16 @@
         "tags": ["Interest Rates"],
         "responses": {
           "200": {
-            "description": "Official quarterly observations",
+            "description": "Official quarterly observations, methodology, and provenance",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/QuarterlyInterestObservation"
-                  }
+                  "$ref": "#/components/schemas/InterestTrendResponse"
                 }
               }
             }
@@ -830,6 +870,16 @@
           "type": "string",
           "example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
         }
+      },
+      "AgeConversionCache": {
+        "description": "An explicit modern contribution month uses the 24-hour policy cache. A deprecated birthDate request that defaults the month returns `private, no-store`.",
+        "schema": {
+          "type": "string",
+          "examples": [
+            "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+            "private, no-store"
+          ]
+        }
       }
     },
     "responses": {
@@ -938,8 +988,9 @@
             "$ref": "#/components/schemas/Citizenship"
           },
           "age": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
+            "maximum": 150,
             "description": "Completed age. Mutually exclusive with `birthMonth`."
           },
           "birthMonth": {
@@ -1043,7 +1094,22 @@
         "description": "Per-dataset provenance. A frozen future projection uses `assumed`, identifies the official base year/version, and explains the freeze in notes.",
         "properties": {
           "dataset": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "cpf-contribution-rates",
+              "cpf-allocation-rates",
+              "cpf-wage-ceilings",
+              "cpf-basic-healthcare-sum",
+              "cpf-retirement-sums",
+              "cpf-interest-rates",
+              "cpf-extra-interest",
+              "cpf-special-account-closure",
+              "cpf-life-reference-payouts",
+              "cpf-retirement-top-ups",
+              "cpf-housing-refunds",
+              "iras-cpf-cash-top-up-relief",
+              "mom-retirement-re-employment-ages"
+            ]
           },
           "label": {
             "type": "string"
@@ -1067,9 +1133,6 @@
             "type": "string",
             "format": "date"
           },
-          "basedOnYear": {
-            "type": "integer"
-          },
           "sources": {
             "type": "array",
             "items": {
@@ -1086,7 +1149,15 @@
             }
           }
         },
-        "required": ["dataset", "status", "effectiveFrom", "verifiedAt"]
+        "required": [
+          "dataset",
+          "label",
+          "version",
+          "status",
+          "effectiveFrom",
+          "verifiedAt",
+          "sources"
+        ]
       },
       "ContributionResult": {
         "type": "object",
@@ -1135,6 +1206,29 @@
               }
             },
             "required": ["ordinaryWages", "additionalWages", "total"]
+          },
+          "age": {
+            "type": "object",
+            "properties": {
+              "completedAge": {
+                "type": "integer"
+              },
+              "contributionBand": {
+                "type": "string"
+              },
+              "allocationBand": {
+                "type": "string"
+              },
+              "transitionAppliedFromBirthMonth": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "completedAge",
+              "contributionBand",
+              "allocationBand",
+              "transitionAppliedFromBirthMonth"
+            ]
           },
           "schedule": {
             "type": "object",
@@ -1225,6 +1319,7 @@
           "afterCpfContribution",
           "wageBand",
           "subjectWages",
+          "age",
           "schedule",
           "warnings",
           "policy"
@@ -1255,6 +1350,7 @@
       },
       "ProjectionInput": {
         "type": "object",
+        "description": "New clients supply the complete v2 starting context. Compatibility requests may omit startMonth and initialBalances, or use income/age/years, only with explicit response warnings.",
         "properties": {
           "monthlyIncome": {
             "type": "number",
@@ -1263,7 +1359,8 @@
           },
           "birthDate": {
             "type": "string",
-            "description": "Birth month in YYYY-MM format."
+            "pattern": "^(0[1-9]|1[0-2])/\\d{4}$",
+            "description": "Birth month in MM/YYYY format."
           },
           "startMonth": {
             "type": "string",
@@ -1274,18 +1371,39 @@
           },
           "endAge": {
             "type": "integer",
-            "minimum": 18,
+            "minimum": 0,
             "maximum": 100
+          },
+          "startAge": {
+            "type": "integer",
+            "minimum": 0,
+            "deprecated": true,
+            "description": "Compatibility field. Prefer birthDate so birthday-month transitions can be resolved exactly."
           },
           "citizenship": {
             "$ref": "#/components/schemas/Citizenship"
+          },
+          "housingWithdrawal": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Optional SimplyCPF scenario input, not a CPF Board assumption."
+          },
+          "permanentResidentSince": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+            "description": "Month PR status began. Required by the UI for SPR Year 1/2 so anniversary transitions can be resolved; legacy omission freezes the selected graduated year and returns a warning."
+          },
+          "netSaSavingsWithdrawnForInvestments": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Net SA savings withdrawn for investments. These count towards the under-55 FRS limit for retirement top-ups and OA retirement transfers; omitting the field can overstate capacity and produces a warning when relevant."
           },
           "voluntaryTopUp": {
             "type": "object",
             "properties": {
               "amount": {
                 "type": "number",
-                "minimum": 0
+                "exclusiveMinimum": 0
               },
               "account": {
                 "type": "string",
@@ -1304,7 +1422,7 @@
             "properties": {
               "amount": {
                 "type": "number",
-                "minimum": 0
+                "exclusiveMinimum": 0
               },
               "timing": {
                 "type": "string",
@@ -1319,7 +1437,8 @@
             "type": "object",
             "properties": {
               "amount": {
-                "type": "number"
+                "type": "number",
+                "exclusiveMinimum": 0
               },
               "timing": {
                 "type": "string",
@@ -1333,15 +1452,45 @@
             "enum": [
               "full-retirement-sum",
               "basic-retirement-sum-with-property"
-            ]
+            ],
+            "description": "Explicit scenario choice for age-55 routing. If omitted, the engine states its assumption in the result."
+          },
+          "income": {
+            "type": "number",
+            "minimum": 0,
+            "deprecated": true,
+            "description": "Legacy projection alias for monthlyIncome. Accepted only with age and years."
+          },
+          "age": {
+            "type": "integer",
+            "minimum": 0,
+            "deprecated": true,
+            "description": "Legacy completed-age field. Accepted only with income and years."
+          },
+          "years": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "deprecated": true,
+            "description": "Legacy projection duration. Accepted only with income and age."
           }
         },
-        "required": [
-          "monthlyIncome",
-          "birthDate",
-          "startMonth",
-          "initialBalances",
-          "citizenship"
+        "anyOf": [
+          {
+            "required": [
+              "monthlyIncome",
+              "birthDate",
+              "startMonth",
+              "initialBalances",
+              "citizenship"
+            ]
+          },
+          {
+            "required": ["monthlyIncome", "birthDate", "citizenship"]
+          },
+          {
+            "required": ["income", "age", "years"]
+          }
         ],
         "additionalProperties": false
       },
@@ -1365,8 +1514,66 @@
                 "age": {
                   "type": "integer"
                 },
+                "ageGroup": {
+                  "type": "string"
+                },
                 "balances": {
                   "$ref": "#/components/schemas/AccountBalances"
+                },
+                "contributions": {
+                  "type": "object",
+                  "properties": {
+                    "employee": { "type": "number" },
+                    "employer": { "type": "number" },
+                    "total": { "type": "number" }
+                  },
+                  "required": ["employee", "employer", "total"]
+                },
+                "distribution": {
+                  "type": "object",
+                  "properties": {
+                    "oa": { "type": "number" },
+                    "sa": { "type": "number" },
+                    "ma": { "type": "number" },
+                    "ra": { "type": "number" }
+                  },
+                  "required": ["oa", "sa", "ma", "ra"]
+                },
+                "interestEarned": {
+                  "type": "object",
+                  "properties": {
+                    "oa": { "type": "number" },
+                    "sa": { "type": "number" },
+                    "ma": { "type": "number" },
+                    "ra": { "type": "number" },
+                    "extraInterest": { "type": "number" }
+                  },
+                  "required": ["oa", "sa", "ma", "ra", "extraInterest"]
+                },
+                "housingWithdrawal": {
+                  "type": "number"
+                },
+                "voluntaryTopUp": {
+                  "type": "number"
+                },
+                "retirementTransfer": {
+                  "type": "number"
+                },
+                "topUpTaxReliefEligible": {
+                  "type": "number",
+                  "description": "Tax-relief-eligible portion tracked separately from actual top-up capacity."
+                },
+                "bhs": {
+                  "type": "number"
+                },
+                "retirementSums": {
+                  "type": "object",
+                  "properties": {
+                    "brs": { "type": "number" },
+                    "frs": { "type": "number" },
+                    "ers": { "type": "number" }
+                  },
+                  "required": ["brs", "frs", "ers"]
                 },
                 "policy": {
                   "type": "object",
@@ -1378,26 +1585,66 @@
                     "contribution": {
                       "$ref": "#/components/schemas/PolicyMetadata"
                     },
+                    "allocation": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "wageCeiling": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
                     "bhs": {
                       "$ref": "#/components/schemas/PolicyMetadata"
                     },
                     "retirementSums": {
                       "$ref": "#/components/schemas/PolicyMetadata"
                     },
+                    "cohortRetirementSum": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
                     "interest": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "extraInterest": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "specialAccountClosure": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "retirementTopUps": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "taxRelief": {
                       "$ref": "#/components/schemas/PolicyMetadata"
                     }
                   },
                   "required": [
                     "status",
                     "contribution",
+                    "allocation",
+                    "wageCeiling",
                     "bhs",
                     "retirementSums",
-                    "interest"
+                    "cohortRetirementSum",
+                    "interest",
+                    "extraInterest",
+                    "specialAccountClosure",
+                    "retirementTopUps",
+                    "taxRelief"
                   ]
                 }
               },
-              "required": ["year", "month", "age", "balances", "policy"]
+              "required": [
+                "year",
+                "month",
+                "age",
+                "ageGroup",
+                "balances",
+                "contributions",
+                "distribution",
+                "interestEarned",
+                "bhs",
+                "retirementSums",
+                "policy"
+              ]
             }
           },
           "cpfLifeReference": {
@@ -1414,7 +1661,21 @@
               "type": "object",
               "properties": {
                 "code": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "initial-balances-defaulted",
+                    "start-month-defaulted",
+                    "legacy-projection-input",
+                    "legacy-transfer-field",
+                    "legacy-top-up-account",
+                    "ma-tax-relief-not-estimated",
+                    "future-policy-frozen",
+                    "retirement-routing-assumed",
+                    "cpf-life-estimate-removed",
+                    "pr-anniversary-not-modelled",
+                    "pr-year-resolved-from-date",
+                    "retirement-top-up-capacity-context-missing"
+                  ]
                 },
                 "message": {
                   "type": "string"
@@ -1425,7 +1686,65 @@
           },
           "assumptions": {
             "type": "object",
-            "description": "SimplyCPF projection assumptions, not CPF Board facts."
+            "description": "SimplyCPF projection assumptions, not CPF Board facts.",
+            "properties": {
+              "salary": {
+                "const": "fixed-monthly-ordinary-wages"
+              },
+              "interest": {
+                "const": "cpf-floor-rates"
+              },
+              "futurePolicy": {
+                "const": "freeze-last-published"
+              },
+              "retirementRouting": {
+                "type": "string",
+                "enum": [
+                  "full-retirement-sum",
+                  "basic-retirement-sum-with-property"
+                ]
+              }
+            },
+            "required": [
+              "salary",
+              "interest",
+              "futurePolicy",
+              "retirementRouting"
+            ]
+          },
+          "milestones": {
+            "type": "object",
+            "properties": {
+              "age55": {
+                "$ref": "#/components/schemas/AccountBalances"
+              },
+              "age65": {
+                "$ref": "#/components/schemas/AccountBalances"
+              },
+              "age70": {
+                "$ref": "#/components/schemas/AccountBalances"
+              }
+            },
+            "required": ["age55", "age65"]
+          },
+          "totalContributed": {
+            "type": "number"
+          },
+          "totalInterestEarned": {
+            "type": "number"
+          },
+          "deprecatedInput": {
+            "type": "object",
+            "deprecated": true,
+            "description": "Echo of the legacy income/age/years envelope when that compatibility path was used."
+          },
+          "projections": {
+            "type": "array",
+            "deprecated": true,
+            "description": "Legacy annual contribution projection supplied only for income/age/years compatibility requests.",
+            "items": {
+              "type": "object"
+            }
           }
         },
         "required": [
@@ -1434,7 +1753,10 @@
           "cpfLifeReference",
           "cpfLifeEstimate",
           "warnings",
-          "assumptions"
+          "assumptions",
+          "milestones",
+          "totalContributed",
+          "totalInterestEarned"
         ]
       },
       "CpfLifeReference": {
@@ -1479,6 +1801,9 @@
               ]
             }
           },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          },
           "sourceUrl": {
             "type": "string",
             "format": "uri"
@@ -1500,6 +1825,7 @@
           "plan",
           "profile",
           "rows",
+          "policy",
           "sourceUrl",
           "personalisedEstimatorUrl",
           "verifiedAt",
@@ -1516,18 +1842,27 @@
             "type": "string"
           },
           "minAgeExclusive": {
-            "type": "number"
+            "type": "integer"
           },
           "maxAgeInclusive": {
-            "type": "number",
+            "type": "integer",
             "description": "Inclusive upper age bound; omitted only for the final open-ended band."
           },
           "retirementAccount": {
             "type": "string",
-            "enum": ["SA", "RA"]
+            "enum": ["SA", "RA", "age-dependent"],
+            "description": "A generic band that crosses age 55 is age-dependent; use retirementRouting. Exact lookup responses resolve to SA or RA."
+          },
+          "retirementRouting": {
+            "$ref": "#/components/schemas/AgeRetirementRouting"
           },
           "contributionRate": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "employee": { "type": "number" },
+              "employer": { "type": "number" }
+            },
+            "required": ["employee", "employer"]
           },
           "allocationRate": {
             "$ref": "#/components/schemas/AllocationRate"
@@ -1537,6 +1872,7 @@
           "id",
           "description",
           "retirementAccount",
+          "retirementRouting",
           "contributionRate",
           "allocationRate"
         ]
@@ -1555,11 +1891,47 @@
             "type": "number",
             "description": "Present for members aged 55 and above after the 2025 SA closure."
           },
+          "retirement": {
+            "type": "number",
+            "description": "Retirement allocation rate when a generic band crosses age 55 and the destination is age-dependent."
+          },
           "MA": {
             "type": "number"
           }
         },
         "required": ["OA", "MA"]
+      },
+      "AgeRetirementRouting": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": { "const": "fixed" },
+              "account": {
+                "type": "string",
+                "enum": ["SA", "RA"]
+              }
+            },
+            "required": ["type", "account"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": { "const": "age-dependent" },
+              "thresholdAge": { "const": 55 },
+              "belowThresholdAccount": { "const": "SA" },
+              "atOrAboveThresholdAccount": { "const": "RA" }
+            },
+            "required": [
+              "type",
+              "thresholdAge",
+              "belowThresholdAccount",
+              "atOrAboveThresholdAccount"
+            ],
+            "additionalProperties": false
+          }
+        ]
       },
       "ScheduleSummary": {
         "type": "object",
@@ -1609,15 +1981,131 @@
               },
               "policy": {
                 "$ref": "#/components/schemas/AgePolicyMetadata"
+              },
+              "completedAge": {
+                "type": "integer"
               }
             },
             "required": [
               "contributionMonth",
               "citizenship",
               "schedule",
-              "policy"
+              "policy",
+              "completedAge"
             ]
           }
+        ]
+      },
+      "AgeConversionResponse": {
+        "type": "object",
+        "properties": {
+          "birthDate": {
+            "type": "string",
+            "deprecated": true,
+            "description": "Present only when the deprecated birthDate alias was supplied."
+          },
+          "age": {
+            "type": "integer",
+            "deprecated": true,
+            "description": "Legacy completed-age alias present only with birthDate."
+          },
+          "birthMonth": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+          },
+          "contributionMonth": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+          },
+          "completedAge": {
+            "type": "integer"
+          },
+          "ageInMonths": {
+            "type": "integer"
+          },
+          "isBirthdayMonth": {
+            "type": "boolean"
+          },
+          "cpfRateTransition": {
+            "type": "object",
+            "properties": {
+              "contributionBand": { "type": "string" },
+              "allocationBand": { "type": "string" },
+              "nextAgeBandStartsMonthAfterBirthday": { "const": true }
+            },
+            "required": [
+              "contributionBand",
+              "allocationBand",
+              "nextAgeBandStartsMonthAfterBirthday"
+            ]
+          },
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "effectiveFrom": { "type": "string", "format": "date" },
+              "effectiveTo": { "type": "string", "format": "date" },
+              "status": {
+                "type": "string",
+                "enum": ["official", "assumed"]
+              }
+            },
+            "required": ["id", "effectiveFrom", "effectiveTo", "status"]
+          },
+          "policy": {
+            "type": "object",
+            "properties": {
+              "contribution": {
+                "$ref": "#/components/schemas/PolicyMetadata"
+              },
+              "allocation": {
+                "$ref": "#/components/schemas/PolicyMetadata"
+              },
+              "ageTransition": {
+                "type": "object",
+                "properties": {
+                  "status": { "const": "official" },
+                  "verifiedAt": { "type": "string", "format": "date" },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PolicySource"
+                    }
+                  }
+                },
+                "required": ["status", "verifiedAt", "sources"]
+              }
+            },
+            "required": ["contribution", "allocation", "ageTransition"]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "deprecated-birth-date-alias",
+                    "contribution-month-defaulted"
+                  ]
+                },
+                "message": { "type": "string" }
+              },
+              "required": ["code", "message"]
+            }
+          }
+        },
+        "required": [
+          "birthMonth",
+          "contributionMonth",
+          "completedAge",
+          "ageInMonths",
+          "isBirthdayMonth",
+          "cpfRateTransition",
+          "schedule",
+          "policy",
+          "warnings"
         ]
       },
       "WageCeilingResponse": {
@@ -1626,6 +2114,9 @@
           "effectiveFrom": {
             "type": "string",
             "format": "date"
+          },
+          "contributionMonth": {
+            "type": "string"
           },
           "effectiveTo": {
             "type": "string",
@@ -1640,6 +2131,52 @@
           },
           "policy": {
             "$ref": "#/components/schemas/PolicyMetadata"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": ["code", "message"]
+            }
+          }
+        },
+        "required": [
+          "contributionMonth",
+          "effectiveFrom",
+          "effectiveTo",
+          "ordinaryWageCeiling",
+          "additionalWageCeiling",
+          "policy",
+          "warnings"
+        ]
+      },
+      "WageCeilingTimelineItem": {
+        "type": "object",
+        "properties": {
+          "effectiveFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "effectiveTo": {
+            "type": "string",
+            "format": "date"
+          },
+          "ordinaryWageCeiling": {
+            "type": "number"
+          },
+          "additionalWageCeiling": {
+            "type": "number"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyMetadata"
           }
         },
         "required": [
@@ -1650,20 +2187,137 @@
           "policy"
         ]
       },
-      "ReferenceAmountResponse": {
+      "BhsResponse": {
         "type": "object",
         "properties": {
           "year": {
             "type": "integer"
           },
-          "value": {
+          "bhs": {
             "type": "number"
           },
-          "policy": {
+          "status": {
+            "const": "official"
+          },
+          "metadata": {
             "$ref": "#/components/schemas/PolicyMetadata"
           }
         },
-        "required": ["year", "value", "policy"]
+        "required": ["year", "bhs", "status", "metadata"]
+      },
+      "BhsCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "year": {
+                  "type": "integer"
+                },
+                "bhs": {
+                  "type": "number"
+                },
+                "status": {
+                  "const": "official"
+                }
+              },
+              "required": ["year", "bhs", "status"]
+            }
+          },
+          "latestPublishedYear": {
+            "type": "integer"
+          },
+          "latestPublished": {
+            "type": "number"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          }
+        },
+        "required": [
+          "years",
+          "observations",
+          "latestPublishedYear",
+          "latestPublished",
+          "metadata"
+        ]
+      },
+      "RetirementSumsResponse": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "brs": {
+            "type": "number"
+          },
+          "frs": {
+            "type": "number"
+          },
+          "ers": {
+            "type": "number"
+          },
+          "status": {
+            "const": "official"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          }
+        },
+        "required": ["year", "brs", "frs", "ers", "status", "metadata"]
+      },
+      "RetirementSumsCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "brs": {
+                  "type": "number"
+                },
+                "frs": {
+                  "type": "number"
+                },
+                "ers": {
+                  "type": "number"
+                }
+              },
+              "required": ["brs", "frs", "ers"]
+            }
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "latestPublishedYear": {
+            "type": "integer"
+          },
+          "latestPublished": {
+            "type": "object"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          }
+        },
+        "required": [
+          "years",
+          "observations",
+          "latestPublishedYear",
+          "latestPublished",
+          "metadata"
+        ]
       },
       "QuarterlyInterestObservation": {
         "type": "object",
@@ -1716,43 +2370,152 @@
           "verifiedAt"
         ]
       },
+      "QuarterlyInterestDeclaration": {
+        "type": "object",
+        "properties": {
+          "quarter": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "effectiveTo": {
+            "type": "string",
+            "format": "date"
+          },
+          "oa": {
+            "type": "number"
+          },
+          "sa": {
+            "type": "number"
+          },
+          "ma": {
+            "type": "number"
+          },
+          "ra": {
+            "type": "number"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "status": {
+            "const": "official"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "quarter",
+          "effectiveFrom",
+          "effectiveTo",
+          "oa",
+          "sa",
+          "ma",
+          "ra",
+          "sourceUrl",
+          "status",
+          "verifiedAt"
+        ]
+      },
       "InterestRatesResponse": {
         "type": "object",
         "properties": {
           "quarterlyRates": {
             "type": "array",
             "items": {
+              "$ref": "#/components/schemas/QuarterlyInterestDeclaration"
+            }
+          },
+          "methodology": {
+            "$ref": "#/components/schemas/InterestRateMethodology"
+          },
+          "metadata": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PolicyMetadata"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "latestPublishedQuarter": {
+                    "type": "string"
+                  }
+                },
+                "required": ["latestPublishedQuarter"]
+              }
+            ]
+          }
+        },
+        "required": ["quarterlyRates", "methodology", "metadata"]
+      },
+      "InterestRateMethodology": {
+        "type": "object",
+        "properties": {
+          "ordinaryAccount": {
+            "type": "object",
+            "properties": {
+              "peg": { "type": "string" },
+              "floorRate": { "type": "number" },
+              "reviewFrequency": { "type": "string" }
+            },
+            "required": ["peg", "floorRate", "reviewFrequency"]
+          },
+          "specialMediSaveRetirementAccounts": {
+            "type": "object",
+            "properties": {
+              "peg": { "type": "string" },
+              "markupPercentagePoints": { "type": "number" },
+              "floorRate": { "type": "number" },
+              "floorGuaranteedThrough": {
+                "type": "string",
+                "format": "date"
+              },
+              "reviewFrequency": { "type": "string" }
+            },
+            "required": [
+              "peg",
+              "markupPercentagePoints",
+              "floorRate",
+              "floorGuaranteedThrough",
+              "reviewFrequency"
+            ]
+          },
+          "status": { "const": "official" },
+          "verifiedAt": { "type": "string", "format": "date" },
+          "sourceUrls": {
+            "type": "array",
+            "items": { "type": "string", "format": "uri" }
+          }
+        },
+        "required": [
+          "ordinaryAccount",
+          "specialMediSaveRetirementAccounts",
+          "status",
+          "verifiedAt",
+          "sourceUrls"
+        ]
+      },
+      "InterestTrendResponse": {
+        "type": "object",
+        "properties": {
+          "observations": {
+            "type": "array",
+            "items": {
               "$ref": "#/components/schemas/QuarterlyInterestObservation"
             }
           },
           "methodology": {
-            "type": "object",
-            "properties": {
-              "OA": {
-                "type": "object"
-              },
-              "SMRA": {
-                "type": "object"
-              },
-              "sourceUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "status": {
-                "const": "official"
-              },
-              "verifiedAt": {
-                "type": "string",
-                "format": "date"
-              }
-            },
-            "required": ["OA", "SMRA", "sourceUrl", "status", "verifiedAt"]
+            "$ref": "#/components/schemas/InterestRateMethodology"
           },
-          "metadata": {
+          "policy": {
             "$ref": "#/components/schemas/PolicyMetadata"
           }
         },
-        "required": ["quarterlyRates", "methodology", "metadata"]
+        "required": ["observations", "methodology", "policy"]
       }
     }
   }

@@ -54,7 +54,7 @@ Omitting that context returns HTTP `422`; the service does not infer annual wage
 ```json
 {
   "monthlyIncome": 6000,
-  "birthDate": "1990-04",
+  "birthDate": "04/1990",
   "startMonth": "2026-08",
   "initialBalances": {
     "oa": 90000,
@@ -78,7 +78,7 @@ The projection ledger is monthly. It holds fixed monthly OW and the last publish
 | `422` | Well-formed request lacks required context, such as AW ceiling context |
 | `429` | Rate limit exceeded |
 
-Deprecated for one compatibility cycle: `income` → `ordinaryWages`, `date` → `contributionMonth`, `oaToSaTransfer` → `retirementTransfer`, and `sgsYield` → `averageSgsYield`. Deprecation warnings are returned in successful responses.
+Deprecated for one compatibility cycle: contribution `income` → `ordinaryWages`, `date` → `contributionMonth`; projection `income`/`age`/`years` → the v2 monthly-ledger fields, `startAge` → exact `birthDate`, and `oaToSaTransfer` → `retirementTransfer`; age utility `birthDate` → `birthMonth` plus `contributionMonth`; interest `sgsYield` → `averageSgsYield`. Deprecation warnings are returned in successful responses.
 
 ## Next steps
 

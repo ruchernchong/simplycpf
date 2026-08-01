@@ -1,25 +1,25 @@
 import { Card, Typography } from "@heroui/react";
-import { CPF_INCOME_CEILING } from "@/constants";
-import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import { formatNumber } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
-const CpfStatisticBlock = () => {
-  const currentCeiling = CPF_INCOME_CEILING["2026-01-01"];
+export default function CpfStatisticBlock() {
+  const schedule = resolveContributionSchedule("2026-08").schedule;
+  const interest = CPF_POLICY_CATALOGUE.interestRateMethodology;
   const stats = [
     {
-      label: "Current income ceiling (2026)",
-      value: `S$${formatNumber(currentCeiling)}`,
-      detail: "Final ceiling under 2023 Budget changes",
+      label: `Monthly OW ceiling (${schedule.effectiveFrom.slice(0, 4)})`,
+      value: `S$${formatNumber(schedule.ordinaryWageCeiling)}`,
+      detail: `Official schedule ${schedule.id}`,
     },
     {
       label: "OA interest rate (floor)",
-      value: `${CPF_INTEREST_FLOOR_RATES.OA}% p.a.`,
-      detail: "Fixed, not pegged to SGS",
+      value: `${interest.ordinaryAccount.floorRate}% p.a.`,
+      detail: interest.ordinaryAccount.peg,
     },
     {
       label: "SMRA interest rate (floor)",
-      value: `${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.`,
-      detail: "Minimum guaranteed; may earn more",
+      value: `${interest.specialMediSaveRetirementAccounts.floorRate}% p.a.`,
+      detail: interest.specialMediSaveRetirementAccounts.peg,
     },
   ];
 
@@ -54,6 +54,4 @@ const CpfStatisticBlock = () => {
       </Card>
     </section>
   );
-};
-
-export default CpfStatisticBlock;
+}

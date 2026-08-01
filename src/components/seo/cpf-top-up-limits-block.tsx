@@ -1,30 +1,14 @@
-import { Card, Typography } from "@heroui/react";
+import { Card, Link, Typography } from "@heroui/react";
 import { formatNumber } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
-/**
- * Cash top-up tax relief under the Retirement Sum Topping-Up Scheme, and the
- * separate Matched Retirement Savings Scheme matching grant.
- *
- * Tax relief caps and the spouse/sibling income condition (raised to $8,000
- * from YA2025): IRAS, CPF Cash Top-up Relief.
- * https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions/tax-reliefs/central-provident-fund-(cpf)-cash-top-up-relief
- *
- * MRSS matching grant, caps and the removal of the age-70 limit from
- * 1 January 2025: CPF Board, Matching grant for retirement.
- * https://www.cpf.gov.sg/member/growing-your-savings/government-support/matching-grant-for-retirement
- */
-const TAX_RELIEF_SELF = 8000;
-const TAX_RELIEF_FAMILY = 8000;
-const FAMILY_INCOME_CONDITION = 8000;
-const MRSS_ANNUAL_CAP = 2000;
-const MRSS_LIFETIME_CAP = 20000;
-
-const CpfTopUpLimitsBlock = () => {
-  const combinedRelief = TAX_RELIEF_SELF + TAX_RELIEF_FAMILY;
-  // Illustrative only: the 4% SMRA floor rate compounded from age 30 to 55,
-  // rounded to the nearest hundred. Extra interest is not modelled.
-  const topUpAtFiftyFive =
-    Math.round((TAX_RELIEF_SELF * 1.04 ** 25) / 100) * 100;
+export default function CpfTopUpLimitsBlock() {
+  const policy = CPF_POLICY_CATALOGUE.rules.retirementTopUps;
+  const relief = policy.taxRelief;
+  const capacity = policy.actualCapacity;
+  const mrss = policy.matchedRetirementSavingsScheme;
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
 
   return (
     <section
@@ -34,117 +18,127 @@ const CpfTopUpLimitsBlock = () => {
       <Card>
         <Card.Header>
           <Card.Title id="cpf-top-up-limits">
-            CPF Top-Up Limits & Tax Relief
+            CPF Top-Up Capacity and Tax Relief
           </Card.Title>
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
           <Typography>
-            You can boost your CPF savings through cash top-ups, which also
-            qualify for <strong>tax relief</strong>. This is one of the most
-            tax-efficient ways to save for retirement in Singapore.
+            The amount you can actually top up and the amount eligible for tax
+            relief are different limits. SimplyCPF keeps them separate.
           </Typography>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
-              <Typography className="mb-1" type="body-sm" weight="semibold">
-                Top-Up to Your Own Account
+            <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-secondary p-4">
+              <Typography type="body-sm" weight="semibold">
+                Cash top-up to your own retirement savings
               </Typography>
               <Typography type="h3" weight="bold">
-                Up to S${formatNumber(TAX_RELIEF_SELF)}
+                Relief up to S$${formatNumber(relief.selfAnnualCap)}
               </Typography>
-              <Typography className="mt-1" color="muted" type="body-xs">
-                Cash top-up to your SA (under 55) or RA (55+) qualifies for tax
-                relief
-              </Typography>
-              <Typography className="mt-2 text-accent" type="body-xs">
-                Tax relief cap: S${formatNumber(TAX_RELIEF_SELF)} per calendar
-                year
+              <Typography color="muted" type="body-xs">
+                Cash goes to {capacity.below55Account} below age {retirementAge}{" "}
+                or {capacity.from55Account} from age {retirementAge}. The actual
+                top-up capacity is governed by the applicable retirement-sum
+                limit, not this tax-relief cap.
               </Typography>
             </div>
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
-              <Typography className="mb-1" type="body-sm" weight="semibold">
-                Top-Up for Family Members
+            <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-secondary p-4">
+              <Typography type="body-sm" weight="semibold">
+                Cash top-up for eligible family members
               </Typography>
               <Typography type="h3" weight="bold">
-                Up to S${formatNumber(TAX_RELIEF_FAMILY)}
+                Relief up to S$${formatNumber(relief.familyAnnualCap)}
               </Typography>
-              <Typography className="mt-1" color="muted" type="body-xs">
-                Top-up parents, parents-in-law, grandparents, spouse, or
-                siblings
-              </Typography>
-              <Typography className="mt-2 text-accent" type="body-xs">
-                Separate S${formatNumber(TAX_RELIEF_FAMILY)} cap for family
-                top-ups
+              <Typography color="muted" type="body-xs">
+                This is a separate annual relief category. Recipient eligibility
+                and the available top-up capacity still apply.
               </Typography>
             </div>
           </div>
 
           <Typography>
-            <strong>How the tax relief works:</strong>
+            <strong>Actual top-up capacity:</strong>
           </Typography>
-          <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
+          <ul className="flex flex-col gap-2 text-muted text-sm">
             <li>
-              The relief goes to the person making the top-up, not the person
-              receiving it
+              Below age {retirementAge}: {capacity.below55Limit}.
             </li>
             <li>
-              Maximum combined relief: S${formatNumber(combinedRelief)} per year
-              (S${formatNumber(TAX_RELIEF_SELF)} for your own account plus S$
-              {formatNumber(TAX_RELIEF_FAMILY)} for family members)
+              From age {retirementAge}: {capacity.from55Limit}.
             </li>
             <li>
-              For top-ups to a spouse or sibling, their income in the preceding
-              year must not exceed S$
-              {formatNumber(FAMILY_INCOME_CONDITION)} (from YA2025; it was
-              S$4,000 before). No income condition applies to parents,
-              parents-in-law or grandparents
-            </li>
-            <li>
-              Transfers from your own CPF account do not qualify, only cash
-              top-ups do
+              The available amount can therefore be lower or higher than the
+              annual tax-relief cap.
             </li>
           </ul>
 
           <Typography>
-            <strong>Matched Retirement Savings Scheme (MRSS):</strong>
+            <strong>Tax-relief conditions:</strong>
           </Typography>
-          <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
+          <ul className="flex flex-col gap-2 text-muted text-sm">
             <li>
-              A separate government matching grant, dollar for dollar, on cash
-              top-ups to eligible members&rsquo; retirement savings
+              Maximum combined cash top-up relief: S$
+              {formatNumber(relief.combinedAnnualCap)} per year across the two
+              categories.
             </li>
             <li>
-              Up to S${formatNumber(MRSS_ANNUAL_CAP)} a year, capped at S$
-              {formatNumber(MRSS_LIFETIME_CAP)} over a lifetime
+              For a spouse or sibling, the published preceding-year income
+              condition is S$
+              {formatNumber(relief.spouseOrSiblingIncomeCondition)}.
             </li>
             <li>
-              For members aged 55 and above with Retirement Account savings
-              below the Basic Retirement Sum, subject to income and property
-              criteria. The upper age limit of 70 was removed on 1 January 2025
+              CPF transfers do {relief.cpfTransfersQualify ? "" : "not "}
+              qualify for cash top-up relief.
             </li>
             <li>
-              Top-ups that attract an MRSS grant do not also attract the cash
-              top-up tax relief
+              All personal income-tax reliefs remain subject to the overall S$
+              {formatNumber(relief.overallPersonalReliefCap)} cap.
+            </li>
+          </ul>
+
+          <Typography>
+            <strong>Matched Retirement Savings Scheme:</strong>
+          </Typography>
+          <ul className="flex flex-col gap-2 text-muted text-sm">
+            <li>
+              The separate matching grant is capped at S$
+              {formatNumber(mrss.annualMatchingGrantCap)} a year and S$
+              {formatNumber(mrss.lifetimeMatchingGrantCap)} over a lifetime,
+              subject to CPF Board eligibility.
+            </li>
+            <li>
+              Qualifying top-ups that receive the matching grant do not also
+              receive cash top-up tax relief.
             </li>
           </ul>
 
           <Typography color="muted" type="body-sm">
-            <strong>Note:</strong> Top-ups are irreversible. Once you transfer
-            cash to CPF, it stays in CPF until retirement age (or for approved
-            housing/education/insurance purposes from OA only).
+            Retirement top-ups are irreversible and are reserved for retirement
+            payouts under the applicable CPF rules. Verify your personal
+            capacity and tax position with CPF Board and IRAS before
+            transferring funds.
           </Typography>
 
-          <Typography color="muted" type="body-sm">
-            <strong>Strategy tip:</strong> Top-ups early in the year earn a full
-            year of interest. A S${formatNumber(TAX_RELIEF_SELF)} top-up to SA
-            at age 30, left untouched at the 4% floor rate, would be worth about
-            S${formatNumber(topUpAtFiftyFive)} at 55. This illustration uses the
-            floor rate only and ignores extra interest.
-          </Typography>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href={policy.sourceUrls[0]}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              CPF Board top-up rules
+              <Link.Icon aria-hidden="true" />
+            </Link>
+            <Link
+              href={policy.sourceUrls[2]}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              IRAS cash top-up relief
+              <Link.Icon aria-hidden="true" />
+            </Link>
+          </div>
         </Card.Content>
       </Card>
     </section>
   );
-};
-
-export default CpfTopUpLimitsBlock;
+}

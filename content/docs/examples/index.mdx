@@ -77,7 +77,7 @@ response = requests.post(
     "https://simplycpf.com/api/cpf/projection",
     json={
         "monthlyIncome": 6000,
-        "birthDate": "1990-04",
+        "birthDate": "04/1990",
         "startMonth": "2026-08",
         "initialBalances": {
             "oa": 90000,
@@ -111,7 +111,7 @@ The returned salary and future-policy assumptions are part of the response. CPF 
 const response = await fetch(
   "https://simplycpf.com/api/cpf/interest-rates/trend",
 );
-const observations = await response.json();
+const { observations, methodology, policy } = await response.json();
 
 for (const observation of observations) {
   console.log(
@@ -123,6 +123,9 @@ for (const observation of observations) {
     observation.sourceUrl,
   );
 }
+
+console.log(methodology.specialMediSaveRetirementAccounts);
+console.log(policy.sources);
 ```
 
 This endpoint contains official quarterly declarations. It does not expose a reconstructed monthly SGS series.

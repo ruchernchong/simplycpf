@@ -3,6 +3,7 @@
 import { Button, Card, Chip, Typography } from "@heroui/react";
 import dynamic from "next/dynamic";
 import {
+  parseAsFloat,
   parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
@@ -11,9 +12,10 @@ import {
 import { useState, useTransition } from "react";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
+import { CPF_CONTRIBUTION_SCHEDULES, CPF_POLICY_RULES } from "@/policy";
 import type { ProjectionParams } from "@/types";
 import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
-import CpfLifeEstimate from "./cpf-life-estimate";
+import CpfLifeReferenceCard from "./cpf-life-estimate";
 import MilestoneCards from "./milestone-cards";
 import ProjectionForm, { type ProjectionFormValues } from "./projection-form";
 import YearlyProjectionTable from "./yearly-projection-table";
@@ -33,18 +35,26 @@ const BalanceGrowthChart = dynamic(() => import("./balance-growth-chart"), {
 });
 
 const defaultStartMonth = new Date().toISOString().slice(0, 7);
+const earliestProjectionMonth =
+  CPF_CONTRIBUTION_SCHEDULES[0].effectiveFrom.slice(0, 7);
+const retirementAccountAge =
+  CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
+const specialAccountClosureMonth =
+  CPF_POLICY_RULES.specialAccountClosure.effectiveDate.slice(0, 7);
 
 const defaultFormValues: ProjectionFormValues = {
   monthlyIncome: 0,
   birthDate: "",
   startMonth: defaultStartMonth,
-  endAge: 65,
+  endAge: CPF_POLICY_RULES.lifecycleAges.cpfLifePayoutEligibility,
   citizenship: "citizen",
+  permanentResidentSince: "",
   initialOa: 0,
   initialSa: 0,
   initialMa: 0,
   initialRa: 0,
   housingWithdrawal: 0,
+  netSaSavingsWithdrawnForInvestments: 0,
   topUpAmount: 0,
   topUpAccount: "retirement",
   topUpFrequency: "yearly",
@@ -68,28 +78,34 @@ const retirementRoutings = [
 ] as const;
 
 const projectionSearchParams = {
-  monthlyIncome: parseAsInteger.withDefault(defaultFormValues.monthlyIncome),
+  monthlyIncome: parseAsFloat.withDefault(defaultFormValues.monthlyIncome),
   birthDate: parseAsString.withDefault(defaultFormValues.birthDate),
   startMonth: parseAsString.withDefault(defaultFormValues.startMonth),
   endAge: parseAsInteger.withDefault(defaultFormValues.endAge),
   citizenship: parseAsStringLiteral(citizenshipStatuses).withDefault(
     defaultFormValues.citizenship,
   ),
-  initialOa: parseAsInteger.withDefault(defaultFormValues.initialOa),
-  initialSa: parseAsInteger.withDefault(defaultFormValues.initialSa),
-  initialMa: parseAsInteger.withDefault(defaultFormValues.initialMa),
-  initialRa: parseAsInteger.withDefault(defaultFormValues.initialRa),
-  housingWithdrawal: parseAsInteger.withDefault(
+  permanentResidentSince: parseAsString.withDefault(
+    defaultFormValues.permanentResidentSince,
+  ),
+  initialOa: parseAsFloat.withDefault(defaultFormValues.initialOa),
+  initialSa: parseAsFloat.withDefault(defaultFormValues.initialSa),
+  initialMa: parseAsFloat.withDefault(defaultFormValues.initialMa),
+  initialRa: parseAsFloat.withDefault(defaultFormValues.initialRa),
+  housingWithdrawal: parseAsFloat.withDefault(
     defaultFormValues.housingWithdrawal,
   ),
-  topUpAmount: parseAsInteger.withDefault(defaultFormValues.topUpAmount),
+  netSaSavingsWithdrawnForInvestments: parseAsFloat.withDefault(
+    defaultFormValues.netSaSavingsWithdrawnForInvestments,
+  ),
+  topUpAmount: parseAsFloat.withDefault(defaultFormValues.topUpAmount),
   topUpAccount: parseAsStringLiteral(topUpAccounts).withDefault(
     defaultFormValues.topUpAccount,
   ),
   topUpFrequency: parseAsStringLiteral(topUpFrequencies).withDefault(
     defaultFormValues.topUpFrequency,
   ),
-  transferAmount: parseAsInteger.withDefault(defaultFormValues.transferAmount),
+  transferAmount: parseAsFloat.withDefault(defaultFormValues.transferAmount),
   transferTiming: parseAsStringLiteral(transferTimings).withDefault(
     defaultFormValues.transferTiming,
   ),
@@ -119,11 +135,13 @@ export default function ProjectionContent() {
     urlKeys: {
       monthlyIncome: "income",
       startMonth: "start",
+      permanentResidentSince: "prSince",
       initialOa: "oa",
       initialSa: "sa",
       initialMa: "ma",
       initialRa: "ra",
       housingWithdrawal: "housing",
+      netSaSavingsWithdrawnForInvestments: "saInvestments",
       topUpAmount: "topUp",
       transferAmount: "transfer",
     },
@@ -132,20 +150,34 @@ export default function ProjectionContent() {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const hasValidBirthDate = isValidDateFormat(values.birthDate);
-  const hasValidStartMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(values.startMonth);
+  const hasValidStartMonth =
+    /^\d{4}-(0[1-9]|1[0-2])$/.test(values.startMonth) &&
+    values.startMonth >= earliestProjectionMonth;
   const currentAge =
     hasValidBirthDate && hasValidStartMonth
       ? getAgeAtMonth(values.birthDate, values.startMonth)
       : null;
-  const hasValidRange = currentAge === null || values.endAge >= currentAge;
+  const hasValidRange =
+    currentAge === null || (currentAge >= 0 && values.endAge >= currentAge);
   const hasValidAccountState =
     currentAge === null ||
-    (currentAge < 55 ? values.initialRa === 0 : values.initialSa === 0);
+    (currentAge < retirementAccountAge
+      ? values.initialRa === 0
+      : values.startMonth < specialAccountClosureMonth ||
+        values.initialSa === 0);
+  const needsPermanentResidentSince =
+    values.citizenship === "spr-year1" || values.citizenship === "spr-year2";
+  const hasValidPermanentResidentSince =
+    values.citizenship === "citizen" ||
+    (!values.permanentResidentSince && !needsPermanentResidentSince) ||
+    (/^\d{4}-(0[1-9]|1[0-2])$/.test(values.permanentResidentSince) &&
+      values.permanentResidentSince <= values.startMonth);
   const canProject =
     hasValidBirthDate &&
     hasValidStartMonth &&
     hasValidRange &&
-    hasValidAccountState;
+    hasValidAccountState &&
+    hasValidPermanentResidentSince;
 
   const projectionParams: ProjectionParams | null = canProject
     ? {
@@ -154,12 +186,17 @@ export default function ProjectionContent() {
         startMonth: values.startMonth,
         endAge: values.endAge,
         citizenship: values.citizenship,
+        ...(values.citizenship !== "citizen" && values.permanentResidentSince
+          ? { permanentResidentSince: values.permanentResidentSince }
+          : {}),
         initialBalances: {
           oa: values.initialOa,
           sa: values.initialSa,
           ma: values.initialMa,
           ra: values.initialRa,
         },
+        netSaSavingsWithdrawnForInvestments:
+          values.netSaSavingsWithdrawnForInvestments,
         retirementRouting: values.retirementRouting,
         ...(values.housingWithdrawal > 0
           ? { housingWithdrawal: values.housingWithdrawal }
@@ -224,6 +261,8 @@ export default function ProjectionContent() {
         values={values}
         currentAge={currentAge}
         hasValidBirthDate={hasValidBirthDate}
+        hasValidStartMonth={hasValidStartMonth}
+        hasValidPermanentResidentSince={hasValidPermanentResidentSince}
         hasValidRange={hasValidRange}
         hasValidAccountState={hasValidAccountState}
         isPending={isPending}
@@ -241,7 +280,7 @@ export default function ProjectionContent() {
                   Monthly ledger
                 </Chip>
                 <Chip size="sm" variant="soft">
-                  Published rules freeze after 2027
+                  Unpublished values freeze at the latest sourced row
                 </Chip>
               </div>
               <Button variant="outline" onPress={handleCopyProjectionLink}>
@@ -295,7 +334,7 @@ export default function ProjectionContent() {
 
             <BalanceGrowthChart yearlyBalances={result.yearlyBalances} />
             <MilestoneCards result={result} />
-            <CpfLifeEstimate result={result} />
+            <CpfLifeReferenceCard result={result} />
             <YearlyProjectionTable yearlyBalances={result.yearlyBalances} />
           </>
         ) : (
@@ -318,7 +357,10 @@ export default function ProjectionContent() {
                   Contributions move age bands in the month after a birthday.
                 </li>
                 <li>SA closure and Retirement Account routing are included.</li>
-                <li>BHS is frozen for the member&apos;s cohort at age 65.</li>
+                <li>
+                  BHS is frozen for the member&apos;s cohort at age{" "}
+                  {CPF_POLICY_RULES.lifecycleAges.basicHealthcareSumFrozen}.
+                </li>
                 <li>CPF LIFE is shown only as CPF Board reference rows.</li>
               </ul>
             </Card.Content>

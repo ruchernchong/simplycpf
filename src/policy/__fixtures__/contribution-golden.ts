@@ -15,12 +15,31 @@ export interface ContributionGoldenFixture {
   source: string;
 }
 
+export interface CpfBoardCalculatorRegressionFixture {
+  birthMonth: string;
+  contributionMonth: string;
+  ordinaryWages: number;
+  citizenship: ContributionCitizenship;
+  total: number;
+  employee: number;
+  employer: number;
+  sourceUrl: string;
+  calculatorUrl: string;
+  calculatorLabel: "CPF Board CPF contribution calculator";
+  verifiedAt: "2026-08-01";
+  note: string;
+}
+
 const PAST_SOURCE =
   "https://www.cpf.gov.sg/employer/employer-obligations/how-much-cpf-contributions-to-pay/past-cpf-contribution-and-allocation-rates";
 const CURRENT_SOURCE =
   "https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFcontributionratesfrom1Jan2026.pdf";
 const SOURCE_2027 =
   "https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/jan2027cpfcontributionrates.pdf";
+const CPF_BOARD_CALCULATOR_SOURCE =
+  "https://www.cpf.gov.sg/employer/employer-obligations/how-much-cpf-contributions-to-pay";
+const CPF_BOARD_CALCULATOR_URL =
+  "https://www.cpf.gov.sg/employer/tools-and-services/calculators/cpf-contribution-calculator";
 
 /** Maximum OW contributions transcribed from CPF Board's official tables. */
 export const CITIZEN_MAXIMUM_OW_GOLDEN: readonly ContributionGoldenFixture[] = [
@@ -86,6 +105,18 @@ export const PR_MAXIMUM_OW_GOLDEN: readonly ContributionGoldenFixture[] = [
   ]),
 ];
 
+/**
+ * Synthetic, non-personal vectors manually compared with CPF Board's live
+ * calculator on the catalogue verification date.
+ */
+export const CPF_BOARD_CALCULATOR_REGRESSION: readonly CpfBoardCalculatorRegressionFixture[] =
+  [
+    calculatorFixture("1996-08", "citizen", 5000, 1850, 1000),
+    calculatorFixture("1968-08", "citizen", 5000, 1700, 900),
+    calculatorFixture("1996-08", "citizen", 600, 162, 60),
+    calculatorFixture("1996-08", "spr-year1", 5000, 450, 250),
+  ];
+
 type Row = readonly [number, ContributionAgeBandId, number, number];
 
 function yearFixtures(
@@ -122,4 +153,27 @@ function prFixtures(
     employer: total - employee,
     source: CURRENT_SOURCE,
   }));
+}
+
+function calculatorFixture(
+  birthMonth: string,
+  citizenship: ContributionCitizenship,
+  ordinaryWages: number,
+  total: number,
+  employee: number,
+): CpfBoardCalculatorRegressionFixture {
+  return {
+    birthMonth,
+    contributionMonth: "2026-08",
+    ordinaryWages,
+    citizenship,
+    total,
+    employee,
+    employer: total - employee,
+    sourceUrl: CPF_BOARD_CALCULATOR_SOURCE,
+    calculatorUrl: CPF_BOARD_CALCULATOR_URL,
+    calculatorLabel: "CPF Board CPF contribution calculator",
+    verifiedAt: "2026-08-01",
+    note: "Synthetic input retained solely as a sourced regression vector; it does not represent a real person.",
+  };
 }

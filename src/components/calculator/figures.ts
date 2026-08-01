@@ -2,7 +2,7 @@ import { CPF_INCOME_CEILING } from "@/constants";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import { findAgeGroup } from "@/lib/find-age-group";
 import { formatPercentage } from "@/lib/format";
-import type { AgeGroup } from "@/types";
+import type { AgeGroup, CitizenshipStatus } from "@/types";
 
 /** Figures shown before the visitor has entered anything of their own. */
 export const ILLUSTRATIVE_INCOME = 5000;
@@ -12,6 +12,7 @@ export interface CalculatorFigures {
   /** True when the numbers come from the illustrative defaults, not the visitor. */
   isIllustrative: boolean;
   age: number;
+  citizenship: CitizenshipStatus;
   ageGroup: AgeGroup;
   ceilingDate: string;
   ceiling: number;
@@ -40,6 +41,7 @@ interface BuildFiguresParams {
   income: number;
   age: number;
   ageGroup: AgeGroup;
+  citizenship: CitizenshipStatus;
   ceilingDate: string;
   isIllustrative: boolean;
 }
@@ -48,10 +50,16 @@ export function buildFigures({
   income,
   age,
   ageGroup,
+  citizenship,
   ceilingDate,
   isIllustrative,
 }: BuildFiguresParams): CalculatorFigures {
-  const result = calculateCpfContribution(income, ceilingDate, { ageGroup });
+  const result = calculateCpfContribution({
+    contributionMonth: ceilingDate,
+    ordinaryWages: income,
+    citizenship,
+    age,
+  });
   const ceiling = CPF_INCOME_CEILING[ceilingDate];
   const contributable = Math.min(income, ceiling);
   const { employee, employer, totalContribution } = result.contribution;
@@ -59,6 +67,7 @@ export function buildFigures({
   return {
     isIllustrative,
     age,
+    citizenship,
     ageGroup,
     ceilingDate,
     ceiling,
@@ -69,17 +78,16 @@ export function buildFigures({
     total: totalContribution,
     takeHome: result.afterCpfContribution,
     takeHomeShare: income > 0 ? result.afterCpfContribution / income : 0,
-    employeeRate: ageGroup.contributionRate.employee,
-    employerRate: ageGroup.contributionRate.employer,
-    totalRate:
-      ageGroup.contributionRate.employee + ageGroup.contributionRate.employer,
-    oa: result.distribution.OA ?? 0,
-    sa: result.distribution.SA ?? 0,
-    ma: result.distribution.MA ?? 0,
+    employeeRate: result.schedule.employeeRate,
+    employerRate: result.schedule.employerRate,
+    totalRate: result.schedule.employeeRate + result.schedule.employerRate,
+    oa: result.distribution.OA,
+    sa: result.distribution.RA ?? result.distribution.SA ?? 0,
+    ma: result.distribution.MA,
     oaRate: ageGroup.distributionRate.OA ?? 0,
     saRate: ageGroup.distributionRate.SA ?? 0,
     maRate: ageGroup.distributionRate.MA ?? 0,
-    isRetirementAccount: age > 55,
+    isRetirementAccount: result.distribution.RA !== undefined,
   };
 }
 
@@ -91,6 +99,7 @@ export function buildIllustrativeFigures(
     income: ILLUSTRATIVE_INCOME,
     age: ILLUSTRATIVE_AGE,
     ageGroup: findAgeGroup(ILLUSTRATIVE_AGE),
+    citizenship: "citizen",
     ceilingDate,
     isIllustrative: true,
   });

@@ -110,8 +110,10 @@ export const selectBirthDate = (state: CpfState): string => {
  */
 export const selectCpfCalculationInputs = (state: CpfState) => {
   return {
-    income: selectMonthlyGrossIncome(state),
-    ageGroup: selectAgeGroup(state),
+    contributionMonth: selectLatestIncomeCeilingDate(state),
+    ordinaryWages: selectMonthlyGrossIncome(state),
+    age: selectAge(state),
+    citizenship: selectCitizenshipStatus(state),
   };
 };
 
@@ -187,11 +189,12 @@ export const selectProjectionInputs = (state: CpfState) => {
  * @returns The ComputedResult with contribution details and distribution
  */
 export const selectContributionResult = (state: CpfState): ComputedResult => {
-  return calculateCpfContribution(
-    selectMonthlyGrossIncome(state),
-    selectLatestIncomeCeilingDate(state),
-    { ageGroup: selectAgeGroup(state) },
-  );
+  return calculateCpfContribution({
+    contributionMonth: selectLatestIncomeCeilingDate(state),
+    ordinaryWages: selectMonthlyGrossIncome(state),
+    age: selectAge(state),
+    citizenship: selectCitizenshipStatus(state),
+  });
 };
 
 /**
@@ -250,7 +253,7 @@ export const selectCeilingComparison = (
   const preSept2023Result = calculateCpfContribution(
     income,
     currentCeilingDate,
-    { ageGroup, useCeilingBeforeSep2023: true },
+    { age: selectAge(state), ageGroup, useCeilingBeforeSep2023: true },
   );
 
   return {

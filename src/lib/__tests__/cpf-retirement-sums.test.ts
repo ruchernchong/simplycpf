@@ -44,8 +44,12 @@ describe("CPF retirement-sum policy", () => {
     expect(sums.ers).toBe(sums.brs * 3);
   });
 
-  it("uses the fixed cohort FRS for members who turned 55 before 2023", () => {
-    expect(getCohortRetirementThresholds(2011)).toMatchObject({
+  it("uses the exact 55th-birthday cutover for historical cohort FRS", () => {
+    expect(getCohortRetirementThresholds("2011-06")).toMatchObject({
+      brs: 61_500,
+      frs: 123_000,
+    });
+    expect(getCohortRetirementThresholds("2011-07")).toMatchObject({
       brs: 65_500,
       frs: 131_000,
     });

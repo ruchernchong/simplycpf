@@ -1,27 +1,17 @@
 import { Card, Separator, Table, Typography } from "@heroui/react";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/logo";
-import { CPF_ADDITIONAL_WAGE_CEILING, CPF_INCOME_CEILING } from "@/constants";
-import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
-import {
-  CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
-  CPF_EXTRA_INTEREST_CAP,
-  CPF_EXTRA_INTEREST_RATE,
-} from "@/constants/cpf-interest-tiers";
 import { getCpfCheatSheetData } from "@/lib/get-cpf-cheat-sheet-data";
 
 const BHS_YEARS_SHOWN = 5;
-const extraRate = CPF_EXTRA_INTEREST_RATE * 100;
 
-function money(value: number) {
-  return `$${value.toLocaleString("en-SG")}`;
-}
-
-function stripPercent(value: string) {
-  return value.replace("%", "");
-}
-
-function SheetRow({ label, value }: { label: string; value: ReactNode }) {
+function SheetRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}): ReactNode {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <Typography color="muted" type="body-sm">
@@ -34,13 +24,19 @@ function SheetRow({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-function Block({ title, children }: { title: string; children: ReactNode }) {
+function Block({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}): ReactNode {
   return (
     <section className="flex flex-col gap-2">
       <Typography className="text-accent" type="h6">
         {title}
       </Typography>
-      <div className="flex flex-col gap-1.5">{children}</div>
+      <div className="flex flex-col gap-2">{children}</div>
     </section>
   );
 }
@@ -49,35 +45,45 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
  * The printable reference sheet: three hairline-separated columns of 2026
  * figures, all sourced from the shared cheat sheet data.
  */
-export function CheatSheetCard() {
+export function CheatSheetCard(): ReactNode {
   const data = getCpfCheatSheetData();
 
-  function rowsOf(title: string) {
+  function rowsOf(title: string): string[][] {
     return data.sections.find((section) => section.title === title)?.rows ?? [];
   }
 
-  function youngestBand(rows: string[][]) {
-    return rows.find((row) => row[0] === "35 and below");
+  function firstBand(rows: string[][]): string[] | undefined {
+    return rows[0];
   }
 
   const contributionRows = rowsOf("CPF Contribution Rates by Age");
-  const allocationRows = rowsOf("OA / SA / MA Distribution");
+  const allocationRows = rowsOf("OA / SA or RA / MA Allocation");
   const retirementSumRows = rowsOf("Retirement Sums");
   const bhsRows = rowsOf("Basic Healthcare Sum").slice(-BHS_YEARS_SHOWN);
-  const prYear1 = youngestBand(rowsOf("PR Graduated Rates: Year 1"));
-  const prYear2 = youngestBand(rowsOf("PR Graduated Rates: Year 2"));
-  const fullRates = youngestBand(contributionRows);
-
-  const monthlyCeiling = Object.values(CPF_INCOME_CEILING).at(-1) ?? 0;
+  const interestRows = rowsOf("CPF Interest Reference");
+  const prYear1 = firstBand(rowsOf("PR Graduated Rates: Year 1"));
+  const prYear2 = firstBand(rowsOf("PR Graduated Rates: Year 2"));
+  const fullRates = firstBand(contributionRows);
+  const currentCeiling = rowsOf("Wage Ceiling Timeline").find((row) =>
+    row[0]?.startsWith(data.effectiveFrom),
+  );
+  const officialSourceUrls = [
+    ...new Set([
+      ...data.keyAges.map((age) => age.sourceUrl),
+      ...data.sections.flatMap((section) => section.sourceUrls),
+    ]),
+  ];
 
   return (
     <Card className="cheat-sheet">
       <Card.Header className="flex flex-row flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Logo className="size-[22px]" />
-          <Card.Title>CPF reference sheet · 2026</Card.Title>
+          <Card.Title>CPF reference sheet · {data.referenceYear}</Card.Title>
         </div>
-        <Card.Description>Effective 1 January 2026</Card.Description>
+        <Card.Description>
+          Effective {data.effectiveFrom} · verified {data.verifiedAt}
+        </Card.Description>
       </Card.Header>
 
       <Separator />
@@ -88,34 +94,21 @@ export function CheatSheetCard() {
             <Block title="Ceilings">
               <SheetRow
                 label="Monthly ordinary wage"
-                value={money(monthlyCeiling)}
+                value={currentCeiling?.[1]}
               />
               <SheetRow
-                label="Annual salary ceiling"
-                value={money(CPF_ADDITIONAL_WAGE_CEILING)}
+                label="Annual additional wage"
+                value={currentCeiling?.[2]}
               />
               <SheetRow
-                label="Additional wage ceiling"
-                value={`${money(CPF_ADDITIONAL_WAGE_CEILING)} - OW`}
+                label="AW context"
+                value="Annual AW ceiling − annual OW − prior AW"
               />
             </Block>
             <Block title="Interest">
-              <SheetRow
-                label="OA floor"
-                value={`${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`}
-              />
-              <SheetRow
-                label="SA · MA · RA floor"
-                value={`${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`}
-              />
-              <SheetRow
-                label={`Extra, first ${money(CPF_EXTRA_INTEREST_CAP)}`}
-                value={`+${extraRate.toFixed(2)}%`}
-              />
-              <SheetRow
-                label={`Extra at 55+, first ${money(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}`}
-                value={`+${(extraRate * 2).toFixed(2)}%`}
-              />
+              {interestRows.map(([label, value]) => (
+                <SheetRow key={label} label={label} value={value} />
+              ))}
             </Block>
             <Block title="Key ages">
               {data.keyAges.map((age) => (
@@ -136,12 +129,12 @@ export function CheatSheetCard() {
                 />
               ))}
             </Block>
-            <Block title="Allocation · OA / SA / MA">
-              {allocationRows.map(([band, oa, sa, ma]) => (
+            <Block title="Allocation · OA / retirement / MA">
+              {allocationRows.map(([band, oa, retirement, ma]) => (
                 <SheetRow
                   key={band}
                   label={band}
-                  value={`${stripPercent(oa)} / ${stripPercent(sa)} / ${stripPercent(ma)}`}
+                  value={`${oa} / ${retirement} / ${ma}`}
                 />
               ))}
             </Block>
@@ -182,7 +175,7 @@ export function CheatSheetCard() {
                 <SheetRow key={year} label={year} value={amount} />
               ))}
             </Block>
-            <Block title="PR rates · 35 and below">
+            <Block title="PR rates · 55 and below">
               <SheetRow
                 label="1st year of PR"
                 value={`${prYear1?.[1]} + ${prYear1?.[2]}`}
@@ -204,14 +197,24 @@ export function CheatSheetCard() {
 
       <Card.Footer className="flex flex-wrap items-end justify-between gap-4">
         <Typography className="max-w-[76ch]" color="muted" type="body-xs">
-          Figures as published by the CPF Board; employee share stated first.
-          Retirement sums apply to the cohort turning 55 in that year and stay
-          fixed for life. Independent tool, estimates only, not financial
+          Official policy status verified {data.verifiedAt}. Employee share is
+          stated first. Retirement sums are cohort-specific; ERS follows the
+          prevailing year. Scope: {data.scope} Independent tool, not financial
           advice.
         </Typography>
-        <Typography color="muted" type="body-xs">
-          simplycpf.com
-        </Typography>
+        <div className="flex max-w-[76ch] flex-wrap justify-end gap-2">
+          {officialSourceUrls.map((url, index) => (
+            <a
+              key={url}
+              className="text-xs underline underline-offset-2"
+              href={url}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Official source {index + 1}
+            </a>
+          ))}
+        </div>
       </Card.Footer>
     </Card>
   );

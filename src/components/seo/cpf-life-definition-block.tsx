@@ -1,12 +1,13 @@
-import { Card, Typography } from "@heroui/react";
-import {
-  CPF_LIFE_AUTO_INCLUSION_BALANCE,
-  CPF_LIFE_LATEST_PAYOUT_AGE,
-  CPF_LIFE_PAYOUT_ELIGIBILITY_AGE,
-} from "@/constants/cpf-life";
+import { Card, Link, Typography } from "@heroui/react";
 import { formatNumber } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
-const CpfLifeDefinitionBlock = () => (
+export default function CpfLifeDefinitionBlock() {
+  const policy = CPF_POLICY_CATALOGUE.cpfLife;
+  const inclusion = policy.automaticInclusion;
+  const payoutStart = policy.payoutStart;
+
+  return (
     <section
       aria-labelledby="cpf-life-definition"
       data-content-block="definition"
@@ -17,46 +18,54 @@ const CpfLifeDefinitionBlock = () => (
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
           <Typography>
-            <strong>CPF LIFE</strong> (Lifelong Income For the Elderly) is
-            Singapore{"'"}s national annuity scheme that provides retirees with
-            a monthly payout for life, no matter how long they live. It ensures
-            you will not outlive your retirement savings.
+            <strong>CPF LIFE</strong> (Lifelong Income For the Elderly) provides
+            monthly payouts for life. Personalised payout calculations remain
+            with CPF Board.
           </Typography>
           <Typography>
-            From age {CPF_LIFE_PAYOUT_ELIGIBILITY_AGE}, you can start receiving
-            monthly payouts. The amount you receive depends on:
+            From age {payoutStart.earliestAge}, you can start receiving monthly
+            payouts. The amount depends on:
           </Typography>
-          <ul className="flex flex-col gap-2 text-muted-foreground">
+          <ul className="flex flex-col gap-2 text-muted">
             <li>
-              <strong>Your Retirement Account (RA) balance</strong>, built from
-              CPF savings and top-ups
+              <strong>Your Retirement Account balance</strong>, built from CPF
+              savings and top-ups
             </li>
             <li>
-              <strong>The CPF LIFE plan you choose</strong>, Standard,
-              Escalating, or Basic
+              <strong>The plan you choose</strong>, Standard, Escalating, or
+              Basic
             </li>
             <li>
-              <strong>When you start payouts</strong>, deferring to age 70 gives
-              higher monthly amounts
+              <strong>When you start payouts</strong>, up to the published
+              latest starting age of {payoutStart.latestAge}
             </li>
           </ul>
           <Typography>
-            If you are a Singapore Citizen or Permanent Resident, were born in
-            1958 or later, and have at least{" "}
-            <strong>S${formatNumber(CPF_LIFE_AUTO_INCLUSION_BALANCE)}</strong>{" "}
-            in retirement savings when monthly payouts start, you are included
-            automatically. This S$60,000 condition is not a minimum joining
-            balance: eligible members who are not automatically included may
-            still choose to join CPF LIFE.
+            Singapore Citizens and Permanent Residents born from{" "}
+            {inclusion.bornOnOrAfter.slice(0, 4)} with at least{" "}
+            <strong>
+              S$${formatNumber(inclusion.minimumRetirementSavingsAtPayoutStart)}
+            </strong>{" "}
+            in retirement savings when payouts start are included
+            automatically. That amount is an automatic-inclusion condition, not
+            a minimum joining balance or minimum payout balance.
           </Typography>
           <Typography>
-            You can defer payouts up to age {CPF_LIFE_LATEST_PAYOUT_AGE}. CPF
-            Board says payouts increase by up to 7% for each year deferred, up
-            to 35% over five years.
+            CPF Board states that deferring payouts can increase them by up to{" "}
+            {payoutStart.deferral.maximumIncreasePerYearPercent}% for each year,
+            up to {payoutStart.deferral.maximumCumulativeIncreasePercent}% over{" "}
+            {payoutStart.deferral.maximumDeferralYears} years.
           </Typography>
+          <Link
+            href={policy.sourceUrls[0]}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            CPF Board CPF LIFE guidance
+            <Link.Icon aria-hidden="true" />
+          </Link>
         </Card.Content>
       </Card>
     </section>
-);
-
-export default CpfLifeDefinitionBlock;
+  );
+}

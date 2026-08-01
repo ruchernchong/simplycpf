@@ -1,12 +1,11 @@
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import {
   type AllocationRateBand,
-  type ContributionAgeBandId,
   type ContributionCitizenship,
   type ContributionInput,
+  ContributionPolicyError,
   type ContributionPolicySchedule,
   type ContributionRateBand,
-  ContributionPolicyError,
   getContributionRatesForCitizenship,
   resolveContributionSchedule,
 } from "@/policy";
@@ -16,7 +15,12 @@ export interface PolicyAgeGroup {
   description: string;
   minAgeExclusive?: number;
   maxAgeInclusive?: number;
-  retirementAccount: "SA" | "RA";
+  /**
+   * Fixed for an exact-age lookup. A generic allocation band can straddle
+   * age 55, in which case callers must use `retirementRouting`.
+   */
+  retirementAccount: "SA" | "RA" | "age-dependent";
+  retirementRouting: PolicyRetirementRouting;
   contributionRate: {
     employee: number;
     employer: number;
@@ -25,9 +29,23 @@ export interface PolicyAgeGroup {
     OA: number;
     SA?: number;
     RA?: number;
+    /** Retirement allocation rate when the destination is age-dependent. */
+    retirement?: number;
     MA: number;
   };
 }
+
+export type PolicyRetirementRouting =
+  | {
+      type: "fixed";
+      account: "SA" | "RA";
+    }
+  | {
+      type: "age-dependent";
+      thresholdAge: 55;
+      belowThresholdAccount: "SA";
+      atOrAboveThresholdAccount: "RA";
+    };
 
 export function getPolicyAgeGroups(
   contributionMonth: string,
@@ -78,9 +96,9 @@ export function getPolicyAgeGroups(
   };
 }
 
-export function findPolicyAgeGroup(
-  input: ContributionInput,
-): ReturnType<typeof getPolicyAgeGroups> & {
+export function findPolicyAgeGroup(input: ContributionInput): ReturnType<
+  typeof getPolicyAgeGroups
+> & {
   ageGroup: PolicyAgeGroup;
   completedAge: number;
 } {
@@ -92,7 +110,9 @@ export function findPolicyAgeGroup(
   const allocationBand = envelope.ageGroups.find(
     (group) => group.id === result.age.allocationBand,
   );
-  const schedule = resolveContributionSchedule(input.contributionMonth).schedule;
+  const schedule = resolveContributionSchedule(
+    input.contributionMonth,
+  ).schedule;
   const sourceAllocationBand = schedule.allocationRates.find(
     (group) => group.id === result.age.allocationBand,
   );
@@ -125,8 +145,7 @@ function findContributionBand(
   age: number,
 ): ContributionRateBand {
   const match = bands.find(
-    (band) =>
-      band.maxAgeInclusive === undefined || age <= band.maxAgeInclusive,
+    (band) => band.maxAgeInclusive === undefined || age <= band.maxAgeInclusive,
   );
   if (!match) {
     throw new ContributionPolicyError(
@@ -143,11 +162,15 @@ function toPolicyAgeGroup(
   schedule: ContributionPolicySchedule,
   exactAge?: number,
 ): PolicyAgeGroup {
-  const retirementAccount = resolveRetirementAccount(
+  const retirementRouting = resolveRetirementRouting(
     allocationBand,
     schedule,
     exactAge,
   );
+  const retirementAccount =
+    retirementRouting.type === "fixed"
+      ? retirementRouting.account
+      : "age-dependent";
   const retirementRate = allocationBand.retirementBasisPoints / 10000;
 
   return {
@@ -160,28 +183,51 @@ function toPolicyAgeGroup(
       ? {}
       : { maxAgeInclusive: allocationBand.maxAgeInclusive }),
     retirementAccount,
+    retirementRouting,
     contributionRate: {
       employee: contributionBand.employeeBasisPoints / 10000,
       employer: contributionBand.employerBasisPoints / 10000,
     },
     allocationRate: {
       OA: allocationBand.oaBasisPoints / 10000,
-      ...(retirementAccount === "RA"
-        ? { RA: retirementRate }
-        : { SA: retirementRate }),
+      ...(retirementRouting.type === "age-dependent"
+        ? { retirement: retirementRate }
+        : retirementRouting.account === "RA"
+          ? { RA: retirementRate }
+          : { SA: retirementRate }),
       MA: allocationBand.maBasisPoints / 10000,
     },
   };
 }
 
-function resolveRetirementAccount(
+function resolveRetirementRouting(
   band: AllocationRateBand,
   schedule: ContributionPolicySchedule,
   exactAge?: number,
-): "SA" | "RA" {
-  if (schedule.effectiveFrom < "2025-01-01") return "SA";
-  if (exactAge !== undefined) return exactAge >= 55 ? "RA" : "SA";
-  return (band.minAgeExclusive ?? 0) >= 55 ? "RA" : "SA";
+): PolicyRetirementRouting {
+  if (schedule.effectiveFrom < "2025-01-01") {
+    return { type: "fixed", account: "SA" };
+  }
+  if (exactAge !== undefined) {
+    return { type: "fixed", account: exactAge >= 55 ? "RA" : "SA" };
+  }
+
+  const includesMembersBelow55 = (band.minAgeExclusive ?? 0) < 55;
+  const includesAge55 =
+    (band.maxAgeInclusive ?? Number.POSITIVE_INFINITY) >= 55;
+  if (includesMembersBelow55 && includesAge55) {
+    return {
+      type: "age-dependent",
+      thresholdAge: 55,
+      belowThresholdAccount: "SA",
+      atOrAboveThresholdAccount: "RA",
+    };
+  }
+
+  return {
+    type: "fixed",
+    account: (band.minAgeExclusive ?? 0) >= 55 ? "RA" : "SA",
+  };
 }
 
 export function isContributionCitizenship(
@@ -223,15 +269,4 @@ export function parseAgeInput(
     );
   }
   return { ...base, age: parsedAge };
-}
-
-export function contributionBandIdForAge(
-  schedule: ContributionPolicySchedule,
-  citizenship: ContributionCitizenship,
-  age: number,
-): ContributionAgeBandId {
-  return findContributionBand(
-    getContributionRatesForCitizenship(schedule, citizenship),
-    age,
-  ).id;
 }

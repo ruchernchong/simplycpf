@@ -4,6 +4,7 @@ import { Card, Chip, cn, Separator, Typography } from "@heroui/react";
 import { Fragment } from "react";
 import { SplitBar } from "@/components/shared/split-bar";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import type { CalculatorFigures } from "./figures";
 import { formatRate } from "./figures";
 
@@ -12,6 +13,10 @@ interface DistributionCardProps {
 }
 
 export function DistributionCard({ figures }: DistributionCardProps) {
+  const methodology = CPF_POLICY_CATALOGUE.interestRateMethodology;
+  const extraInterest = CPF_POLICY_CATALOGUE.rules.extraInterest;
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
   const specialAccountName = figures.isRetirementAccount
     ? "Retirement Account"
     : "Special Account";
@@ -21,21 +26,21 @@ export function DistributionCard({ figures }: DistributionCardProps) {
       name: "Ordinary Account",
       swatch: "bg-chart-1",
       amount: figures.oa,
-      body: "Housing, mortgage, insurance, education. 2.50% a year. Anything used for a home accrues interest until you sell.",
+      body: `Approved housing, insurance, investment and education uses. The published floor is ${methodology.ordinaryAccount.floorRate.toFixed(2)}% a year; housing refunds include accrued interest.`,
     },
     {
       name: specialAccountName,
       swatch: "bg-chart-2",
       amount: figures.sa,
       body: figures.isRetirementAccount
-        ? "Your Special Account closed at 55, so this share now goes to the Retirement Account. 4.00% a year, and it funds your CPF LIFE payouts."
-        : "Retirement savings, 4.00% a year plus extra interest on the first $60,000 combined. Closes on your 55th birthday, when savings move to a Retirement Account.",
+        ? `After the SA closure from age ${retirementAge}, this retirement share goes to RA. The published floor is ${methodology.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}% a year.`
+        : `Retirement savings at a published floor of ${methodology.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}% a year, plus extra interest on the first ${formatCurrency(extraInterest.below55.balanceCap, 0)} of combined balances. SA closes from age ${retirementAge}.`,
     },
     {
       name: "MediSave Account",
       swatch: "bg-chart-3",
       amount: figures.ma,
-      body: "Hospital bills and approved insurance. 4.00% a year, capped at the Basic Healthcare Sum; anything above it overflows.",
+      body: `Healthcare expenses and approved insurance at a published floor of ${methodology.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}% a year. Contributions above the applicable BHS route to SA or RA up to the retirement-sum limit, then OA.`,
     },
   ];
 

@@ -1,4 +1,9 @@
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import { GET } from "./route";
+
+function formatMoney(value: number): string {
+  return `S$${new Intl.NumberFormat("en-SG").format(value)}`;
+}
 
 describe("GET /cpf-rates.md", () => {
   it("returns source-backed markdown with the v2 contract", async () => {
@@ -40,6 +45,7 @@ describe("GET /cpf-rates.md", () => {
     expect(text).toContain("CPF LIFE 2026 reference rows");
     expect(text).toContain("does not interpolate");
     expect(text).toContain("not a minimum joining balance or payout threshold");
+    expect(text).toContain("RA, OA, SA, MA");
   });
 
   it("documents explicit future assumptions and migration errors", async () => {
@@ -47,6 +53,9 @@ describe("GET /cpf-rates.md", () => {
     const text = await response.text();
 
     expect(text).toContain("marks every affected year **assumed**");
+    expect(text).toContain("`permanentResidentSince`");
+    expect(text).toContain("age-dependent SA-to-RA routing");
+    expect(text).toContain("netSaSavingsWithdrawnForInvestments field");
     expect(text).toContain("`cpfLifeEstimate` is always null");
     expect(text).toContain(
       "Unsupported official policy months or years return 404",
@@ -62,5 +71,34 @@ describe("GET /cpf-rates.md", () => {
       "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
     );
     expect(cacheControl).not.toContain("immutable");
+  });
+
+  it("renders every canonical catalogue row instead of copied snapshots", async () => {
+    const response = await GET();
+    const text = await response.text();
+
+    for (const schedule of CPF_POLICY_CATALOGUE.contributionSchedules) {
+      expect(text).toContain(`### ${schedule.id}`);
+      expect(text).toContain(formatMoney(schedule.ordinaryWageCeiling));
+    }
+    for (const row of CPF_POLICY_CATALOGUE.basicHealthcareSums) {
+      expect(text).toContain(`| ${row.year} | ${formatMoney(row.amount)} |`);
+    }
+    for (const row of CPF_POLICY_CATALOGUE.retirementSums) {
+      expect(text).toContain(
+        `| ${row.year} | ${formatMoney(row.brs)} | ${formatMoney(row.frs)} | ${formatMoney(row.ers)} |`,
+      );
+    }
+    for (const row of CPF_POLICY_CATALOGUE.quarterlyInterestRates) {
+      expect(text).toContain(
+        `| ${row.quarter} | ${row.effectiveFrom} | ${row.effectiveTo} |`,
+      );
+      expect(text).toContain(row.sourceUrl);
+    }
+    for (const row of CPF_POLICY_CATALOGUE.cpfLife.reference.rows) {
+      expect(text).toContain(
+        `| ${formatMoney(row.raAt55)} | ${formatMoney(row.raAt65)} |`,
+      );
+    }
   });
 });

@@ -15,12 +15,30 @@ import {
 } from "@heroui/react";
 import { FlashIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  CPF_CONTRIBUTION_SCHEDULES,
+  CPF_INTEREST_FLOOR_RATES,
+  CPF_POLICY_RULES,
+} from "@/policy";
 import type {
   CitizenshipStatus,
   RetirementRouting,
   RetirementTransfer,
   VoluntaryTopUp,
 } from "@/types";
+
+const retirementAccountAge =
+  CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
+const specialAccountClosureMonth =
+  CPF_POLICY_RULES.specialAccountClosure.effectiveDate.slice(0, 7);
+const earliestProjectionMonth =
+  CPF_CONTRIBUTION_SCHEDULES[0].effectiveFrom.slice(0, 7);
+const maximumProjectionAge =
+  CPF_POLICY_RULES.lifecycleAges.latestVoluntaryCpfLifeJoinAgeExclusive;
+const selfTaxReliefCap =
+  CPF_POLICY_RULES.retirementTopUps.taxRelief.selfAnnualCap;
+const propertyLeaseQualifyingAge =
+  CPF_POLICY_RULES.age55PropertyPledge.qualifyingLeaseMustLastThroughAge;
 
 export type ProjectionTopUpAccount = "retirement" | "MA";
 
@@ -30,11 +48,13 @@ export interface ProjectionFormValues {
   startMonth: string;
   endAge: number;
   citizenship: CitizenshipStatus;
+  permanentResidentSince: string;
   initialOa: number;
   initialSa: number;
   initialMa: number;
   initialRa: number;
   housingWithdrawal: number;
+  netSaSavingsWithdrawnForInvestments: number;
   topUpAmount: number;
   topUpAccount: ProjectionTopUpAccount;
   topUpFrequency: VoluntaryTopUp["frequency"];
@@ -47,6 +67,8 @@ interface ProjectionFormProps {
   values: ProjectionFormValues;
   currentAge: number | null;
   hasValidBirthDate: boolean;
+  hasValidStartMonth: boolean;
+  hasValidPermanentResidentSince: boolean;
   hasValidRange: boolean;
   hasValidAccountState: boolean;
   isPending: boolean;
@@ -142,7 +164,7 @@ function CurrencyField({
         style: "currency",
         currency: "SGD",
         currencyDisplay: "narrowSymbol",
-        maximumFractionDigits: 0,
+        maximumFractionDigits: 2,
       }}
       isInvalid={isInvalid}
       isRequired
@@ -167,6 +189,8 @@ export default function ProjectionForm({
   values,
   currentAge,
   hasValidBirthDate,
+  hasValidStartMonth,
+  hasValidPermanentResidentSince,
   hasValidRange,
   hasValidAccountState,
   isPending,
@@ -175,9 +199,17 @@ export default function ProjectionForm({
   onReset,
 }: ProjectionFormProps) {
   const raIsInvalid =
-    currentAge !== null && currentAge < 55 && values.initialRa > 0;
+    currentAge !== null &&
+    currentAge < retirementAccountAge &&
+    values.initialRa > 0;
   const saIsInvalid =
-    currentAge !== null && currentAge >= 55 && values.initialSa > 0;
+    currentAge !== null &&
+    currentAge >= retirementAccountAge &&
+    values.startMonth >= specialAccountClosureMonth &&
+    values.initialSa > 0;
+  const isPermanentResident = values.citizenship !== "citizen";
+  const needsPermanentResidentSince =
+    values.citizenship === "spr-year1" || values.citizenship === "spr-year2";
 
   return (
     <Card>
@@ -190,7 +222,8 @@ export default function ProjectionForm({
         <div className="flex items-center gap-2 rounded-md bg-accent/5 px-4 py-2">
           <HugeiconsIcon icon={FlashIcon} className="size-4" strokeWidth={2} />
           <Typography className="text-accent" type="body-xs">
-            Uses CPF floor rates: OA 2.5% p.a.; SA, MA and RA 4.0% p.a.
+            Uses CPF floor rates: OA {CPF_INTEREST_FLOOR_RATES.OA}% p.a.; SA, MA
+            and RA {CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.
           </Typography>
         </div>
       </Card.Header>
@@ -225,19 +258,25 @@ export default function ProjectionForm({
 
           <TextField
             className="flex flex-col gap-2"
+            isInvalid={Boolean(values.startMonth) && !hasValidStartMonth}
             isRequired
             onChange={(startMonth) => onChange({ startMonth })}
             value={values.startMonth}
           >
             <Label>Projection start month</Label>
-            <Input type="month" />
+            <Input min={earliestProjectionMonth} type="month" />
+            {values.startMonth && !hasValidStartMonth ? (
+              <FieldError>
+                Choose {earliestProjectionMonth} or a later month.
+              </FieldError>
+            ) : null}
           </TextField>
 
           <NumberField
             className="flex flex-col gap-2"
             isInvalid={hasValidBirthDate && !hasValidRange}
             isRequired
-            maxValue={80}
+            maxValue={maximumProjectionAge}
             minValue={Math.max(currentAge ?? 0, 1)}
             onChange={(endAge) =>
               onChange({
@@ -282,6 +321,32 @@ export default function ProjectionForm({
           </ToggleButtonGroup>
         </div>
 
+        {isPermanentResident ? (
+          <TextField
+            className="flex flex-col gap-2"
+            isInvalid={!hasValidPermanentResidentSince}
+            isRequired={needsPermanentResidentSince}
+            onChange={(permanentResidentSince) =>
+              onChange({ permanentResidentSince })
+            }
+            value={values.permanentResidentSince}
+          >
+            <Label>Permanent Resident since</Label>
+            <Input max={values.startMonth} type="month" />
+            {!hasValidPermanentResidentSince ? (
+              <FieldError>
+                Enter the SPR conversion month, no later than the projection
+                start month.
+              </FieldError>
+            ) : (
+              <Description>
+                Used to move from graduated Year 1 to Year 2, then full rates,
+                in the month after each anniversary.
+              </Description>
+            )}
+          </TextField>
+        ) : null}
+
         <div className="border-border border-t" />
 
         <div className="flex flex-col gap-4">
@@ -303,7 +368,7 @@ export default function ProjectionForm({
               value={values.initialSa}
               onChange={(initialSa) => onChange({ initialSa })}
               isInvalid={saIsInvalid}
-              error="SA is closed for a projection starting at age 55 or above. Enter this amount in RA or OA as shown on your statement."
+              error={`SA is closed for a projection starting at age ${retirementAccountAge} or above after the official closure. Enter this amount in RA or OA as shown on your statement.`}
             />
             <CurrencyField
               label="MediSave Account (MA)"
@@ -315,7 +380,7 @@ export default function ProjectionForm({
               value={values.initialRa}
               onChange={(initialRa) => onChange({ initialRa })}
               isInvalid={raIsInvalid}
-              error="RA does not exist before age 55."
+              error={`RA does not exist before age ${retirementAccountAge}.`}
             />
           </div>
           {!hasValidAccountState ? (
@@ -336,10 +401,23 @@ export default function ProjectionForm({
           />
 
           <CurrencyField
+            label="Net SA savings withdrawn for investments"
+            value={values.netSaSavingsWithdrawnForInvestments}
+            onChange={(netSaSavingsWithdrawnForInvestments) =>
+              onChange({ netSaSavingsWithdrawnForInvestments })
+            }
+            description={`Before age ${retirementAccountAge}, this amount counts towards the FRS limit for retirement top-ups and OA transfers. Enter zero if none.`}
+          />
+
+          <CurrencyField
             label="Voluntary top-up amount"
             value={values.topUpAmount}
             onChange={(topUpAmount) => onChange({ topUpAmount })}
-            description="Actual capacity is based on FRS, ERS or BHS. S$8,000 is only the annual tax-relief cap."
+            description={
+              values.topUpAccount === "MA"
+                ? "Actual capacity is based on BHS. MediSave tax relief is not estimated without full annual CPF contribution context."
+                : `Actual capacity is based on FRS or ERS. S$${selfTaxReliefCap.toLocaleString("en-SG")} is only the annual retirement cash top-up tax-relief cap.`
+            }
           />
 
           <div className="flex flex-col gap-2">
@@ -393,13 +471,16 @@ export default function ProjectionForm({
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
+            <Description>
+              Yearly repeats in the projection start month each year.
+            </Description>
           </div>
 
           <CurrencyField
             label="OA retirement transfer"
             value={values.transferAmount}
             onChange={(transferAmount) => onChange({ transferAmount })}
-            description="Moves OA to SA before 55 or RA from 55, within the applicable limit."
+            description={`Moves OA to SA before ${retirementAccountAge} or RA from ${retirementAccountAge}, within the applicable limit.`}
           />
 
           <div className="flex flex-col gap-2">
@@ -425,6 +506,9 @@ export default function ProjectionForm({
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
+            <Description>
+              Yearly repeats in the projection start month each year.
+            </Description>
           </div>
 
           <div className="flex flex-col gap-2 sm:col-span-2">
@@ -455,7 +539,8 @@ export default function ProjectionForm({
             </ToggleButtonGroup>
             <Description>
               The property branch is only for an eligible Singapore property
-              whose remaining lease lasts to at least age 95.
+              whose remaining lease lasts to at least age{" "}
+              {propertyLeaseQualifyingAge}.
             </Description>
           </div>
         </div>

@@ -6,16 +6,18 @@ import { PrintButton } from "@/components/cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { getCpfCheatSheetData } from "@/lib/get-cpf-cheat-sheet-data";
 
 const PAGE_URL = `${BASE_URL}/cpf-cheat-sheet`;
 const PAGE_TITLE = "CPF Cheat Sheet";
 const PAGE_DESCRIPTION =
-  "Free CPF cheat sheet covering contribution rates, account distribution, PR graduated rates, retirement sums, BHS, and CPF planning reference points.";
+  "Free source-backed CPF cheat sheet covering contribution rates, OA, SA, RA and MA allocation, PR graduated rates, retirement sums, BHS, interest and top-up rules.";
+const cheatSheetData = getCpfCheatSheetData();
 
 export const metadata: Metadata = {
   title: "CPF Cheat Sheet: Free CPF Rates and Retirement Reference",
   description:
-    "Download a free CPF cheat sheet covering contribution rates, OA / SA / MA distribution, PR graduated rates, retirement sums, BHS, and CPF planning reference points.",
+    "Download a free CPF cheat sheet covering official contribution rates, OA / SA / RA / MA allocation, PR graduated rates, retirement sums, BHS, interest and top-up rules.",
   alternates: {
     canonical: "/cpf-cheat-sheet",
   },
@@ -43,6 +45,7 @@ const schema: Graph = {
       description: PAGE_DESCRIPTION,
       url: PAGE_URL,
       inLanguage: "en-SG",
+      dateModified: cheatSheetData.verifiedAt,
       isPartOf: { "@id": WEBSITE_ID },
       speakable: {
         "@type": "SpeakableSpecification",
@@ -90,7 +93,7 @@ export default function CpfCheatSheetPage() {
       <PageHeader
         eyebrow="Cheat sheet"
         title="One page, on the fridge, done"
-        lede="Every reference number for 2026 on a single printable sheet. No inputs, no personalisation, just the figures you keep having to look up."
+        lede={`Official ${cheatSheetData.referenceYear} reference data, plus every published historical or forward row available in the catalogue. Each dataset is linked to its first-party source and verified ${cheatSheetData.verifiedAt}.`}
         actions={
           <div className="flex flex-wrap gap-2">
             <PrintButton />

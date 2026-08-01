@@ -8,10 +8,17 @@ import CpfStatisticBlock from "@/components/seo/cpf-statistic-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { StatBand } from "@/components/shared/stat-band";
 import { BASE_URL, WEBSITE_ID } from "@/config";
-import { CPF_INCOME_CEILING } from "@/constants";
-import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
-import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
+
+const currentSchedule = resolveContributionSchedule("2026-08").schedule;
+const currentRetirementSums = CPF_POLICY_CATALOGUE.retirementSums.find(
+  (row) => row.year === 2026,
+);
+const latestInterestDeclaration =
+  CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(-1);
+const earliestSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.at(0);
+const latestSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.at(-1);
 
 export const metadata: Metadata = {
   // `absolute` opts out of the root title template, which would otherwise
@@ -22,7 +29,7 @@ export const metadata: Metadata = {
   description:
     "Free CPF tools for Singapore. Calculate contributions, project balances with explicit assumptions, and review official CPF LIFE reference rows.",
   keywords:
-    "CPF contribution calculator, CPF calculator Singapore, CPF income ceiling, CPF ceiling change, CPF ceiling timeline, CPF $6000 to $8000, Budget 2023 CPF, progressive ceiling, Singapore CPF, take-home pay CPF",
+    "CPF contribution calculator, CPF calculator Singapore, CPF income ceiling, CPF ceiling change, CPF ceiling timeline, Singapore CPF, take-home pay CPF",
   alternates: {
     canonical: "/",
   },
@@ -50,32 +57,36 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const { brs, frs, ers } = getRetirementSumsForYear(2026);
+  if (!currentRetirementSums || !latestInterestDeclaration) {
+    throw new Error("The current CPF reference data is unavailable.");
+  }
+
+  const { brs, frs, ers, ersMultipleOfBrs, year } = currentRetirementSums;
   const statBandItems = [
     {
       label: "OA interest",
-      value: `${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`,
+      value: `${CPF_POLICY_CATALOGUE.interestRateMethodology.ordinaryAccount.floorRate.toFixed(2)}%`,
       note: "Floor rate",
     },
     {
       label: "SA · MA · RA",
-      value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
-      note: "Declared for 2026 Q3",
+      value: `${latestInterestDeclaration.ra.toFixed(2)}%`,
+      note: `Declared for ${latestInterestDeclaration.quarter}`,
     },
     {
       label: "Wage ceiling",
-      value: formatCurrency(CPF_INCOME_CEILING["2026-01-01"], 0),
-      note: "Final step, Jan 2026",
+      value: formatCurrency(currentSchedule.ordinaryWageCeiling, 0),
+      note: `Schedule from ${currentSchedule.effectiveFrom}`,
     },
     {
-      label: "FRS 2026",
+      label: `FRS ${year}`,
       value: formatCurrency(frs, 0),
       note: `BRS ${formatCurrency(brs, 0)}`,
     },
     {
-      label: "ERS 2026",
+      label: `ERS ${year}`,
       value: formatCurrency(ers, 0),
-      note: "4 × BRS since 2025",
+      note: `${ersMultipleOfBrs} × BRS`,
     },
   ];
 
@@ -90,6 +101,7 @@ export default function HomePage() {
           "Work out your CPF contributions, project your balances, and see what changes at 55.",
         url: BASE_URL,
         inLanguage: "en-SG",
+        dateModified: CPF_POLICY_CATALOGUE.verifiedAt,
         isPartOf: { "@id": WEBSITE_ID },
         speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1"] },
       },
@@ -146,7 +158,10 @@ export default function HomePage() {
           "MA distribution rate",
           "Income ceiling",
         ],
-        temporalCoverage: "2023/2027",
+        temporalCoverage:
+          earliestSchedule && latestSchedule
+            ? `${earliestSchedule.effectiveFrom}/${latestSchedule.effectiveTo}`
+            : undefined,
       },
     ],
   };
