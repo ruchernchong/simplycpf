@@ -105,11 +105,29 @@ export const POLICY_SOURCES = {
     title: "What is the CPF retirement sum?",
     url: "https://www.cpf.gov.sg/member/infohub/educational-resources/what-is-the-cpf-retirement-sum",
   },
+  historicalFullRetirementSums: {
+    id: "cpf-historical-full-retirement-sums",
+    agency: "CPF Board",
+    title: "Full Retirement Sum by 55th birthday",
+    url: "https://www.cpf.gov.sg/content/dam/web/member/retirement-income/documents/RetirementSum.pdf",
+  },
+  retirementSums2023To2027: {
+    id: "cpf-retirement-sums-2023-to-2027",
+    agency: "CPF Board",
+    title: "Budget Highlights 2022",
+    url: "https://www.cpf.gov.sg/member/infohub/news/cpf-related-announcements/budget-highlights-2022",
+  },
   interest: {
     id: "cpf-interest",
     agency: "CPF Board",
     title: "Earning attractive interest",
     url: "https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest",
+  },
+  interestMethodology: {
+    id: "cpf-interest-methodology",
+    agency: "CPF Board",
+    title: "How are CPF interest rates determined?",
+    url: "https://www.cpf.gov.sg/service/article/how-are-cpf-interest-rates-determined",
   },
   extraInterest: {
     id: "cpf-extra-interest",
@@ -134,6 +152,12 @@ export const POLICY_SOURCES = {
     agency: "CPF Board",
     title: "How much CPF payouts can I get every month?",
     url: "https://www.cpf.gov.sg/service/article/how-much-cpf-payouts-can-i-get-every-month",
+  },
+  cpfLifeEligibility: {
+    id: "cpf-life-eligibility",
+    agency: "CPF Board",
+    title: "Who can join CPF LIFE?",
+    url: "https://www.cpf.gov.sg/service/article/who-can-join-cpf-life",
   },
   retirementTopUps: {
     id: "cpf-retirement-top-ups",
@@ -216,12 +240,16 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-retirement-sums": {
     label: "Basic, Full and Enhanced Retirement Sums",
     effectiveFrom: "2024-01-01",
-    sourceKeys: ["retirementSums"],
+    sourceKeys: [
+      "retirementSums",
+      "historicalFullRetirementSums",
+      "retirementSums2023To2027",
+    ],
   },
   "cpf-interest-rates": {
     label: "CPF declared interest rates and interest pegs",
     effectiveFrom: "2023-01-01",
-    sourceKeys: ["interest"],
+    sourceKeys: ["interest", "interestMethodology"],
   },
   "cpf-extra-interest": {
     label: "CPF extra-interest tiers and priority order",
@@ -236,7 +264,11 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-life-reference-payouts": {
     label: "CPF LIFE eligibility and reference payouts",
     effectiveFrom: "2026-01-01",
-    sourceKeys: ["cpfLife", "cpfLifeReferencePayouts"],
+    sourceKeys: [
+      "cpfLife",
+      "cpfLifeReferencePayouts",
+      "cpfLifeEligibility",
+    ],
   },
   "cpf-retirement-top-ups": {
     label: "CPF retirement top-up rules",

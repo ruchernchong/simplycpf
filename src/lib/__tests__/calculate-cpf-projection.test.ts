@@ -51,6 +51,19 @@ describe("calculateCpfProjection monthly ledger", () => {
     ).toThrow("cannot exist before age 55");
   });
 
+  it("rejects a projection start before the member's birth month", () => {
+    expect(() =>
+      calculateCpfProjection({
+        monthlyIncome: 0,
+        birthDate: "01/2027",
+        startMonth: "2026-12",
+        endAge: 0,
+        citizenship: "citizen",
+        initialBalances: zeroBalances(),
+      }),
+    ).toThrow("cannot be before birthDate");
+  });
+
   it("keeps the age-55 rate through the birthday month", () => {
     const result = calculateCpfProjection({
       monthlyIncome: 8_000,
@@ -118,11 +131,11 @@ describe("calculateCpfProjection monthly ledger", () => {
   it("keeps both official retirement-routing contexts available", () => {
     const common = {
       monthlyIncome: 0,
-      birthDate: "01/1970",
-      startMonth: "2026-12",
-      endAge: 56,
+      birthDate: "12/1971",
+      startMonth: "2026-11",
+      endAge: 55,
       citizenship: "citizen" as const,
-      initialBalances: { oa: 100_000, sa: 0, ma: 0, ra: 150_000 },
+      initialBalances: { oa: 100_000, sa: 150_000, ma: 0, ra: 0 },
     };
     const full = calculateCpfProjection({
       ...common,
@@ -139,6 +152,39 @@ describe("calculateCpfProjection monthly ledger", () => {
     expect(property.yearlyBalances[0].balances.oa).toBeGreaterThan(
       full.yearlyBalances[0].balances.oa,
     );
+  });
+
+  it("continues routing post-55 contributions to RA until the cohort FRS", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 8_000,
+      birthDate: "01/1970",
+      startMonth: "2026-12",
+      endAge: 56,
+      citizenship: "citizen",
+      initialBalances: { oa: 0, sa: 0, ma: 0, ra: 110_200 },
+      retirementRouting: "basic-retirement-sum-with-property",
+    });
+
+    expect(result.yearlyBalances[0].distribution.ra).toBeGreaterThan(0);
+  });
+
+  it("treats post-55 starting balances as an actual statement snapshot", () => {
+    const result = calculateCpfProjection({
+      monthlyIncome: 0,
+      birthDate: "01/1966",
+      startMonth: "2026-12",
+      endAge: 60,
+      citizenship: "citizen",
+      initialBalances: { oa: 100_000, sa: 0, ma: 0, ra: 100_000 },
+    });
+
+    expect(result.yearlyBalances[0].distribution).toEqual({
+      oa: 0,
+      sa: 0,
+      ma: 0,
+      ra: 0,
+    });
+    expect(result.yearlyBalances[0].balances.oa).toBeGreaterThan(100_000);
   });
 
   it("uses RA, OA, SA, MA priority for senior extra interest", () => {

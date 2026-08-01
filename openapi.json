@@ -232,7 +232,7 @@
         "operationId": "getAgeGroups",
         "summary": "List official age bands",
         "description": "Returns sourced age bands with `maxAgeInclusive`. From 2025, members aged 55 and above have RA rather than SA. Rates still depend on contribution month and citizenship; use `/calculate` for an exact result.",
-        "tags": ["Age Groups", "Policy"],
+        "tags": ["Age Groups"],
         "parameters": [
           {
             "name": "contributionMonth",
@@ -604,7 +604,7 @@
         "operationId": "getInterestRates",
         "summary": "List official quarterly CPF interest declarations",
         "description": "Returns declared quarterly account rates from 2023 Q1 through 2026 Q3 and the documented OA and SMRA methodologies. It intentionally contains no reconstructed monthly SGS series.",
-        "tags": ["Interest Rates", "Policy"],
+        "tags": ["Interest Rates"],
         "responses": {
           "200": {
             "description": "Official quarterly observations and methodology",

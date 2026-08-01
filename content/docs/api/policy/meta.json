@@ -1,4 +1,10 @@
 {
   "title": "Policy Reference",
-  "pages": ["index", "getBasicHealthcareSum", "getRetirementSums"]
+  "pages": [
+    "index",
+    "getCeiling",
+    "getCeilingTimeline",
+    "getBasicHealthcareSum",
+    "getRetirementSums"
+  ]
 }
