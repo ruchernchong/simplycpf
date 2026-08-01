@@ -84,7 +84,7 @@ function InputSummary() {
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-border border-b bg-background">
+    <header className="sticky top-0 z-50 mb-8 w-full border-border border-b bg-background">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-2xl focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground"
