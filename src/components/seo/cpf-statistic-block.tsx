@@ -3,7 +3,9 @@ import { formatNumber } from "@/lib/format";
 import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
 export default function CpfStatisticBlock() {
-  const schedule = resolveContributionSchedule("2026-08").schedule;
+  const schedule = resolveContributionSchedule(
+    CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
+  ).schedule;
   const interest = CPF_POLICY_CATALOGUE.interestRateMethodology;
   const stats = [
     {

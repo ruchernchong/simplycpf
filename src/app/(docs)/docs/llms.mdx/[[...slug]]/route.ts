@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { getLLMText } from "@/app/(docs)/lib/get-llm-text";
 import { source } from "@/app/(docs)/lib/source";
+import { CACHE_HEADERS } from "@/lib/cache-headers";
 
-export const revalidate = false;
+export const revalidate = 86400;
 
 export async function GET(
   _req: Request,
@@ -14,7 +15,8 @@ export async function GET(
 
   return new Response(await getLLMText(page), {
     headers: {
-      "Content-Type": "text/markdown",
+      ...CACHE_HEADERS.policy,
+      "Content-Type": "text/markdown; charset=utf-8",
     },
   });
 }

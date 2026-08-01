@@ -18,19 +18,31 @@ interface InvestmentComparisonInput {
 }
 ```
 
-Official CPF OA and SMRA floor rates may be used as clearly named presets. Every other rate should be labelled as a user assumption.
+Official CPF OA and SMRA floor rates may be used as clearly named presets. Fetch the current floor from `/interest-rates` and preserve its policy metadata instead of hardcoding it. Every other rate should be labelled as a user assumption.
 
-```bash
-curl -X POST https://simplycpf.com/api/cpf/investment-comparison \
-  -H "Content-Type: application/json" \
-  -d '{
-    "principal": 100000,
-    "years": 20,
-    "scenarios": [
-      { "name": "CPF OA floor preset", "rate": 2.5 },
-      { "name": "User investment assumption", "rate": 6.0 }
-    ]
-  }'
+```typescript
+const ratePolicy = await fetch(
+  "https://simplycpf.com/api/cpf/interest-rates",
+).then((response) => response.json());
+
+const comparison = await fetch(
+  "https://simplycpf.com/api/cpf/investment-comparison",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      principal: 100000,
+      years: 20,
+      scenarios: [
+        {
+          name: "CPF OA floor preset",
+          rate: ratePolicy.methodology.ordinaryAccount.floorRate,
+        },
+        { name: "User investment assumption", rate: 6.0 },
+      ],
+    }),
+  },
+);
 ```
 
 The response returns each scenario's final value, total growth, and growth percentage. It is a mathematical illustration, not financial advice.

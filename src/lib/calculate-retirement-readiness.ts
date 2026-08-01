@@ -1,3 +1,5 @@
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
 export type ReadinessBucket = "low" | "mid" | "high";
 export type ReadinessInterestArea = "projection" | "cpf-life" | "pr-rates";
 
@@ -135,7 +137,7 @@ function buildReadinessPresentation({
   const nextSteps =
     interestArea === "cpf-life"
       ? [
-          "Review CPF Board's published 2026 Standard Plan reference rows without treating them as a personalised quote.",
+          `Review CPF Board's published ${lifeReferenceYear} Standard Plan reference rows without treating them as a personalised quote.`,
           "Compare the characteristics of the Standard, Escalating, and Basic plans.",
           "Use CPF Board's Retirement Payout Planner for a personalised estimate.",
         ]
@@ -152,7 +154,7 @@ function buildReadinessPresentation({
               "Keep the CPF cheat sheet close so the latest rates and retirement sums stay easy to review.",
             ]
           : [
-              "Project your CPF balances to age 55 and 65 using your current income and age.",
+              `Project your CPF balances to age ${retirementAge} and ${payoutAge} using your current income and age.`,
               "Review how much OA is likely going to housing before you overestimate retirement balances.",
               "Use the cheat sheet to keep contribution rates, retirement sums, and top-up limits in one place.",
             ];
@@ -187,3 +189,9 @@ export function calculateRetirementReadiness(
     ...buildReadinessPresentation({ bucket, interestArea }),
   };
 }
+
+const retirementAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+const payoutAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
+const lifeReferenceYear = CPF_POLICY_CATALOGUE.cpfLife.reference.year;

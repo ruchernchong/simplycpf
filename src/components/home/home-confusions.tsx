@@ -5,7 +5,9 @@ import { formatCurrency } from "@/lib/format";
 import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
 export function HomeConfusions() {
-  const schedule = resolveContributionSchedule("2026-08").schedule;
+  const schedule = resolveContributionSchedule(
+    CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
+  ).schedule;
   const retirementAge =
     CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
   const lifeReference = CPF_POLICY_CATALOGUE.cpfLife.reference;

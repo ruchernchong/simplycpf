@@ -3,14 +3,19 @@ import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
-import faqProjectionData from "@/data/faq-projection.json";
+import { buildFaqJsonLdMainEntity, faqProjectionData } from "@/data/cpf-faqs";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
+const retirementAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+const payoutAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
 
 export const metadata: Metadata = {
   title: "CPF Career Projection FAQ",
   description:
     "Find answers about monthly CPF balance projections, age milestones, policy assumptions, interest calculations, and CPF LIFE references.",
-  keywords:
-    "CPF projection FAQ, CPF balance projection, age 55 CPF, age 65 CPF, CPF interest calculation, CPF LIFE reference",
+  keywords: `CPF projection FAQ, CPF balance projection, age ${retirementAge} CPF, age ${payoutAge} CPF, CPF interest calculation, CPF LIFE reference`,
   alternates: {
     canonical: "/faq/projection",
   },
@@ -30,7 +35,7 @@ export const metadata: Metadata = {
   },
 };
 
-const ProjectionFAQ = () => {
+export default function ProjectionFAQ() {
   const schema: Graph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -42,6 +47,8 @@ const ProjectionFAQ = () => {
           "Find answers about monthly CPF balance projections, age milestones, policy assumptions, interest calculations, and CPF LIFE references.",
         url: `${BASE_URL}/faq/projection`,
         inLanguage: "en-SG",
+        dateModified:
+          CPF_POLICY_CATALOGUE.metadata["cpf-interest-rates"].verifiedAt,
         isPartOf: { "@id": WEBSITE_ID },
         speakable: {
           "@type": "SpeakableSpecification",
@@ -68,11 +75,7 @@ const ProjectionFAQ = () => {
       },
       {
         "@type": "FAQPage",
-        mainEntity: faqProjectionData.map(({ question, answer }) => ({
-          "@type": "Question" as const,
-          name: question,
-          acceptedAnswer: { "@type": "Answer" as const, text: answer },
-        })),
+        mainEntity: buildFaqJsonLdMainEntity(faqProjectionData),
       },
     ],
   };
@@ -119,6 +122,4 @@ const ProjectionFAQ = () => {
       </div>
     </>
   );
-};
-
-export default ProjectionFAQ;
+}

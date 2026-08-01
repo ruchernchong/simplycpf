@@ -45,19 +45,18 @@ describe("GET /api/cpf/bhs", () => {
     expect(data.error).toBe("year must be a valid year");
   });
 
-  it.each([2015, 2027, 2035])(
-    "returns 404 instead of fabricating BHS for %s",
-    async (year) => {
-      const response = await GET(
-        new Request(`https://simplycpf.localhost/api/cpf/bhs?year=${year}`),
-      );
-      const data = await response.json();
+  it.each([
+    2015, 2027, 2035,
+  ])("returns 404 instead of fabricating BHS for %s", async (year) => {
+    const response = await GET(
+      new Request(`https://simplycpf.localhost/api/cpf/bhs?year=${year}`),
+    );
+    const data = await response.json();
 
-      expect(response.status).toBe(404);
-      expect(data.error).toContain(String(year));
-      expect(data.supportedYears).toContain(2026);
-    },
-  );
+    expect(response.status).toBe(404);
+    expect(data.error).toContain(String(year));
+    expect(data.supportedYears).toContain(2026);
+  });
 
   it("uses the revalidating policy cache", async () => {
     const response = await GET(

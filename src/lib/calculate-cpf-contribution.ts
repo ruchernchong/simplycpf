@@ -10,6 +10,8 @@ import {
   type ContributionRateBand,
   type ContributionRouting,
   type ContributionWarning,
+  CPF_CONTRIBUTION_SCHEDULES,
+  CPF_POLICY_RULES,
   CPF_WAGE_RULES,
   getContributionRatesForCitizenship,
   normaliseContributionMonth,
@@ -22,12 +24,24 @@ import type { AgeGroup, IncomeOptions } from "@/types";
 const CENTS_PER_DOLLAR = 100;
 const RATE_DENOMINATOR = 10000;
 const DOLLAR_ROUNDING_DENOMINATOR = CENTS_PER_DOLLAR * RATE_DENOMINATOR;
+const TOTAL_HALF_UP_THRESHOLD =
+  CPF_POLICY_RULES.contributionRounding.totalContributionHalfUpAtCents *
+  RATE_DENOMINATOR;
 const LOW_WAGE_LIMIT_CENTS =
   CPF_WAGE_RULES.noContributionAtOrBelow * CENTS_PER_DOLLAR;
 const EMPLOYER_ONLY_LIMIT_CENTS =
   CPF_WAGE_RULES.employerOnlyAtOrBelow * CENTS_PER_DOLLAR;
 const PHASED_RATE_LIMIT_CENTS =
   CPF_WAGE_RULES.phasedEmployeeShareAtOrBelow * CENTS_PER_DOLLAR;
+const firstPublishedSchedule = CPF_CONTRIBUTION_SCHEDULES[0];
+if (!firstPublishedSchedule) {
+  throw new Error("At least one CPF contribution schedule is required.");
+}
+const LEGACY_PRE_SEPTEMBER_CEILING = firstPublishedSchedule.ordinaryWageCeiling;
+const RETIREMENT_ACCOUNT_AGE =
+  CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
+const SPECIAL_ACCOUNT_CLOSURE_MONTH =
+  CPF_POLICY_RULES.specialAccountClosure.effectiveDate.slice(0, 7);
 
 interface NormalisedAge {
   completedAge: number;
@@ -86,8 +100,8 @@ export function calculateCpfContribution(
 }
 
 /**
- * Projection-only entry point. Published rules after 2027 are deliberately
- * frozen and marked assumed instead of silently extrapolated.
+ * Projection-only entry point. Rules after the final published catalogue
+ * schedule are deliberately frozen and marked assumed.
  */
 export function calculateCpfContributionForProjection(
   input: ContributionInput,
@@ -113,6 +127,16 @@ function calculateContribution(
   if (resolvedSchedule.warning) warnings.push(resolvedSchedule.warning);
 
   const age = resolveAge(input, contributionMonth);
+  if (
+    age.monthsSinceBirth === undefined &&
+    isAgeTransitionBoundary(age.completedAge, resolvedSchedule.schedule)
+  ) {
+    warnings.push({
+      code: "age-month-context-required",
+      message:
+        "A completed age at a CPF boundary does not identify whether the birthday month has passed. The inclusive younger band was applied; provide birthMonth for the official month-after-birthday transition.",
+    });
+  }
   const contributionRates = getContributionRatesForCitizenship(
     resolvedSchedule.schedule,
     input.citizenship,
@@ -169,7 +193,7 @@ function calculateContribution(
             status: "assumed",
             notes: [
               ...(basePolicy.wageCeiling.notes ?? []),
-              "The S$6,000 pre-September 2023 ceiling was applied as an explicit SimplyCPF what-if comparison outside its original effective period.",
+              `The ${formatPolicyCurrency(LEGACY_PRE_SEPTEMBER_CEILING)} first-published ceiling was applied as an explicit SimplyCPF what-if comparison outside its original effective period.`,
             ],
           },
         }
@@ -319,6 +343,15 @@ function findBand<T extends ContributionRateBand | AllocationRateBand>(
   return match;
 }
 
+function isAgeTransitionBoundary(
+  age: number,
+  schedule: ContributionPolicySchedule,
+): boolean {
+  return [...schedule.citizenRates, ...schedule.allocationRates].some(
+    (band) => band.maxAgeInclusive === age,
+  );
+}
+
 function resolveSubjectAdditionalWages(
   additionalWagesCents: number,
   input: ContributionInput,
@@ -391,7 +424,7 @@ function calculateContributionAmounts(
   }
 
   const totalDollars = Math.floor(
-    (totalRateNumerator + DOLLAR_ROUNDING_DENOMINATOR / 2) /
+    (totalRateNumerator + TOTAL_HALF_UP_THRESHOLD) /
       DOLLAR_ROUNDING_DENOMINATOR,
   );
   const employeeDollars = Math.floor(
@@ -423,7 +456,8 @@ function calculateAllocation(
   );
   const oa = totalContributionCents - ma - retirement;
   const usesRetirementAccount =
-    contributionMonth >= "2025-01" && completedAge >= 55;
+    contributionMonth >= SPECIAL_ACCOUNT_CLOSURE_MONTH &&
+    completedAge >= RETIREMENT_ACCOUNT_AGE;
 
   if (!usesRetirementAccount) {
     return {
@@ -531,7 +565,9 @@ function normaliseLegacyInput(
 
   const contributionMonth = normaliseLegacyMonth(year);
   const age = inferLegacyAge(options?.age, options?.ageGroup);
-  const citizenship = inferLegacyCitizenship(options?.ageGroup);
+  const citizenship =
+    options?.citizenship ??
+    inferLegacyCitizenship(options?.ageGroup, contributionMonth, age);
   const warnings: ContributionWarning[] = [
     {
       code: "legacy-input",
@@ -541,13 +577,12 @@ function normaliseLegacyInput(
   ];
 
   const overrides = options?.useCeilingBeforeSep2023
-    ? { ordinaryWageCeiling: 6000 }
+    ? { ordinaryWageCeiling: LEGACY_PRE_SEPTEMBER_CEILING }
     : undefined;
   if (overrides) {
     warnings.push({
       code: "legacy-rate-override",
-      message:
-        "The deprecated pre-September 2023 ceiling override applies S$6,000; when that differs from the contribution-month schedule it is an explicit what-if comparison, not official policy for that month.",
+      message: `The deprecated ceiling override applies ${formatPolicyCurrency(LEGACY_PRE_SEPTEMBER_CEILING)}; when that differs from the contribution-month schedule it is an explicit what-if comparison, not official policy for that month.`,
     });
   }
 
@@ -583,29 +618,39 @@ function inferLegacyAge(
 ): number {
   if (suppliedAge !== undefined) return suppliedAge;
   if (!ageGroup) return 0;
-  if (ageGroup.maxAge !== undefined) return ageGroup.maxAge;
-  return ageGroup.minAge + 1;
+  if (ageGroup.maxAgeInclusive !== undefined) {
+    return ageGroup.maxAgeInclusive;
+  }
+  return (ageGroup.minAgeExclusive ?? 0) + 1;
 }
 
 function inferLegacyCitizenship(
   ageGroup: AgeGroup | undefined,
+  contributionMonth: string,
+  age: number,
 ): ContributionCitizenship {
   if (!ageGroup) return "citizen";
   const { employee, employer } = ageGroup.contributionRate;
-  if (
-    approximatelyEqual(employee, 0.05) &&
-    (approximatelyEqual(employer, 0.04) || approximatelyEqual(employer, 0.035))
-  ) {
-    return "spr-year1";
-  }
-  if (
-    (approximatelyEqual(employee, 0.15) &&
-      approximatelyEqual(employer, 0.09)) ||
-    (approximatelyEqual(employee, 0.125) &&
-      approximatelyEqual(employer, 0.06)) ||
-    (approximatelyEqual(employee, 0.075) && approximatelyEqual(employer, 0.035))
-  ) {
-    return "spr-year2";
+  const schedule = resolveContributionSchedule(contributionMonth).schedule;
+  const candidates: readonly ContributionCitizenship[] = [
+    "spr-year1",
+    "spr-year2",
+    "citizen",
+  ];
+  for (const candidate of candidates) {
+    const band = findBand(
+      getContributionRatesForCitizenship(schedule, candidate),
+      { completedAge: age, transitionAppliedFromBirthMonth: false },
+    );
+    if (
+      approximatelyEqual(
+        employee,
+        band.employeeBasisPoints / RATE_DENOMINATOR,
+      ) &&
+      approximatelyEqual(employer, band.employerBasisPoints / RATE_DENOMINATOR)
+    ) {
+      return candidate;
+    }
   }
   return "citizen";
 }
@@ -630,4 +675,8 @@ function toCents(value: number): number {
 
 function fromCents(value: number): number {
   return value / CENTS_PER_DOLLAR;
+}
+
+function formatPolicyCurrency(value: number): string {
+  return `S$${value.toLocaleString("en-SG")}`;
 }

@@ -5,14 +5,24 @@ import type {
   PolicyStatus,
 } from "./types";
 
-export const CPF_POLICY_VERIFIED_AT = "2026-08-01";
-
 export const POLICY_SOURCES = {
   contributionCurrent: {
     id: "cpf-contribution-current",
     agency: "CPF Board",
     title: "How much CPF contributions to pay",
     url: "https://www.cpf.gov.sg/employer/employer-obligations/how-much-cpf-contributions-to-pay",
+  },
+  contributionCalculator: {
+    id: "cpf-contribution-calculator",
+    agency: "CPF Board",
+    title: "CPF contribution calculator",
+    url: "https://www.cpf.gov.sg/employer/tools-and-services/calculators/cpf-contribution-calculator",
+  },
+  contributionRounding: {
+    id: "cpf-contribution-rounding",
+    agency: "CPF Board",
+    title: "Are CPF contributions rounded to the nearest dollar?",
+    url: "https://www.cpf.gov.sg/service/article/are-cpf-contributions-rounded-to-the-nearest-dollar",
   },
   contributionPast: {
     id: "cpf-contribution-past",
@@ -36,7 +46,7 @@ export const POLICY_SOURCES = {
     id: "cpf-contribution-rates-2023-sep",
     agency: "CPF Board",
     title: "CPF contribution and allocation rates from 1 September 2023",
-    url: "https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/cpfcontributionandallocationratesfrom_1sep2023.pdf",
+    url: "https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPF%20contribution%20rates%20from%201%20Sep%202023.pdf",
   },
   contributionRates2024: {
     id: "cpf-contribution-rates-2024",
@@ -80,6 +90,18 @@ export const POLICY_SOURCES = {
     title: "What is the Ordinary Wage ceiling?",
     url: "https://www.cpf.gov.sg/service/article/what-is-the-ordinary-wage-ow-ceiling",
   },
+  additionalWageCeiling: {
+    id: "cpf-additional-wage-ceiling",
+    agency: "CPF Board",
+    title: "What is the Additional Wage ceiling?",
+    url: "https://www.cpf.gov.sg/service/article/what-is-the-additional-wage-aw-ceiling",
+  },
+  additionalWageCeilingEstimation: {
+    id: "cpf-additional-wage-ceiling-estimation",
+    agency: "CPF Board",
+    title: "Calculating CPF contributions on Additional Wages before year end",
+    url: "https://www.cpf.gov.sg/service/article/how-do-i-calculate-cpf-contributions-on-additional-wages-aw-paid-before-the-end-of-the-year-last-month-of-employment",
+  },
   ageGroupTransition: {
     id: "cpf-age-group-transition",
     agency: "CPF Board",
@@ -100,11 +122,31 @@ export const POLICY_SOURCES = {
     title: "How are CPF contributions allocated to CPF accounts?",
     url: "https://www.cpf.gov.sg/service/article/how-are-my-cpf-contributions-allocated-to-my-cpf-accounts",
   },
+  post55ContributionRouting: {
+    id: "cpf-post-55-contribution-routing",
+    agency: "CPF Board",
+    title:
+      "Allocation of CPF contributions after age 55 and Special Account closure",
+    url: "https://www.cpf.gov.sg/service/article/which-accounts-will-my-cpf-contributions-be-allocated-to-after-i-turn-age-55-and-my-special-account-is-closed",
+  },
   basicHealthcareSum: {
     id: "cpf-basic-healthcare-sum",
     agency: "CPF Board",
     title: "What is the Basic Healthcare Sum?",
     url: "https://www.cpf.gov.sg/service/article/what-is-the-basic-healthcare-sum",
+  },
+  basicHealthcareSumOverflow: {
+    id: "cpf-basic-healthcare-sum-overflow",
+    agency: "CPF Board",
+    title: "What happens to MediSave savings above the Basic Healthcare Sum?",
+    url: "https://www.cpf.gov.sg/service/article/i-have-saved-the-basic-healthcare-sum-bhs-in-my-medisave-account-what-happens-to-the-savings-in-my-ma-above-the-bhs",
+  },
+  medisaveTopUpLimit: {
+    id: "cpf-medisave-top-up-limit",
+    agency: "CPF Board",
+    title:
+      "Differences between retirement, housing, MediSave and three-account top-ups",
+    url: "https://www.cpf.gov.sg/service/article/what-are-the-differences-between-topping-up-my-retirement-savings-making-a-voluntary-housing-refund-topping-up-my-medisave-account-and-topping-up-my-three-cpf-accounts",
   },
   retirementSums: {
     id: "cpf-retirement-sums",
@@ -136,6 +178,25 @@ export const POLICY_SOURCES = {
     title: "How are CPF interest rates determined?",
     url: "https://www.cpf.gov.sg/service/article/how-are-cpf-interest-rates-determined",
   },
+  interestCrediting: {
+    id: "cpf-interest-computation-crediting",
+    agency: "CPF Board",
+    title: "How is my CPF interest computed and credited into my accounts?",
+    url: "https://www.cpf.gov.sg/service/article/how-is-my-cpf-interest-computed-and-credited-into-my-accounts",
+  },
+  interestTransferTiming: {
+    id: "cpf-interest-transfer-timing",
+    agency: "CPF Board",
+    title:
+      "When will top-ups received in my Special or Retirement Account start to earn interest?",
+    url: "https://www.cpf.gov.sg/service/article/when-will-the-top-ups-received-in-my-cpf-special-retirement-account-start-to-earn-interest",
+  },
+  specialAccountClosureInterest: {
+    id: "cpf-special-account-closure-interest",
+    agency: "CPF Board",
+    title: "Interest on SA savings transferred when the SA closes at age 55",
+    url: "https://www.cpf.gov.sg/service/article/how-much-interest-will-i-earn-on-the-special-account-sa-savings-that-are-transferred-to-my-retirement-account-and-ordinary-account-upon-the-closure-of-my-sa-when-i-turn-55",
+  },
   extraInterest: {
     id: "cpf-extra-interest",
     agency: "CPF Board",
@@ -147,6 +208,37 @@ export const POLICY_SOURCES = {
     agency: "CPF Board",
     title: "Closure of Special Account for members aged 55 and above",
     url: "https://www.cpf.gov.sg/service/article/what-is-the-closure-of-special-account-for-members-aged-55-and-above-about",
+  },
+  reachingAge55: {
+    id: "cpf-reaching-age-55",
+    agency: "CPF Board",
+    title: "Reaching age 55",
+    url: "https://www.cpf.gov.sg/member/retirement-income/milestones/reaching-age-55",
+  },
+  age55PropertyWithdrawal: {
+    id: "cpf-age-55-property-withdrawal",
+    agency: "CPF Board",
+    title:
+      "Using a mixture of property and cash to set aside the Full Retirement Sum",
+    url: "https://www.cpf.gov.sg/service/article/what-conditions-do-i-have-to-meet-to-set-aside-my-full-retirement-sum-with-a-mixture-of-property-and-cash-and-withdraw-part-of-my-retirement-account-savings-using-my-property",
+  },
+  retirementWithdrawals: {
+    id: "cpf-retirement-withdrawals",
+    agency: "CPF Board",
+    title: "Withdrawing for immediate retirement needs",
+    url: "https://www.cpf.gov.sg/member/retirement-income/retirement-withdrawals/withdrawing-for-immediate-retirement-needs",
+  },
+  withdrawalCohorts: {
+    id: "cpf-withdrawal-cohorts",
+    agency: "CPF Board",
+    title: "Unconditional withdrawals based on birth year",
+    url: "https://www.cpf.gov.sg/wdlamt",
+  },
+  age65Withdrawals: {
+    id: "cpf-age-65-withdrawals",
+    agency: "CPF Board",
+    title: "How much CPF savings can I withdraw from age 65?",
+    url: "https://www.cpf.gov.sg/service/article/how-much-cpf-savings-can-i-withdraw-from-age-65",
   },
   cpfLife: {
     id: "cpf-life",
@@ -171,6 +263,12 @@ export const POLICY_SOURCES = {
     agency: "CPF Board",
     title: "Top up to enjoy higher retirement payouts",
     url: "https://www.cpf.gov.sg/member/growing-your-savings/saving-more-with-cpf/top-up-to-enjoy-higher-retirement-payouts",
+  },
+  recurringTransferTiming: {
+    id: "cpf-recurring-transfer-timing",
+    agency: "CPF Board",
+    title: "When does my recurring CPF transfer take place?",
+    url: "https://www.cpf.gov.sg/service/article/when-does-my-recurring-CPF-transfer-take-place",
   },
   matchedRetirementSavings: {
     id: "cpf-matched-retirement-savings",
@@ -201,6 +299,8 @@ export const POLICY_SOURCES = {
 interface DatasetDescriptor {
   label: string;
   effectiveFrom: string;
+  /** Date this individual dataset was last checked against its sources. */
+  verifiedAt: string;
   sourceKeys: readonly (keyof typeof POLICY_SOURCES)[];
   scope?: string;
 }
@@ -209,10 +309,12 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-contribution-rates": {
     label: "CPF contribution rates",
     effectiveFrom: "2023-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: [
       "contributionPast",
       "contributionCurrent",
       "contribution2027",
+      "contributionRounding",
       "ageGroupTransition",
       "sprYearTransition",
     ],
@@ -222,19 +324,24 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-allocation-rates": {
     label: "CPF contribution allocation rates",
     effectiveFrom: "2023-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: [
       "contributionPast",
       "contributionCurrent",
       "contribution2027",
       "allocationTransition",
+      "post55ContributionRouting",
       "specialAccountClosure",
     ],
   },
   "cpf-wage-ceilings": {
     label: "CPF Ordinary and Additional Wage ceilings",
     effectiveFrom: "2023-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: [
       "ordinaryWageCeiling",
+      "additionalWageCeiling",
+      "additionalWageCeilingEstimation",
       "contributionPast",
       "contributionCurrent",
       "contribution2027",
@@ -243,11 +350,17 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-basic-healthcare-sum": {
     label: "Basic Healthcare Sum",
     effectiveFrom: "2016-01-01",
-    sourceKeys: ["basicHealthcareSum"],
+    verifiedAt: "2026-08-01",
+    sourceKeys: [
+      "basicHealthcareSum",
+      "basicHealthcareSumOverflow",
+      "medisaveTopUpLimit",
+    ],
   },
   "cpf-retirement-sums": {
     label: "Basic, Full and Enhanced Retirement Sums",
     effectiveFrom: "1995-07-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: [
       "retirementSums",
       "historicalFullRetirementSums",
@@ -257,41 +370,79 @@ const DATASET_DESCRIPTORS: Record<PolicyDatasetId, DatasetDescriptor> = {
   "cpf-interest-rates": {
     label: "CPF declared interest rates and interest pegs",
     effectiveFrom: "2023-01-01",
-    sourceKeys: ["interest", "interestMethodology"],
+    verifiedAt: "2026-08-01",
+    sourceKeys: [
+      "interest",
+      "interestMethodology",
+      "interestCrediting",
+      "interestTransferTiming",
+      "specialAccountClosureInterest",
+    ],
   },
   "cpf-extra-interest": {
     label: "CPF extra-interest tiers and priority order",
     effectiveFrom: "2016-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: ["extraInterest"],
   },
   "cpf-special-account-closure": {
     label: "Special Account closure and age-55 routing",
-    effectiveFrom: "2025-01-01",
-    sourceKeys: ["specialAccountClosure"],
+    effectiveFrom: "2025-01-19",
+    verifiedAt: "2026-08-01",
+    sourceKeys: [
+      "specialAccountClosure",
+      "specialAccountClosureInterest",
+      "post55ContributionRouting",
+      "reachingAge55",
+      "age55PropertyWithdrawal",
+    ],
+  },
+  "cpf-retirement-withdrawals": {
+    label: "CPF retirement withdrawal qualifications",
+    effectiveFrom: "2026-01-01",
+    verifiedAt: "2026-08-01",
+    sourceKeys: [
+      "retirementWithdrawals",
+      "withdrawalCohorts",
+      "age55PropertyWithdrawal",
+      "age65Withdrawals",
+    ],
+    scope:
+      "Current withdrawal rules are cohort-dependent; the structured amounts below cover members born in 1958 or later.",
   },
   "cpf-life-reference-payouts": {
     label: "CPF LIFE eligibility and reference payouts",
     effectiveFrom: "2026-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: ["cpfLife", "cpfLifeReferencePayouts", "cpfLifeEligibility"],
   },
   "cpf-retirement-top-ups": {
     label: "CPF retirement top-up rules",
     effectiveFrom: "2026-01-01",
-    sourceKeys: ["retirementTopUps", "matchedRetirementSavings"],
+    verifiedAt: "2026-08-01",
+    sourceKeys: [
+      "retirementTopUps",
+      "matchedRetirementSavings",
+      "medisaveTopUpLimit",
+      "recurringTransferTiming",
+    ],
   },
   "cpf-housing-refunds": {
     label: "CPF housing refunds",
     effectiveFrom: "2026-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: ["housingRefunds"],
   },
   "iras-cpf-cash-top-up-relief": {
     label: "CPF Cash Top-up Relief",
     effectiveFrom: "2026-01-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: ["irasCashTopUpRelief"],
   },
   "mom-retirement-re-employment-ages": {
     label: "Statutory retirement and re-employment ages",
     effectiveFrom: "2026-07-01",
+    verifiedAt: "2026-08-01",
     sourceKeys: ["momRetirementAges"],
   },
 };
@@ -301,6 +452,7 @@ export interface PolicyMetadataOverrides {
   status?: PolicyStatus;
   effectiveFrom?: string;
   effectiveTo?: string;
+  verifiedAt?: string;
   notes?: readonly string[];
   sources?: readonly PolicySource[];
 }
@@ -319,7 +471,7 @@ export function getPolicyMetadata(
     status: overrides.status ?? "official",
     effectiveFrom,
     ...(overrides.effectiveTo ? { effectiveTo: overrides.effectiveTo } : {}),
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt: overrides.verifiedAt ?? descriptor.verifiedAt,
     sources:
       overrides.sources ??
       descriptor.sourceKeys.map((key) => POLICY_SOURCES[key]),
@@ -339,6 +491,7 @@ export const POLICY_METADATA: Record<PolicyDatasetId, PolicyMetadata> = {
   "cpf-special-account-closure": getPolicyMetadata(
     "cpf-special-account-closure",
   ),
+  "cpf-retirement-withdrawals": getPolicyMetadata("cpf-retirement-withdrawals"),
   "cpf-life-reference-payouts": getPolicyMetadata("cpf-life-reference-payouts"),
   "cpf-retirement-top-ups": getPolicyMetadata("cpf-retirement-top-ups"),
   "cpf-housing-refunds": getPolicyMetadata("cpf-housing-refunds"),

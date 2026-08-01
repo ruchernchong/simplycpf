@@ -44,6 +44,18 @@ describe("isValidDateFormat", () => {
     expect(isValidDateFormat(`01/${futureYear}`)).toBe(false);
   });
 
+  it("rejects a future month in the current year", () => {
+    const now = new Date();
+    const futureMonth = now.getMonth() + 2;
+    if (futureMonth <= 12) {
+      expect(
+        isValidDateFormat(
+          `${String(futureMonth).padStart(2, "0")}/${now.getFullYear()}`,
+        ),
+      ).toBe(false);
+    }
+  });
+
   it("should reject incorrect format patterns", () => {
     expect(isValidDateFormat("1/2023")).toBe(false); // Missing leading zero
     expect(isValidDateFormat("01-2023")).toBe(false); // Wrong separator

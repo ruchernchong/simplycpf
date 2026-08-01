@@ -27,21 +27,39 @@ describe("CPF policy catalogue", () => {
   });
 
   it("is versioned and aggregates schedules, metadata, sources and small rules", () => {
-    expect(CPF_POLICY_CATALOGUE.version).toBe("2026-08-01");
+    expect(CPF_POLICY_CATALOGUE.version).toBe("2.0.0");
     expect(CPF_POLICY_CATALOGUE.contributionSchedules).toBe(
       CPF_CONTRIBUTION_SCHEDULES,
     );
     expect(CPF_POLICY_CATALOGUE.rules).toBe(CPF_POLICY_RULES);
-    expect(CPF_POLICY_RULES.wageBands).toEqual({
+    expect(CPF_POLICY_RULES.wageBands).toMatchObject({
       noContributionAtOrBelow: 50,
       employerOnlyAtOrBelow: 500,
       phasedEmployeeShareAtOrBelow: 750,
       fullRatesAbove: 750,
       annualAdditionalWageCeiling: 102000,
+      status: "official",
+      verifiedAt: "2026-08-01",
     });
     expect(CPF_POLICY_RULES.age55PropertyPledge).toMatchObject({
       qualifyingLeaseMustLastThroughAge: 95,
       maximumPropertyComponentOfFrs: 0.5,
+      status: "official",
+      verifiedAt: "2026-08-01",
+    });
+    expect(CPF_POLICY_RULES.retirementWithdrawals).toMatchObject({
+      cohortBornOnOrAfter: "1958-01-01",
+      fromAge55: {
+        unconditionalAmount: 5000,
+        propertyOption: {
+          minimumRemainingLeaseThroughAge: 95,
+          retirementAccountFloor: "BRS",
+        },
+      },
+      fromAge65: {
+        additionalRetirementSavingsPercentage: 20,
+        lessAge55WithdrawableAmount: 5000,
+      },
       status: "official",
       verifiedAt: "2026-08-01",
     });
@@ -159,13 +177,53 @@ describe("CPF policy catalogue", () => {
       basic: { declineCondition: { combinedCpfBalancesBelow: 60_000 } },
       common: { payoutsContinueForLife: true },
     });
-    expect(CPF_LIFE_POLICY.reference.rows).toHaveLength(6);
-    expect(CPF_LIFE_POLICY.reference.rows.at(-1)).toMatchObject({
-      raAt55: 440_800,
-      raAt65: 650_100,
-      monthlyPayoutAt65: 3_440,
-      monthlyPayoutAt70: 4_580,
-    });
+    expect(
+      CPF_LIFE_POLICY.reference.rows.map(
+        ({ raAt55, raAt65, monthlyPayoutAt65, monthlyPayoutAt70 }) => ({
+          raAt55,
+          raAt65,
+          monthlyPayoutAt65,
+          monthlyPayoutAt70,
+        }),
+      ),
+    ).toEqual([
+      {
+        raAt55: 50_000,
+        raAt65: 82_400,
+        monthlyPayoutAt65: 490,
+        monthlyPayoutAt70: 670,
+      },
+      {
+        raAt55: 110_200,
+        raAt65: 170_100,
+        monthlyPayoutAt65: 950,
+        monthlyPayoutAt70: 1_280,
+      },
+      {
+        raAt55: 150_000,
+        raAt65: 227_900,
+        monthlyPayoutAt65: 1_250,
+        monthlyPayoutAt70: 1_670,
+      },
+      {
+        raAt55: 220_400,
+        raAt65: 330_100,
+        monthlyPayoutAt65: 1_780,
+        monthlyPayoutAt70: 2_380,
+      },
+      {
+        raAt55: 300_000,
+        raAt65: 445_600,
+        monthlyPayoutAt65: 2_380,
+        monthlyPayoutAt70: 3_170,
+      },
+      {
+        raAt55: 440_800,
+        raAt65: 650_100,
+        monthlyPayoutAt65: 3_440,
+        monthlyPayoutAt70: 4_580,
+      },
+    ]);
   });
 
   it("contains official quarterly declarations through 2026 Q3 and the documented peg", () => {

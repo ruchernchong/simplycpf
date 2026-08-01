@@ -10,15 +10,15 @@ A CPF (Central Provident Fund) contribution and planning application for Singapo
 ## Features
 
 - 💰 **Source-backed CPF calculations** - Apply the effective contribution month, wage band, OW/AW ceilings, citizenship status, and CPF statutory rounding rules
-- 📊 **Dated age-based schedules** - Resolve official contribution and allocation tables from 2023 through the published 2027 schedule
+- 📊 **Dated age-based schedules** - Resolve only the contribution and allocation schedules published in the canonical policy catalogue
 - 📈 **Distribution breakdown** - View exact OA (Ordinary Account), SA/RA (Special or Retirement Account), and MA (MediSave Account) allocations
 - 🔮 **Monthly retirement projection** - Project supplied starting OA, SA, MA, and RA balances with published CPF schedules and clearly labelled frozen-policy assumptions
 - 🧪 **What-if simulator** - Compare salary changes, age-aware retirement transfers, top-ups, and the cost of starting later
 - 🔗 **Shareable URLs** - Copy projection and what-if links with the current inputs already encoded in the URL
-- 🛟 **CPF LIFE Reference** - Review CPF Board's published 2026 Standard Plan reference rows and plan characteristics, with a link to CPF's personalised planner
+- 🛟 **CPF LIFE Reference** - Review CPF Board's exact published Standard Plan reference rows and plan characteristics, with a link to CPF's personalised planner
 - 🧾 **CPF Cheat Sheet** - Download a printable PDF with contribution rates, account distribution, retirement sums, BHS, and PR reference points
 - ✅ **SimplyCPF Readiness Score** - Use an editorial self-check to identify a planning topic to review next; it is not a CPF Board assessment
-- 🕒 **Interactive Timeline** - Visualise CPF income ceiling changes from 2023 to 2026 with an interactive timeline
+- 🕒 **Interactive Timeline** - Visualise every published CPF income-ceiling change in the policy catalogue
 - 📱 **Mobile-Friendly** - Responsive design with PWA support for offline use
 - 📄 **PDF Export** - Download your CPF calculation results as a PDF document
 - 🎨 **Modern UI** - Built with Next.js 16, React 19, and Tailwind CSS
@@ -26,13 +26,13 @@ A CPF (Central Provident Fund) contribution and planning application for Singapo
 
 ## About
 
-Following the Ministry of Finance announcement at Singapore Budget 2023 (13 February 2023), the CPF Ordinary Wage ceiling was progressively raised:
-- **Previous ceiling**: $6,000 (before September 2023)
-- **Current ceiling**: $8,000 (from 1 January 2026)
+This calculator helps Singapore employees estimate take-home income after CPF contributions while accounting for the effective month, wage bands, citizenship status, age transitions, ceilings, rounding, and account-routing rules. The projection page uses a monthly ledger over supplied OA, SA, MA, and RA starting balances.
 
-This calculator helps Singaporeans estimate their take-home income after CPF contributions under the new ceiling structure while accounting for age-specific contribution and distribution rates. It also includes a CPF projection page for modelling how your balances may grow across OA, SA, MA, and RA over time.
+Official policy lives in `src/policy/`, with effective dates, first-party source URLs, status, and per-dataset verification metadata. Unsupported public reference years return errors rather than silently clamping. Projection years beyond published policy freeze the last official value and are marked as SimplyCPF assumptions.
 
-The core calculators and planning tools work without sign-up. Email is only requested if you want SimplyCPF to send you a cheat sheet or readiness report.
+Contribution scope is private-sector, non-pensionable employees who are Singapore Citizens or Permanent Residents using CPF Board's default Graduated/Graduated rates. Platform workers, self-employed persons, pensionable employees, and approved alternative PR contribution arrangements are outside scope.
+
+The core calculators and planning tools work without sign-up. The site has no account or email collection flow.
 
 ## Technology Stack
 
@@ -118,7 +118,7 @@ pnpm test:coverage
 The application includes a comprehensive API documentation portal at `/docs` with:
 
 - **Getting Started** - Quick start guide for developers
-- **API Reference** - Complete documentation for all 14 CPF endpoints
+- **API Reference** - Complete documentation for the current CPF endpoints
 - **Examples** - Code samples in JavaScript/TypeScript and Python
 - **Changelog** - Version history and updates
 
@@ -147,11 +147,11 @@ src/
 │   └── (docs)/      # Developer portal (Fumadocs)
 ├── stores/           # Zustand state stores
 ├── components/       # React components
-├── data/            # CPF age groups and rates data
+├── data/            # Catalogue-generated FAQ and compatibility data
 ├── lib/             # Core calculation logic
 ├── policy/          # Versioned CPF policy catalogue and provenance
 ├── types/           # TypeScript type definitions
-├── constants/       # CPF income ceilings by year
+├── constants/       # Compatibility adapters over the policy catalogue
 └── utils/           # Utility functions
 content/
 └── docs/            # Developer portal MDX content

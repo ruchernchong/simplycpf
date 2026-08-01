@@ -1,5 +1,6 @@
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 import type {
   CitizenshipStatus,
   ProjectionParams,
@@ -9,6 +10,12 @@ import type {
   ScenarioResult,
   VoluntaryTopUp,
 } from "@/types";
+
+const payoutEligibilityAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
+const comparisonStartMonth = resolveContributionSchedule(
+  CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
+).schedule.effectiveFrom.slice(0, 7);
 
 export interface SalaryChangeScenarioParams {
   projection: ProjectionParams;
@@ -60,7 +67,8 @@ function buildDifference(
     totalInterestEarned:
       scenario.totalInterestEarned - baseline.totalInterestEarned,
     age65Balance:
-      getTotalBalanceAtAge(scenario, 65) - getTotalBalanceAtAge(baseline, 65),
+      getTotalBalanceAtAge(scenario, payoutEligibilityAge) -
+      getTotalBalanceAtAge(baseline, payoutEligibilityAge),
   };
 }
 
@@ -77,14 +85,14 @@ function buildSalaryChangeInsights(
 
   if (incomeDelta >= 0) {
     return [
-      `A monthly income increase of ${formatSignedCurrency(incomeDelta, 0)} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} more by age 65.`,
+      `A monthly income increase of ${formatSignedCurrency(incomeDelta, 0)} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} more by age ${payoutEligibilityAge}.`,
       `Across the full projection horizon, your total CPF contributions could increase by about ${formatSignedCurrency(difference.totalContributions, 0)}.`,
       `The balance comparison does not estimate a personalised CPF LIFE payout; use CPF Board's Retirement Payout Planner for that.`,
     ];
   }
 
   return [
-    `A monthly income reduction of ${formatSignedCurrency(incomeDelta, 0)} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} less by age 65.`,
+    `A monthly income reduction of ${formatSignedCurrency(incomeDelta, 0)} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} less by age ${payoutEligibilityAge}.`,
     `The drop comes from both lower CPF contributions and fewer dollars compounding at CPF interest rates over time.`,
     `The balance comparison does not estimate a personalised CPF LIFE payout; use CPF Board's Retirement Payout Planner for that.`,
   ];
@@ -97,7 +105,7 @@ function buildTransferInsights(
 ): string[] {
   return [
     `${timing === "yearly" ? "Moving" : "A one-off move of"} ${formatSignedCurrency(transferAmount, 0)} from OA to the retirement account for your age could generate about ${formatSignedCurrency(difference.totalInterestEarned, 0)} more interest across the projection horizon.`,
-    `That transfer pattern could improve your projected CPF balance at age 65 by about ${formatSignedCurrency(difference.age65Balance, 0)}.`,
+    `That transfer pattern could improve your projected CPF balance at age ${payoutEligibilityAge} by about ${formatSignedCurrency(difference.age65Balance, 0)}.`,
     `OA transfers are irreversible and are limited by the transferable OA balance and CPF's prevailing retirement-sum rules.`,
   ];
 }
@@ -107,9 +115,11 @@ function buildTopUpInsights(
   account: VoluntaryTopUp["account"],
   difference: ScenarioDifference,
 ): string[] {
+  const relief =
+    CPF_POLICY_CATALOGUE.rules.retirementTopUps.taxRelief.selfAnnualCap;
   return [
-    `An annual ${formatSignedCurrency(amount, 0)} top-up to ${account} could add about ${formatSignedCurrency(difference.age65Balance, 0)} to your projected CPF balance at age 65.`,
-    `Cash top-up capacity and tax relief are different limits. Eligible cash top-ups may receive up to S$8,000 of personal relief each year, subject to IRAS conditions and the overall personal-income-tax relief cap.`,
+    `An annual ${formatSignedCurrency(amount, 0)} top-up to ${account} could add about ${formatSignedCurrency(difference.age65Balance, 0)} to your projected CPF balance at age ${payoutEligibilityAge}.`,
+    `Cash top-up capacity and tax relief are different limits. Eligible cash top-ups may receive up to ${formatSignedCurrency(relief, 0)} of personal relief each year, subject to IRAS conditions and the overall personal-income-tax relief cap.`,
     `The balance comparison does not estimate a personalised CPF LIFE payout; use CPF Board's Retirement Payout Planner for that.`,
   ];
 }
@@ -121,14 +131,14 @@ function buildAgeComparisonInsights(
 ): string[] {
   if (scenarioStartAge > baselineStartAge) {
     return [
-      `Starting at age ${scenarioStartAge} instead of age ${baselineStartAge} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} less by age 65.`,
+      `Starting at age ${scenarioStartAge} instead of age ${baselineStartAge} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} less by age ${payoutEligibilityAge}.`,
       `The delay reduces both the years of CPF contributions and the time available for compounding.`,
       `This is a SimplyCPF balance scenario, not a personalised CPF LIFE payout quote.`,
     ];
   }
 
   return [
-    `Starting at age ${scenarioStartAge} instead of age ${baselineStartAge} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} more by age 65.`,
+    `Starting at age ${scenarioStartAge} instead of age ${baselineStartAge} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} more by age ${payoutEligibilityAge}.`,
     `The earlier start gives your CPF balances more years to compound at CPF interest rates.`,
     `This is a SimplyCPF balance scenario, not a personalised CPF LIFE payout quote.`,
   ];
@@ -219,20 +229,30 @@ export function calculateAgeComparisonScenario({
   baselineStartAge,
   scenarioStartAge,
 }: AgeComparisonScenarioParams): ScenarioResult {
+  const [startYear, startMonthNumber] = comparisonStartMonth
+    .split("-")
+    .map(Number);
+  if (!startYear || !startMonthNumber) {
+    throw new Error("The comparison policy month is invalid.");
+  }
+  const birthDateForAge = (age: number) =>
+    `${String(startMonthNumber).padStart(2, "0")}/${startYear - age}`;
   const baseline = calculateCpfProjection({
     monthlyIncome,
-    birthDate: "",
-    startAge: baselineStartAge,
+    birthDate: birthDateForAge(baselineStartAge),
+    startMonth: comparisonStartMonth,
     endAge,
     initialBalances: { oa: 0, sa: 0, ma: 0, ra: 0 },
+    netSaSavingsWithdrawnForInvestments: 0,
     citizenship,
   });
   const scenario = calculateCpfProjection({
     monthlyIncome,
-    birthDate: "",
-    startAge: scenarioStartAge,
+    birthDate: birthDateForAge(scenarioStartAge),
+    startMonth: comparisonStartMonth,
     endAge,
     initialBalances: { oa: 0, sa: 0, ma: 0, ra: 0 },
+    netSaSavingsWithdrawnForInvestments: 0,
     citizenship,
   });
   const difference = buildDifference(baseline, scenario);

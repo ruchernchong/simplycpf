@@ -25,6 +25,7 @@ import {
   createInvestmentScenarios,
 } from "@/components/investments/investment-assumptions";
 import { formatCurrency, formatPercentage } from "@/lib/format";
+import { POLICY_SOURCES } from "@/policy";
 
 interface ChartDataPoint {
   year: number;
@@ -281,7 +282,7 @@ export function CPFInvestmentComparison() {
               rates are reviewed quarterly under their official pegs and floors.
             </Typography>
             <Link
-              href="https://www.cpf.gov.sg/member/growing-your-savings/earning-higher-returns/earning-attractive-interest"
+              href={POLICY_SOURCES.interest.url}
               rel="noopener noreferrer"
               target="_blank"
             >

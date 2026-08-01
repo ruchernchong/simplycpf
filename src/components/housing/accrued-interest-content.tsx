@@ -18,6 +18,7 @@ import { Cell } from "recharts";
 import { SplitBar } from "@/components/shared/split-bar";
 import { calculateAccruedInterest } from "@/lib/calculate-accrued-interest";
 import { formatCurrency, formatPercentage } from "@/lib/format";
+import { POLICY_SOURCES } from "@/policy";
 
 const AMOUNT_OPTIONS = [150_000, 250_000, 400_000] as const;
 const YEAR_OPTIONS = [5, 10, 20] as const;
@@ -334,7 +335,7 @@ export function AccruedInterestContent() {
                 </Typography>
               )}
               <Link
-                href="https://www.cpf.gov.sg/member/home-ownership/using-your-cpf-to-buy-a-home/cpf-refund-when-selling-or-transferring-property"
+                href={POLICY_SOURCES.housingRefunds.url}
                 rel="noopener noreferrer"
                 target="_blank"
               >

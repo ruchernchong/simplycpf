@@ -7,20 +7,25 @@ import {
 } from "@/constants/cpf-retirement-sums";
 import { calculateCpfContributionForProjection } from "@/lib/calculate-cpf-contribution";
 import type {
+  AdditionalWageCeilingContext,
   ContributionCalculationResult,
   PolicyMetadata,
+  PolicySource,
   PolicyStatus,
 } from "@/policy";
 import {
+  CPF_CONTRIBUTION_SCHEDULES,
   CPF_INTEREST_FLOOR_RATES,
-  CPF_INTEREST_RATE_METHODOLOGY,
   CPF_POLICY_RULES,
+  CPF_QUARTERLY_INTEREST_RATES,
+  CPF_WAGE_RULES,
   getPolicyMetadata,
   resolveSprContributionYear,
 } from "@/policy";
 import type {
   AccountBalances,
   CitizenshipStatus,
+  ProjectionAdditionalWage,
   ProjectionParams,
   ProjectionPolicyMetadata,
   ProjectionResult,
@@ -31,12 +36,6 @@ import type {
   YearlyBalance,
 } from "@/types";
 
-const LAST_PUBLISHED_INTEREST_YEAR = Number(
-  CPF_INTEREST_RATE_METHODOLOGY.specialMediSaveRetirementAccounts.floorGuaranteedThrough.slice(
-    0,
-    4,
-  ),
-);
 const RETIREMENT_ACCOUNT_AGE =
   CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
 const CPF_LIFE_ELIGIBILITY_AGE =
@@ -45,12 +44,25 @@ const CPF_LIFE_LATEST_START_AGE =
   CPF_POLICY_RULES.lifecycleAges.latestCpfLifePayoutStart;
 const SPECIAL_ACCOUNT_CLOSURE_MONTH =
   CPF_POLICY_RULES.specialAccountClosure.effectiveDate.slice(0, 7);
+const RETIREMENT_TOP_UP_POLICY_YEAR = getPolicyMetadata(
+  "cpf-retirement-top-ups",
+).effectiveFrom.slice(0, 4);
+const TAX_RELIEF_POLICY_YEAR = getPolicyMetadata(
+  "iras-cpf-cash-top-up-relief",
+).effectiveFrom.slice(0, 4);
 
 interface CentsBalances {
   oa: number;
   sa: number;
   ma: number;
   ra: number;
+}
+
+interface RaSavingsState {
+  /** Official limit measure: principal inflows plus counted withdrawals/premiums. */
+  forLimits: number;
+  /** Cash principal used for post-55 employment-contribution routing. */
+  forContributionRouting: number;
 }
 
 interface InterestAccrual {
@@ -67,14 +79,21 @@ interface YearAccumulator {
   reportedInterest: InterestAccrual;
   housingWithdrawal: number;
   voluntaryTopUp: number;
-  topUpTaxReliefEligible: number;
+  topUpPotentialTaxRelief: number;
+  unappliedVoluntaryTopUp: number;
   retirementTransfer: number;
+  propertyPledgeWithdrawal: number;
 }
 
 interface MonthPolicy {
   bhs: BhsPolicyValue;
   retirement: RetirementSumsPolicyValue;
   projection: ProjectionPolicyMetadata;
+}
+
+interface MonthlyInterestPolicy {
+  rates: { oa: number; sa: number; ma: number; ra: number };
+  metadata: PolicyMetadata;
 }
 
 function emptyBalances(): CentsBalances {
@@ -89,6 +108,15 @@ function emptyInterest(): InterestAccrual {
   };
 }
 
+function interestDestinationBalances(interest: InterestAccrual): CentsBalances {
+  return {
+    oa: interest.base.oa + interest.extraDestination.oa,
+    sa: interest.base.sa + interest.extraDestination.sa,
+    ma: interest.base.ma + interest.extraDestination.ma,
+    ra: interest.base.ra + interest.extraDestination.ra,
+  };
+}
+
 function emptyYearAccumulator(): YearAccumulator {
   return {
     employee: 0,
@@ -98,8 +126,10 @@ function emptyYearAccumulator(): YearAccumulator {
     reportedInterest: emptyInterest(),
     housingWithdrawal: 0,
     voluntaryTopUp: 0,
-    topUpTaxReliefEligible: 0,
+    topUpPotentialTaxRelief: 0,
+    unappliedVoluntaryTopUp: 0,
     retirementTransfer: 0,
+    propertyPledgeWithdrawal: 0,
   };
 }
 
@@ -145,6 +175,119 @@ function validateMoney(value: number | undefined, label: string): void {
   }
 }
 
+interface PreparedAdditionalWage {
+  amount: number;
+  context: AdditionalWageCeilingContext;
+}
+
+function requiredMoney(value: unknown, label: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    throw new RangeError(`${label} must be zero or more.`);
+  }
+  return value;
+}
+
+function prepareAdditionalWages(
+  payments: ProjectionAdditionalWage[] | undefined,
+  startSerial: number,
+  endSerial: number,
+): Map<string, PreparedAdditionalWage> {
+  const prepared = new Map<string, PreparedAdditionalWage>();
+  if (payments === undefined) return prepared;
+  if (!Array.isArray(payments)) {
+    throw new RangeError(
+      "additionalWages must be an array of explicitly dated payments.",
+    );
+  }
+
+  for (const [index, payment] of payments.entries()) {
+    const field = `additionalWages[${index}]`;
+    if (!payment || typeof payment !== "object") {
+      throw new RangeError(`${field} must be an object.`);
+    }
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(payment.contributionMonth)) {
+      throw new RangeError(
+        `${field}.contributionMonth must be in YYYY-MM format.`,
+      );
+    }
+    if (prepared.has(payment.contributionMonth)) {
+      throw new RangeError(
+        `additionalWages contains more than one payment for ${payment.contributionMonth}; combine payments made in the same contribution month.`,
+      );
+    }
+
+    const { year, month } = parseMonth(payment.contributionMonth);
+    const serial = monthSerial(year, month);
+    if (serial < startSerial || serial > endSerial) {
+      throw new RangeError(
+        `${field}.contributionMonth must fall within the projection range.`,
+      );
+    }
+    const amount = requiredMoney(payment.amount, `${field}.amount`);
+    if (amount === 0) {
+      throw new RangeError(`${field}.amount must be greater than zero.`);
+    }
+
+    const context = payment.additionalWageCeilingContext;
+    if (!context || typeof context !== "object") {
+      throw new RangeError(
+        `${field}.additionalWageCeilingContext is required for a positive Additional Wage payment.`,
+      );
+    }
+    if ("remainingAdditionalWageCeiling" in context) {
+      const remaining = requiredMoney(
+        context.remainingAdditionalWageCeiling,
+        `${field}.additionalWageCeilingContext.remainingAdditionalWageCeiling`,
+      );
+      if (
+        "annualOrdinaryWagesSubjectToCpf" in context ||
+        "priorAdditionalWagesSubjectToCpf" in context
+      ) {
+        throw new RangeError(
+          `${field}.additionalWageCeilingContext must use one context form only.`,
+        );
+      }
+      if (remaining > CPF_WAGE_RULES.annualAdditionalWageCeiling) {
+        throw new RangeError(
+          `${field}.additionalWageCeilingContext.remainingAdditionalWageCeiling cannot exceed S$${CPF_WAGE_RULES.annualAdditionalWageCeiling.toLocaleString("en-SG")}.`,
+        );
+      }
+      prepared.set(payment.contributionMonth, {
+        amount,
+        context: {
+          annualOrdinaryWagesSubjectToCpf:
+            CPF_WAGE_RULES.annualAdditionalWageCeiling - remaining,
+          priorAdditionalWagesSubjectToCpf: 0,
+        },
+      });
+      continue;
+    }
+
+    if (
+      !("annualOrdinaryWagesSubjectToCpf" in context) ||
+      !("priorAdditionalWagesSubjectToCpf" in context)
+    ) {
+      throw new RangeError(
+        `${field}.additionalWageCeilingContext must provide both annualOrdinaryWagesSubjectToCpf and priorAdditionalWagesSubjectToCpf, or remainingAdditionalWageCeiling.`,
+      );
+    }
+    prepared.set(payment.contributionMonth, {
+      amount,
+      context: {
+        annualOrdinaryWagesSubjectToCpf: requiredMoney(
+          context.annualOrdinaryWagesSubjectToCpf,
+          `${field}.additionalWageCeilingContext.annualOrdinaryWagesSubjectToCpf`,
+        ),
+        priorAdditionalWagesSubjectToCpf: requiredMoney(
+          context.priorAdditionalWagesSubjectToCpf,
+          `${field}.additionalWageCeilingContext.priorAdditionalWagesSubjectToCpf`,
+        ),
+      },
+    });
+  }
+  return prepared;
+}
+
 function parseBirthDate(value: string): { month: number; year: number } {
   const match = /^(0[1-9]|1[0-2])\/(\d{4})$/.exec(value);
   if (!match) {
@@ -173,6 +316,20 @@ function formatMonth(year: number, month: number): string {
   return `${year}-${String(month).padStart(2, "0")}`;
 }
 
+export function getCurrentSingaporeMonth(now = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-SG", {
+    timeZone: "Asia/Singapore",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(now);
+  const year = parts.find(({ type }) => type === "year")?.value;
+  const month = parts.find(({ type }) => type === "month")?.value;
+  if (!year || !month) {
+    throw new Error("Could not resolve the current Singapore month.");
+  }
+  return `${year}-${month}`;
+}
+
 function ageInMonth(
   year: number,
   month: number,
@@ -182,20 +339,19 @@ function ageInMonth(
   return year - birthYear - (month < birthMonth ? 1 : 0);
 }
 
-function describeAgeGroup(
-  band: ContributionCalculationResult["age"]["allocationBand"],
-): string {
-  const labels: Record<typeof band, string> = {
-    "35-and-below": "35 and below",
-    "above-35-to-45": "Above 35 to 45",
-    "above-45-to-50": "Above 45 to 50",
-    "above-50-to-55": "Above 50 to 55",
-    "above-55-to-60": "Above 55 to 60",
-    "above-60-to-65": "Above 60 to 65",
-    "above-65-to-70": "Above 65 to 70",
-    "above-70": "Above 70",
-  };
-  return labels[band];
+function describeAgeGroup(contribution: ContributionCalculationResult): string {
+  const schedule = CPF_CONTRIBUTION_SCHEDULES.find(
+    (candidate) => candidate.id === contribution.schedule.id,
+  );
+  const band = schedule?.allocationRates.find(
+    (candidate) => candidate.id === contribution.age.allocationBand,
+  );
+  if (!band) {
+    throw new Error(
+      `Allocation band ${contribution.age.allocationBand} is missing from ${contribution.schedule.id}.`,
+    );
+  }
+  return band.description;
 }
 
 function addBalances(target: CentsBalances, addition: CentsBalances): void {
@@ -216,6 +372,8 @@ function routeToRetirement(
   amount: number,
   age: number,
   retirementThreshold: number,
+  raSavings: RaSavingsState,
+  spaceBasis: "forLimits" | "forContributionRouting",
 ): CentsBalances {
   const distribution = emptyBalances();
   if (amount <= 0) return distribution;
@@ -226,11 +384,13 @@ function routeToRetirement(
     return distribution;
   }
 
-  const raSpace = Math.max(0, retirementThreshold - balances.ra);
+  const raSpace = Math.max(0, retirementThreshold - raSavings[spaceBasis]);
   const toRa = Math.min(amount, raSpace);
   const toOa = amount - toRa;
   balances.ra += toRa;
   balances.oa += toOa;
+  raSavings.forLimits += toRa;
+  raSavings.forContributionRouting += toRa;
   distribution.ra = toRa;
   distribution.oa = toOa;
   return distribution;
@@ -242,12 +402,17 @@ function routeMaOverflow(
   age: number,
   under55Frs: number,
   retirementThreshold: number,
+  netSaInvestmentWithdrawals: number,
+  raSavings: RaSavingsState,
 ): CentsBalances {
   const distribution = emptyBalances();
   if (overflow <= 0) return distribution;
 
   if (age < RETIREMENT_ACCOUNT_AGE) {
-    const saSpace = Math.max(0, under55Frs - balances.sa);
+    const saSpace = Math.max(
+      0,
+      under55Frs - balances.sa - netSaInvestmentWithdrawals,
+    );
     const toSa = Math.min(overflow, saSpace);
     const toOa = overflow - toSa;
     balances.sa += toSa;
@@ -257,7 +422,14 @@ function routeMaOverflow(
     return distribution;
   }
 
-  return routeToRetirement(balances, overflow, age, retirementThreshold);
+  return routeToRetirement(
+    balances,
+    overflow,
+    age,
+    retirementThreshold,
+    raSavings,
+    "forLimits",
+  );
 }
 
 function enforceBhs(
@@ -266,6 +438,8 @@ function enforceBhs(
   age: number,
   under55Frs: number,
   retirementThreshold: number,
+  netSaInvestmentWithdrawals: number,
+  raSavings: RaSavingsState,
 ): CentsBalances {
   const overflow = Math.max(0, balances.ma - bhs);
   if (overflow === 0) return emptyBalances();
@@ -276,23 +450,27 @@ function enforceBhs(
     age,
     under55Frs,
     retirementThreshold,
+    netSaInvestmentWithdrawals,
+    raSavings,
   );
 }
 
 function prepareAge55AccountCreation(
   balances: CentsBalances,
-  retirementThreshold: number,
+  fullRetirementSum: number,
+  retainedRetirementSum: number,
   closeSa: boolean,
-): CentsBalances {
+  raSavings: RaSavingsState,
+): { pending: CentsBalances; propertyPledgeWithdrawal: number } {
   const pending = emptyBalances();
-  const raSpaceBeforeSa = Math.max(0, retirementThreshold - balances.ra);
+  const raSpaceBeforeSa = Math.max(0, fullRetirementSum - raSavings.forLimits);
   const fromSa = Math.min(balances.sa, raSpaceBeforeSa);
   balances.sa -= fromSa;
   pending.ra += fromSa;
 
   const raSpaceBeforeOa = Math.max(
     0,
-    retirementThreshold - balances.ra - pending.ra,
+    fullRetirementSum - raSavings.forLimits - pending.ra,
   );
   const fromOa = Math.min(balances.oa, raSpaceBeforeOa);
   balances.oa -= fromOa;
@@ -302,40 +480,55 @@ function prepareAge55AccountCreation(
     pending.oa += balances.sa;
     balances.sa = 0;
   }
-  return pending;
+  raSavings.forLimits += fromSa + fromOa;
+  raSavings.forContributionRouting += fromSa + fromOa;
+  const propertyPledgeWithdrawal = Math.max(
+    0,
+    Math.min(
+      balances.ra + pending.ra,
+      raSavings.forLimits - retainedRetirementSum,
+    ),
+  );
+  const withdrawnFromPending = Math.min(pending.ra, propertyPledgeWithdrawal);
+  pending.ra -= withdrawnFromPending;
+  balances.ra -= propertyPledgeWithdrawal - withdrawnFromPending;
+  raSavings.forContributionRouting = Math.max(
+    0,
+    raSavings.forContributionRouting - propertyPledgeWithdrawal,
+  );
+  return { pending, propertyPledgeWithdrawal };
 }
 
 function prepareSpecialAccountClosure(
   balances: CentsBalances,
-  cohortFrs: number,
+  retirementThreshold: number,
+  raSavings: RaSavingsState,
 ): CentsBalances {
   const pending = emptyBalances();
-  const toRa = Math.min(balances.sa, Math.max(0, cohortFrs - balances.ra));
+  const toRa = Math.min(
+    balances.sa,
+    Math.max(0, retirementThreshold - raSavings.forLimits),
+  );
   balances.sa -= toRa;
   pending.ra = toRa;
   pending.oa = balances.sa;
   balances.sa = 0;
+  raSavings.forLimits += toRa;
+  raSavings.forContributionRouting += toRa;
   return pending;
 }
 
 function calculateMonthlyInterest(
   balances: CentsBalances,
   age: number,
+  rates: MonthlyInterestPolicy["rates"],
 ): InterestAccrual {
   const rules = CPF_POLICY_RULES.extraInterest;
   const accrual = emptyInterest();
-  accrual.base.oa = Math.round(
-    (balances.oa * (CPF_INTEREST_FLOOR_RATES.OA / 100)) / 12,
-  );
-  accrual.base.sa = Math.round(
-    (balances.sa * (CPF_INTEREST_FLOOR_RATES.SMRA / 100)) / 12,
-  );
-  accrual.base.ma = Math.round(
-    (balances.ma * (CPF_INTEREST_FLOOR_RATES.SMRA / 100)) / 12,
-  );
-  accrual.base.ra = Math.round(
-    (balances.ra * (CPF_INTEREST_FLOOR_RATES.SMRA / 100)) / 12,
-  );
+  accrual.base.oa = Math.round((balances.oa * (rates.oa / 100)) / 12);
+  accrual.base.sa = Math.round((balances.sa * (rates.sa / 100)) / 12);
+  accrual.base.ma = Math.round((balances.ma * (rates.ma / 100)) / 12);
+  accrual.base.ra = Math.round((balances.ra * (rates.ra / 100)) / 12);
 
   let combinedUsed = 0;
   const orderedAccounts: (keyof CentsBalances)[] = rules.accountPriority.map(
@@ -417,6 +610,7 @@ function creditAnnualInterest(
   accrual: InterestAccrual,
   saClosed: boolean,
   retirementThreshold: number,
+  raSavings: RaSavingsState,
 ): void {
   balances.oa += accrual.base.oa + accrual.extraDestination.oa;
   balances.ma += accrual.base.ma + accrual.extraDestination.ma;
@@ -424,12 +618,12 @@ function creditAnnualInterest(
 
   const saCredit = accrual.base.sa + accrual.extraDestination.sa;
   if (saClosed) {
-    routeToRetirement(
-      balances,
+    const toRa = Math.min(
       saCredit,
-      RETIREMENT_ACCOUNT_AGE,
-      retirementThreshold,
+      Math.max(0, retirementThreshold - raSavings.forLimits),
     );
+    balances.ra += toRa;
+    balances.oa += saCredit - toRa;
   } else {
     balances.sa += saCredit;
   }
@@ -453,6 +647,30 @@ function shouldApplyTransfer(
   return isFirstMonth || isAnniversaryMonth;
 }
 
+interface PreparedRetirementTransfer {
+  existingSavings: number;
+  freshSavingsRequested: number;
+}
+
+function retirementTransferSpace(
+  balances: CentsBalances,
+  age: number,
+  currentFrs: number,
+  currentErs: number,
+  netSaInvestmentWithdrawals: number,
+  raSavings: RaSavingsState,
+): number {
+  const targetBalance =
+    age < RETIREMENT_ACCOUNT_AGE ? balances.sa : raSavings.forLimits;
+  const targetLimit = age < RETIREMENT_ACCOUNT_AGE ? currentFrs : currentErs;
+  return Math.max(
+    0,
+    targetLimit -
+      targetBalance -
+      (age < RETIREMENT_ACCOUNT_AGE ? netSaInvestmentWithdrawals : 0),
+  );
+}
+
 function prepareRetirementTransfer(
   balances: CentsBalances,
   transfer: RetirementTransfer | undefined,
@@ -462,27 +680,34 @@ function prepareRetirementTransfer(
   currentFrs: number,
   currentErs: number,
   netSaInvestmentWithdrawals: number,
-): number {
+  raSavings: RaSavingsState,
+): PreparedRetirementTransfer {
   if (
     !transfer ||
     transfer.amount <= 0 ||
     !shouldApplyTransfer(transfer.timing, isFirstMonth, isAnniversaryMonth)
   ) {
-    return 0;
+    return { existingSavings: 0, freshSavingsRequested: 0 };
   }
 
-  const targetBalance =
-    age < RETIREMENT_ACCOUNT_AGE ? balances.sa : balances.ra;
-  const targetLimit = age < RETIREMENT_ACCOUNT_AGE ? currentFrs : currentErs;
-  const targetSpace = Math.max(
-    0,
-    targetLimit -
-      targetBalance -
-      (age < RETIREMENT_ACCOUNT_AGE ? netSaInvestmentWithdrawals : 0),
+  const targetSpace = retirementTransferSpace(
+    balances,
+    age,
+    currentFrs,
+    currentErs,
+    netSaInvestmentWithdrawals,
+    raSavings,
   );
-  const amount = Math.min(toCents(transfer.amount), balances.oa, targetSpace);
-  balances.oa -= amount;
-  return amount;
+  const requested = toCents(transfer.amount);
+  const existingSavings = Math.min(requested, balances.oa, targetSpace);
+  balances.oa -= existingSavings;
+  return {
+    existingSavings,
+    freshSavingsRequested:
+      transfer.timing === "now"
+        ? 0
+        : Math.min(requested - existingSavings, targetSpace - existingSavings),
+  };
 }
 
 function finishRetirementTransfer(
@@ -492,6 +717,36 @@ function finishRetirementTransfer(
 ): void {
   if (age < RETIREMENT_ACCOUNT_AGE) balances.sa += amount;
   else balances.ra += amount;
+}
+
+function applyFreshRetirementTransfer(
+  balances: CentsBalances,
+  requested: number,
+  age: number,
+  currentFrs: number,
+  currentErs: number,
+  netSaInvestmentWithdrawals: number,
+  raSavings: RaSavingsState,
+): number {
+  const amount = Math.min(
+    requested,
+    balances.oa,
+    retirementTransferSpace(
+      balances,
+      age,
+      currentFrs,
+      currentErs,
+      netSaInvestmentWithdrawals,
+      raSavings,
+    ),
+  );
+  balances.oa -= amount;
+  finishRetirementTransfer(balances, amount, age);
+  if (age >= RETIREMENT_ACCOUNT_AGE) raSavings.forLimits += amount;
+  if (age >= RETIREMENT_ACCOUNT_AGE) {
+    raSavings.forContributionRouting += amount;
+  }
+  return amount;
 }
 
 function applyVoluntaryTopUp(
@@ -505,13 +760,18 @@ function applyVoluntaryTopUp(
   currentErs: number,
   netSaInvestmentWithdrawals: number,
   taxReliefUsed: number,
-): { amount: number; taxReliefEligible: number } {
+  raSavings: RaSavingsState,
+): {
+  amount: number;
+  potentialTaxRelief: number;
+  unappliedAmount: number;
+} {
   if (
     !topUp ||
     topUp.amount <= 0 ||
     !shouldApplyFrequency(topUp.frequency, isFirstMonth, isAnniversaryMonth)
   ) {
-    return { amount: 0, taxReliefEligible: 0 };
+    return { amount: 0, potentialTaxRelief: 0, unappliedAmount: 0 };
   }
 
   const requested = toCents(topUp.amount);
@@ -523,16 +783,25 @@ function applyVoluntaryTopUp(
 
   if (topUp.account === "MA") {
     const capacity = Math.max(0, bhs - balances.ma);
-    const amount = Math.min(requested, capacity);
-    balances.ma += amount;
+    // CPF Board refunds the full MA top-up if that transaction would exceed
+    // the member's BHS. It does not accept only the remaining capacity.
+    if (requested > capacity) {
+      return {
+        amount: 0,
+        potentialTaxRelief: 0,
+        unappliedAmount: requested,
+      };
+    }
+    balances.ma += requested;
     return {
-      amount,
-      taxReliefEligible: 0,
+      amount: requested,
+      potentialTaxRelief: 0,
+      unappliedAmount: 0,
     };
   }
 
   const destinationBalance =
-    age < RETIREMENT_ACCOUNT_AGE ? balances.sa : balances.ra;
+    age < RETIREMENT_ACCOUNT_AGE ? balances.sa : raSavings.forLimits;
   const actualLimit = age < RETIREMENT_ACCOUNT_AGE ? currentFrs : currentErs;
   const reliefLimit = currentFrs;
   const amount = Math.min(
@@ -544,7 +813,7 @@ function applyVoluntaryTopUp(
         (age < RETIREMENT_ACCOUNT_AGE ? netSaInvestmentWithdrawals : 0),
     ),
   );
-  const taxReliefEligible = Math.min(
+  const potentialTaxRelief = Math.min(
     amount,
     Math.max(
       0,
@@ -556,8 +825,16 @@ function applyVoluntaryTopUp(
   );
 
   if (age < RETIREMENT_ACCOUNT_AGE) balances.sa += amount;
-  else balances.ra += amount;
-  return { amount, taxReliefEligible };
+  else {
+    balances.ra += amount;
+    raSavings.forLimits += amount;
+    raSavings.forContributionRouting += amount;
+  }
+  return {
+    amount,
+    potentialTaxRelief,
+    unappliedAmount: requested - amount,
+  };
 }
 
 function applyContribution(
@@ -567,7 +844,10 @@ function applyContribution(
   saClosed: boolean,
   bhs: number,
   currentFrs: number,
-  retirementThreshold: number,
+  contributionRetirementThreshold: number,
+  maOverflowRetirementThreshold: number,
+  netSaInvestmentWithdrawals: number,
+  raSavings: RaSavingsState,
 ): CentsBalances {
   const allocated = emptyBalances();
   const ma = toCents(calculation.distribution.MA);
@@ -585,7 +865,9 @@ function applyContribution(
     ma - toMa,
     age,
     currentFrs,
-    retirementThreshold,
+    maOverflowRetirementThreshold,
+    netSaInvestmentWithdrawals,
+    raSavings,
   );
   addBalances(allocated, overflow);
 
@@ -594,7 +876,9 @@ function applyContribution(
       balances,
       retirement,
       Math.max(RETIREMENT_ACCOUNT_AGE, age),
-      retirementThreshold,
+      contributionRetirementThreshold,
+      raSavings,
+      "forContributionRouting",
     );
     addBalances(allocated, routed);
   } else {
@@ -607,27 +891,60 @@ function applyContribution(
   return allocated;
 }
 
-function interestMetadata(year: number): PolicyMetadata {
-  if (year <= LAST_PUBLISHED_INTEREST_YEAR) {
-    return getPolicyMetadata("cpf-interest-rates", {
-      version: `${year}-floor-rates`,
-      effectiveFrom: `${year}-01-01`,
-      effectiveTo: `${year}-12-31`,
-      notes: [
-        `Projection preset uses the official ${CPF_INTEREST_FLOOR_RATES.OA}% OA and ${CPF_INTEREST_FLOOR_RATES.SMRA}% SMRA floor rates.`,
-      ],
-    });
+function resolveMonthlyInterestPolicy(month: string): MonthlyInterestPolicy {
+  const declaration = CPF_QUARTERLY_INTEREST_RATES.find(
+    (candidate) =>
+      month >= candidate.effectiveFrom.slice(0, 7) &&
+      month <= candidate.effectiveTo.slice(0, 7),
+  );
+  if (declaration) {
+    const declarationSource: PolicySource = {
+      id: `cpf-interest-${declaration.quarter.toLowerCase().replaceAll(" ", "-")}`,
+      agency: "CPF Board",
+      title: `CPF declared interest rates for ${declaration.quarter}`,
+      url: declaration.sourceUrl,
+    };
+    return {
+      rates: {
+        oa: declaration.oa,
+        sa: declaration.sa,
+        ma: declaration.ma,
+        ra: declaration.ra,
+      },
+      metadata: getPolicyMetadata("cpf-interest-rates", {
+        version: declaration.quarter,
+        effectiveFrom: declaration.effectiveFrom,
+        effectiveTo: declaration.effectiveTo,
+        sources: [declarationSource],
+      }),
+    };
   }
 
-  return getPolicyMetadata("cpf-interest-rates", {
-    version: `${year}-freeze-${LAST_PUBLISHED_INTEREST_YEAR}`,
-    status: "assumed",
-    effectiveFrom: `${year}-01-01`,
-    effectiveTo: `${year}-12-31`,
-    notes: [
-      `The ${CPF_INTEREST_FLOOR_RATES.OA}% OA and ${CPF_INTEREST_FLOOR_RATES.SMRA}% SMRA floor-rate preset is held constant after the last published projection year.`,
-    ],
-  });
+  const latestDeclaration = CPF_QUARTERLY_INTEREST_RATES.at(-1);
+  if (
+    !latestDeclaration ||
+    month < latestDeclaration.effectiveFrom.slice(0, 7)
+  ) {
+    throw new RangeError(
+      `No sourced CPF interest policy is available for ${month}.`,
+    );
+  }
+  return {
+    rates: {
+      oa: CPF_INTEREST_FLOOR_RATES.OA,
+      sa: CPF_INTEREST_FLOOR_RATES.SMRA,
+      ma: CPF_INTEREST_FLOOR_RATES.SMRA,
+      ra: CPF_INTEREST_FLOOR_RATES.SMRA,
+    },
+    metadata: getPolicyMetadata("cpf-interest-rates", {
+      version: `${month}-floor-preset-after-${latestDeclaration.quarter.toLowerCase().replaceAll(" ", "-")}`,
+      status: "assumed",
+      effectiveFrom: `${month}-01`,
+      notes: [
+        `No quarterly declaration is published for ${month}; the official ${CPF_INTEREST_FLOOR_RATES.OA}% OA and ${CPF_INTEREST_FLOOR_RATES.SMRA}% SMRA floor rates are used as a SimplyCPF assumption.`,
+      ],
+    }),
+  };
 }
 
 function monthPolicy(
@@ -635,16 +952,56 @@ function monthPolicy(
   birthYear: number,
   contribution: ContributionCalculationResult,
   cohortRetirementSum: PolicyMetadata,
+  interest: PolicyMetadata,
+  usesTopUpPolicy: boolean,
+  usesRetirementCashTopUpPolicy: boolean,
+  usesMaCashTopUpPolicy: boolean,
 ): MonthPolicy {
   const bhs = getBhsForProjection(year, birthYear);
   const retirement = getRetirementSumsForProjection(year);
   const contributionMetadata = contribution.policy.contribution;
   const allocationMetadata = contribution.policy.allocation;
   const wageCeilingMetadata = contribution.policy.wageCeiling;
-  const interest = interestMetadata(year);
+  const verifiedYear = Number(
+    CPF_POLICY_RULES.extraInterest.verifiedAt.slice(0, 4),
+  );
+  const maTopUpRuleIsOfficial = year === verifiedYear;
+  const maTopUpPolicy = getPolicyMetadata("cpf-basic-healthcare-sum", {
+    version: maTopUpRuleIsOfficial
+      ? `${verifiedYear}-medisave-top-up-limit`
+      : `${verifiedYear}-medisave-top-up-limit-${year < verifiedYear ? "backcast" : "frozen"}-for-${year}`,
+    status: maTopUpRuleIsOfficial ? "official" : "assumed",
+    effectiveFrom: `${year}-01-01`,
+    effectiveTo: `${year}-12-31`,
+    ...(maTopUpRuleIsOfficial
+      ? {}
+      : {
+          notes: [
+            `The MediSave cash top-up rejection rule verified in ${verifiedYear} is ${year < verifiedYear ? "backcast" : "held constant"} for ${year}.`,
+          ],
+        }),
+  });
+  const bhsMetadata = usesMaCashTopUpPolicy
+    ? mergePolicyMetadata(bhs.metadata, maTopUpPolicy)
+    : bhs.metadata;
   const extraInterest = getPolicyMetadata("cpf-extra-interest", {
-    version: "2016-current",
-    effectiveFrom: "2016-01-01",
+    version:
+      year <= verifiedYear
+        ? `from-${CPF_POLICY_RULES.extraInterest.effectiveFrom}`
+        : `${verifiedYear}-rules-frozen-for-${year}`,
+    status: year <= verifiedYear ? "official" : "assumed",
+    effectiveFrom:
+      year <= verifiedYear
+        ? CPF_POLICY_RULES.extraInterest.effectiveFrom
+        : `${year}-01-01`,
+    ...(year > verifiedYear
+      ? {
+          effectiveTo: `${year}-12-31`,
+          notes: [
+            `The extra-interest rules verified in ${verifiedYear} are held constant for ${year}.`,
+          ],
+        }
+      : {}),
   });
   const specialAccountClosure = getPolicyMetadata(
     "cpf-special-account-closure",
@@ -653,21 +1010,45 @@ function monthPolicy(
       effectiveFrom: CPF_POLICY_RULES.specialAccountClosure.effectiveDate,
     },
   );
+  const topUpRuleYear = Number(
+    CPF_POLICY_RULES.retirementTopUps.effectiveFrom.slice(0, 4),
+  );
+  const topUpRuleIsOfficial = year === topUpRuleYear;
   const retirementTopUps = getPolicyMetadata("cpf-retirement-top-ups", {
-    version: String(year),
+    version: topUpRuleIsOfficial
+      ? String(topUpRuleYear)
+      : `${topUpRuleYear}-rules-${year < topUpRuleYear ? "backcast" : "frozen"}-for-${year}`,
+    status: topUpRuleIsOfficial ? "official" : "assumed",
     effectiveFrom: `${year}-01-01`,
     effectiveTo: `${year}-12-31`,
+    ...(topUpRuleIsOfficial
+      ? {}
+      : {
+          notes: [
+            `The retirement top-up rules sourced for ${topUpRuleYear} are ${year < topUpRuleYear ? "backcast" : "held constant"} for ${year}.`,
+          ],
+        }),
   });
   const taxRelief = getPolicyMetadata("iras-cpf-cash-top-up-relief", {
-    version: String(year),
+    version: topUpRuleIsOfficial
+      ? String(topUpRuleYear)
+      : `${topUpRuleYear}-rules-${year < topUpRuleYear ? "backcast" : "frozen"}-for-${year}`,
+    status: topUpRuleIsOfficial ? "official" : "assumed",
     effectiveFrom: `${year}-01-01`,
     effectiveTo: `${year}-12-31`,
+    ...(topUpRuleIsOfficial
+      ? {}
+      : {
+          notes: [
+            `The cash top-up relief rules sourced for ${topUpRuleYear} are ${year < topUpRuleYear ? "backcast" : "held constant"} for ${year}.`,
+          ],
+        }),
   });
   const statuses: PolicyStatus[] = [
     contributionMetadata.status,
     allocationMetadata.status,
     wageCeilingMetadata.status,
-    bhs.metadata.status,
+    bhsMetadata.status,
     retirement.metadata.status,
     ...(year >= birthYear + RETIREMENT_ACCOUNT_AGE
       ? [cohortRetirementSum.status]
@@ -675,8 +1056,8 @@ function monthPolicy(
     interest.status,
     extraInterest.status,
     specialAccountClosure.status,
-    retirementTopUps.status,
-    taxRelief.status,
+    ...(usesTopUpPolicy ? [retirementTopUps.status] : []),
+    ...(usesRetirementCashTopUpPolicy ? [taxRelief.status] : []),
   ];
 
   return {
@@ -687,7 +1068,7 @@ function monthPolicy(
       contribution: contributionMetadata,
       allocation: allocationMetadata,
       wageCeiling: wageCeilingMetadata,
-      bhs: bhs.metadata,
+      bhs: bhsMetadata,
       retirementSums: retirement.metadata,
       cohortRetirementSum,
       interest,
@@ -697,6 +1078,87 @@ function monthPolicy(
       taxRelief,
     },
   };
+}
+
+function mergePolicyMetadata(
+  earlier: PolicyMetadata,
+  later: PolicyMetadata,
+): PolicyMetadata {
+  if (earlier.dataset !== later.dataset) {
+    throw new Error(
+      `Cannot merge ${earlier.dataset} metadata with ${later.dataset}.`,
+    );
+  }
+  const versions = new Set([
+    ...earlier.version.split(" | "),
+    ...later.version.split(" | "),
+  ]);
+  const sourcesById = new Map(
+    earlier.sources.map((source) => [source.id, source]),
+  );
+  for (const source of later.sources) sourcesById.set(source.id, source);
+  const notes = new Set([...(earlier.notes ?? []), ...(later.notes ?? [])]);
+  const effectiveTo =
+    earlier.effectiveTo && later.effectiveTo
+      ? earlier.effectiveTo > later.effectiveTo
+        ? earlier.effectiveTo
+        : later.effectiveTo
+      : undefined;
+
+  return {
+    ...earlier,
+    version: [...versions].join(" | "),
+    status:
+      earlier.status === "assumed" || later.status === "assumed"
+        ? "assumed"
+        : "official",
+    effectiveFrom:
+      earlier.effectiveFrom < later.effectiveFrom
+        ? earlier.effectiveFrom
+        : later.effectiveFrom,
+    effectiveTo,
+    sources: [...sourcesById.values()],
+    ...(notes.size > 0 ? { notes: [...notes] } : {}),
+  };
+}
+
+function mergeProjectionPolicyMetadata(
+  earlier: ProjectionPolicyMetadata,
+  later: ProjectionPolicyMetadata,
+): ProjectionPolicyMetadata {
+  const merged = {
+    contribution: mergePolicyMetadata(earlier.contribution, later.contribution),
+    allocation: mergePolicyMetadata(earlier.allocation, later.allocation),
+    wageCeiling: mergePolicyMetadata(earlier.wageCeiling, later.wageCeiling),
+    bhs: mergePolicyMetadata(earlier.bhs, later.bhs),
+    retirementSums: mergePolicyMetadata(
+      earlier.retirementSums,
+      later.retirementSums,
+    ),
+    cohortRetirementSum: mergePolicyMetadata(
+      earlier.cohortRetirementSum,
+      later.cohortRetirementSum,
+    ),
+    interest: mergePolicyMetadata(earlier.interest, later.interest),
+    extraInterest: mergePolicyMetadata(
+      earlier.extraInterest,
+      later.extraInterest,
+    ),
+    specialAccountClosure: mergePolicyMetadata(
+      earlier.specialAccountClosure,
+      later.specialAccountClosure,
+    ),
+    retirementTopUps: mergePolicyMetadata(
+      earlier.retirementTopUps,
+      later.retirementTopUps,
+    ),
+    taxRelief: mergePolicyMetadata(earlier.taxRelief, later.taxRelief),
+  };
+  const status: PolicyStatus =
+    earlier.status === "assumed" || later.status === "assumed"
+      ? "assumed"
+      : "official";
+  return { status, ...merged };
 }
 
 function addWarning(
@@ -710,9 +1172,7 @@ export function calculateCpfProjection(
   params: ProjectionParams,
 ): ProjectionResult {
   const warnings = new Map<ProjectionWarning["code"], ProjectionWarning>();
-  const now = new Date();
-  const startMonth =
-    params.startMonth ?? formatMonth(now.getFullYear(), now.getMonth() + 1);
+  const startMonth = params.startMonth ?? getCurrentSingaporeMonth();
   if (!params.startMonth) {
     addWarning(warnings, {
       code: "start-month-defaulted",
@@ -730,6 +1190,9 @@ export function calculateCpfProjection(
     });
   }
   validateBalances(initialBalances);
+  const initialYearToDateAccruedInterest =
+    params.initialYearToDateAccruedInterest ?? emptyBalances();
+  validateBalances(initialYearToDateAccruedInterest);
 
   const birth = parseBirthDate(params.birthDate);
   const start = parseMonth(startMonth);
@@ -739,11 +1202,9 @@ export function calculateCpfProjection(
   ) {
     throw new RangeError("startAge must be a completed age of zero or more.");
   }
-  const inferredBirthYear =
-    params.startAge === undefined
-      ? birth.year
-      : start.year - params.startAge - (start.month < birth.month ? 1 : 0);
-  const birthYear = inferredBirthYear;
+  // `birthDate` is the canonical input. `startAge` is retained only as a
+  // deprecated request alias and must never rewrite an explicit birth year.
+  const birthYear = birth.year;
   const ageAtStart = ageInMonth(
     start.year,
     start.month,
@@ -759,6 +1220,11 @@ export function calculateCpfProjection(
       "endAge must be a whole number at or above the start age.",
     );
   }
+  if (endAge > CPF_LIFE_LATEST_START_AGE) {
+    throw new RangeError(
+      `endAge cannot exceed ${CPF_LIFE_LATEST_START_AGE}. CPF LIFE premiums and payouts are not modelled in the ledger.`,
+    );
+  }
   if (!Number.isFinite(params.monthlyIncome) || params.monthlyIncome < 0) {
     throw new RangeError("monthlyIncome must be zero or more.");
   }
@@ -767,9 +1233,36 @@ export function calculateCpfProjection(
     params.netSaSavingsWithdrawnForInvestments,
     "netSaSavingsWithdrawnForInvestments",
   );
+  validateMoney(params.initialRaSavingsForLimits, "initialRaSavingsForLimits");
+  validateMoney(
+    params.initialRaSavingsForContributionRouting,
+    "initialRaSavingsForContributionRouting",
+  );
+  validateMoney(
+    params.initialCashTopUpTaxReliefUsedThisYear,
+    "initialCashTopUpTaxReliefUsedThisYear",
+  );
   validateMoney(params.voluntaryTopUp?.amount, "voluntaryTopUp.amount");
   validateMoney(params.retirementTransfer?.amount, "retirementTransfer.amount");
   validateMoney(params.oaToSaTransfer?.amount, "oaToSaTransfer.amount");
+
+  const selfCashTopUpReliefCap =
+    CPF_POLICY_RULES.retirementTopUps.taxRelief.selfAnnualCap;
+  if (
+    (params.initialCashTopUpTaxReliefUsedThisYear ?? 0) > selfCashTopUpReliefCap
+  ) {
+    throw new RangeError(
+      `initialCashTopUpTaxReliefUsedThisYear cannot exceed S$${selfCashTopUpReliefCap.toLocaleString("en-SG")}.`,
+    );
+  }
+  if (
+    start.month === 1 &&
+    (params.initialCashTopUpTaxReliefUsedThisYear ?? 0) > 0
+  ) {
+    throw new RangeError(
+      "initialCashTopUpTaxReliefUsedThisYear must be zero for a January startMonth.",
+    );
+  }
 
   if (
     params.voluntaryTopUp &&
@@ -799,10 +1292,47 @@ export function calculateCpfProjection(
   ) {
     throw new RangeError("oaToSaTransfer.timing must be now or yearly.");
   }
-  if (ageAtStart < RETIREMENT_ACCOUNT_AGE && initialBalances.ra > 0) {
+  const turns55AtStart =
+    ageAtStart === RETIREMENT_ACCOUNT_AGE && start.month === birth.month;
+  const raExistsAtOpening =
+    ageAtStart > RETIREMENT_ACCOUNT_AGE ||
+    (ageAtStart === RETIREMENT_ACCOUNT_AGE && !turns55AtStart);
+  if (
+    startMonth > SPECIAL_ACCOUNT_CLOSURE_MONTH &&
+    raExistsAtOpening &&
+    initialBalances.sa > 0
+  ) {
+    throw new RangeError(
+      `A Special Account balance cannot exist at the opening of ${startMonth} for a member whose SA has closed. Enter the amount in RA or OA as shown on the CPF statement.`,
+    );
+  }
+  if (!raExistsAtOpening && initialBalances.ra > 0) {
     throw new RangeError(
       `A Retirement Account balance cannot exist before age ${RETIREMENT_ACCOUNT_AGE}.`,
     );
+  }
+  if (!raExistsAtOpening && initialYearToDateAccruedInterest.ra > 0) {
+    throw new RangeError(
+      `Retirement Account accrued interest cannot exist before age ${RETIREMENT_ACCOUNT_AGE}.`,
+    );
+  }
+  const openingAccruedInterestTotal = Object.values(
+    initialYearToDateAccruedInterest,
+  ).reduce((sum, amount) => sum + amount, 0);
+  if (start.month === 1 && openingAccruedInterestTotal > 0) {
+    throw new RangeError(
+      "initialYearToDateAccruedInterest must be zero for a January startMonth.",
+    );
+  }
+  if (
+    start.month > 1 &&
+    params.initialYearToDateAccruedInterest === undefined
+  ) {
+    addWarning(warnings, {
+      code: "year-to-date-interest-defaulted",
+      message:
+        "The projection starts after January, but interest accrued before the start month was omitted and defaulted to zero. The first December credit and later balances exclude that unknown amount; provide initialYearToDateAccruedInterest from CPF records for a complete first year.",
+    });
   }
 
   const isPermanentResident = params.citizenship !== "citizen";
@@ -816,6 +1346,12 @@ export function calculateCpfProjection(
     !/^\d{4}-(0[1-9]|1[0-2])$/.test(params.permanentResidentSince)
   ) {
     throw new RangeError("permanentResidentSince must be in YYYY-MM format.");
+  }
+  if (
+    params.permanentResidentSince &&
+    params.permanentResidentSince > startMonth
+  ) {
+    throw new RangeError("permanentResidentSince cannot be after startMonth.");
   }
 
   let resolvedCitizenshipAtStart: CitizenshipStatus = params.citizenship;
@@ -882,13 +1418,35 @@ export function calculateCpfProjection(
       message: `MediSave top-up capacity is modelled against the BHS, but tax relief is not estimated because it depends on annual CPF contribution context beyond the S$${CPF_POLICY_RULES.retirementTopUps.taxRelief.selfAnnualCap.toLocaleString("en-SG")} retirement cash top-up cap.`,
     });
   }
-  const hasUnder55RetirementAddition =
+  const hasRetirementCashTopUp =
+    params.voluntaryTopUp !== undefined &&
+    params.voluntaryTopUp.amount > 0 &&
+    params.voluntaryTopUp.account !== "MA";
+  if (
+    hasRetirementCashTopUp &&
+    start.month > 1 &&
+    params.initialCashTopUpTaxReliefUsedThisYear === undefined
+  ) {
+    addWarning(warnings, {
+      code: "tax-relief-year-to-date-defaulted",
+      message:
+        "Cash top-up tax relief already used earlier in the projection's start year was omitted and defaulted to zero, so that year's maximum potential relief may be overstated.",
+    });
+  }
+  if (hasRetirementCashTopUp) {
+    addWarning(warnings, {
+      code: "tax-relief-eligibility-context-missing",
+      message:
+        "Reported cash top-up relief is only a maximum potential amount. It does not determine MRSS matching-grant status, giver and recipient eligibility, shared MediSave usage, or the overall personal income-tax relief cap; top-ups attracting MRSS grants receive no cash top-up relief.",
+    });
+  }
+  const hasRetirementAddition =
     (params.voluntaryTopUp !== undefined &&
       params.voluntaryTopUp.amount > 0 &&
       params.voluntaryTopUp.account !== "MA") ||
     (retirementTransfer !== undefined && retirementTransfer.amount > 0);
   if (
-    hasUnder55RetirementAddition &&
+    hasRetirementAddition &&
     ageAtStart < RETIREMENT_ACCOUNT_AGE &&
     params.netSaSavingsWithdrawnForInvestments === undefined
   ) {
@@ -899,8 +1457,7 @@ export function calculateCpfProjection(
   }
   addWarning(warnings, {
     code: "cpf-life-estimate-removed",
-    message:
-      "The deprecated CPF LIFE estimate is null. Use CPF Board's exact reference rows or personalised Retirement Payout Planner.",
+    message: `The deprecated CPF LIFE estimate is null. From age ${CPF_LIFE_ELIGIBILITY_AGE}, the ledger is a pre-CPF-LIFE illustration that does not deduct premiums or payouts. An endAge of ${CPF_LIFE_LATEST_START_AGE} stops immediately before the birthday month when payouts must start and records an opening checkpoint only. Use CPF Board's exact reference rows or personalised Retirement Payout Planner.`,
   });
 
   const cohort = getCohortRetirementThresholds(
@@ -911,31 +1468,98 @@ export function calculateCpfProjection(
     routing === "basic-retirement-sum-with-property" ? cohort.brs : cohort.frs,
   );
   const startSerial = monthSerial(start.year, start.month);
-  const endSerial = monthSerial(birthYear + endAge + 1, birth.month) - 1;
+  const endSerial =
+    endAge === CPF_LIFE_LATEST_START_AGE
+      ? monthSerial(birthYear + CPF_LIFE_LATEST_START_AGE, birth.month) - 1
+      : monthSerial(birthYear + endAge + 1, birth.month) - 1;
   if (endSerial < startSerial) {
     throw new RangeError("The selected endAge ends before startMonth.");
   }
+  const additionalWagesByMonth = prepareAdditionalWages(
+    params.additionalWages,
+    startSerial,
+    endSerial,
+  );
 
   const balances = balancesToCents(initialBalances);
+  if (!raExistsAtOpening && (params.initialRaSavingsForLimits ?? 0) > 0) {
+    throw new RangeError(
+      `initialRaSavingsForLimits cannot exist before age ${RETIREMENT_ACCOUNT_AGE}.`,
+    );
+  }
+  if (
+    !raExistsAtOpening &&
+    (params.initialRaSavingsForContributionRouting ?? 0) > 0
+  ) {
+    throw new RangeError(
+      `initialRaSavingsForContributionRouting cannot exist before age ${RETIREMENT_ACCOUNT_AGE}.`,
+    );
+  }
+  const defaultRaSavingsForLimits =
+    raExistsAtOpening &&
+    routing === "basic-retirement-sum-with-property" &&
+    !turns55AtStart
+      ? Math.max(toCents(initialBalances.ra), cohortFrs)
+      : toCents(initialBalances.ra);
+  const raSavings: RaSavingsState = {
+    forLimits:
+      params.initialRaSavingsForLimits === undefined
+        ? defaultRaSavingsForLimits
+        : toCents(params.initialRaSavingsForLimits),
+    forContributionRouting:
+      params.initialRaSavingsForContributionRouting === undefined
+        ? toCents(initialBalances.ra)
+        : toCents(params.initialRaSavingsForContributionRouting),
+  };
+  if (
+    raExistsAtOpening &&
+    (params.initialRaSavingsForLimits === undefined ||
+      params.initialRaSavingsForContributionRouting === undefined)
+  ) {
+    addWarning(warnings, {
+      code: "retirement-account-context-defaulted",
+      message:
+        routing === "basic-retirement-sum-with-property"
+          ? "One or both RA routing contexts were omitted. The property branch assumes the cohort FRS has previously been set aside for top-up and MediSave-overflow limits, while employment-contribution routing defaults to the opening RA cash balance."
+          : "One or both RA routing contexts were omitted and defaulted to the opening RA balance. CPF uses distinct principal measures that can exclude interest or grants and include counted withdrawals or CPF LIFE premiums, so routing and top-up capacity may differ.",
+    });
+  }
+  if (
+    raExistsAtOpening &&
+    routing === "basic-retirement-sum-with-property" &&
+    !turns55AtStart &&
+    raSavings.forLimits < cohortFrs
+  ) {
+    throw new RangeError(
+      "The property withdrawal branch requires initialRaSavingsForLimits to show that the cohort FRS was set aside.",
+    );
+  }
+  if (routing === "basic-retirement-sum-with-property") {
+    addWarning(warnings, {
+      code: "property-withdrawal-context-simplified",
+      message:
+        "The property branch assumes CPF approves an RA withdrawal down to BRS and that eligible property value, refunds or a pledge cover the FRS gap. Actual withdrawal excludes restricted savings such as interest, grants and retirement top-ups and must be confirmed with CPF Board.",
+    });
+  }
   const netSaInvestmentWithdrawals = toCents(
     params.netSaSavingsWithdrawnForInvestments ?? 0,
   );
   let saClosed =
-    startMonth >= SPECIAL_ACCOUNT_CLOSURE_MONTH &&
-    ageAtStart >= RETIREMENT_ACCOUNT_AGE;
+    startMonth >= SPECIAL_ACCOUNT_CLOSURE_MONTH && raExistsAtOpening;
 
   const yearlyBalances: YearlyBalance[] = [];
-  const milestones: ProjectionResult["milestones"] = {
-    age55: { oa: 0, sa: 0, ma: 0, ra: 0 },
-    age65: { oa: 0, sa: 0, ma: 0, ra: 0 },
-  };
+  const milestones: ProjectionResult["milestones"] = {};
   let accruedInterest = emptyInterest();
+  accruedInterest.base = balancesToCents(initialYearToDateAccruedInterest);
   let accumulator = emptyYearAccumulator();
   let totalContributed = 0;
   let totalInterestEarned = 0;
   let taxReliefYear = start.year;
-  let taxReliefUsed = 0;
+  let taxReliefUsed = toCents(
+    params.initialCashTopUpTaxReliefUsedThisYear ?? 0,
+  );
   let lastPolicy: MonthPolicy | undefined;
+  let accumulatedPolicy: ProjectionPolicyMetadata | undefined;
   let lastAgeGroup = "";
 
   for (let serial = startSerial; serial <= endSerial; serial++) {
@@ -954,15 +1578,24 @@ export function calculateCpfProjection(
     const turns55ThisMonth = isBirthdayMonth && age === RETIREMENT_ACCOUNT_AGE;
     let pendingAgeRouting = emptyBalances();
     if (isFirstMonth && saClosed && !turns55ThisMonth) {
-      pendingAgeRouting = prepareSpecialAccountClosure(balances, cohortFrs);
+      pendingAgeRouting = prepareSpecialAccountClosure(
+        balances,
+        age55RoutingThreshold,
+        raSavings,
+      );
     }
     if (turns55ThisMonth) {
       const closeSa = actualMonth >= SPECIAL_ACCOUNT_CLOSURE_MONTH;
-      pendingAgeRouting = prepareAge55AccountCreation(
+      const accountCreation = prepareAge55AccountCreation(
         balances,
+        cohortFrs,
         age55RoutingThreshold,
         closeSa,
+        raSavings,
       );
+      pendingAgeRouting = accountCreation.pending;
+      accumulator.propertyPledgeWithdrawal +=
+        accountCreation.propertyPledgeWithdrawal;
       saClosed = closeSa;
     }
     if (
@@ -970,12 +1603,16 @@ export function calculateCpfProjection(
       age >= RETIREMENT_ACCOUNT_AGE &&
       !saClosed
     ) {
-      pendingAgeRouting = prepareSpecialAccountClosure(balances, cohortFrs);
+      pendingAgeRouting = prepareSpecialAccountClosure(
+        balances,
+        age55RoutingThreshold,
+        raSavings,
+      );
       saClosed = true;
     }
 
-    const interestBalances = { ...balances };
     addBalances(balances, pendingAgeRouting);
+    const interestBalances = { ...balances };
 
     const currentRetirement = getRetirementSumsForProjection(year);
     const currentFrs = toCents(currentRetirement.value.frs);
@@ -983,11 +1620,23 @@ export function calculateCpfProjection(
     const currentBhs = getBhsForProjection(year, birthYear);
     const bhs = toCents(currentBhs.value);
     const maBeforeOverflow = balances.ma;
-    enforceBhs(balances, bhs, age, currentFrs, cohortFrs);
+    const openingMaOverflowDistribution = enforceBhs(
+      balances,
+      bhs,
+      age,
+      currentFrs,
+      age55RoutingThreshold,
+      netSaInvestmentWithdrawals,
+      raSavings,
+    );
     interestBalances.ma = Math.max(
       0,
       interestBalances.ma - (maBeforeOverflow - balances.ma),
     );
+    // This is an existing-balance transfer, so the overflow earns interest in
+    // its destination account for the transfer month instead of disappearing
+    // from the month's interest-bearing snapshot.
+    addBalances(interestBalances, openingMaOverflowDistribution);
 
     const housingWithdrawal = Math.min(
       balances.oa,
@@ -997,7 +1646,7 @@ export function calculateCpfProjection(
     interestBalances.oa = Math.max(0, interestBalances.oa - housingWithdrawal);
     accumulator.housingWithdrawal += housingWithdrawal;
 
-    const transferAmount = prepareRetirementTransfer(
+    const preparedTransfer = prepareRetirementTransfer(
       balances,
       retirementTransfer,
       isFirstMonth,
@@ -1006,10 +1655,24 @@ export function calculateCpfProjection(
       currentFrs,
       currentErs,
       netSaInvestmentWithdrawals,
+      raSavings,
     );
-    interestBalances.oa = Math.max(0, interestBalances.oa - transferAmount);
+    interestBalances.oa = Math.max(
+      0,
+      interestBalances.oa - preparedTransfer.existingSavings,
+    );
+    finishRetirementTransfer(
+      interestBalances,
+      preparedTransfer.existingSavings,
+      age,
+    );
 
-    const monthlyInterest = calculateMonthlyInterest(interestBalances, age);
+    const monthlyInterestPolicy = resolveMonthlyInterestPolicy(actualMonth);
+    const monthlyInterest = calculateMonthlyInterest(
+      interestBalances,
+      age,
+      monthlyInterestPolicy.rates,
+    );
     addInterest(accruedInterest, monthlyInterest);
     addInterest(accumulator.reportedInterest, monthlyInterest);
     totalInterestEarned +=
@@ -1019,8 +1682,12 @@ export function calculateCpfProjection(
       monthlyInterest.base.ra +
       monthlyInterest.extraTotal;
 
-    finishRetirementTransfer(balances, transferAmount, age);
-    accumulator.retirementTransfer += transferAmount;
+    finishRetirementTransfer(balances, preparedTransfer.existingSavings, age);
+    if (age >= RETIREMENT_ACCOUNT_AGE) {
+      raSavings.forLimits += preparedTransfer.existingSavings;
+      raSavings.forContributionRouting += preparedTransfer.existingSavings;
+    }
+    accumulator.retirementTransfer += preparedTransfer.existingSavings;
 
     const contributionCitizenship = params.permanentResidentSince
       ? resolveSprContributionYear(
@@ -1028,21 +1695,49 @@ export function calculateCpfProjection(
           actualMonth,
         )
       : resolvedCitizenshipAtStart;
+    const additionalWage = additionalWagesByMonth.get(actualMonth);
     const contribution = calculateCpfContributionForProjection({
       contributionMonth: actualMonth,
       ordinaryWages: params.monthlyIncome,
+      ...(additionalWage
+        ? {
+            additionalWages: additionalWage.amount,
+            additionalWageCeilingContext: additionalWage.context,
+          }
+        : {}),
       citizenship: contributionCitizenship,
       birthMonth: formatMonth(birthYear, birth.month),
-      hasReachedFullRetirementSum: balances.ra >= cohortFrs,
+      hasReachedFullRetirementSum:
+        raSavings.forContributionRouting >= cohortFrs,
     });
-    const policy = monthPolicy(year, birthYear, contribution, cohort.metadata);
+    for (const contributionWarning of contribution.warnings) {
+      if (contributionWarning.code === "additional-wages-capped") {
+        addWarning(warnings, {
+          code: "additional-wages-capped",
+          message: contributionWarning.message,
+        });
+      }
+    }
+    const policy = monthPolicy(
+      year,
+      birthYear,
+      contribution,
+      cohort.metadata,
+      monthlyInterestPolicy.metadata,
+      hasRetirementAddition,
+      hasRetirementCashTopUp,
+      params.voluntaryTopUp?.account === "MA" &&
+        (params.voluntaryTopUp.amount ?? 0) > 0,
+    );
     lastPolicy = policy;
-    lastAgeGroup = describeAgeGroup(contribution.age.allocationBand);
+    accumulatedPolicy = accumulatedPolicy
+      ? mergeProjectionPolicyMetadata(accumulatedPolicy, policy.projection)
+      : policy.projection;
+    lastAgeGroup = describeAgeGroup(contribution);
     if (policy.projection.status === "assumed") {
       addWarning(warnings, {
         code: "future-policy-frozen",
-        message:
-          "One or more unpublished future values are held at the last published contribution, BHS, retirement-sum or interest policy and marked assumed in each row.",
+        message: `One or more policy inputs are assumptions: unpublished future values are frozen at their last sourced row, while a requested historical top-up may use the catalogue's ${RETIREMENT_TOP_UP_POLICY_YEAR} retirement-top-up and ${TAX_RELIEF_POLICY_YEAR} tax-relief rules as an explicit backcast. Inspect each dataset's status and notes in the row metadata.`,
       });
     }
 
@@ -1054,6 +1749,9 @@ export function calculateCpfProjection(
       bhs,
       currentFrs,
       cohortFrs,
+      age55RoutingThreshold,
+      netSaInvestmentWithdrawals,
+      raSavings,
     );
     addBalances(accumulator.distribution, distribution);
     const employee = toCents(contribution.contribution.employee);
@@ -1063,6 +1761,17 @@ export function calculateCpfProjection(
     accumulator.employer += employer;
     accumulator.total += total;
     totalContributed += total;
+
+    const freshTransfer = applyFreshRetirementTransfer(
+      balances,
+      preparedTransfer.freshSavingsRequested,
+      age,
+      currentFrs,
+      currentErs,
+      netSaInvestmentWithdrawals,
+      raSavings,
+    );
+    accumulator.retirementTransfer += freshTransfer;
 
     const topUp = applyVoluntaryTopUp(
       balances,
@@ -1075,17 +1784,55 @@ export function calculateCpfProjection(
       currentErs,
       netSaInvestmentWithdrawals,
       taxReliefUsed,
+      raSavings,
     );
     accumulator.voluntaryTopUp += topUp.amount;
-    accumulator.topUpTaxReliefEligible += topUp.taxReliefEligible;
-    taxReliefUsed += topUp.taxReliefEligible;
+    accumulator.topUpPotentialTaxRelief += topUp.potentialTaxRelief;
+    accumulator.unappliedVoluntaryTopUp += topUp.unappliedAmount;
+    taxReliefUsed += topUp.potentialTaxRelief;
+    if (topUp.unappliedAmount > 0 && params.voluntaryTopUp?.account === "MA") {
+      addWarning(warnings, {
+        code: "medisave-top-up-rejected",
+        message:
+          "A MediSave top-up that would exceed the applicable BHS is rejected in full; the rejected amount is reported separately and is not added to MA.",
+      });
+    }
+    if (topUp.unappliedAmount > 0 && params.voluntaryTopUp?.account !== "MA") {
+      addWarning(warnings, {
+        code: "retirement-top-up-capped",
+        message:
+          "The requested retirement cash top-up exceeded the available FRS/ERS capacity. Only the available amount was applied and the unapplied amount is reported separately.",
+      });
+    }
 
-    enforceBhs(balances, bhs, age, currentFrs, cohortFrs);
+    enforceBhs(
+      balances,
+      bhs,
+      age,
+      currentFrs,
+      age55RoutingThreshold,
+      netSaInvestmentWithdrawals,
+      raSavings,
+    );
 
     if (month === 12) {
-      creditAnnualInterest(balances, accruedInterest, saClosed, cohortFrs);
+      creditAnnualInterest(
+        balances,
+        accruedInterest,
+        saClosed,
+        age55RoutingThreshold,
+        raSavings,
+      );
       accruedInterest = emptyInterest();
-      enforceBhs(balances, bhs, age, currentFrs, cohortFrs);
+      enforceBhs(
+        balances,
+        bhs,
+        age,
+        currentFrs,
+        age55RoutingThreshold,
+        netSaInvestmentWithdrawals,
+        raSavings,
+      );
     }
 
     if (isBirthdayMonth && age === RETIREMENT_ACCOUNT_AGE) {
@@ -1127,6 +1874,15 @@ export function calculateCpfProjection(
           ra: fromCents(accumulator.reportedInterest.base.ra),
           extraInterest: fromCents(accumulator.reportedInterest.extraTotal),
         },
+        ...(Object.values(interestDestinationBalances(accruedInterest)).some(
+          (amount) => amount > 0,
+        )
+          ? {
+              uncreditedInterest: balancesFromCents(
+                interestDestinationBalances(accruedInterest),
+              ),
+            }
+          : {}),
         ...(accumulator.housingWithdrawal > 0
           ? {
               housingWithdrawal: fromCents(accumulator.housingWithdrawal),
@@ -1140,19 +1896,42 @@ export function calculateCpfProjection(
               retirementTransfer: fromCents(accumulator.retirementTransfer),
             }
           : {}),
-        ...(accumulator.topUpTaxReliefEligible > 0
+        ...(accumulator.propertyPledgeWithdrawal > 0
           ? {
-              topUpTaxReliefEligible: fromCents(
-                accumulator.topUpTaxReliefEligible,
+              propertyPledgeWithdrawal: fromCents(
+                accumulator.propertyPledgeWithdrawal,
               ),
             }
           : {}),
+        ...(accumulator.unappliedVoluntaryTopUp > 0
+          ? {
+              unappliedVoluntaryTopUp: fromCents(
+                accumulator.unappliedVoluntaryTopUp,
+              ),
+            }
+          : {}),
+        ...(accumulator.topUpPotentialTaxRelief > 0
+          ? {
+              topUpPotentialTaxRelief: fromCents(
+                accumulator.topUpPotentialTaxRelief,
+              ),
+            }
+          : {}),
+        raSavingsForLimits: fromCents(raSavings.forLimits),
+        raSavingsForContributionRouting: fromCents(
+          raSavings.forContributionRouting,
+        ),
         bhs: policy.bhs.value,
         retirementSums: policy.retirement.value,
-        policy: lastPolicy.projection,
+        policy: accumulatedPolicy ?? lastPolicy.projection,
       });
       accumulator = emptyYearAccumulator();
+      accumulatedPolicy = undefined;
     }
+  }
+
+  if (endAge === CPF_LIFE_LATEST_START_AGE) {
+    milestones.age70 = balancesFromCents(balances);
   }
 
   return {
@@ -1164,8 +1943,13 @@ export function calculateCpfProjection(
     warnings: [...warnings.values()],
     assumptions: {
       salary: "fixed-monthly-ordinary-wages",
-      interest: "cpf-floor-rates",
+      additionalWages: "explicit-dated-payments-only",
+      interest: "official-quarterly-then-floor-assumption",
       futurePolicy: "freeze-last-published",
+      startingBalances: "opening-of-start-month",
+      initialYearToDateInterest: "provided-or-zero-with-warning",
+      topUpTiming: "after-monthly-employment-contribution",
+      cpfLife: "premiums-and-payouts-not-modelled",
       retirementRouting: routing,
     },
     totalContributed: fromCents(totalContributed),

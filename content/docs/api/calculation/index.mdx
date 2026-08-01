@@ -19,17 +19,17 @@ type ContributionInput = {
 } & ({ age: number } | { birthMonth: string });
 ```
 
-Use `birthMonth` for exact month-after-birthday handling. The API applies the official S$50, S$500, and S$750 bands, OW/AW ceilings, PR G/G schedules, total-contribution half-up dollar rounding, employee-share cent truncation, and employer-as-remainder rule.
+Use `birthMonth` for exact month-after-birthday handling. The API applies the low-wage bands and OW/AW ceilings from the effective catalogue schedule, default PR G/G schedules, total-contribution half-up dollar rounding, employee-share cent truncation, and employer-as-remainder rule. The response identifies the exact wage band and policy source used.
 
 The response keeps the v1 contribution fields and adds:
 
 - `wageBand` and wages actually subject to CPF
 - effective schedule and citizenship rate
-- explicit `RA` after the 2025 SA closure
-- both official 55+ allocation branches if FRS context is absent
+- explicit `RA` after the SA closure threshold
+- both official post-closure allocation branches if FRS context is absent
 - warnings and per-dataset provenance
 
-Additional Wages without annual OW and prior-AW context return `422`. A month outside the sourced 2023–2027 catalogue returns `404`.
+Additional Wages without annual OW and prior-AW context return `422`. A month outside the catalogue's sourced effective range returns `404`.
 
 ## POST `/calculate/batch`
 
@@ -40,14 +40,33 @@ Send one to 100 `ContributionInput` objects in `scenarios`. Results preserve req
 ```typescript
 interface ProjectionInput {
   monthlyIncome: number;
+  additionalWages?: Array<{
+    contributionMonth: string; // YYYY-MM; exact payment month
+    amount: number;
+    additionalWageCeilingContext:
+      | {
+          annualOrdinaryWagesSubjectToCpf: number;
+          priorAdditionalWagesSubjectToCpf: number;
+        }
+      | { remainingAdditionalWageCeiling: number };
+  }>;
   birthDate: string; // MM/YYYY
   startMonth: string;
   initialBalances: { oa: number; sa: number; ma: number; ra: number };
+  initialYearToDateAccruedInterest?: {
+    oa: number;
+    sa: number;
+    ma: number;
+    ra: number;
+  };
+  initialRaSavingsForLimits?: number;
+  initialRaSavingsForContributionRouting?: number;
+  initialCashTopUpTaxReliefUsedThisYear?: number;
   citizenship: "citizen" | "spr-year1" | "spr-year2" | "spr-year3-plus";
   permanentResidentSince?: string; // YYYY-MM; required by the UI for SPR Y1/Y2
   netSaSavingsWithdrawnForInvestments?: number;
   endAge?: number;
-  housingWithdrawal?: number;
+  housingWithdrawal?: number; // withdrawn from OA every projection month
   voluntaryTopUp?: {
     amount: number;
     account: "retirement" | "MA" | "SA" | "RA";
@@ -63,15 +82,25 @@ interface ProjectionInput {
 }
 ```
 
-The engine runs a monthly ledger and returns annual snapshots. It applies monthly contributions, birthday transitions, the 2025 SA closure, age-65 BHS freezing, MA overflow, FRS routing, monthly interest accrual, and annual crediting.
+The engine runs a monthly ledger and returns annual snapshots. It applies monthly contributions, birthday transitions, SA closure, BHS cohort freezing, MA overflow, FRS routing, monthly interest accrual, and annual crediting using the lifecycle rules in the policy catalogue.
 
-Every annual row includes balances, contributions, account allocation, interest, BHS, retirement sums, and policy metadata. Its policy block separately identifies contribution, allocation, wage-ceiling, BHS, current and cohort retirement-sum, interest, extra-interest, SA-closure, top-up, and tax-relief datasets. Published dates are `official`; post-publication policies held constant are `assumed`.
+`monthlyIncome` is fixed Ordinary Wages. Additional Wages are never inferred: each payment must identify its exact contribution month and either supply annual OW plus prior AW subject to CPF, or the remaining AW ceiling already established from payroll records. At most one entry is accepted per month. Incomplete context, duplicate months, and payments outside the requested projection range return `422`. For post-2027 payments, the final published contribution and AW-ceiling schedule is frozen and the affected row is marked `assumed`.
 
-Fixed salary, CPF floor interest, housing withdrawals, and retirement-routing choices are returned as SimplyCPF or caller assumptions rather than presented as CPF Board facts. Top-up capacity is separate from `topUpTaxReliefEligible`; the latter follows the S$8,000 IRAS tax-relief cap and is not the amount a member is necessarily permitted to top up. Pre-55 net SA savings withdrawn for investments count towards the FRS limit. If `netSaSavingsWithdrawnForInvestments` is omitted when relevant, calculated capacity can be overstated and the engine returns `retirement-top-up-capacity-context-missing`.
+Every annual row includes balances, contributions, account allocation, interest, BHS, retirement sums, the two RA-savings measures, and policy metadata. A partial-year row may include `uncreditedInterest`. It also exposes applied and unapplied top-ups, `topUpPotentialTaxRelief`, retirement transfers, and `propertyPledgeWithdrawal` when present. Its policy block separately identifies contribution, allocation, wage-ceiling, BHS, current and cohort retirement-sum, interest, extra-interest, SA-closure, top-up, and tax-relief datasets. Published dates are `official`; post-publication policies held constant are `assumed`.
+
+Starting balances are the opening balances of `startMonth`. A start after January should supply `initialYearToDateAccruedInterest`; otherwise the unknown amount defaults to zero with a warning. The ledger uses declared quarterly interest where published and the official floor-rate assumption thereafter, applies top-ups after each month's employment contribution, and does not model CPF LIFE premiums or payouts. These choices are returned under `assumptions` rather than presented as personal CPF Board results.
+
+Top-up capacity is separate from `topUpPotentialTaxRelief`. That field is only the maximum potential relief before MRSS/MMSS, giver/recipient, residency, and overall personal-relief-cap checks; `initialCashTopUpTaxReliefUsedThisYear` supplies cap usage before the start month. Pre-55 net SA savings withdrawn for investments count towards the FRS test for retirement top-ups, OA retirement transfers, and MA overflow routing. If `netSaSavingsWithdrawnForInvestments` is omitted when relevant, calculated capacity can be overstated or overflow routing can differ, and the engine returns `retirement-top-up-capacity-context-missing`.
+
+For the `basic-retirement-sum-with-property` scenario, the engine first transfers FRS to RA and then records the eligible RA withdrawal to BRS in `propertyPledgeWithdrawal`. BRS cash plus qualifying property is treated as satisfying FRS for MA overflow, so eligible overflow routes to OA. Mandatory retirement contributions still refill RA cash principal until the member's cohort FRS is reached.
+
+`initialRaSavingsForLimits` is CPF Board's retirement-sum/top-up measure: it excludes interest and generally government grants, while including counted retirement withdrawals and CPF LIFE premiums. `initialRaSavingsForContributionRouting` is the RA cash-principal measure that decides whether employment contributions route to RA or OA; a property-backed withdrawal reduces it.
 
 For SPR Year 1/2 projections, `permanentResidentSince` lets the monthly ledger move from Year 1 to Year 2 and then Year 3+ on the correct anniversaries. A legacy request that omits it holds the selected graduated year constant and returns `pr-anniversary-not-modelled`; if the supplied citizenship label conflicts with the anniversary date, the resolved date wins and the response warns.
 
-`cpfLifeReference` contains CPF Board's exact 2026 male Standard Plan reference rows. `cpfLifeEstimate` is deprecated and always `null`; use CPF Board's personalised planner for an estimate.
+`cpfLifeReference` contains CPF Board's exact loaded reference rows together with the reference year, profile, plan, source and verification metadata. It is not interpolated. `cpfLifeEstimate` is deprecated and always `null`; use CPF Board's personalised planner for an estimate.
+
+Milestones are optional when the requested range does not cross them. `age70`, when present, is the opening checkpoint immediately before the age-70 birthday and CPF LIFE payout-start month.
 
 ## Compatibility aliases
 
@@ -83,4 +112,6 @@ Accepted for one release cycle with warnings:
 - projection `income`, `age`, and `years` → `monthlyIncome`, `birthDate`, `startMonth`, `initialBalances`, and `endAge`
 - projection `startAge` → an exact `birthDate`
 
-A legacy projection may omit starting balances and default them to zero only when an explicit warning is returned. The compatibility response includes `deprecatedInput` and `projections`; new integrations should use `yearlyBalances`.
+A legacy projection may omit starting balances and default them to zero only when an explicit warning is returned. An omitted `startMonth` defaults to the current Singapore month with a warning. The compatibility response includes `deprecatedInput` and `projections`; new integrations should use `yearlyBalances`.
+
+Every official value and lifecycle rule described above is returned with per-dataset provenance. Treat the response's effective period and `verifiedAt` date, or the [machine-readable policy reference](/cpf-rates.md), as canonical rather than copying values from this guide.

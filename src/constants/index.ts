@@ -19,7 +19,7 @@ export const CPF_ADDITIONAL_WAGE_CEILING =
 
 /**
  * Compatibility timeline containing only dates on which the OW ceiling
- * changed. The complete official 2023-2027 schedule lives in `src/policy`.
+ * changed. The complete official schedule lives in `src/policy`.
  */
 export const CPF_INCOME_CEILING: CPFIncomeCeiling = Object.fromEntries(
   CPF_CONTRIBUTION_SCHEDULES.filter((schedule, index, schedules) => {

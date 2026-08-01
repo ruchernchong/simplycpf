@@ -230,7 +230,7 @@
                   "id": "9EKxJ",
                   "opacity": 0.8,
                   "fill": "$--primary-foreground",
-                  "content": "YOUR CPF INCOME CEILING",
+                      "content": "YOUR MONTHLY ORDINARY WAGE CEILING",
                   "fontFamily": "Geist",
                   "fontSize": 12,
                   "fontWeight": "500",
@@ -285,7 +285,7 @@
                   "type": "text",
                   "id": "cLn3A",
                   "fill": "$--accent",
-                  "content": "+$2,000 from pre-2023",
+                  "content": "+$2,000 versus before September 2023",
                   "fontFamily": "Geist",
                   "fontSize": 14,
                   "fontWeight": "500"
@@ -500,11 +500,11 @@
                   ],
                   "alignItems": "center",
                   "children": [
-                    {
-                      "type": "text",
-                      "id": "T3dQR",
+                        {
+                          "type": "text",
+                          "id": "T3dQR",
                       "fill": "$--muted-foreground",
-                      "content": "Interest Rates",
+                          "content": "Interest Rates",
                       "fontFamily": "Geist",
                       "fontSize": 14,
                       "fontWeight": "500"
@@ -595,7 +595,7 @@
                           "type": "text",
                           "id": "ldi38",
                           "fill": "$--muted-foreground",
-                          "content": "Updated for Budget 2023 ceiling changes",
+                      "content": "Source-backed policy catalogue through 2027",
                           "fontFamily": "Geist",
                           "fontSize": 12,
                           "fontWeight": "500"
@@ -624,7 +624,7 @@
                       "fill": "$--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": 640,
-                      "content": "Review estimated monthly CPF contributions across Ordinary, Special, and Medisave accounts, based on applicable income ceiling values from 2023 to 2026.",
+                      "content": "Review estimated monthly CPF contributions across Ordinary, Special or Retirement, and MediSave accounts using dated policy schedules from 2023 through 2027.",
                       "lineHeight": 1.55,
                       "textAlign": "center",
                       "fontFamily": "Geist",
@@ -840,7 +840,7 @@
                               "type": "text",
                               "id": "UWk0D",
                               "fill": "$--foreground",
-                              "content": "CPF Income Ceiling Timeline",
+                      "content": "CPF Ordinary Wage Ceiling Timeline",
                               "fontFamily": "Geist",
                               "fontSize": 18,
                               "fontWeight": "600"
@@ -1077,7 +1077,7 @@
                               "fill": "$--muted-foreground",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Current ceiling of $8,000 is in effect from 1 January 2026.",
+                      "content": "The official monthly OW ceiling of S$8,000 applies from 1 January 2026. This dataset is verified 1 August 2026 against CPF Board's OW guidance.",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -1149,7 +1149,7 @@
                               "fill": "$--accent-foreground",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "The monthly income ceiling increased from $6,000 before September 2023 to $8,000 from January 2026. This changes both contribution amounts and take-home pay for affected income levels.",
+                      "content": "The monthly Ordinary Wage ceiling increased from S$6,000 before September 2023 to S$8,000 from January 2026. Additional Wages use a separate annual ceiling calculation.",
                               "lineHeight": 1.55,
                               "fontFamily": "Geist",
                               "fontSize": 13,
@@ -1232,7 +1232,7 @@
                                       "fill": "$--muted-foreground",
                                       "textGrowth": "fixed-width",
                                       "width": "fill_container",
-                                      "content": "Monthly breakdown by OA / SA / MA",
+                      "content": "Monthly breakdown by OA / SA or RA / MA",
                                       "fontFamily": "Geist",
                                       "fontSize": 11,
                                       "fontWeight": "normal"
@@ -1422,7 +1422,7 @@
                                       "fill": "$--foreground",
                                       "textGrowth": "fixed-width",
                                       "width": "fill_container",
-                                      "content": "Estimate CPF LIFE payouts",
+                                      "content": "Review CPF LIFE reference rows",
                                       "fontFamily": "Geist",
                                       "fontSize": 13,
                                       "fontWeight": "600"
@@ -1433,7 +1433,7 @@
                                       "fill": "$--muted-foreground",
                                       "textGrowth": "fixed-width",
                                       "width": "fill_container",
-                                      "content": "Monthly retirement income",
+                      "content": "Official Standard Plan reference rows",
                                       "fontFamily": "Geist",
                                       "fontSize": 11,
                                       "fontWeight": "normal"
@@ -1507,7 +1507,7 @@
                       "fill": "$--foreground",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "The Central Provident Fund (CPF) is Singapore's mandatory social security system. Every working Singaporean contributes a portion of their monthly salary, matched by their employer, into three accounts — each serving a distinct life purpose.",
+                              "content": "CPF is Singapore's mandatory social security savings system. For covered employees, employee and employer shares follow separate dated rates; savings route to OA, SA and MA before age 55, with RA used from age 55 after the SA closure.",
                       "lineHeight": 1.55,
                       "fontFamily": "Geist",
                       "fontSize": 15,
@@ -1635,7 +1635,7 @@
                                   "type": "text",
                                   "id": "drovP",
                                   "fill": "$--foreground",
-                                  "content": "Special Account",
+                      "content": "Special Account (below age 55)",
                                   "fontFamily": "Geist",
                                   "fontSize": 14,
                                   "fontWeight": "600"
@@ -1648,7 +1648,7 @@
                               "fill": "$--muted-foreground",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Retirement-related financial instruments and old age.",
+                      "content": "Retirement savings before age 55; SA closes at 55 and savings transfer to RA up to FRS, then OA.",
                               "lineHeight": 1.5,
                               "fontFamily": "Geist",
                               "fontSize": 13,
@@ -1703,7 +1703,7 @@
                                   "type": "text",
                                   "id": "PKAEY",
                                   "fill": "$--foreground",
-                                  "content": "Medisave Account",
+                      "content": "MediSave Account",
                                   "fontFamily": "Geist",
                                   "fontSize": 14,
                                   "fontWeight": "600"
@@ -1789,7 +1789,7 @@
                               "type": "text",
                               "id": "x4YaR",
                               "fill": "$--muted-foreground",
-                              "content": "INCOME CEILING",
+                      "content": "MONTHLY ORDINARY WAGE CEILING",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "600",
@@ -1951,7 +1951,7 @@
                               "fill": "$--muted-foreground",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Up to age 55 on first $60k",
+                              "content": "Below 55: first $60k combined; OA capped at $20k",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -1997,7 +1997,7 @@
                       "fill": "$--primary-foreground",
                       "textGrowth": "fixed-width",
                       "width": 620,
-                      "content": "Use the calculator to estimate employee and employer contributions across OA, SA, and MA.",
+                      "content": "Use the calculator to estimate employee and employer contributions across OA, SA or RA, and MA.",
                       "lineHeight": 1.55,
                       "textAlign": "center",
                       "fontFamily": "Geist",
@@ -2422,7 +2422,7 @@
               "id": "FLnlU",
               "opacity": 0.8,
               "fill": "$--primary-foreground",
-              "content": "INCOME CEILING",
+                      "content": "MONTHLY ORDINARY WAGE CEILING",
               "fontFamily": "Geist",
               "fontSize": 11,
               "fontWeight": "600"
@@ -2611,7 +2611,7 @@
                       "fill": "$--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": 860,
-                      "content": "Enter your monthly salary and date of birth to estimate employee and employer CPF contributions, including OA, SA, and MA allocation based on current rules.",
+                      "content": "Enter contribution month, Ordinary Wages, citizenship and birth month. Add Additional Wages only with annual OW and prior-AW context; results show OA, SA or RA, and MA.",
                       "lineHeight": 1.55,
                       "textAlign": "center",
                       "fontFamily": "Geist",
@@ -2724,7 +2724,7 @@
                               "type": "text",
                               "id": "4vbnl",
                               "fill": "$--foreground",
-                              "content": "Gross Monthly Salary (SGD)",
+                              "content": "Monthly Ordinary Wages (SGD)",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "500"
@@ -2808,6 +2808,156 @@
                         },
                         {
                           "type": "frame",
+                          "id": "calculatorCitizenshipField",
+                          "name": "fFieldCitizenship",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "calculatorCitizenshipLabel",
+                              "fill": "$--foreground",
+                              "content": "Citizenship status",
+                              "fontFamily": "Geist",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "calculatorCitizenshipInput",
+                              "width": "fill_container",
+                              "height": 40,
+                              "fill": "$--background",
+                              "cornerRadius": 8,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "$--border"
+                              },
+                              "padding": [
+                                8,
+                                12
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "calculatorCitizenshipValue",
+                                  "fill": "$--foreground",
+                                  "content": "Singapore Citizen / SPR Year 3+",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "calculatorAwField",
+                          "name": "fFieldAw",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "calculatorAwLabel",
+                              "fill": "$--foreground",
+                              "content": "Additional Wages (optional)",
+                              "fontFamily": "Geist",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "calculatorAwInput",
+                              "width": "fill_container",
+                              "height": 40,
+                              "fill": "$--background",
+                              "cornerRadius": 8,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "$--border"
+                              },
+                              "padding": [
+                                8,
+                                12
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "calculatorAwValue",
+                                  "fill": "$--foreground",
+                                  "content": "S$0",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "calculatorAnnualOwField",
+                          "name": "fFieldAnnualOw",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "calculatorAnnualOwLabel",
+                              "fill": "$--foreground",
+                              "content": "Annual OW subject to CPF",
+                              "fontFamily": "Geist",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "calculatorAnnualOwValue",
+                              "fill": "$--muted-foreground",
+                              "content": "Not required while Additional Wages are S$0",
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "calculatorPriorAwField",
+                          "name": "fFieldPriorAw",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "calculatorPriorAwLabel",
+                              "fill": "$--foreground",
+                              "content": "Prior AW subject to CPF",
+                              "fontFamily": "Geist",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "calculatorPriorAwValue",
+                              "fill": "$--muted-foreground",
+                              "content": "Not required while Additional Wages are S$0",
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
                           "id": "biUO8",
                           "name": "fField3",
                           "width": "fill_container",
@@ -2818,7 +2968,7 @@
                               "type": "text",
                               "id": "yscLR",
                               "fill": "$--foreground",
-                              "content": "Income Ceiling Period",
+                              "content": "Contribution month",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "500"
@@ -2841,7 +2991,7 @@
                                   "type": "text",
                                   "id": "Gff75",
                                   "fill": "$--foreground",
-                                  "content": "From Jan 2026 (monthly ceiling: $8,000)",
+                                  "content": "January 2026 schedule · OW ceiling S$8,000",
                                   "fontFamily": "Geist",
                                   "fontSize": 14,
                                   "fontWeight": "normal"
@@ -2946,7 +3096,7 @@
                                   "id": "tx1kB",
                                   "opacity": 0.7,
                                   "fill": "$--primary-foreground",
-                                  "content": "Employee + employer combined",
+                                  "content": "Illustrative SC / SPR Year 3+ result · January 2026 · wages above S$750",
                                   "fontFamily": "Geist",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -3071,7 +3221,7 @@
                               "type": "text",
                               "id": "ouc2a",
                               "fill": "$--foreground",
-                              "content": "How your CPF is allocated (OA / SA / MA)",
+                              "content": "How CPF is allocated (OA / SA or RA / MA; post-55 routing depends on FRS context)",
                               "fontFamily": "Geist",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -3153,7 +3303,7 @@
                                       "type": "text",
                                       "id": "XOtEo",
                                       "fill": "$--foreground",
-                                      "content": "$1,469.50",
+                              "content": "$1,495.19",
                                       "fontFamily": "Geist Mono",
                                       "fontSize": 18,
                                       "fontWeight": "700"
@@ -3162,7 +3312,7 @@
                                       "type": "text",
                                       "id": "MhobN",
                                       "fill": "$--muted-foreground",
-                                      "content": "61.1% of total",
+                              "content": "62.17% of total",
                                       "fontFamily": "Geist",
                                       "fontSize": 11,
                                       "fontWeight": "normal"
@@ -3206,7 +3356,7 @@
                                       "type": "text",
                                       "id": "sWSM7",
                                       "fill": "$--foreground",
-                                      "content": "$457.00",
+                              "content": "$389.85",
                                       "fontFamily": "Geist Mono",
                                       "fontSize": 18,
                                       "fontWeight": "700"
@@ -3215,7 +3365,7 @@
                                       "type": "text",
                                       "id": "379pi",
                                       "fill": "$--muted-foreground",
-                                      "content": "19% of total",
+                              "content": "16.21% of total",
                                       "fontFamily": "Geist",
                                       "fontSize": 11,
                                       "fontWeight": "normal"
@@ -3248,7 +3398,7 @@
                                           "type": "text",
                                           "id": "12ZhP",
                                           "fill": "$--foreground",
-                                          "content": "Medisave Account",
+                                          "content": "MediSave Account",
                                           "fontFamily": "Geist",
                                           "fontSize": 12,
                                           "fontWeight": "500"
@@ -3259,7 +3409,7 @@
                                       "type": "text",
                                       "id": "1oTqC",
                                       "fill": "$--foreground",
-                                      "content": "$478.50",
+                              "content": "$519.96",
                                       "fontFamily": "Geist Mono",
                                       "fontSize": 18,
                                       "fontWeight": "700"
@@ -3268,7 +3418,7 @@
                                       "type": "text",
                                       "id": "xzGDe",
                                       "fill": "$--muted-foreground",
-                                      "content": "19.9% of total",
+                              "content": "21.62% of total",
                                       "fontFamily": "Geist",
                                       "fontSize": 11,
                                       "fontWeight": "normal"
@@ -3389,7 +3539,7 @@
               "id": "s2afs",
               "opacity": 0.8,
               "fill": "$--primary-foreground",
-              "content": "CPF MONTHLY CEILING",
+                      "content": "MONTHLY ORDINARY WAGE CEILING",
               "fontFamily": "Geist",
               "fontSize": 11,
               "fontWeight": "600"
@@ -3557,7 +3707,7 @@
                       "fill": "$--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": 760,
-                      "content": "View an estimate of how OA, SA, MA, and RA balances may change from your current age to retirement based on the inputs below.",
+                      "content": "The live monthly ledger requires opening OA, SA, MA and RA balances plus a start month. Values in this design are an illustrative SimplyCPF scenario, not CPF Board facts or a forecast.",
                       "lineHeight": 1.55,
                       "textAlign": "center",
                       "fontFamily": "Geist",
@@ -3592,10 +3742,102 @@
                           "type": "text",
                           "id": "Lp4Ii",
                           "fill": "$--foreground",
-                          "content": "Your Planning Inputs",
+                          "content": "Required projection inputs",
                           "fontFamily": "Geist",
                           "fontSize": 15,
                           "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "projectionCompleteSampleState",
+                          "fill": "$--muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Complete sample state: start January 2026 · Singapore Citizen · opening OA/SA/MA/RA all S$0 · opening YTD interest and RA contexts S$0 · no AW or housing withdrawal · FRS routing.",
+                          "fontFamily": "Geist",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "projectionStartMonthField",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "projectionStartMonthLabel",
+                              "fill": "$--foreground",
+                              "content": "Projection start month",
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "projectionStartMonthValue",
+                              "fill": "$--muted-foreground",
+                              "content": "January 2026",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "projectionCitizenshipField",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "projectionCitizenshipLabel",
+                              "fill": "$--foreground",
+                              "content": "Citizenship status",
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "projectionCitizenshipValue",
+                              "fill": "$--muted-foreground",
+                              "content": "Singapore Citizen",
+                              "fontFamily": "Geist",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "projectionOpeningBalancesField",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "projectionOpeningBalancesLabel",
+                              "fill": "$--foreground",
+                              "content": "Opening OA / SA / MA / RA balances (required)",
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "projectionOpeningBalancesValue",
+                              "fill": "$--muted-foreground",
+                              "content": "S$0 / S$0 / S$0 / S$0",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
                         },
                         {
                           "type": "frame",
@@ -3608,7 +3850,7 @@
                               "type": "text",
                               "id": "vXRxr",
                               "fill": "$--foreground",
-                              "content": "Current Age",
+                              "content": "Birth month and year",
                               "fontFamily": "Geist",
                               "fontSize": 12,
                               "fontWeight": "500"
@@ -3634,7 +3876,7 @@
                                   "type": "text",
                                   "id": "46xQV",
                                   "fill": "$--foreground",
-                                  "content": "32",
+                                  "content": "03/1994",
                                   "fontFamily": "Geist Mono",
                                   "fontSize": 14,
                                   "fontWeight": "normal"
@@ -3654,7 +3896,7 @@
                               "type": "text",
                               "id": "Rh9KQ",
                               "fill": "$--foreground",
-                              "content": "Monthly Income",
+                              "content": "Gross monthly Ordinary Wages",
                               "fontFamily": "Geist",
                               "fontSize": 12,
                               "fontWeight": "500"
@@ -3746,7 +3988,7 @@
                               "type": "text",
                               "id": "P4yck",
                               "fill": "$--foreground",
-                              "content": "Annual Top-Up (optional)",
+                              "content": "Voluntary retirement top-up amount and frequency",
                               "fontFamily": "Geist",
                               "fontSize": 12,
                               "fontWeight": "500"
@@ -3772,7 +4014,7 @@
                                   "type": "text",
                                   "id": "4AEOD",
                                   "fill": "$--muted-foreground",
-                                  "content": "$8,000",
+                                  "content": "S$8,000 yearly (user input)",
                                   "fontFamily": "Geist Mono",
                                   "fontSize": 14,
                                   "fontWeight": "normal"
@@ -3780,6 +4022,17 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "projectionTopUpCapacityNote",
+                          "fill": "$--muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "User input; actual top-up capacity and cash-top-up tax-relief caps are separate.",
+                          "fontFamily": "Geist",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -3840,7 +4093,7 @@
                                   "type": "text",
                                   "id": "WCxsC",
                                   "fill": "$--foreground",
-                                  "content": "Your Projected CPF Balances",
+                          "content": "Illustrative Projected CPF Balances",
                                   "fontFamily": "Geist",
                                   "fontSize": 16,
                                   "fontWeight": "600"
@@ -3849,7 +4102,7 @@
                                   "type": "text",
                                   "id": "aZG4n",
                                   "fill": "$--muted-foreground",
-                                  "content": "From your current age to target age · OA + SA + MA stacked",
+                          "content": "SimplyCPF scenario · published schedules remain official; after the last published year, held values are marked assumed",
                                   "fontFamily": "Geist",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
@@ -4391,7 +4644,7 @@
                           "type": "text",
                           "id": "bvZ33",
                           "fill": "$--muted-foreground",
-                          "content": "Estimated age your MA reaches BHS",
+                          "content": "Illustrative age; depends on supplied opening balances and assumptions",
                           "fontFamily": "Geist",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -4416,7 +4669,7 @@
                           "type": "text",
                           "id": "5ZzW5",
                           "fill": "$--muted-foreground",
-                          "content": "YOUR RA AT 55",
+                          "content": "ILLUSTRATIVE RA AT 55",
                           "fontFamily": "Geist",
                           "fontSize": 11,
                           "fontWeight": "600",
@@ -4426,7 +4679,7 @@
                           "type": "text",
                           "id": "Jn7Ce",
                           "fill": "$--accent",
-                          "content": "$213,250",
+                          "content": "S$228,200",
                           "fontFamily": "Geist Mono",
                           "fontSize": 22,
                           "fontWeight": "700"
@@ -4435,7 +4688,7 @@
                           "type": "text",
                           "id": "wvm4j",
                           "fill": "$--muted-foreground",
-                          "content": "Estimated amount set aside for retirement",
+                          "content": "SimplyCPF scenario output, not a CPF Board forecast",
                           "fontFamily": "Geist",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -4460,7 +4713,7 @@
                           "type": "text",
                           "id": "0JNrK",
                           "fill": "$--muted-foreground",
-                          "content": "YOUR ESTIMATED CPF AT 65",
+                          "content": "ILLUSTRATIVE CPF AT 65",
                           "fontFamily": "Geist",
                           "fontSize": 11,
                           "fontWeight": "600",
@@ -4470,7 +4723,7 @@
                           "type": "text",
                           "id": "wAHYn",
                           "fill": "$--foreground",
-                          "content": "$1.08M",
+                          "content": "S$1.95M",
                           "fontFamily": "Geist Mono",
                           "fontSize": 22,
                           "fontWeight": "700"
@@ -4479,7 +4732,7 @@
                           "type": "text",
                           "id": "xvrgF",
                           "fill": "$--muted-foreground",
-                          "content": "Projected across OA, SA/RA, and MA",
+                          "content": "User inputs and explicitly labelled policy assumptions",
                           "fontFamily": "Geist",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -4592,7 +4845,7 @@
               "id": "qRCRh",
               "opacity": 0.8,
               "fill": "$--primary-foreground",
-              "content": "INCOME CEILING",
+                      "content": "MONTHLY ORDINARY WAGE CEILING",
               "fontFamily": "Geist",
               "fontSize": 11,
               "fontWeight": "600"
@@ -4808,7 +5061,7 @@
                               "type": "text",
                               "id": "rQNB1",
                               "fill": "$--primary-foreground",
-                              "content": "SA Top-Up",
+                      "content": "Retirement Top-Up",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "600"
@@ -4875,7 +5128,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Estimate how your OA changes for your home plan",
+                      "content": "Model one lump-sum OA withdrawal; for a sale/refund, enter sale price and outstanding loan so the refund is capped at market-value net proceeds.",
                           "fontFamily": "Geist",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -4915,7 +5168,7 @@
                               "type": "text",
                               "id": "1Wrzx",
                               "fill": "$--foreground",
-                              "content": "OA to SA Transfer",
+                      "content": "Age-Aware Retirement Transfer",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "500"
@@ -5041,7 +5294,7 @@
                           "type": "text",
                           "id": "R1i5F",
                           "fill": "$--foreground",
-                          "content": "Your current CPF path",
+                          "content": "Illustrative baseline CPF path",
                           "fontFamily": "Geist",
                           "fontSize": 14,
                           "fontWeight": "600"
@@ -5224,7 +5477,7 @@
                           "type": "text",
                           "id": "ttf1B",
                           "fill": "$--foreground",
-                          "content": "Your plan with $8,000 yearly RSTU",
+                          "content": "User-set yearly retirement top-up plan",
                           "fontFamily": "Geist",
                           "fontSize": 14,
                           "fontWeight": "600"
@@ -5401,7 +5654,7 @@
                           "fill": "$--primary-foreground",
                           "textGrowth": "fixed-width",
                           "width": 640,
-                          "content": "Illustration based on this profile. Your actual outcome depends on age, income, and contribution history.",
+                          "content": "SimplyCPF illustration based on user inputs. The top-up amount is separate from any IRAS tax-relief cap; actual capacity depends on account context.",
                           "fontFamily": "Geist",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -5546,7 +5799,7 @@
               "id": "5m8fj",
               "opacity": 0.8,
               "fill": "$--primary-foreground",
-              "content": "INCOME CEILING",
+                      "content": "MONTHLY ORDINARY WAGE CEILING",
               "fontFamily": "Geist",
               "fontSize": 11,
               "fontWeight": "600"
@@ -5713,7 +5966,7 @@
                       "fill": "$--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": 820,
-                      "content": "Compare CPF LIFE plan characteristics, illustrative payout ranges, and Retirement Sum reference amounts for planning at age 55.",
+                      "content": "Compare official CPF LIFE plan characteristics and all six CPF Board 2026 Standard Plan reference rows. Personalised payout calculation remains with CPF Board.",
                       "lineHeight": 1.55,
                       "textAlign": "center",
                       "fontFamily": "Geist",
@@ -5755,7 +6008,7 @@
                       "fill": "$--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Figures are illustrative and for information only. Use them to compare payout pattern, inflation effects, and bequest trade-offs.",
+                      "content": "Reference rows below are for a male member on the Standard Plan. Do not interpolate them; use CPF Board's planner for a personalised payout.",
                       "lineHeight": 1.55,
                       "fontFamily": "Geist",
                       "fontSize": 13,
@@ -5819,7 +6072,7 @@
                               "type": "text",
                               "id": "Lut6f",
                               "fill": "$--foreground",
-                              "content": "$1,370 - $1,470",
+                              "content": "Steady payouts for life",
                               "fontFamily": "Geist Mono",
                               "fontSize": 28,
                               "fontWeight": "700"
@@ -5828,7 +6081,7 @@
                               "type": "text",
                               "id": "IfwRa",
                               "fill": "$--muted-foreground",
-                              "content": "illustrative monthly payout from age 65",
+                              "content": "Use CPF Board's planner for a personalised amount",
                               "fontFamily": "Geist",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -5841,7 +6094,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Illustrative profile: steadier monthly payouts with partial bequest retention.",
+                      "content": "Official characteristic: steady monthly payout; it does not automatically rise with inflation.",
                           "lineHeight": 1.55,
                           "fontFamily": "Geist",
                           "fontSize": 13,
@@ -5898,7 +6151,7 @@
                               "type": "text",
                               "id": "gQ8Yb",
                               "fill": "$--foreground",
-                              "content": "$1,240 - $1,340",
+                              "content": "Starts lower; may decline",
                               "fontFamily": "Geist Mono",
                               "fontSize": 28,
                               "fontWeight": "700"
@@ -5907,7 +6160,7 @@
                               "type": "text",
                               "id": "Zhen8",
                               "fill": "$--muted-foreground",
-                              "content": "illustrative monthly payout from age 65",
+                              "content": "Declines as combined CPF balances fall below $60,000",
                               "fontFamily": "Geist",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -5920,7 +6173,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Illustrative profile: lower monthly payouts with comparatively larger bequest retention.",
+                      "content": "Official characteristic: starts lower and becomes progressively lower once combined balances fall below S$60,000 as extra interest falls.",
                           "lineHeight": 1.55,
                           "fontFamily": "Geist",
                           "fontSize": 13,
@@ -6016,7 +6269,7 @@
                               "type": "text",
                               "id": "geb0j",
                               "fill": "$--foreground",
-                              "content": "$1,100 → $1,860",
+                              "content": "Rises 2% every year",
                               "fontFamily": "Geist Mono",
                               "fontSize": 28,
                               "fontWeight": "700"
@@ -6025,7 +6278,7 @@
                               "type": "text",
                               "id": "XMvWv",
                               "fill": "$--muted-foreground",
-                              "content": "illustrative monthly payout range; increases about 2% yearly",
+                              "content": "Starts lower and increases yearly for life",
                               "fontFamily": "Geist",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -6038,7 +6291,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Illustrative profile: payouts start lower and increase over time.",
+                      "content": "Official characteristic: starts lower and rises 2% each year for life.",
                           "lineHeight": 1.55,
                           "fontFamily": "Geist",
                           "fontSize": 13,
@@ -6067,10 +6320,21 @@
                       "type": "text",
                       "id": "ZJhM5",
                       "fill": "$--foreground",
-                      "content": "Retirement Sum Reference (2026)",
+                          "content": "CPF LIFE 2026 Standard Plan Reference Rows",
                       "fontFamily": "Geist",
                       "fontSize": 17,
                       "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cpfLifeReferenceMeta",
+                      "fill": "$--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Official 2026 male Standard Plan reference rows · monthly payout at 65 / 70 · verified 1 August 2026 · source: CPF Board. S$60,000 is an automatic-inclusion criterion, not a minimum joining balance or minimum payout balance.",
+                      "fontFamily": "Geist",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -6093,7 +6357,7 @@
                               "type": "text",
                               "id": "07v4t",
                               "fill": "$--muted-foreground",
-                              "content": "BRS",
+                              "content": "Reference row 1",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "600",
@@ -6103,7 +6367,7 @@
                               "type": "text",
                               "id": "FIi86",
                               "fill": "$--foreground",
-                              "content": "$106,500",
+                              "content": "S$490 / S$670",
                               "fontFamily": "Geist Mono",
                               "fontSize": 20,
                               "fontWeight": "700"
@@ -6112,7 +6376,7 @@
                               "type": "text",
                               "id": "EaxAc",
                               "fill": "$--muted-foreground",
-                              "content": "Basic Retirement Sum reference amount",
+                              "content": "RA at 55: S$50,000 · RA at 65: S$82,400",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -6133,7 +6397,7 @@
                               "type": "text",
                               "id": "LA38v",
                               "fill": "$--muted-foreground",
-                              "content": "FRS",
+                              "content": "2026 BRS row",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "600",
@@ -6143,7 +6407,7 @@
                               "type": "text",
                               "id": "j4J7K",
                               "fill": "$--foreground",
-                              "content": "$213,000",
+                              "content": "S$950 / S$1,280",
                               "fontFamily": "Geist Mono",
                               "fontSize": 20,
                               "fontWeight": "700"
@@ -6152,7 +6416,7 @@
                               "type": "text",
                               "id": "6FtAG",
                               "fill": "$--muted-foreground",
-                              "content": "Full Retirement Sum reference amount",
+                              "content": "RA at 55: S$110,200 · RA at 65: S$170,100",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -6173,7 +6437,7 @@
                               "type": "text",
                               "id": "3kDnn",
                               "fill": "$--muted-foreground",
-                              "content": "ERS",
+                              "content": "Reference row 3",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "600",
@@ -6183,7 +6447,7 @@
                               "type": "text",
                               "id": "EsrQZ",
                               "fill": "$--foreground",
-                              "content": "$426,000",
+                              "content": "S$1,250 / S$1,670",
                               "fontFamily": "Geist Mono",
                               "fontSize": 20,
                               "fontWeight": "700"
@@ -6192,7 +6456,136 @@
                               "type": "text",
                               "id": "bEddl",
                               "fill": "$--muted-foreground",
-                              "content": "Enhanced Retirement Sum reference amount",
+                              "content": "RA at 55: S$150,000 · RA at 65: S$227,900",
+                              "fontFamily": "Geist",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cpfLifeReferenceRow2",
+                      "name": "lSumRow2",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "cpfLifeFrsCard",
+                          "width": "fill_container",
+                          "fill": "$--muted",
+                          "cornerRadius": 8,
+                          "layout": "vertical",
+                          "gap": 4,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cpfLifeFrsLabel",
+                              "fill": "$--muted-foreground",
+                              "content": "2026 FRS row",
+                              "fontFamily": "Geist",
+                              "fontSize": 11,
+                              "fontWeight": "600",
+                              "letterSpacing": 0.1
+                            },
+                            {
+                              "type": "text",
+                              "id": "cpfLifeFrsPayout",
+                              "fill": "$--foreground",
+                              "content": "S$1,780 / S$2,380",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "cpfLifeFrsBalances",
+                              "fill": "$--muted-foreground",
+                              "content": "RA at 55: S$220,400 · RA at 65: S$330,100",
+                              "fontFamily": "Geist",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cpfLifeReferenceFiveCard",
+                          "width": "fill_container",
+                          "fill": "$--muted",
+                          "cornerRadius": 8,
+                          "layout": "vertical",
+                          "gap": 4,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cpfLifeReferenceFiveLabel",
+                              "fill": "$--muted-foreground",
+                              "content": "Reference row 5",
+                              "fontFamily": "Geist",
+                              "fontSize": 11,
+                              "fontWeight": "600",
+                              "letterSpacing": 0.1
+                            },
+                            {
+                              "type": "text",
+                              "id": "cpfLifeReferenceFivePayout",
+                              "fill": "$--foreground",
+                              "content": "S$2,380 / S$3,170",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "cpfLifeReferenceFiveBalances",
+                              "fill": "$--muted-foreground",
+                              "content": "RA at 55: S$300,000 · RA at 65: S$445,600",
+                              "fontFamily": "Geist",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cpfLifeErsCard",
+                          "width": "fill_container",
+                          "fill": "$--muted",
+                          "cornerRadius": 8,
+                          "layout": "vertical",
+                          "gap": 4,
+                          "padding": 16,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cpfLifeErsLabel",
+                              "fill": "$--muted-foreground",
+                              "content": "2026 ERS row",
+                              "fontFamily": "Geist",
+                              "fontSize": 11,
+                              "fontWeight": "600",
+                              "letterSpacing": 0.1
+                            },
+                            {
+                              "type": "text",
+                              "id": "cpfLifeErsPayout",
+                              "fill": "$--foreground",
+                              "content": "S$3,440 / S$4,580",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "cpfLifeErsBalances",
+                              "fill": "$--muted-foreground",
+                              "content": "RA at 55: S$440,800 · RA at 65: S$650,100",
                               "fontFamily": "Geist",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -6455,12 +6848,21 @@
                           "type": "text",
                           "id": "LNwUK",
                           "fill": "$--foreground",
-                          "content": "Contribution Rates by Age",
+                          "content": "2026 Contribution Rates by Age",
                           "fontFamily": "Geist",
                           "fontSize": 18,
                           "fontWeight": "600"
                         }
                       ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "ratesMeta2026",
+                      "fill": "$--muted-foreground",
+                      "content": "Official Singapore Citizen / SPR Year 3+ rates for monthly wages above S$750. Effective 1 January 2026; verified 1 August 2026. Source: CPF Board contribution table. The catalogue also contains the published 2027 schedule.",
+                      "fontFamily": "Geist",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -6539,7 +6941,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Up to 55",
+                          "content": "55 and below",
                           "fontFamily": "Geist",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -6599,7 +7001,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "55 to 60",
+                              "content": "Above 55 to 60",
                           "fontFamily": "Geist",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -6610,7 +7012,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "17%",
+                          "content": "18%",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 13,
@@ -6622,7 +7024,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "15.5%",
+                          "content": "16%",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 13,
@@ -6634,7 +7036,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "32.5%",
+                          "content": "34%",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 13,
@@ -6658,7 +7060,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "60 to 65",
+                              "content": "Above 60 to 65",
                           "fontFamily": "Geist",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -6669,7 +7071,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "11.5%",
+                              "content": "12.5%",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 13,
@@ -6681,7 +7083,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "12%",
+                              "content": "12.5%",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 13,
@@ -6693,7 +7095,126 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "23.5%",
+                              "content": "25%",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ratesRow65to70",
+                      "name": "tblR4",
+                      "width": "fill_container",
+                      "fill": "$--background",
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ratesAge65to70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Above 65 to 70",
+                          "fontFamily": "Geist",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ratesEmployee65to70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "7.5%",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ratesEmployer65to70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "9%",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ratesTotal65to70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "16.5%",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ratesRowAbove70",
+                      "name": "tblR5",
+                      "width": "fill_container",
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ratesAgeAbove70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Above 70",
+                          "fontFamily": "Geist",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ratesEmployeeAbove70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "5%",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ratesEmployerAbove70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "7.5%",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ratesTotalAbove70",
+                          "fill": "$--foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "12.5%",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 13,
@@ -6744,7 +7265,7 @@
                               "type": "text",
                               "id": "xwGZf",
                               "fill": "$--foreground",
-                              "content": "Interest Rates",
+                              "content": "Interest Rates · official 2026 Q3 · verified 1 August 2026 · CPF Board",
                               "fontFamily": "Geist",
                               "fontSize": 18,
                               "fontWeight": "600"
@@ -6799,7 +7320,7 @@
                               "type": "text",
                               "id": "reOFl",
                               "fill": "$--foreground",
-                              "content": "Special / Medisave / Retirement",
+                              "content": "Special / MediSave / Retirement",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -6831,7 +7352,7 @@
                               "type": "text",
                               "id": "H1jdm",
                               "fill": "$--foreground",
-                              "content": "Extra 1% on first $60k",
+                      "content": "Below 55: first S$60,000 combined (OA capped at S$20,000)",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -6863,7 +7384,7 @@
                               "type": "text",
                               "id": "cPmlO",
                               "fill": "$--foreground",
-                              "content": "Extra 1% on next $30k (55+)",
+                      "content": "Age 55+: first S$30,000 / next S$30,000 combined · RA → OA → SA → MA",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -6872,7 +7393,7 @@
                               "type": "text",
                               "id": "qOOyw",
                               "fill": "$--accent",
-                              "content": "+1.00%",
+                      "content": "+2.00% / +1.00%",
                               "fontFamily": "Geist Mono",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -6915,7 +7436,7 @@
                               "type": "text",
                               "id": "tn5gP",
                               "fill": "$--foreground",
-                              "content": "Retirement Sums (2026)",
+                      "content": "Retirement Sums (2026) · official · verified 1 August 2026 · CPF Board",
                               "fontFamily": "Geist",
                               "fontSize": 18,
                               "fontWeight": "600"
@@ -6947,7 +7468,7 @@
                               "type": "text",
                               "id": "ZiRuG",
                               "fill": "$--foreground",
-                              "content": "$106,500",
+                              "content": "$110,200",
                               "fontFamily": "Geist Mono",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -6979,7 +7500,7 @@
                               "type": "text",
                               "id": "uOsSo",
                               "fill": "$--foreground",
-                              "content": "$213,000",
+                              "content": "$220,400",
                               "fontFamily": "Geist Mono",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -7011,7 +7532,7 @@
                               "type": "text",
                               "id": "Z0jjK",
                               "fill": "$--foreground",
-                              "content": "$426,000",
+                              "content": "$440,800",
                               "fontFamily": "Geist Mono",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -7034,7 +7555,7 @@
                               "type": "text",
                               "id": "4H5E0",
                               "fill": "$--foreground",
-                              "content": "Basic Healthcare Sum (MA)",
+                      "content": "Basic Healthcare Sum (2026, MA) · official · verified 1 August 2026 · a member's applicable BHS freezes in the year they turn 65",
                               "fontFamily": "Geist",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -7043,7 +7564,7 @@
                               "type": "text",
                               "id": "QTzZn",
                               "fill": "$--foreground",
-                              "content": "$75,500",
+                              "content": "$79,000",
                               "fontFamily": "Geist Mono",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -7287,7 +7808,7 @@
                           "type": "text",
                           "id": "IqTuK",
                           "fill": "$--muted-foreground",
-                          "content": "This score reflects your current CPF, housing, healthcare, and diversification inputs.",
+                      "content": "This is a SimplyCPF editorial rubric based on your inputs, not a CPF Board assessment.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -7693,7 +8214,7 @@
                               "type": "text",
                               "id": "Ureob",
                               "fill": "$--foreground",
-                              "content": "Assess Special Account top-ups",
+                      "content": "Assess retirement top-ups (SA below 55; RA from 55)",
                               "fontFamily": "Inter",
                               "fontSize": 15,
                               "fontWeight": "600"
@@ -7702,7 +8223,7 @@
                               "type": "text",
                               "id": "GjMFa",
                               "fill": "$--muted-foreground",
-                              "content": "Check expected interest impact and applicable tax relief before making voluntary top-ups.",
+                      "content": "Compare actual top-up capacity with the separate S$8,000 own-account cash-top-up tax-relief cap and eligibility conditions.",
                               "fontFamily": "Inter",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -7950,7 +8471,7 @@
                       "type": "text",
                       "id": "pNjLe",
                       "fill": "$--muted-foreground",
-                      "content": "Your CPF savings earn guaranteed interest backed by the Singapore Government. OA earns a floor rate of 2.5%, while SA, MA, and RA earn interest pegged to the 10-year SGS yield plus 1% — with a minimum of 4% per annum.",
+                      "content": "Your CPF savings earn interest backed by the Singapore Government. OA has a 2.5% floor, while SA, MA, and RA use the 12-month average yield of 10-year SGS plus 1 percentage point, subject to the prevailing 4% floor.",
                       "textAlign": "center",
                       "fontFamily": "Inter",
                       "fontSize": 16,
@@ -8041,7 +8562,7 @@
                           "type": "text",
                           "id": "HgQzn",
                           "fill": "$--accent",
-                          "content": "4.14%",
+                          "content": "4.00%",
                           "fontFamily": "Geist Mono",
                           "fontSize": 48,
                           "fontWeight": "700"
@@ -8050,7 +8571,7 @@
                           "type": "text",
                           "id": "9kZXX",
                           "fill": "$--muted-foreground",
-                          "content": "p.a. current rate",
+                          "content": "2026 Q3 declared p.a. rate",
                           "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -8087,7 +8608,7 @@
                           "type": "text",
                           "id": "yMldX",
                           "fill": "$--accent",
-                          "content": "4.14%",
+                          "content": "4.00%",
                           "fontFamily": "Geist Mono",
                           "fontSize": 48,
                           "fontWeight": "700"
@@ -8096,7 +8617,7 @@
                           "type": "text",
                           "id": "kivSZ",
                           "fill": "$--muted-foreground",
-                          "content": "p.a. current rate",
+                          "content": "2026 Q3 declared p.a. rate",
                           "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -8133,7 +8654,7 @@
                           "type": "text",
                           "id": "Vy3Cp",
                           "fill": "$--accent",
-                          "content": "4.14%",
+                          "content": "4.00%",
                           "fontFamily": "Geist Mono",
                           "fontSize": 48,
                           "fontWeight": "700"
@@ -8142,7 +8663,7 @@
                           "type": "text",
                           "id": "bnRU4",
                           "fill": "$--muted-foreground",
-                          "content": "p.a. current rate",
+                          "content": "2026 Q3 declared p.a. rate",
                           "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -8180,7 +8701,7 @@
                       "type": "text",
                       "id": "RFdkM",
                       "fill": "$--muted-foreground",
-                      "content": "CPF pays additional interest on the first dollars you hold. Age 55+ members get an extra 1% tier on top.",
+                      "content": "Extra interest uses combined-balance tiers and CPF Board's RA → OA → SA → MA priority order; no more than $20,000 from OA is counted.",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -8207,7 +8728,7 @@
                               "type": "text",
                               "id": "tEhmk",
                               "fill": "$--muted-foreground",
-                              "content": "First $20,000 OA",
+                              "content": "First $60,000 combined (below 55)",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "600"
@@ -8225,7 +8746,7 @@
                               "type": "text",
                               "id": "1jb2i",
                               "fill": "$--muted-foreground",
-                              "content": "Extra interest under age 55",
+                              "content": "No more than $20,000 can come from OA",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -8247,7 +8768,7 @@
                               "type": "text",
                               "id": "m6C1x",
                               "fill": "$--muted-foreground",
-                              "content": "Next $40,000 combined",
+                              "content": "First $30,000 combined (age 55+)",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "600"
@@ -8256,7 +8777,7 @@
                               "type": "text",
                               "id": "EbheG",
                               "fill": "$--accent",
-                              "content": "+1.00%",
+                              "content": "+2.00%",
                               "fontFamily": "Geist Mono",
                               "fontSize": 20,
                               "fontWeight": "700"
@@ -8265,7 +8786,7 @@
                               "type": "text",
                               "id": "iWIjn",
                               "fill": "$--muted-foreground",
-                              "content": "OA, SA, MA, RA under 55",
+                              "content": "RA → OA → SA → MA priority",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -8287,7 +8808,7 @@
                               "type": "text",
                               "id": "92K6i",
                               "fill": "$--muted-foreground",
-                              "content": "First $30,000 (age 55+)",
+                              "content": "Next $30,000 combined (age 55+)",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "600"
@@ -8296,7 +8817,7 @@
                               "type": "text",
                               "id": "Z2jsF",
                               "fill": "$--accent",
-                              "content": "+2.00%",
+                              "content": "+1.00%",
                               "fontFamily": "Geist Mono",
                               "fontSize": 20,
                               "fontWeight": "700"
@@ -8305,7 +8826,7 @@
                               "type": "text",
                               "id": "AnJgu",
                               "fill": "$--muted-foreground",
-                              "content": "Enhanced retirement tier",
+                              "content": "Same priority order; OA cap still applies",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -8345,7 +8866,7 @@
                       "type": "text",
                       "id": "0cmmM",
                       "fill": "$--muted-foreground",
-                      "content": "Younger members build more in OA for housing; older members direct more to SA and MA for retirement and healthcare.",
+                      "content": "Official 2026 allocation table, effective 1 January 2026 and verified 1 August 2026 against CPF Board. Inclusive age bands; from age 55 after SA closure, the retirement share routes to RA until FRS, then OA.",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -8386,7 +8907,7 @@
                           "type": "text",
                           "id": "d7lTP",
                           "fill": "$--muted-foreground",
-                          "content": "SA %",
+                          "content": "Retirement share %",
                           "textAlign": "right",
                           "fontFamily": "Inter",
                           "fontSize": 12,
@@ -8494,7 +9015,7 @@
                           "type": "text",
                           "id": "fJHHd",
                           "fill": "$--foreground",
-                          "content": "56.76",
+                          "content": "56.77",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8504,7 +9025,7 @@
                           "type": "text",
                           "id": "DCvYA",
                           "fill": "$--foreground",
-                          "content": "18.92",
+                          "content": "18.91",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8553,7 +9074,7 @@
                           "type": "text",
                           "id": "QEBqd",
                           "fill": "$--foreground",
-                          "content": "51.35",
+                          "content": "51.36",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8573,7 +9094,7 @@
                           "type": "text",
                           "id": "ZLt6t",
                           "fill": "$--foreground",
-                          "content": "27.03",
+                          "content": "27.02",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8645,6 +9166,13 @@
                       "id": "qwuDl",
                       "name": "r5",
                       "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "bottom": 1
+                        },
+                        "fill": "$--border"
+                      },
                       "gap": 16,
                       "padding": [
                         12,
@@ -8664,7 +9192,7 @@
                           "type": "text",
                           "id": "J0wMq",
                           "fill": "$--foreground",
-                          "content": "31.58",
+                              "content": "35.30",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8674,7 +9202,7 @@
                           "type": "text",
                           "id": "otL9T",
                           "fill": "$--foreground",
-                          "content": "28.95",
+                              "content": "33.82",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8684,7 +9212,177 @@
                           "type": "text",
                           "id": "sUnSU",
                           "fill": "$--foreground",
-                          "content": "39.47",
+                              "content": "30.88",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "allocRow60to65",
+                      "name": "r6",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "bottom": 1
+                        },
+                        "fill": "$--border"
+                      },
+                      "gap": 16,
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "allocAge60to65",
+                          "fill": "$--foreground",
+                          "content": "Above 60 to 65",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocOa60to65",
+                          "fill": "$--foreground",
+                          "content": "14.00",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocRetirement60to65",
+                          "fill": "$--foreground",
+                          "content": "44.00",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocMa60to65",
+                          "fill": "$--foreground",
+                          "content": "42.00",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "allocRow65to70",
+                      "name": "r7",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "bottom": 1
+                        },
+                        "fill": "$--border"
+                      },
+                      "gap": 16,
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "allocAge65to70",
+                          "fill": "$--foreground",
+                          "content": "Above 65 to 70",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocOa65to70",
+                          "fill": "$--foreground",
+                          "content": "6.07",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocRetirement65to70",
+                          "fill": "$--foreground",
+                          "content": "30.30",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocMa65to70",
+                          "fill": "$--foreground",
+                          "content": "63.63",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "allocRowAbove70",
+                      "name": "r8",
+                      "width": "fill_container",
+                      "gap": 16,
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "allocAgeAbove70",
+                          "fill": "$--foreground",
+                          "content": "Above 70",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocOaAbove70",
+                          "fill": "$--foreground",
+                          "content": "8.00",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocRetirementAbove70",
+                          "fill": "$--foreground",
+                          "content": "8.00",
+                          "textAlign": "right",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "allocMaAbove70",
+                          "fill": "$--foreground",
+                          "content": "84.00",
                           "textAlign": "right",
                           "fontFamily": "Geist Mono",
                           "fontSize": 14,
@@ -8872,7 +9570,7 @@
                       "type": "text",
                       "id": "KrTya",
                       "fill": "$--muted-foreground",
-                      "content": "Compare projected balances across CPF accounts, SGS bonds, STI ETF, and global equity ETFs using the same starting amount, period, and monthly top-up assumptions.",
+                      "content": "Compare scenarios using one starting amount and period. CPF floor presets are official; every non-CPF return is an editable user assumption, not a historical claim or forecast.",
                       "textAlign": "center",
                       "fontFamily": "Inter",
                       "fontSize": 16,
@@ -9005,7 +9703,7 @@
                           "type": "text",
                           "id": "NDFRB",
                           "fill": "$--muted-foreground",
-                          "content": "Monthly Top-up",
+                          "content": "Your investment return assumption",
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -9033,7 +9731,7 @@
                               "type": "text",
                               "id": "FKed9",
                               "fill": "$--foreground",
-                              "content": "$500",
+                              "content": "5.0% p.a.",
                               "fontFamily": "Geist Mono",
                               "fontSize": 14,
                               "fontWeight": "normal"
@@ -9120,7 +9818,7 @@
                               "type": "text",
                               "id": "uGiA4",
                               "fill": "$--foreground",
-                              "content": "SGS Bonds",
+                              "content": "CPF SMRA",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -9146,33 +9844,7 @@
                               "type": "text",
                               "id": "C4LsP",
                               "fill": "$--foreground",
-                              "content": "STI ETF",
-                              "fontFamily": "Inter",
-                              "fontSize": 12,
-                              "fontWeight": "normal"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "XGAo5",
-                          "name": "l4",
-                          "gap": 6,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "aA2kT",
-                              "width": 10,
-                              "height": 10,
-                              "fill": "$--chart-5",
-                              "cornerRadius": 5
-                            },
-                            {
-                              "type": "text",
-                              "id": "VGTGO",
-                              "fill": "$--foreground",
-                              "content": "Global ETF",
+                              "content": "User assumption",
                               "fontFamily": "Inter",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -9354,7 +10026,7 @@
                           "type": "text",
                           "id": "ZZT3g",
                           "fill": "$--foreground",
-                          "content": "$212,430",
+                          "content": "S$81,930.82",
                           "fontFamily": "Geist Mono",
                           "fontSize": 28,
                           "fontWeight": "700"
@@ -9363,7 +10035,7 @@
                           "type": "text",
                           "id": "HKshJ",
                           "fill": "$--muted-foreground",
-                          "content": "2.5% p.a. guaranteed",
+                          "content": "CPF OA 2.5% floor-rate preset",
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -9398,7 +10070,7 @@
                           "type": "text",
                           "id": "DxonA",
                           "fill": "$--muted-foreground",
-                          "content": "SGS Bonds",
+                          "content": "CPF SMRA",
                           "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "600"
@@ -9407,7 +10079,7 @@
                           "type": "text",
                           "id": "d45PH",
                           "fill": "$--foreground",
-                          "content": "$238,890",
+                          "content": "S$109,556.16",
                           "fontFamily": "Geist Mono",
                           "fontSize": 28,
                           "fontWeight": "700"
@@ -9416,7 +10088,7 @@
                           "type": "text",
                           "id": "zahz0",
                           "fill": "$--muted-foreground",
-                          "content": "~3.1% p.a. historical",
+                          "content": "CPF SMRA 4% floor-rate preset",
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -9451,7 +10123,7 @@
                           "type": "text",
                           "id": "9NUkk",
                           "fill": "$--muted-foreground",
-                          "content": "STI ETF",
+                          "content": "User assumption",
                           "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "600"
@@ -9460,7 +10132,7 @@
                           "type": "text",
                           "id": "dgmls",
                           "fill": "$--foreground",
-                          "content": "$287,310",
+                          "content": "S$132,664.89",
                           "fontFamily": "Geist Mono",
                           "fontSize": 28,
                           "fontWeight": "700"
@@ -9469,55 +10141,7 @@
                           "type": "text",
                           "id": "0K9nc",
                           "fill": "$--muted-foreground",
-                          "content": "~5.2% p.a. historical",
-                          "fontFamily": "Inter",
-                          "fontSize": 12,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "SpZv0",
-                      "name": "rc4",
-                      "width": "fill_container",
-                      "fill": "$--accent",
-                      "cornerRadius": 12,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 24,
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "5DJs9",
-                          "width": 10,
-                          "height": 10,
-                          "fill": "$--accent-foreground",
-                          "cornerRadius": 5
-                        },
-                        {
-                          "type": "text",
-                          "id": "wIDsp",
-                          "fill": "$--accent-foreground",
-                          "content": "Global ETF",
-                          "fontFamily": "Inter",
-                          "fontSize": 13,
-                          "fontWeight": "600"
-                        },
-                        {
-                          "type": "text",
-                          "id": "vMmDE",
-                          "fill": "$--accent-foreground",
-                          "content": "$358,120",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "JyZSL",
-                          "fill": "$--accent-foreground",
-                          "content": "~7.5% p.a. historical",
+                          "content": "Editable user assumption: 5.0% p.a.",
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -9753,7 +10377,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "SimplyCPF is a free, open-source CPF planning tool for Singapore Citizens and Permanent Residents. It helps users estimate CPF contributions and projected outcomes based on income, age group, and prevailing contribution rules.",
+                      "content": "SimplyCPF covers private-sector, non-pensionable Singapore Citizen and SPR employees using default G/G rates. Platform workers, self-employed or pensionable employees, and alternative PR arrangements are out of scope.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -9783,7 +10407,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "CPF contribution rates vary across age groups, and allocations across Ordinary Account (OA), Special Account (SA), and MediSave Account (MA) differ by profile. This page summarises those mechanics in a practical, readable format.",
+                      "content": "Contribution and allocation rates use inclusive age bands. The retirement share goes to SA below 55; after SA closure it goes to RA until FRS, then OA. MA receives its published share first and OA receives the remainder.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -9813,7 +10437,7 @@
                           "fill": "$--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Calculation references are based on publicly available CPF Board guidance and are updated when official rules change. Users should verify final decisions against official CPF resources.",
+                      "content": "Each policy dataset exposes its official or assumed status, effective period, source URLs and verification date. SimplyCPF assumptions are labelled separately; verify decisions against CPF Board.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -9914,7 +10538,7 @@
                           "type": "text",
                           "id": "V6PFQ",
                           "fill": "$--foreground",
-                          "content": "What is the CPF income ceiling in 2026?",
+                      "content": "What is the CPF Ordinary Wage ceiling in 2026?",
                           "fontFamily": "Inter",
                           "fontSize": 15,
                           "fontWeight": "600"
@@ -9925,7 +10549,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "From September 2026, the CPF monthly income ceiling will be $8,000 — the final step in the progressive increase announced in Budget 2023.",
+                      "content": "From January 2026, the monthly Ordinary Wage ceiling is S$8,000. Additional Wages use a separate annual ceiling calculation.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -9953,7 +10577,7 @@
                           "type": "text",
                           "id": "A36eG",
                           "fill": "$--foreground",
-                          "content": "How are CPF contributions split between OA, SA, and MA?",
+                      "content": "How are CPF contributions split between OA, SA or RA, and MA?",
                           "fontFamily": "Inter",
                           "fontSize": 15,
                           "fontWeight": "600"
@@ -9964,7 +10588,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "The distribution depends on your age group. Younger members build more in OA (for housing), while older members see more going to SA and MA.",
+                      "content": "Allocation uses inclusive age bands. The retirement share goes to SA below 55; after SA closure it goes to RA until FRS, then OA.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -10198,7 +10822,7 @@
                           "id": "W1V6q",
                           "name": "heroMeta",
                           "fill": "$--muted-foreground",
-                          "content": "Last updated: 12 Mar 2026 · 6 min read",
+                      "content": "Each dataset shows its own effective period, official or assumed status, source, and verification date.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -10279,7 +10903,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "From September 2026, ordinary wages are subject to CPF up to a monthly income ceiling of $8,000. Any wages above that amount are not counted for compulsory CPF contributions, though additional voluntary top-ups may still be possible under separate limits.",
+                          "content": "From January 2026, Ordinary Wages are subject to CPF up to the $8,000 monthly OW ceiling. Additional Wages use a separate annual ceiling and require annual OW and prior-AW context.",
                           "lineHeight": 1.5,
                           "fontFamily": "Inter",
                           "fontSize": 14,
@@ -10320,7 +10944,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Contribution shares across OA, SA, and MA vary by age band. At age 55, savings are set aside for retirement in the Retirement Account, which then affects how later contributions are allocated. Refer to age-specific rates for planning accuracy.",
+                          "content": "Contribution shares use inclusive age bands. After SA closes from age 55, the retirement share routes to RA until FRS is set aside, then to OA; account context determines the branch.",
                           "lineHeight": 1.5,
                           "fontFamily": "Inter",
                           "fontSize": 14,
@@ -10464,7 +11088,7 @@
                   "type": "text",
                   "id": "TK42Z",
                   "fill": "$--muted-foreground",
-                  "content": "Effective date: 19 April 2026",
+                  "content": "Effective date: 1 August 2026",
                   "fontFamily": "Inter",
                   "fontSize": 13,
                   "fontWeight": "normal"
@@ -10518,7 +11142,7 @@
                           "type": "text",
                           "id": "xbCUX",
                           "fill": "$--muted-foreground",
-                          "content": "The core calculators work entirely in your browser — your income, age, and all calculation inputs stay on your device. We only collect your email address when you explicitly request a CPF cheat sheet or readiness report.",
+                          "content": "The core calculators work in your browser: income, age and calculation inputs stay on your device. There is no account or email collection flow.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -10546,7 +11170,7 @@
                           "type": "text",
                           "id": "9putA",
                           "fill": "$--muted-foreground",
-                          "content": "Email addresses are used solely to send the requested resource. We do not sell or share your data with third parties. We do not send marketing emails unless you opt in separately.",
+                          "content": "Calculator and projection inputs are processed in your browser. Where a tool serialises a scenario into its URL, you control whether that URL is shared.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -10574,7 +11198,7 @@
                           "type": "text",
                           "id": "jeG11",
                           "fill": "$--muted-foreground",
-                          "content": "We use privacy-respecting analytics to understand how the tool is used. No personal identifiers are collected, and your IP address is not stored.",
+                          "content": "SimplyCPF uses PostHog for aggregate usage analytics through a first-party proxy. Calculator inputs, email addresses, and personal identifiers are not attached to analytics events.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -10602,7 +11226,7 @@
                           "type": "text",
                           "id": "1n67l",
                           "fill": "$--muted-foreground",
-                          "content": "You can request deletion of your email address from our mailing list at any time. Contact us via the GitHub repository for any privacy-related concerns.",
+                          "content": "You can clear browser storage and remove shared scenario parameters from the URL. Contact the maintainers through the GitHub repository with privacy questions.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -10632,7 +11256,7 @@
                           "fill": "$--muted-foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "If you provide an email address to receive a requested resource, it is retained only as needed to deliver that request and manage related support. You may request deletion at any time.",
+                          "content": "SimplyCPF has no backend database retaining calculator inputs. Analytics storage and retention are governed by the analytics service described above.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"

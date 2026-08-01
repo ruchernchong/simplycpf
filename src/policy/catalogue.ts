@@ -9,11 +9,7 @@ import {
   CPF_LIFE_POLICY,
   CPF_RETIREMENT_SUM_ROWS,
 } from "./reference-data";
-import {
-  CPF_POLICY_VERIFIED_AT,
-  POLICY_METADATA,
-  POLICY_SOURCES,
-} from "./sources";
+import { POLICY_METADATA, POLICY_SOURCES } from "./sources";
 
 /**
  * Small statutory rules that used to be repeated in page copy and tools.
@@ -21,7 +17,50 @@ import {
  * that uses them and must not be added to this object.
  */
 export const CPF_POLICY_RULES = {
-  wageBands: CPF_WAGE_RULES,
+  wageBands: {
+    ...CPF_WAGE_RULES,
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-contribution-rates"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.contributionCurrent.url,
+      POLICY_SOURCES.contributionPast.url,
+    ],
+  },
+  contributionRounding: {
+    totalContributionUnit: "nearest whole dollar",
+    totalContributionHalfUpAtCents: 50,
+    employeeShare: "discard cents",
+    employerShare: "rounded total less employee share",
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-contribution-rates"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.contributionRounding.url,
+      POLICY_SOURCES.contributionCurrent.url,
+      POLICY_SOURCES.contributionPast.url,
+    ],
+  },
+  permanentResidentGraduatedRates: {
+    effectiveFrom: "2016-01-01",
+    year1Starts: "PR conversion date",
+    laterYearsStart: "first day of the month after each anniversary",
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-contribution-rates"].verifiedAt,
+    sourceUrls: [POLICY_SOURCES.contributionPast.url],
+  },
+  interestTransactions: {
+    computation: "monthly",
+    crediting: "annually by the following year",
+    freshInflowsStartEarning: "following month",
+    withdrawalsStopEarning: "withdrawal month",
+    existingCpfTransfersStartEarningInDestination: "transfer month",
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-interest-rates"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.interestCrediting.url,
+      POLICY_SOURCES.interestTransferTiming.url,
+      POLICY_SOURCES.specialAccountClosureInterest.url,
+    ],
+  },
   lifecycleAges: {
     retirementAccountCreated: 55,
     specialAccountClosed: 55,
@@ -29,31 +68,103 @@ export const CPF_POLICY_RULES = {
     cpfLifePayoutEligibility: 65,
     latestCpfLifePayoutStart: 70,
     latestVoluntaryCpfLifeJoinAgeExclusive: 80,
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-special-account-closure"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.retirementSums.url,
+      POLICY_SOURCES.specialAccountClosure.url,
+      POLICY_SOURCES.basicHealthcareSum.url,
+      POLICY_SOURCES.cpfLife.url,
+      POLICY_SOURCES.cpfLifeEligibility.url,
+    ],
+  },
+  basicHealthcareSumOverflow: {
+    firstDestinationBelow55: "SA",
+    firstDestinationFrom55: "RA",
+    destinationLimit: "FRS",
+    destinationAfterFrs: "OA",
+    appliesTo: "MediSave savings above the member's applicable BHS",
+    cashTopUpAboveBhs: "rejected and refunded in full",
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-basic-healthcare-sum"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.basicHealthcareSumOverflow.url,
+      POLICY_SOURCES.medisaveTopUpLimit.url,
+    ],
   },
   specialAccountClosure: {
     effectiveDate: "2025-01-19",
     appliesFromAge: 55,
     routeToRetirementAccountUntil: "FRS",
     routeRemainderTo: "OA",
+    transferredSavingsInterest:
+      "destination account rate from the month of transfer",
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
-    sourceUrls: [POLICY_SOURCES.specialAccountClosure.url],
+    verifiedAt: POLICY_METADATA["cpf-special-account-closure"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.specialAccountClosure.url,
+      POLICY_SOURCES.specialAccountClosureInterest.url,
+    ],
   },
   retirementAccountAt55: {
     creationAge: 55,
     transferOrder: ["SA", "OA"],
     transferReferenceCap: "cohort FRS",
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
-    sourceUrls: [POLICY_SOURCES.retirementSums.url],
+    verifiedAt: POLICY_METADATA["cpf-special-account-closure"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.retirementSums.url,
+      POLICY_SOURCES.reachingAge55.url,
+    ],
   },
   age55PropertyPledge: {
     qualifyingLeaseMustLastThroughAge: 95,
     maximumPropertyComponentOfFrs: 0.5,
     note: "A qualifying Singapore property can account for up to half the FRS; individual withdrawal eligibility still depends on CPF Board's rules and member circumstances.",
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
-    sourceUrls: [POLICY_SOURCES.retirementSums.url],
+    verifiedAt: POLICY_METADATA["cpf-special-account-closure"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.retirementSums.url,
+      POLICY_SOURCES.age55PropertyWithdrawal.url,
+    ],
+  },
+  retirementWithdrawals: {
+    effectiveFrom: "2026-01-01",
+    cohortBornOnOrAfter: "1958-01-01",
+    fromAge55: {
+      unconditionalAmount: 5000,
+      afterFullRetirementSum:
+        "excess Ordinary Account savings are withdrawable",
+      propertyOption: {
+        minimumAge: 55,
+        minimumRemainingLeaseThroughAge: 95,
+        retirementAccountFloor: "BRS",
+        restorationTargetOnSaleOrTransfer: "FRS",
+        generallyExcludedFromWithdrawableRaSavings: [
+          "interest earned",
+          "government grants received",
+          "retirement top-ups",
+        ],
+      },
+    },
+    fromAge65: {
+      additionalRetirementSavingsPercentage: 20,
+      lessAge55WithdrawableAmount: 5000,
+      generallyExcludedFromCalculation: [
+        "cash top-ups",
+        "CPF transfers",
+        "government grants",
+      ],
+    },
+    note: "Withdrawal eligibility and amounts vary by birth cohort and individual account history. Members should confirm their withdrawable amount in CPF Board's Retirement Dashboard.",
+    status: "official",
+    verifiedAt: POLICY_METADATA["cpf-retirement-withdrawals"].verifiedAt,
+    sourceUrls: [
+      POLICY_SOURCES.retirementWithdrawals.url,
+      POLICY_SOURCES.withdrawalCohorts.url,
+      POLICY_SOURCES.age55PropertyWithdrawal.url,
+      POLICY_SOURCES.age65Withdrawals.url,
+    ],
   },
   housingRefunds: {
     requiredComponents: [
@@ -71,7 +182,7 @@ export const CPF_POLICY_RULES = {
       age55AndAbove: ["RA up to required retirement sum", "OA"],
     },
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt: POLICY_METADATA["cpf-housing-refunds"].verifiedAt,
     sourceUrls: [POLICY_SOURCES.housingRefunds.url],
   },
   retirementTopUps: {
@@ -93,6 +204,8 @@ export const CPF_POLICY_RULES = {
       from55Account: "RA",
       from55Limit: "current ERS less qualifying retirement savings",
     },
+    recurringCpfTransferTiming:
+      "after CPF contributions for the month have been credited",
     qualifyingCapacity: {
       below55:
         "current FRS less SA savings and net SA savings withdrawn for investments",
@@ -104,10 +217,12 @@ export const CPF_POLICY_RULES = {
       qualifyingTopUpsDoNotReceiveTaxRelief: true,
     },
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt: POLICY_METADATA["cpf-retirement-top-ups"].verifiedAt,
     sourceUrls: [
       POLICY_SOURCES.retirementTopUps.url,
       POLICY_SOURCES.matchedRetirementSavings.url,
+      POLICY_SOURCES.medisaveTopUpLimit.url,
+      POLICY_SOURCES.recurringTransferTiming.url,
       POLICY_SOURCES.irasCashTopUpRelief.url,
     ],
   },
@@ -127,7 +242,7 @@ export const CPF_POLICY_RULES = {
       oaExtraInterestCreditedTo: "RA",
     },
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt: POLICY_METADATA["cpf-extra-interest"].verifiedAt,
     sourceUrls: [POLICY_SOURCES.extraInterest.url],
   },
   statutoryEmploymentAges: {
@@ -154,15 +269,14 @@ export const CPF_POLICY_RULES = {
       },
     ],
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt: POLICY_METADATA["mom-retirement-re-employment-ages"].verifiedAt,
     sourceUrls: [POLICY_SOURCES.momRetirementAges.url],
   },
 } as const;
 
 /** Single import target for official policy data and provenance. */
 export const CPF_POLICY_CATALOGUE = {
-  version: CPF_POLICY_VERIFIED_AT,
-  verifiedAt: CPF_POLICY_VERIFIED_AT,
+  version: "2.0.0",
   sources: POLICY_SOURCES,
   metadata: POLICY_METADATA,
   rules: CPF_POLICY_RULES,

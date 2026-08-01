@@ -5,13 +5,13 @@ description: Official CPF reference values with per-dataset provenance
 
 Public policy endpoints return only values published by CPF Board. They do not silently clamp an unsupported year to the nearest known value and do not extrapolate future amounts.
 
-| Endpoint | Published coverage | Unsupported request |
+| Endpoint | Published values | Unsupported request |
 |---|---|---|
-| `/ceiling` | Contribution schedules from 2023 through 2027 | `404` |
-| `/bhs?year=YYYY` | BHS cohorts from 2016 through 2026 | `404` |
-| `/retirement-sums?year=YYYY` | BRS, FRS, and ERS from 2023 through 2027 | `404` |
+| `/ceiling` | Sourced contribution-month schedules | `404` |
+| `/bhs?year=YYYY` | Sourced BHS cohorts/years | `404` |
+| `/retirement-sums?year=YYYY` | Sourced BRS, FRS, and ERS years | `404` |
 
-Omit `year` from the BHS or retirement-sums endpoint to receive all published observations and the latest published value. A year-specific response carries `status: "official"` and `metadata`; the collection carries the same dataset metadata once at the envelope level.
+Omit `year` from the BHS or retirement-sums endpoint to receive all published observations and the latest published value. This collection response is also the canonical supported-year list. A year-specific response carries `status: "official"` and `metadata`; the collection carries the same dataset metadata once at the envelope level.
 
 Each response carries `PolicyMetadata`, including `status`, effective dates, verification date, and first-party sources. Public values are `official`.
 

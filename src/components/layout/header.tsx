@@ -10,6 +10,7 @@ import ThemeToggle from "@/components/layout/theme-toggle";
 import { Wordmark } from "@/components/shared/wordmark";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import {
   selectAge,
   selectFormStep,
@@ -24,7 +25,10 @@ interface NavItem {
 const questionNavItems: NavItem[] = [
   { href: "/" as Route, label: "Home" },
   { href: "/calculator" as Route, label: "This month" },
-  { href: "/cpf-at-55" as Route, label: "At 55" },
+  {
+    href: "/cpf-at-55" as Route,
+    label: `At ${CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated}`,
+  },
   { href: "/accrued-interest" as Route, label: "Home & OA" },
   { href: "/cpf-life" as Route, label: "CPF LIFE" },
   { href: "/what-if" as Route, label: "Compare" },

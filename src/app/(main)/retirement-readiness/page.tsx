@@ -6,14 +6,13 @@ import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/retirement-readiness`;
-const PAGE_TITLE = "Retirement Readiness Score";
+const PAGE_TITLE = "SimplyCPF Retirement Readiness Rubric";
 const PAGE_DESCRIPTION =
-  "Answer 5 quick questions to estimate how prepared your CPF planning is and which SimplyCPF tool to use next.";
+  "Use SimplyCPF's five-question editorial rubric to spot a CPF planning topic to review next. It is not a CPF Board assessment or a measure of retirement adequacy.";
 
 export const metadata: Metadata = {
-  title: "Retirement Readiness Score: See What Your CPF Plan Is Missing",
-  description:
-    "Answer 5 quick questions to see where your CPF planning is clear, weak, or missing, then get the next tool to use inside SimplyCPF.",
+  title: "SimplyCPF Retirement Readiness Rubric",
+  description: PAGE_DESCRIPTION,
   alternates: {
     canonical: "/retirement-readiness",
   },
@@ -37,7 +36,7 @@ const schema: Graph = {
     {
       "@type": "WebPage",
       "@id": `${PAGE_URL}/#webpage`,
-      name: "Retirement Readiness Score",
+      name: PAGE_TITLE,
       description: PAGE_DESCRIPTION,
       url: PAGE_URL,
       inLanguage: "en-SG",
@@ -54,7 +53,7 @@ const schema: Graph = {
         {
           "@type": "ListItem",
           position: 2,
-          name: "Retirement Readiness Score",
+          name: PAGE_TITLE,
           item: PAGE_URL,
         },
       ],

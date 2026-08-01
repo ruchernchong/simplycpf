@@ -3,7 +3,7 @@ title: Developer Portal
 description: Build with SimplyCPF's source-backed API v2
 ---
 
-SimplyCPF API v2.0.0 exposes source-backed CPF contribution calculations, official reference datasets, and assumption-labelled projections. Every policy-backed response includes provenance and an `official | assumed` status. SimplyCPF is independent and is not affiliated with CPF Board or any government agency.
+SimplyCPF API v2.0.0 exposes source-backed CPF contribution calculations, official reference datasets, and assumption-labelled projections. Every policy-backed response includes provenance and an `official | assumed` status. SimplyCPF is independent and is not affiliated with CPF Board or any government agency. Contribution calculations cover Singapore Citizens and Permanent Residents in private-sector, non-pensionable employment; PR calculations use CPF Board's default Graduated/Graduated rates. The response identifies the exact supported schedule and scope.
 
 ## Base URL
 
@@ -30,18 +30,18 @@ The calculation resolves the effective monthly schedule, CPF wage band, age tran
 
 ## API categories
 
-- **[Calculation](/developer/api/calculation)** — month-aware contributions, batch processing, and monthly-ledger projections
-- **[Age groups](/developer/api/age-groups)** — inclusive upper bounds, age-dependent generic routing, and explicit RA for exact post-closure lookups
-- **[Policy reference](/developer/api/policy)** — sourced ceilings, BHS, and retirement sums without silent extrapolation
-- **[Interest rates](/developer/api/interest-rates)** — official quarterly declarations and published peg methodology
-- **[Investment](/developer/api/investment)** — caller-supplied comparison assumptions, not CPF Board forecasts
+- **[Calculation](/docs/api/calculation)** — month-aware contributions, batch processing, and monthly-ledger projections
+- **[Age groups](/docs/api/age-groups)** — inclusive upper bounds, age-dependent generic routing, and explicit RA for exact post-closure lookups
+- **[Policy reference](/docs/api/policy)** — sourced ceilings, BHS, and retirement sums without silent extrapolation
+- **[Interest rates](/docs/api/interest-rates)** — official quarterly declarations and published peg methodology
+- **[Investment](/docs/api/investment)** — caller-supplied comparison assumptions, not CPF Board forecasts
 
 ## Correctness contract
 
-- Official contribution schedules are supported from January 2023 through December 2027.
+- The supported contribution period is the effective range returned by the canonical policy catalogue.
 - Public reference endpoints return `404` for unsupported policy years; they do not clamp or fabricate values.
 - Projection rows after the last publication freeze that policy and mark it `assumed`.
-- CPF LIFE output is CPF Board's exact 2026 Standard Plan reference table. SimplyCPF does not calculate personalised payouts; deprecated `cpfLifeEstimate` is `null`.
+- `cpfLifeReference` returns the exact CPF Board reference rows, profile, plan, source and verification metadata loaded in the catalogue. SimplyCPF does not calculate personalised payouts; deprecated `cpfLifeEstimate` is `null`.
 - Policy responses use 24-hour edge caching with stale revalidation and are not marked immutable.
 
 Read the [machine-readable CPF policy reference](/cpf-rates.md) for first-party sources and per-dataset verification metadata.

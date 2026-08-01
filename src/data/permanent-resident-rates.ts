@@ -1,4 +1,5 @@
 import { getAgeGroupsForMonth } from "@/data";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import type { AgeGroup } from "@/types";
 
 /**
@@ -6,7 +7,7 @@ import type { AgeGroup } from "@/types";
  * are maintained in `src/policy/contributions.ts`.
  */
 export const permanentResidentYear1Rates: AgeGroup[] = getAgeGroupsForMonth(
-  "2026-01",
+  CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
   "spr-year1",
 );
 
@@ -15,6 +16,6 @@ export const permanentResidentYear1Rates: AgeGroup[] = getAgeGroupsForMonth(
  * are maintained in `src/policy/contributions.ts`.
  */
 export const permanentResidentYear2Rates: AgeGroup[] = getAgeGroupsForMonth(
-  "2026-01",
+  CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
   "spr-year2",
 );

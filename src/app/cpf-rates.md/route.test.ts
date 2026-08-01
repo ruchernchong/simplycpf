@@ -27,9 +27,7 @@ describe("GET /cpf-rates.md", () => {
     expect(text).toContain("### cpf-2027");
     expect(text).toContain("Above S$50 to S$500");
     expect(text).toContain("Above S$500 to S$750");
-    expect(text).toContain(
-      "Employer share is the rounded total minus employee share",
-    );
+    expect(text).toContain("Employer share: rounded total less employee share");
     expect(text).toContain(
       "MA first, retirement savings second, and OA as the exact remainder",
     );
@@ -56,6 +54,14 @@ describe("GET /cpf-rates.md", () => {
     expect(text).toContain("`permanentResidentSince`");
     expect(text).toContain("age-dependent SA-to-RA routing");
     expect(text).toContain("netSaSavingsWithdrawnForInvestments field");
+    expect(text).toContain("opening balances of startMonth");
+    expect(text).toContain("initialYearToDateAccruedInterest");
+    expect(text).toContain(
+      "`additionalWages: [{ contributionMonth, amount, additionalWageCeilingContext }]`",
+    );
+    expect(text).toContain("`{ remainingAdditionalWageCeiling }`");
+    expect(text).toContain("propertyPledgeWithdrawal");
+    expect(text).toContain("topUpPotentialTaxRelief");
     expect(text).toContain("`cpfLifeEstimate` is always null");
     expect(text).toContain(
       "Unsupported official policy months or years return 404",

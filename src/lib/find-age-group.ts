@@ -23,9 +23,10 @@ export function findAgeGroup(
   if (!Number.isFinite(age) || age < 0) return first;
 
   for (const ageGroup of groups) {
-    const aboveLowerBound = ageGroup === first || age > ageGroup.minAge;
+    const aboveLowerBound =
+      ageGroup.minAgeExclusive === undefined || age > ageGroup.minAgeExclusive;
     const withinUpperBound =
-      ageGroup.maxAge === undefined || age <= ageGroup.maxAge;
+      ageGroup.maxAgeInclusive === undefined || age <= ageGroup.maxAgeInclusive;
     if (aboveLowerBound && withinUpperBound) return ageGroup;
   }
 

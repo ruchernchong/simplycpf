@@ -4,8 +4,15 @@ import {
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
-import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
+import {
+  convertBirthDateToAge,
+  convertBirthDateToBirthMonth,
+} from "@/lib/convert-birth-date-to-age";
 import { findAgeGroup } from "@/lib/find-age-group";
+import {
+  CPF_POLICY_CATALOGUE,
+  resolveContributionAgeFromBirthMonth,
+} from "@/policy";
 import type {
   AgeGroup,
   CeilingComparisonResult,
@@ -56,7 +63,17 @@ export const selectCitizenshipStatus = (state: CpfState): CitizenshipStatus => {
  * @returns The matching AgeGroup
  */
 export const selectAgeGroup = (state: CpfState): AgeGroup => {
-  const age = selectAge(state);
+  const completedAge = selectAge(state);
+  const birthMonth = convertBirthDateToBirthMonth(selectBirthDate(state));
+  const contributionMonth = CPF_POLICY_CATALOGUE.metadata[
+    "cpf-contribution-rates"
+  ].verifiedAt.slice(0, 7);
+  const resolvedAge = birthMonth
+    ? resolveContributionAgeFromBirthMonth(birthMonth, contributionMonth)
+    : null;
+  const age = resolvedAge
+    ? resolvedAge.completedAge + (resolvedAge.isBirthdayMonth ? 0 : 0.5)
+    : completedAge;
   const citizenshipStatus = selectCitizenshipStatus(state);
 
   if (citizenshipStatus === "spr-year1") {
@@ -109,11 +126,14 @@ export const selectBirthDate = (state: CpfState): string => {
  * @returns Object with income, ageGroup, and other calculation inputs
  */
 export const selectCpfCalculationInputs = (state: CpfState) => {
+  const birthMonth = convertBirthDateToBirthMonth(selectBirthDate(state));
   return {
-    contributionMonth: selectLatestIncomeCeilingDate(state),
+    contributionMonth: CPF_POLICY_CATALOGUE.metadata[
+      "cpf-contribution-rates"
+    ].verifiedAt.slice(0, 7),
     ordinaryWages: selectMonthlyGrossIncome(state),
-    age: selectAge(state),
     citizenship: selectCitizenshipStatus(state),
+    ...(birthMonth ? { birthMonth } : { age: selectAge(state) }),
   };
 };
 
@@ -121,7 +141,7 @@ export const selectCpfCalculationInputs = (state: CpfState) => {
  * Select the latest income ceiling date from state.
  *
  * @param state - The CPF store state
- * @returns The latest income ceiling date string (e.g., "2024-01-01")
+ * @returns The latest income ceiling effective-date string
  */
 export const selectLatestIncomeCeilingDate = (state: CpfState): string => {
   return state.latestIncomeCeilingDate;
@@ -131,7 +151,7 @@ export const selectLatestIncomeCeilingDate = (state: CpfState): string => {
  * Select the income ceiling value for the latest date.
  *
  * @param state - The CPF store state
- * @returns The income ceiling amount (e.g., 6800)
+ * @returns The income ceiling amount for the selected catalogue schedule
  */
 export const selectIncomeCeiling = (state: CpfState): number => {
   return CPF_INCOME_CEILING[state.latestIncomeCeilingDate];
@@ -166,7 +186,7 @@ export const selectFormStep = (state: CpfState): FormStep => {
 
 /**
  * Select the inputs shared by the projection-based screens
- * (At 55, CPF LIFE "your projection", Compare).
+ * (RA-threshold view, CPF LIFE "your projection", Compare).
  *
  * @param state - The CPF store state
  * @returns Monthly income, birth date, and citizenship status
@@ -189,12 +209,17 @@ export const selectProjectionInputs = (state: CpfState) => {
  * @returns The ComputedResult with contribution details and distribution
  */
 export const selectContributionResult = (state: CpfState): ComputedResult => {
-  return calculateCpfContribution({
-    contributionMonth: selectLatestIncomeCeilingDate(state),
+  const birthMonth = convertBirthDateToBirthMonth(selectBirthDate(state));
+  const base = {
+    contributionMonth: CPF_POLICY_CATALOGUE.metadata[
+      "cpf-contribution-rates"
+    ].verifiedAt.slice(0, 7),
     ordinaryWages: selectMonthlyGrossIncome(state),
-    age: selectAge(state),
     citizenship: selectCitizenshipStatus(state),
-  });
+  };
+  return calculateCpfContribution(
+    birthMonth ? { ...base, birthMonth } : { ...base, age: selectAge(state) },
+  );
 };
 
 /**
@@ -236,7 +261,7 @@ export const selectHasCpfContribution = (state: CpfState): boolean => {
  * Select the ceiling comparison result.
  *
  * Compares CPF contributions under the current income ceiling vs the
- * pre-September 2023 ceiling. Shows the impact of ceiling changes on
+ * first published catalogue ceiling. Shows the impact of ceiling changes on
  * take-home pay and total CPF contributions.
  *
  * @param state - The CPF store state
@@ -253,7 +278,12 @@ export const selectCeilingComparison = (
   const preSept2023Result = calculateCpfContribution(
     income,
     currentCeilingDate,
-    { age: selectAge(state), ageGroup, useCeilingBeforeSep2023: true },
+    {
+      age: selectAge(state),
+      ageGroup,
+      citizenship: selectCitizenshipStatus(state),
+      useCeilingBeforeSep2023: true,
+    },
   );
 
   return {

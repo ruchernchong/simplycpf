@@ -1,20 +1,33 @@
 import { Card, Typography } from "@heroui/react";
 import Link from "next/link";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import type { AgeGroup } from "@/types";
 
 interface CpfAgeSpecificBlockProps {
   ageGroup: AgeGroup;
+  exactAge: number;
 }
 
 const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
-const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
+function CpfAgeSpecificBlock({ ageGroup, exactAge }: CpfAgeSpecificBlockProps) {
   const employeeRate = ageGroup.contributionRate.employee;
   const employerRate = ageGroup.contributionRate.employer;
   const totalRate = employeeRate + employerRate;
+  const usesRetirementAccount =
+    exactAge >=
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+  const retirementAccount = usesRetirementAccount ? "RA" : "SA";
+  const retirementRate =
+    (usesRetirementAccount
+      ? ageGroup.distributionRate.RA
+      : ageGroup.distributionRate.SA) ??
+    ageGroup.distributionRate.RA ??
+    ageGroup.distributionRate.SA ??
+    0;
 
   // Extract a representative age from the age group for the projection link
-  const representativeAge = ageGroup.minAge + 5;
+  const representativeAge = (ageGroup.minAgeExclusive ?? 25) + 5;
   const currentYear = new Date().getFullYear();
   const birthYear = currentYear - representativeAge;
   const birthDate = `${birthYear}-01-01`;
@@ -66,7 +79,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
 
           <div>
             <Typography className="mb-3" type="h6">
-              OA/SA/MA Distribution
+              OA/{retirementAccount}/MA Distribution
             </Typography>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-1">
@@ -82,10 +95,10 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               </div>
               <div className="flex flex-col gap-1">
                 <Typography color="muted" type="body-xs">
-                  SA
+                  {retirementAccount}
                 </Typography>
                 <Typography weight="medium">
-                  {fmtPct(ageGroup.distributionRate.SA)}
+                  {fmtPct(retirementRate)}
                 </Typography>
                 <Typography color="muted" type="body-xs">
                   of contributions
@@ -126,6 +139,6 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
       </Card>
     </section>
   );
-};
+}
 
 export default CpfAgeSpecificBlock;

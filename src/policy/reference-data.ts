@@ -1,17 +1,18 @@
-import { CPF_POLICY_VERIFIED_AT, POLICY_SOURCES } from "./sources";
+import { POLICY_METADATA, POLICY_SOURCES } from "./sources";
 
 interface OfficialPolicyFields {
   status: "official";
-  verifiedAt: typeof CPF_POLICY_VERIFIED_AT;
+  verifiedAt: string;
   sourceUrls: readonly string[];
 }
 
 function officialPolicyFields(
+  verifiedAt: string,
   ...sourceUrls: readonly string[]
 ): OfficialPolicyFields {
   return {
     status: "official",
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt,
     sourceUrls,
   };
 }
@@ -44,7 +45,10 @@ export const CPF_BASIC_HEALTHCARE_SUM_ROWS: readonly BasicHealthcareSumRow[] = [
   ...row,
   effectiveFrom: `${row.year}-01-01`,
   effectiveTo: `${row.year}-12-31`,
-  ...officialPolicyFields(POLICY_SOURCES.basicHealthcareSum.url),
+  ...officialPolicyFields(
+    POLICY_METADATA["cpf-basic-healthcare-sum"].verifiedAt,
+    POLICY_SOURCES.basicHealthcareSum.url,
+  ),
 }));
 
 export interface CohortFullRetirementSumRow extends OfficialPolicyFields {
@@ -97,7 +101,10 @@ export const CPF_COHORT_FULL_RETIREMENT_SUM_ROWS: readonly CohortFullRetirementS
       effectiveFrom,
       effectiveTo,
       fullRetirementSum,
-      ...officialPolicyFields(POLICY_SOURCES.historicalFullRetirementSums.url),
+      ...officialPolicyFields(
+        POLICY_METADATA["cpf-retirement-sums"].verifiedAt,
+        POLICY_SOURCES.historicalFullRetirementSums.url,
+      ),
     }),
   );
 
@@ -156,6 +163,7 @@ export const CPF_RETIREMENT_SUM_ROWS: readonly RetirementSumRow[] =
     effectiveFrom: `${row.year}-01-01`,
     effectiveTo: `${row.year}-12-31`,
     ...officialPolicyFields(
+      POLICY_METADATA["cpf-retirement-sums"].verifiedAt,
       row.year <= 2024
         ? POLICY_SOURCES.retirementSums2023To2027.url
         : POLICY_SOURCES.retirementSums.url,
@@ -223,7 +231,10 @@ export const CPF_LIFE_2026_REFERENCE_ROWS: readonly CpfLifeReferenceRow[] = [
   ...row,
   effectiveFrom: CPF_LIFE_REFERENCE_EFFECTIVE_FROM,
   effectiveTo: CPF_LIFE_REFERENCE_EFFECTIVE_TO,
-  ...officialPolicyFields(POLICY_SOURCES.cpfLifeReferencePayouts.url),
+  ...officialPolicyFields(
+    POLICY_METADATA["cpf-life-reference-payouts"].verifiedAt,
+    POLICY_SOURCES.cpfLifeReferencePayouts.url,
+  ),
 }));
 
 export const CPF_LIFE_POLICY = {
@@ -280,6 +291,7 @@ export const CPF_LIFE_POLICY = {
     note: "Reference figures only. Actual payouts depend on individual circumstances and prevailing CPF LIFE parameters.",
   },
   ...officialPolicyFields(
+    POLICY_METADATA["cpf-life-reference-payouts"].verifiedAt,
     POLICY_SOURCES.cpfLife.url,
     POLICY_SOURCES.cpfLifeEligibility.url,
     POLICY_SOURCES.cpfLifeReferencePayouts.url,

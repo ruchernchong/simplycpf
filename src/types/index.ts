@@ -1,4 +1,6 @@
 import type {
+  AdditionalWageCeilingContext,
+  ContributionCitizenship,
   ContributionDistribution,
   PolicyMetadata,
   PolicyStatus,
@@ -18,8 +20,10 @@ export type DistributionRate = Record<string, number>;
 // Interface for defining age groups and associated rates
 export interface AgeGroup {
   description: string;
-  minAge: number;
-  maxAge?: number;
+  /** Lower boundary, excluded from this age band. Omitted for the first band. */
+  minAgeExclusive?: number;
+  /** Upper boundary, included in this age band. Omitted for the final band. */
+  maxAgeInclusive?: number;
   contributionRate: ContributionRate;
   distributionRate: DistributionRate;
 }
@@ -31,6 +35,7 @@ export type CPFIncomeCeiling = Record<string, number>;
 export interface IncomeOptions {
   age?: number;
   ageGroup?: AgeGroup;
+  citizenship?: ContributionCitizenship;
   useCeilingBeforeSep2023?: boolean;
 }
 
@@ -104,13 +109,34 @@ export interface OaToSaTransfer {
 }
 
 /**
- * An irreversible OA transfer to the member's retirement account: SA before
- * age 55 and RA from age 55. `OaToSaTransfer` remains accepted for one
- * compatibility cycle.
+ * An irreversible OA transfer to the member's age-appropriate retirement
+ * account. `OaToSaTransfer` remains accepted for one compatibility cycle.
  */
 export interface RetirementTransfer {
   amount: number;
   timing: "now" | "monthly" | "yearly";
+}
+
+/**
+ * Annual AW-ceiling context for one explicitly scheduled payment.
+ *
+ * Callers may either provide the same annual OW/prior-AW inputs accepted by a
+ * one-month contribution calculation, or provide the remaining AW ceiling
+ * directly when that amount is already known from payroll records.
+ */
+export type ProjectionAdditionalWageCeilingContext =
+  | AdditionalWageCeilingContext
+  | {
+      remainingAdditionalWageCeiling: number;
+      annualOrdinaryWagesSubjectToCpf?: never;
+      priorAdditionalWagesSubjectToCpf?: never;
+    };
+
+/** A one-off Additional Wage payment in an exact contribution month. */
+export interface ProjectionAdditionalWage {
+  contributionMonth: string;
+  amount: number;
+  additionalWageCeilingContext: ProjectionAdditionalWageCeilingContext;
 }
 
 export type RetirementRouting =
@@ -119,16 +145,47 @@ export type RetirementRouting =
 
 export interface ProjectionParams {
   monthlyIncome: number;
+  /**
+   * Explicit one-off AW payments. No bonus amount or payment month is inferred.
+   * At most one entry may be supplied for a contribution month.
+   */
+  additionalWages?: ProjectionAdditionalWage[];
   birthDate: string;
   /** Contribution month in YYYY-MM format. Defaults to the current month. */
   startMonth?: string;
   /** Required by the UI. Omitted legacy requests start from zero with a warning. */
   initialBalances?: AccountBalances;
+  /**
+   * Interest earned from January through the month before `startMonth` but not
+   * yet credited. Supply destination-account totals from CPF records when a
+   * projection starts after January.
+   */
+  initialYearToDateAccruedInterest?: AccountBalances;
+  /** @deprecated Use birthDate; when both are present, birthDate wins. */
   startAge?: number;
   endAge?: number;
+  /** SimplyCPF scenario: amount withdrawn from OA in every projection month. */
   housingWithdrawal?: number;
-  /** Net SA savings withdrawn for CPFIS, counted towards the under-55 FRS limit. */
+  /** Net SA savings withdrawn for CPFIS, counted towards the pre-RA FRS limit. */
   netSaSavingsWithdrawnForInvestments?: number;
+  /**
+   * CPF Board's RA-savings measure for retirement-sum and top-up limits. It
+   * excludes interest and generally government grants, while including counted
+   * retirement withdrawals and CPF LIFE premiums.
+   */
+  initialRaSavingsForLimits?: number;
+  /**
+   * RA principal treated as set aside for routing the post-55 retirement share
+   * of employment contributions. Unlike `initialRaSavingsForLimits`, a
+   * property-backed retirement withdrawal reduces this cash measure.
+   */
+  initialRaSavingsForContributionRouting?: number;
+  /**
+   * Cash top-up tax-relief cap already used in the start calendar year,
+   * including qualifying retirement and MediSave top-ups. This does not
+   * determine MRSS/MMSS or personal-income-tax eligibility.
+   */
+  initialCashTopUpTaxReliefUsedThisYear?: number;
   voluntaryTopUp?: VoluntaryTopUp;
   retirementTransfer?: RetirementTransfer;
   /** @deprecated Use `retirementTransfer`. */
@@ -177,10 +234,23 @@ export interface YearlyBalance {
   contributions: YearlyContribution;
   distribution: YearlyDistribution;
   interestEarned: YearlyInterest;
+  /** Interest accrued but not yet credited at the end of a partial year. */
+  uncreditedInterest?: AccountBalances;
   housingWithdrawal?: number;
   voluntaryTopUp?: number;
   retirementTransfer?: number;
-  topUpTaxReliefEligible?: number;
+  propertyPledgeWithdrawal?: number;
+  /** Requested top-up not applied because an official account limit was reached. */
+  unappliedVoluntaryTopUp?: number;
+  /**
+   * Maximum potential cash top-up relief before MRSS/MMSS, giver/recipient,
+   * residency and overall personal-relief-cap eligibility checks.
+   */
+  topUpPotentialTaxRelief?: number;
+  /** RA savings counted towards retirement-sum and top-up limits. */
+  raSavingsForLimits: number;
+  /** RA principal used to decide whether employment contributions route to RA or OA. */
+  raSavingsForContributionRouting: number;
   bhs: number;
   retirementSums: {
     brs: number;
@@ -188,14 +258,6 @@ export interface YearlyBalance {
     ers: number;
   };
   policy: ProjectionPolicyMetadata;
-}
-
-/** @deprecated SimplyCPF no longer estimates personalised CPF LIFE payouts. */
-export interface CpfLifeEstimate {
-  standardMonthly: number;
-  escalatingStartMonthly: number;
-  basicMonthly: number;
-  deferredTo70Monthly: number;
 }
 
 export interface CpfLifeReferenceRow {
@@ -235,13 +297,21 @@ export interface ProjectionPolicyMetadata {
 
 export interface ProjectionWarning {
   code:
+    | "additional-wages-capped"
     | "initial-balances-defaulted"
+    | "year-to-date-interest-defaulted"
     | "start-month-defaulted"
     | "legacy-projection-input"
     | "legacy-transfer-field"
     | "legacy-top-up-account"
     | "ma-tax-relief-not-estimated"
+    | "medisave-top-up-rejected"
+    | "retirement-top-up-capped"
+    | "tax-relief-year-to-date-defaulted"
+    | "tax-relief-eligibility-context-missing"
     | "retirement-top-up-capacity-context-missing"
+    | "retirement-account-context-defaulted"
+    | "property-withdrawal-context-simplified"
     | "pr-anniversary-not-modelled"
     | "pr-year-resolved-from-date"
     | "future-policy-frozen"
@@ -252,8 +322,13 @@ export interface ProjectionWarning {
 
 export interface ProjectionAssumptions {
   salary: "fixed-monthly-ordinary-wages";
-  interest: "cpf-floor-rates";
+  additionalWages: "explicit-dated-payments-only";
+  interest: "official-quarterly-then-floor-assumption";
   futurePolicy: "freeze-last-published";
+  startingBalances: "opening-of-start-month";
+  initialYearToDateInterest: "provided-or-zero-with-warning";
+  topUpTiming: "after-monthly-employment-contribution";
+  cpfLife: "premiums-and-payouts-not-modelled";
   retirementRouting: RetirementRouting;
 }
 
@@ -261,8 +336,8 @@ export interface ProjectionResult {
   input: ProjectionParams;
   yearlyBalances: YearlyBalance[];
   milestones: {
-    age55: AccountBalances;
-    age65: AccountBalances;
+    age55?: AccountBalances;
+    age65?: AccountBalances;
     age70?: AccountBalances;
   };
   cpfLifeReference: CpfLifeReference;

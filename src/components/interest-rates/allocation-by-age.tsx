@@ -1,6 +1,6 @@
 import { Card, Typography } from "@heroui/react";
 import { SplitBar } from "@/components/shared/split-bar";
-import { resolveContributionSchedule } from "@/policy";
+import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
 function share(rate: number) {
   return (rate * 100).toFixed(1);
@@ -8,7 +8,11 @@ function share(rate: number) {
 
 /** One proportional bar per age band showing the OA / SA / MA split. */
 export function AllocationByAge() {
-  const schedule = resolveContributionSchedule("2026-08").schedule;
+  const schedule = resolveContributionSchedule(
+    CPF_POLICY_CATALOGUE.metadata["cpf-allocation-rates"].verifiedAt,
+  ).schedule;
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
 
   return (
     <Card>
@@ -23,9 +27,9 @@ export function AllocationByAge() {
             const retirement = group.retirementBasisPoints / 10000;
             const MA = group.maBasisPoints / 10000;
             const retirementLabel =
-              (group.minAgeExclusive ?? 0) >= 55
+              (group.minAgeExclusive ?? 0) >= retirementAge
                 ? "RA"
-                : group.maxAgeInclusive === 55
+                : group.maxAgeInclusive === retirementAge
                   ? "SA/RA"
                   : "SA";
 
@@ -67,9 +71,9 @@ export function AllocationByAge() {
       </Card.Content>
       <Card.Footer>
         <Typography color="muted" type="body-sm">
-          The middle share goes to SA below age 55 and RA from age 55 after the
-          SA closure. For the “above 50 to 55” band, the destination therefore
-          depends on the member's exact age.
+          The middle share goes to SA below age {retirementAge} and RA from age{" "}
+          {retirementAge} after the SA closure. A band that crosses this
+          threshold is therefore age-dependent.
         </Typography>
       </Card.Footer>
     </Card>

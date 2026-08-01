@@ -1,5 +1,8 @@
 import { vi } from "vitest";
-import { convertBirthDateToAge } from "../convert-birth-date-to-age";
+import {
+  convertBirthDateToAge,
+  convertBirthDateToBirthMonth,
+} from "../convert-birth-date-to-age";
 
 describe("convertBirthDateToAge", () => {
   beforeEach(() => {
@@ -30,5 +33,10 @@ describe("convertBirthDateToAge", () => {
   it("should calculate age correctly for birth month after current month", () => {
     // Edge case - birth month hasn't occurred yet this year
     expect(convertBirthDateToAge("12/2024")).toBe(0); // December 2024 = 0 years ago
+  });
+
+  it("converts the UI date to the policy birth month", () => {
+    expect(convertBirthDateToBirthMonth("08/1971")).toBe("1971-08");
+    expect(convertBirthDateToBirthMonth("8/1971")).toBeNull();
   });
 });

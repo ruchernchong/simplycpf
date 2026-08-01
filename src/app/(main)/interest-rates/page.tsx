@@ -18,7 +18,7 @@ const latestQuarter =
   latestDeclaration?.quarter ?? "the latest published quarter";
 
 export const metadata: Metadata = {
-  title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
+  title: "CPF Interest Rates for OA, SA, MA & RA",
   description: `See CPF Board's declared quarterly OA, SA, MA and RA rates through ${latestQuarter}, the published floor rates, and the documented rate-setting methodologies.`,
   keywords:
     "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, SGS yield, CPF distribution rates, CPF contribution distribution by age, Singapore CPF rates, SMRA interest rate",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     canonical: "/interest-rates",
   },
   openGraph: {
-    title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
+    title: "CPF Interest Rates for OA, SA, MA & RA",
     description: `See official quarterly CPF interest declarations through ${latestQuarter} and understand the published OA and SMRA methodologies.`,
     url: `${BASE_URL}/interest-rates`,
     images: [
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
+    title: "CPF Interest Rates for OA, SA, MA & RA",
     description: `See official quarterly CPF interest declarations through ${latestQuarter} and understand the published OA and SMRA methodologies.`,
     images: [`${BASE_URL}/opengraph-image`],
   },
@@ -55,10 +55,11 @@ export default function InterestRatesPage() {
         "@id": `${BASE_URL}/interest-rates/#webpage`,
         name: "CPF Interest Rates",
         description:
-          "View CPF Board's quarterly OA and SMRA declarations, floor rates, and published rate-setting methodologies.",
+          "View CPF Board's quarterly OA, SA, MA and RA declarations, current floors, and the published OA and SMRA rate-setting methodologies.",
         url: `${BASE_URL}/interest-rates`,
         inLanguage: "en-SG",
-        dateModified: CPF_POLICY_CATALOGUE.verifiedAt,
+        dateModified:
+          CPF_POLICY_CATALOGUE.metadata["cpf-interest-rates"].verifiedAt,
         isPartOf: { "@id": WEBSITE_ID },
         keywords:
           "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, CPF distribution rates, Singapore CPF rates",
@@ -87,7 +88,8 @@ export default function InterestRatesPage() {
         url: `${BASE_URL}/api/cpf/interest-rates`,
         creator: { "@id": `${BASE_URL}/#organization` },
         isAccessibleForFree: true,
-        dateModified: CPF_POLICY_CATALOGUE.verifiedAt,
+        dateModified:
+          CPF_POLICY_CATALOGUE.metadata["cpf-interest-rates"].verifiedAt,
         distribution: [
           {
             "@type": "DataDownload",
@@ -121,8 +123,8 @@ export default function InterestRatesPage() {
       <StructuredData data={schema} />
       <PageHeader
         eyebrow="Rates"
-        title="Every rate that decides your numbers"
-        lede="Two floor rates, one peg, one bonus tier, and a contribution table that changes with your age. This page is the source of every figure elsewhere in SimplyCPF."
+        title="CPF interest, contribution and allocation rates"
+        lede="Quarterly account declarations, two published rate-setting methodologies, current floors, age-based extra-interest tiers, and separate contribution and allocation tables, all drawn from the policy catalogue."
       />
       <RateTiles />
       <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">

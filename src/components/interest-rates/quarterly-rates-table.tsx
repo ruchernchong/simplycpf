@@ -57,8 +57,8 @@ export function QuarterlyRatesTable() {
           <Typography color="muted" type="body-sm">
             No monthly SGS values are inferred. The published SMRA method uses
             the 12-month average yield of 10-year Singapore Government
-            Securities plus the documented margin. Data verified{" "}
-            {CPF_POLICY_CATALOGUE.verifiedAt}.
+            Securities plus the documented margin. Latest declaration verified{" "}
+            {latestRow?.verifiedAt ?? "with its linked source"}.
           </Typography>
           {latestRow && (
             <Link

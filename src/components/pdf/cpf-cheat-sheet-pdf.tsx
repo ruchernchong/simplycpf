@@ -4,6 +4,7 @@ import {
   type CheatSheetSection,
   getCpfCheatSheetData,
 } from "@/lib/get-cpf-cheat-sheet-data";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 
 /* See cpf-results-pdf.tsx: the PDF renderer cannot read CSS custom properties. */
 const TEAL = BRAND.forest;
@@ -166,11 +167,11 @@ export function CpfCheatSheetPdf() {
   const keyAgeSection: CheatSheetSection = {
     title: "Key ages",
     description:
-      "CPF account and payout ages, plus statutory employment ages effective from July 2026.",
+      "CPF account and payout ages, plus the currently published statutory employment ages.",
     columns: ["Rule", "Age"],
     rows: data.keyAges.map((age) => [age.label, age.value]),
     status: "official",
-    verifiedAt: data.verifiedAt,
+    verifiedAt: CPF_POLICY_CATALOGUE.rules.lifecycleAges.verifiedAt,
     sourceUrls: [...new Set(data.keyAges.map((age) => age.sourceUrl))],
   };
 
@@ -182,7 +183,7 @@ export function CpfCheatSheetPdf() {
           <Text style={styles.title}>{data.title}</Text>
           <Text style={styles.subtitle}>{data.subtitle}</Text>
           <Text style={styles.sourceText}>
-            Effective {data.effectiveFrom} · verified {data.verifiedAt}
+            Effective {data.effectiveFrom} · catalogue v{data.catalogueVersion}
             {"\n"}
             Scope: {data.scope}
           </Text>
@@ -192,8 +193,9 @@ export function CpfCheatSheetPdf() {
           <SectionTable key={section.title} section={section} />
         ))}
         <Text style={styles.footer}>
-          Official datasets verified {data.verifiedAt}. SimplyCPF is an
-          independent reference tool; verify personal decisions with CPF Board.
+          Each policy section shows its own verification date and first-party
+          sources. SimplyCPF is an independent reference tool; verify personal
+          decisions with CPF Board.
         </Text>
       </Page>
     </Document>

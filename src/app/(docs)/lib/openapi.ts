@@ -4,18 +4,8 @@ import spec from "../../../../openapi.json";
 
 export const openapi = createOpenAPI({
   input: async () => ({
-    "./openapi.json": {
-      ...spec,
-      openapi: "3.2.0",
-      servers: [
-        {
-          url: "/api/cpf",
-          description:
-            process.env.NODE_ENV === "production"
-              ? "Production"
-              : "Development",
-        },
-      ],
-    } as Document,
+    // Fumadocs processes this published Swagger/OpenAPI 2.0 contract through
+    // its bundled Scalar upgrader before exposing the typed 3.2 document.
+    "./openapi.json": spec as unknown as Document,
   }),
 });

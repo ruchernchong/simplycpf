@@ -45,9 +45,9 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
       return NextResponse.json({ error: "years is required" }, { status: 400 });
     }
 
-    if (typeof years !== "number" || years < 1) {
+    if (!Number.isInteger(years) || years < 1) {
       return NextResponse.json(
-        { error: "years must be a positive number" },
+        { error: "years must be a positive whole number" },
         { status: 400 },
       );
     }

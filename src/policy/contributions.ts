@@ -96,6 +96,7 @@ export interface ContributionWarning {
     | "additional-wages-capped"
     | "legacy-input"
     | "legacy-rate-override"
+    | "age-month-context-required"
     | "routing-context-required"
     | "policy-frozen";
   message: string;
@@ -636,7 +637,10 @@ function schedule(
         sources.allocation,
         POLICY_SOURCES.allocationTransition,
         ...(effectiveFrom >= "2025-01-01"
-          ? [POLICY_SOURCES.specialAccountClosure]
+          ? [
+              POLICY_SOURCES.specialAccountClosure,
+              POLICY_SOURCES.post55ContributionRouting,
+            ]
           : []),
       ],
     }),
@@ -644,7 +648,12 @@ function schedule(
       version,
       effectiveFrom,
       effectiveTo,
-      sources: [sources.contribution, POLICY_SOURCES.ordinaryWageCeiling],
+      sources: [
+        sources.contribution,
+        POLICY_SOURCES.ordinaryWageCeiling,
+        POLICY_SOURCES.additionalWageCeiling,
+        POLICY_SOURCES.additionalWageCeilingEstimation,
+      ],
     }),
   };
 }

@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "swagger": "2.0",
   "info": {
     "title": "SimplyCPF API",
     "version": "2.0.0",
@@ -9,16 +9,11 @@
       "url": "https://simplycpf.com"
     }
   },
-  "servers": [
-    {
-      "url": "https://simplycpf.com/api/cpf",
-      "description": "Production"
-    },
-    {
-      "url": "http://localhost:3000/api/cpf",
-      "description": "Local development"
-    }
-  ],
+  "host": "simplycpf.com",
+  "basePath": "/api/cpf",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "tags": [
     {
       "name": "Calculation",
@@ -46,53 +41,46 @@
       "post": {
         "operationId": "calculateCpf",
         "summary": "Calculate CPF contributions",
-        "description": "Calculates a contribution month using integer cents and the sourced 2023–2027 schedule. The CPF wage bands, OW/AW ceilings, birthday-month transition, default SPR G/G schedule, official rounding order, account allocation order, and post-55 routing are represented explicitly. `income` and `date` are deprecated aliases retained for one compatibility cycle.",
+        "description": "Calculates a contribution month using integer cents and the applicable sourced schedule in the canonical policy catalogue. The CPF wage bands, OW/AW ceilings, birthday-month transition, default SPR G/G schedule, official rounding order, account allocation order, and post-55 routing are represented explicitly. `income` and `date` are deprecated aliases retained for one compatibility cycle.",
         "tags": ["Calculation"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ContributionInput"
-              },
-              "example": {
-                "contributionMonth": "2026-08",
-                "ordinaryWages": 5000,
-                "citizenship": "citizen",
-                "birthMonth": "1996-04"
-              }
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Canonical v2 request using birthMonth. The separately named ContributionInputByAge, LegacyContributionInput, and LegacyContributionInputByAge definitions document the other request envelopes accepted during the compatibility cycle.",
+            "schema": {
+              "$ref": "#/definitions/ContributionInput"
+            },
+            "x-example": {
+              "contributionMonth": "2026-08",
+              "ordinaryWages": 5000,
+              "citizenship": "citizen",
+              "birthMonth": "1996-04"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Successful source-backed calculation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContributionResult"
-                }
-              }
+            "schema": {
+              "$ref": "#/definitions/ContributionResult"
             }
           },
           "400": {
-            "$ref": "#/components/responses/BadRequest"
+            "$ref": "#/responses/BadRequest"
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
             "description": "Semantically incomplete input, including AW without annual OW and prior-AW context",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/responses/RateLimited"
           }
         }
       }
@@ -103,69 +91,65 @@
         "summary": "Batch calculate CPF contributions",
         "description": "Calculates up to 100 contribution scenarios with the same v2 input and provenance contract as `/calculate`.",
         "tags": ["Calculation"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "scenarios": {
-                    "type": "array",
-                    "minItems": 1,
-                    "maxItems": 100,
-                    "items": {
-                      "$ref": "#/components/schemas/ContributionInput"
-                    }
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scenarios": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 100,
+                  "items": {
+                    "$ref": "#/definitions/ContributionInput"
                   }
-                },
-                "required": ["scenarios"],
-                "additionalProperties": false
+                }
               },
-              "example": {
-                "scenarios": [
-                  {
-                    "contributionMonth": "2026-08",
-                    "ordinaryWages": 4000,
-                    "citizenship": "citizen",
-                    "age": 30
-                  },
-                  {
-                    "contributionMonth": "2027-01",
-                    "ordinaryWages": 8000,
-                    "citizenship": "spr-year2",
-                    "age": 58
-                  }
-                ]
-              }
+              "required": ["scenarios"],
+              "additionalProperties": false
+            },
+            "x-example": {
+              "scenarios": [
+                {
+                  "contributionMonth": "2026-08",
+                  "ordinaryWages": 4000,
+                  "citizenship": "citizen",
+                  "birthMonth": "1996-04"
+                },
+                {
+                  "contributionMonth": "2027-01",
+                  "ordinaryWages": 8000,
+                  "citizenship": "spr-year2",
+                  "birthMonth": "1968-02"
+                }
+              ]
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Results in request order",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ContributionResult"
-                  }
-                }
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ContributionResult"
               }
             }
           },
           "400": {
-            "$ref": "#/components/responses/BadRequest"
+            "$ref": "#/responses/BadRequest"
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/responses/RateLimited"
           }
         }
       }
@@ -174,50 +158,54 @@
       "post": {
         "operationId": "calculateProjection",
         "summary": "Generate a monthly-ledger CPF projection",
-        "description": "Projects OA, SA, MA, and RA month by month. Starting balances are required for new clients. A legacy request that omits them may start at zero only when the response carries an explicit warning. Salary and the last published post-2027 policies are held constant by default and every affected annual row is marked `assumed`. The response provides CPF Board's exact 2026 Standard Plan reference rows; it does not calculate a personalised CPF LIFE payout.",
+        "description": "Projects OA, SA, MA, and RA month by month. Starting balances are required for new clients. A legacy request that omits them may start at zero only when the response carries an explicit warning. Ordinary Wages are fixed monthly; Additional Wages are included only as explicitly dated payments with complete annual ceiling context. Policy after the catalogue's final published schedule is held constant by default and every affected annual row is marked `assumed`. The response provides CPF Board's exact published Standard Plan reference rows; it does not calculate a personalised CPF LIFE payout.",
         "tags": ["Calculation"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProjectionInput"
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Canonical v2 request with explicit opening month and balances. ProjectionCompatibilityInput, ProjectionStartAgeCompatibilityInput, and LegacyProjectionInput separately document deprecated request envelopes accepted by the runtime.",
+            "schema": {
+              "$ref": "#/definitions/ProjectionInput"
+            },
+            "x-example": {
+              "monthlyIncome": 6000,
+              "birthDate": "04/1990",
+              "startMonth": "2026-08",
+              "initialBalances": {
+                "oa": 90000,
+                "sa": 70000,
+                "ma": 50000,
+                "ra": 0
               },
-              "example": {
-                "monthlyIncome": 6000,
-                "birthDate": "04/1990",
-                "startMonth": "2026-08",
-                "initialBalances": {
-                  "oa": 90000,
-                  "sa": 70000,
-                  "ma": 50000,
-                  "ra": 0
-                },
-                "endAge": 65,
-                "citizenship": "citizen"
-              }
+              "initialYearToDateAccruedInterest": {
+                "oa": 0,
+                "sa": 0,
+                "ma": 0,
+                "ra": 0
+              },
+              "initialCashTopUpTaxReliefUsedThisYear": 0,
+              "endAge": 65,
+              "citizenship": "citizen"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Projection with annual snapshots, assumptions, warnings, and row-level policy status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectionResult"
-                }
-              }
+            "schema": {
+              "$ref": "#/definitions/ProjectionResult"
             }
           },
           "400": {
-            "$ref": "#/components/responses/BadRequest"
+            "$ref": "#/responses/BadRequest"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/responses/RateLimited"
           }
         }
       }
@@ -234,71 +222,67 @@
             "in": "query",
             "required": false,
             "description": "Official policy month in YYYY-MM format. Defaults to the current supported month.",
-            "schema": {
-              "type": "string",
-              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
           },
           {
             "name": "citizenship",
             "in": "query",
             "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/Citizenship"
-            }
+            "type": "string",
+            "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
+            "description": "SPR Year 1 and Year 2 use CPF Board's default Graduated/Graduated schedule. Approved alternative SPR arrangements are outside scope."
           }
         ],
         "responses": {
           "200": {
             "description": "Official age bands and policy provenance",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "contributionMonth": {
+                  "type": "string"
+                },
+                "citizenship": {
+                  "$ref": "#/definitions/Citizenship"
+                },
+                "schedule": {
+                  "$ref": "#/definitions/ScheduleSummary"
+                },
+                "ageGroups": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/AgeGroup"
+                  }
+                },
+                "policy": {
+                  "$ref": "#/definitions/AgePolicyMetadata"
+                }
+              },
+              "required": [
+                "contributionMonth",
+                "citizenship",
+                "schedule",
+                "ageGroups",
+                "policy"
+              ]
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "contributionMonth": {
-                      "type": "string"
-                    },
-                    "citizenship": {
-                      "$ref": "#/components/schemas/Citizenship"
-                    },
-                    "schedule": {
-                      "$ref": "#/components/schemas/ScheduleSummary"
-                    },
-                    "ageGroups": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/AgeGroup"
-                      }
-                    },
-                    "policy": {
-                      "$ref": "#/components/schemas/AgePolicyMetadata"
-                    }
-                  },
-                  "required": [
-                    "contributionMonth",
-                    "citizenship",
-                    "schedule",
-                    "ageGroups",
-                    "policy"
-                  ]
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/responses/RateLimited"
           }
         }
       }
@@ -315,61 +299,53 @@
             "in": "query",
             "required": false,
             "description": "Completed age. Supply this or `birthMonth`.",
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 150
-            }
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 150
           },
           {
             "name": "birthMonth",
             "in": "query",
             "required": false,
             "description": "Birth month in YYYY-MM format; preferred for exact birthday-month treatment.",
-            "schema": {
-              "type": "string",
-              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
           },
           {
             "name": "citizenship",
             "in": "query",
             "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/Citizenship"
-            }
+            "type": "string",
+            "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
+            "description": "SPR Year 1 and Year 2 use CPF Board's default Graduated/Graduated schedule. Approved alternative SPR arrangements are outside scope."
           },
           {
             "name": "contributionMonth",
             "in": "query",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
           }
         ],
         "responses": {
           "200": {
             "description": "Matching band",
+            "schema": {
+              "$ref": "#/definitions/AgeGroupLookupResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgeGroupLookupResponse"
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           }
         }
       }
@@ -386,54 +362,49 @@
             "in": "query",
             "required": false,
             "description": "Birth month in YYYY-MM format. Supply this or the deprecated birthDate alias.",
-            "schema": {
-              "type": "string",
-              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
           },
           {
             "name": "contributionMonth",
             "in": "query",
             "required": false,
             "description": "Required with birthMonth. May be omitted only on the deprecated birthDate compatibility path.",
-            "schema": {
-              "type": "string",
-              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
           },
           {
             "name": "birthDate",
             "in": "query",
             "required": false,
-            "deprecated": true,
             "description": "Deprecated MM/YYYY alias for birthMonth.",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])/\\d{4}$"
-            }
+            "x-deprecated": true,
+            "type": "string",
+            "pattern": "^(0[1-9]|1[0-2])/\\d{4}$"
           }
         ],
         "responses": {
           "200": {
             "description": "Resolved age context",
+            "schema": {
+              "$ref": "#/definitions/AgeConversionResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/AgeConversionCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgeConversionResponse"
-                }
+                "description": "An explicit modern contribution month uses the 24-hour policy cache. A deprecated birthDate request that defaults the month returns `private, no-store`.",
+                "type": "string",
+                "x-example-values": [
+                  "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+                  "private, no-store"
+                ]
               }
             }
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           }
         }
       }
@@ -449,43 +420,37 @@
             "name": "contributionMonth",
             "in": "query",
             "required": false,
-            "schema": {
-              "type": "string",
-              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-            }
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
           },
           {
             "name": "date",
             "in": "query",
             "required": false,
-            "deprecated": true,
             "description": "Deprecated alias for `contributionMonth`.",
-            "schema": {
-              "type": "string"
-            }
+            "x-deprecated": true,
+            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "Official OW and annual AW ceilings",
+            "schema": {
+              "$ref": "#/definitions/WageCeilingResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WageCeilingResponse"
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           }
         }
       }
@@ -499,28 +464,26 @@
         "responses": {
           "200": {
             "description": "Official ceiling schedule",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timeline": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/WageCeilingTimelineItem"
+                  }
+                },
+                "policy": {
+                  "$ref": "#/definitions/PolicyMetadata"
+                }
+              },
+              "required": ["timeline", "policy"]
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "timeline": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/WageCeilingTimelineItem"
-                      }
-                    },
-                    "policy": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    }
-                  },
-                  "required": ["timeline", "policy"]
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           }
@@ -531,48 +494,35 @@
       "get": {
         "operationId": "getBasicHealthcareSum",
         "summary": "Get a published Basic Healthcare Sum",
-        "description": "Returns a published BHS cohort/year through 2026. A public reference request for an unpublished year returns 404; only a projection may freeze the last published amount and mark it assumed.",
+        "description": "Returns a published BHS cohort/year from the canonical policy catalogue. A public reference request for an unpublished year returns 404; only a projection may freeze the last published amount and mark it assumed.",
         "tags": ["Policy"],
         "parameters": [
           {
             "name": "year",
             "in": "query",
             "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 2016,
-              "maximum": 2026
-            }
+            "type": "integer"
           }
         ],
         "responses": {
           "200": {
-            "description": "Published BHS amount and provenance",
+            "description": "Published BHS collection when year is omitted. A year-specific request returns the separately documented BhsResponse shape.",
+            "schema": {
+              "$ref": "#/definitions/BhsCollectionResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/BhsResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/BhsCollectionResponse"
-                    }
-                  ]
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           }
         }
       }
@@ -581,48 +531,35 @@
       "get": {
         "operationId": "getRetirementSums",
         "summary": "Get published retirement sums",
-        "description": "Returns CPF Board's published BRS, FRS, and ERS for a supported cohort year through 2027. It does not extrapolate.",
+        "description": "Returns CPF Board's published BRS, FRS, and ERS for a supported cohort year in the canonical policy catalogue. It does not extrapolate.",
         "tags": ["Policy"],
         "parameters": [
           {
             "name": "year",
             "in": "query",
             "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 2023,
-              "maximum": 2027
-            }
+            "type": "integer"
           }
         ],
         "responses": {
           "200": {
-            "description": "Published retirement sums and provenance",
+            "description": "Published retirement-sum collection when year is omitted. A year-specific request returns the separately documented RetirementSumsResponse shape.",
+            "schema": {
+              "$ref": "#/definitions/RetirementSumsCollectionResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/RetirementSumsResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/RetirementSumsCollectionResponse"
-                    }
-                  ]
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
           "404": {
-            "$ref": "#/components/responses/UnsupportedPolicy"
+            "$ref": "#/responses/UnsupportedPolicy"
           },
           "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
+            "$ref": "#/responses/UnprocessableEntity"
           }
         }
       }
@@ -631,26 +568,24 @@
       "get": {
         "operationId": "getInterestRates",
         "summary": "List official quarterly CPF interest declarations",
-        "description": "Returns declared quarterly account rates from 2023 Q1 through 2026 Q3 and the documented OA and SMRA methodologies. It intentionally contains no reconstructed monthly SGS series.",
+        "description": "Returns every declared quarterly account rate currently in the canonical policy catalogue and the documented OA and SMRA methodologies. It intentionally contains no reconstructed monthly SGS series.",
         "tags": ["Interest Rates"],
         "responses": {
           "200": {
             "description": "Official quarterly observations and methodology",
+            "schema": {
+              "$ref": "#/definitions/InterestRatesResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InterestRatesResponse"
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
           "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/responses/RateLimited"
           }
         }
       }
@@ -659,7 +594,7 @@
       "get": {
         "operationId": "calculateSmra",
         "summary": "Apply the published SMRA peg",
-        "description": "Applies the documented 12-month-average 10-year SGS yield plus one percentage point, subject to the current 4% floor. `sgsYield` is a deprecated alias for `averageSgsYield`.",
+        "description": "Applies CPF Board's documented 12-month-average 10-year SGS peg, markup, and floor. `sgsYield` is a deprecated alias for `averageSgsYield`.",
         "tags": ["Interest Rates"],
         "parameters": [
           {
@@ -667,72 +602,89 @@
             "in": "query",
             "required": false,
             "description": "The 12-month average 10-year SGS yield, as a percentage.",
-            "schema": {
-              "type": "number",
-              "minimum": 0
-            }
+            "type": "number",
+            "minimum": 0
           },
           {
             "name": "sgsYield",
             "in": "query",
             "required": false,
-            "deprecated": true,
             "description": "Deprecated alias for `averageSgsYield`.",
-            "schema": {
-              "type": "number",
-              "minimum": 0
-            }
+            "x-deprecated": true,
+            "type": "number",
+            "minimum": 0
           }
         ],
         "responses": {
           "200": {
             "description": "Peg calculation",
-            "headers": {
-              "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "averageSgsYield": {
+                  "type": "number"
+                },
+                "peggedRate": {
+                  "type": "number"
+                },
+                "floorApplied": {
+                  "type": "boolean"
+                },
+                "actualRate": {
+                  "type": "number"
+                },
+                "methodology": {
+                  "type": "string"
+                },
+                "policy": {
                   "type": "object",
+                  "description": "Provenance for the catalogue-derived SMRA methodology.",
                   "properties": {
-                    "averageSgsYield": {
-                      "type": "number"
+                    "status": {
+                      "type": "string",
+                      "enum": ["official"]
                     },
-                    "peggedRate": {
-                      "type": "number"
+                    "verifiedAt": {
+                      "type": "string",
+                      "format": "date"
                     },
-                    "floorApplied": {
-                      "type": "boolean"
-                    },
-                    "actualRate": {
-                      "type": "number"
-                    },
-                    "methodology": {
-                      "type": "string"
-                    },
-                    "warnings": {
+                    "sourceUrls": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                       }
                     }
                   },
-                  "required": [
-                    "averageSgsYield",
-                    "peggedRate",
-                    "floorApplied",
-                    "actualRate",
-                    "methodology",
-                    "warnings"
-                  ]
+                  "required": ["status", "verifiedAt", "sourceUrls"]
+                },
+                "warnings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
+              },
+              "required": [
+                "averageSgsYield",
+                "peggedRate",
+                "floorApplied",
+                "actualRate",
+                "methodology",
+                "policy",
+                "warnings"
+              ]
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           }
         }
       }
@@ -746,16 +698,14 @@
         "responses": {
           "200": {
             "description": "Official quarterly observations, methodology, and provenance",
+            "schema": {
+              "$ref": "#/definitions/InterestTrendResponse"
+            },
             "headers": {
               "Cache-Control": {
-                "$ref": "#/components/headers/PolicyCache"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InterestTrendResponse"
-                }
+                "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+                "type": "string",
+                "x-example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
               }
             }
           }
@@ -768,1755 +718,2136 @@
         "summary": "Compare caller-supplied investment assumptions",
         "description": "A SimplyCPF modelling tool. CPF floor-rate presets are official policy inputs; non-CPF returns are editable caller assumptions and are not CPF Board facts or forecasts.",
         "tags": ["Investment"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "principal": {
-                    "type": "number",
-                    "minimum": 0
-                  },
-                  "years": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 100
-                  },
-                  "scenarios": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "rate": {
-                          "type": "number",
-                          "description": "Caller assumption unless explicitly identified as an official CPF floor preset."
-                        }
-                      },
-                      "required": ["name", "rate"]
-                    }
-                  }
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "principal": {
+                  "type": "number",
+                  "minimum": 0
                 },
-                "required": ["principal", "years", "scenarios"]
-              }
+                "years": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 50
+                },
+                "scenarios": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "rate": {
+                        "type": "number",
+                        "description": "Caller assumption unless explicitly identified as an official CPF floor preset."
+                      }
+                    },
+                    "required": ["name", "rate"]
+                  }
+                }
+              },
+              "required": ["principal", "years", "scenarios"]
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Assumption-labelled comparison results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "input": {
-                      "type": "object"
-                    },
-                    "results": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "rate": {
-                            "type": "number",
-                            "description": "Caller-supplied assumption unless explicitly named as an official CPF floor preset."
-                          },
-                          "finalValue": {
-                            "type": "number"
-                          },
-                          "totalGrowth": {
-                            "type": "number"
-                          },
-                          "growthPercentage": {
-                            "type": "number"
-                          }
-                        },
-                        "required": [
-                          "name",
-                          "rate",
-                          "finalValue",
-                          "totalGrowth",
-                          "growthPercentage"
-                        ]
+            "schema": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "object"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "rate": {
+                        "type": "number",
+                        "description": "Caller-supplied assumption unless explicitly named as an official CPF floor preset."
+                      },
+                      "finalValue": {
+                        "type": "number"
+                      },
+                      "totalGrowth": {
+                        "type": "number"
+                      },
+                      "growthPercentage": {
+                        "type": "number"
                       }
-                    }
-                  },
-                  "required": ["input", "results"]
+                    },
+                    "required": [
+                      "name",
+                      "rate",
+                      "finalValue",
+                      "totalGrowth",
+                      "growthPercentage"
+                    ]
+                  }
                 }
-              }
+              },
+              "required": ["input", "results"]
             }
           },
           "400": {
-            "$ref": "#/components/responses/BadRequest"
+            "$ref": "#/responses/BadRequest"
           }
         }
       }
     }
   },
-  "components": {
-    "headers": {
-      "PolicyCache": {
-        "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
-        "schema": {
-          "type": "string",
-          "example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
+  "responses": {
+    "BadRequest": {
+      "description": "Malformed request",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "Well-formed request that lacks required policy context or violates a semantic constraint",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnsupportedPolicy": {
+      "description": "No official policy is published for the requested month or year; the public reference API does not fabricate a value",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "RateLimited": {
+      "description": "Rate limit exceeded",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "details": {
+          "x-nullable": true,
+          "type": "object"
         }
       },
-      "AgeConversionCache": {
-        "description": "An explicit modern contribution month uses the 24-hour policy cache. A deprecated birthDate request that defaults the month returns `private, no-store`.",
-        "schema": {
+      "required": ["error"]
+    },
+    "Citizenship": {
+      "type": "string",
+      "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
+      "description": "SPR Year 1 and Year 2 use CPF Board's default Graduated/Graduated schedule. Approved alternative SPR arrangements are outside scope."
+    },
+    "AdditionalWageCeilingContext": {
+      "type": "object",
+      "properties": {
+        "annualOrdinaryWagesSubjectToCpf": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Ordinary Wages subject to CPF across the calendar year."
+        },
+        "priorAdditionalWagesSubjectToCpf": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Additional Wages already made subject to CPF earlier in the calendar year."
+        }
+      },
+      "required": [
+        "annualOrdinaryWagesSubjectToCpf",
+        "priorAdditionalWagesSubjectToCpf"
+      ],
+      "additionalProperties": false
+    },
+    "ContributionInput": {
+      "type": "object",
+      "description": "Canonical v2 contribution request. birthMonth is preferred because it resolves the official month-after-birthday transition exactly.",
+      "properties": {
+        "contributionMonth": {
           "type": "string",
-          "examples": [
-            "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
-            "private, no-store"
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "description": "Contribution month used to resolve the effective CPF schedule."
+        },
+        "ordinaryWages": {
+          "type": "number",
+          "minimum": 0
+        },
+        "additionalWages": {
+          "type": "number",
+          "minimum": 0
+        },
+        "additionalWageCeilingContext": {
+          "$ref": "#/definitions/AdditionalWageCeilingContext"
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "birthMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "description": "Birth month; preferred for the official month-after-birthday transition."
+        },
+        "hasReachedFullRetirementSum": {
+          "type": "boolean",
+          "description": "Optional account context for choosing the 55+ RA-until-FRS or OA-after-FRS branch. Both branches are returned when omitted."
+        }
+      },
+      "required": [
+        "contributionMonth",
+        "ordinaryWages",
+        "citizenship",
+        "birthMonth"
+      ],
+      "additionalProperties": false
+    },
+    "ContributionInputByAge": {
+      "type": "object",
+      "description": "Canonical v2 alternative for callers that only know completed age. It cannot resolve a birthday-month transition as precisely as ContributionInput.",
+      "properties": {
+        "contributionMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+        },
+        "ordinaryWages": {
+          "type": "number",
+          "minimum": 0
+        },
+        "additionalWages": {
+          "type": "number",
+          "minimum": 0
+        },
+        "additionalWageCeilingContext": {
+          "$ref": "#/definitions/AdditionalWageCeilingContext"
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "age": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 150,
+          "description": "Completed age for the contribution month."
+        },
+        "hasReachedFullRetirementSum": {
+          "type": "boolean"
+        }
+      },
+      "required": ["contributionMonth", "ordinaryWages", "citizenship", "age"],
+      "additionalProperties": false
+    },
+    "LegacyContributionInput": {
+      "type": "object",
+      "description": "Deprecated compatibility envelope using date and income aliases with an exact birth month. Migrate to ContributionInput.",
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "x-deprecated": true
+        },
+        "income": {
+          "type": "number",
+          "minimum": 0,
+          "x-deprecated": true
+        },
+        "additionalWages": {
+          "type": "number",
+          "minimum": 0
+        },
+        "additionalWageCeilingContext": {
+          "$ref": "#/definitions/AdditionalWageCeilingContext"
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "birthMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+        },
+        "hasReachedFullRetirementSum": {
+          "type": "boolean"
+        }
+      },
+      "required": ["date", "income", "citizenship", "birthMonth"],
+      "additionalProperties": false
+    },
+    "LegacyContributionInputByAge": {
+      "type": "object",
+      "description": "Deprecated compatibility envelope using date, income, and completed age. Migrate to ContributionInput or ContributionInputByAge.",
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "x-deprecated": true
+        },
+        "income": {
+          "type": "number",
+          "minimum": 0,
+          "x-deprecated": true
+        },
+        "additionalWages": {
+          "type": "number",
+          "minimum": 0
+        },
+        "additionalWageCeilingContext": {
+          "$ref": "#/definitions/AdditionalWageCeilingContext"
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "age": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 150
+        },
+        "hasReachedFullRetirementSum": {
+          "type": "boolean"
+        }
+      },
+      "required": ["date", "income", "citizenship", "age"],
+      "additionalProperties": false
+    },
+    "MoneyDistribution": {
+      "type": "object",
+      "properties": {
+        "OA": {
+          "type": "number"
+        },
+        "SA": {
+          "type": "number",
+          "description": "Omitted after the 2025 SA closure for members aged 55 and above."
+        },
+        "RA": {
+          "type": "number",
+          "description": "Returned explicitly from age 55 after the SA closure."
+        },
+        "MA": {
+          "type": "number"
+        }
+      },
+      "required": ["OA", "MA"]
+    },
+    "PolicySource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "agency": {
+          "type": "string",
+          "enum": ["CPF Board", "IRAS", "MOM"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["id", "agency", "title", "url"]
+    },
+    "PolicyMetadata": {
+      "type": "object",
+      "description": "Per-dataset provenance. A frozen future projection uses `assumed`, identifies the official base year/version, and explains the freeze in notes.",
+      "properties": {
+        "dataset": {
+          "type": "string",
+          "enum": [
+            "cpf-contribution-rates",
+            "cpf-allocation-rates",
+            "cpf-wage-ceilings",
+            "cpf-basic-healthcare-sum",
+            "cpf-retirement-sums",
+            "cpf-interest-rates",
+            "cpf-extra-interest",
+            "cpf-special-account-closure",
+            "cpf-retirement-withdrawals",
+            "cpf-life-reference-payouts",
+            "cpf-retirement-top-ups",
+            "cpf-housing-refunds",
+            "iras-cpf-cash-top-up-relief",
+            "mom-retirement-re-employment-ages"
           ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["official", "assumed"]
+        },
+        "effectiveFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "effectiveTo": {
+          "type": "string",
+          "format": "date"
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PolicySource"
+          }
+        },
+        "scope": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
-      }
+      },
+      "required": [
+        "dataset",
+        "label",
+        "version",
+        "status",
+        "effectiveFrom",
+        "verifiedAt",
+        "sources"
+      ]
     },
-    "responses": {
-      "BadRequest": {
-        "description": "Malformed request",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
+    "ContributionAllocationBranch": {
+      "type": "object",
+      "description": "Exact account allocation for one official post-55 FRS-routing branch.",
+      "properties": {
+        "OA": {
+          "type": "number"
+        },
+        "RA": {
+          "type": "number"
+        },
+        "MA": {
+          "type": "number"
         }
       },
-      "UnprocessableEntity": {
-        "description": "Well-formed request that lacks required policy context or violates a semantic constraint",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      },
-      "UnsupportedPolicy": {
-        "description": "No official policy is published for the requested month or year; the public reference API does not fabricate a value",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      },
-      "RateLimited": {
-        "description": "Rate limit exceeded",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      }
+      "required": ["OA", "RA", "MA"],
+      "additionalProperties": false
     },
-    "schemas": {
-      "Error": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "details": {
-            "type": ["object", "null"]
-          }
+    "ContributionRoutingBranches": {
+      "type": "object",
+      "properties": {
+        "beforeFullRetirementSum": {
+          "$ref": "#/definitions/ContributionAllocationBranch"
         },
-        "required": ["error"]
+        "afterFullRetirementSum": {
+          "$ref": "#/definitions/ContributionAllocationBranch"
+        }
       },
-      "Citizenship": {
-        "type": "string",
-        "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
-        "description": "SPR Year 1 and Year 2 use CPF Board's default Graduated/Graduated schedule. Approved alternative SPR arrangements are outside scope."
-      },
-      "AdditionalWageCeilingContext": {
-        "type": "object",
-        "properties": {
-          "annualOrdinaryWagesSubjectToCpf": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Ordinary Wages subject to CPF across the calendar year."
-          },
-          "priorAdditionalWagesSubjectToCpf": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Additional Wages already made subject to CPF earlier in the calendar year."
-          }
+      "required": ["beforeFullRetirementSum", "afterFullRetirementSum"],
+      "additionalProperties": false
+    },
+    "ContributionRouting": {
+      "type": "object",
+      "description": "For members 55+, exposes both official allocation branches unless FRS context selects one.",
+      "properties": {
+        "selected": {
+          "type": "string",
+          "enum": ["RA", "OA", "undetermined"]
         },
-        "required": [
-          "annualOrdinaryWagesSubjectToCpf",
-          "priorAdditionalWagesSubjectToCpf"
-        ],
-        "additionalProperties": false
-      },
-      "ContributionInput": {
-        "type": "object",
-        "properties": {
-          "contributionMonth": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
-            "description": "Contribution month used to resolve the effective CPF schedule."
-          },
-          "ordinaryWages": {
-            "type": "number",
-            "minimum": 0
-          },
-          "additionalWages": {
-            "type": "number",
-            "minimum": 0
-          },
-          "additionalWageCeilingContext": {
-            "$ref": "#/components/schemas/AdditionalWageCeilingContext"
-          },
-          "citizenship": {
-            "$ref": "#/components/schemas/Citizenship"
-          },
-          "age": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 150,
-            "description": "Completed age. Mutually exclusive with `birthMonth`."
-          },
-          "birthMonth": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
-            "description": "Birth month; preferred for the official month-after-birthday transition."
-          },
-          "hasReachedFullRetirementSum": {
-            "type": "boolean",
-            "description": "Optional account context for choosing the 55+ RA-until-FRS or OA-after-FRS branch. Both branches are returned when omitted."
-          },
-          "income": {
-            "type": "number",
-            "minimum": 0,
-            "deprecated": true,
-            "description": "Deprecated alias for `ordinaryWages`."
-          },
-          "date": {
-            "type": "string",
-            "deprecated": true,
-            "description": "Deprecated alias for `contributionMonth`."
-          }
+        "rule": {
+          "type": "string",
+          "enum": ["RA until FRS, then OA"]
         },
-        "required": ["citizenship"],
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "required": ["contributionMonth"]
-              },
-              {
-                "required": ["date"]
-              }
-            ]
-          },
-          {
-            "anyOf": [
-              {
-                "required": ["ordinaryWages"]
-              },
-              {
-                "required": ["income"]
-              }
-            ]
-          },
-          {
-            "oneOf": [
-              {
-                "required": ["age"]
-              },
-              {
-                "required": ["birthMonth"]
-              }
-            ]
-          }
-        ],
-        "additionalProperties": false
+        "branches": {
+          "$ref": "#/definitions/ContributionRoutingBranches"
+        }
       },
-      "MoneyDistribution": {
-        "type": "object",
-        "properties": {
-          "OA": {
-            "type": "number"
-          },
-          "SA": {
-            "type": "number",
-            "description": "Omitted after the 2025 SA closure for members aged 55 and above."
-          },
-          "RA": {
-            "type": "number",
-            "description": "Returned explicitly from age 55 after the SA closure."
-          },
-          "MA": {
-            "type": "number"
-          }
-        },
-        "required": ["OA", "MA"]
-      },
-      "PolicySource": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "agency": {
-            "type": "string",
-            "enum": ["CPF Board", "IRAS", "MOM"]
-          },
-          "title": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string",
-            "format": "uri"
-          }
-        },
-        "required": ["id", "agency", "title", "url"]
-      },
-      "PolicyMetadata": {
-        "type": "object",
-        "description": "Per-dataset provenance. A frozen future projection uses `assumed`, identifies the official base year/version, and explains the freeze in notes.",
-        "properties": {
-          "dataset": {
-            "type": "string",
-            "enum": [
-              "cpf-contribution-rates",
-              "cpf-allocation-rates",
-              "cpf-wage-ceilings",
-              "cpf-basic-healthcare-sum",
-              "cpf-retirement-sums",
-              "cpf-interest-rates",
-              "cpf-extra-interest",
-              "cpf-special-account-closure",
-              "cpf-life-reference-payouts",
-              "cpf-retirement-top-ups",
-              "cpf-housing-refunds",
-              "iras-cpf-cash-top-up-relief",
-              "mom-retirement-re-employment-ages"
-            ]
-          },
-          "label": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["official", "assumed"]
-          },
-          "effectiveFrom": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveTo": {
-            "type": "string",
-            "format": "date"
-          },
-          "verifiedAt": {
-            "type": "string",
-            "format": "date"
-          },
-          "sources": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PolicySource"
+      "required": ["selected", "rule", "branches"],
+      "additionalProperties": false
+    },
+    "ContributionResult": {
+      "type": "object",
+      "properties": {
+        "contribution": {
+          "type": "object",
+          "properties": {
+            "employee": {
+              "type": "number"
+            },
+            "employer": {
+              "type": "number"
+            },
+            "totalContribution": {
+              "type": "number"
             }
           },
-          "scope": {
-            "type": "string"
+          "required": ["employee", "employer", "totalContribution"]
+        },
+        "distribution": {
+          "$ref": "#/definitions/MoneyDistribution"
+        },
+        "afterCpfContribution": {
+          "type": "number"
+        },
+        "wageBand": {
+          "type": "string",
+          "enum": [
+            "no-contribution",
+            "employer-only",
+            "phased-employee-share",
+            "full-rates"
+          ]
+        },
+        "subjectWages": {
+          "type": "object",
+          "properties": {
+            "ordinaryWages": {
+              "type": "number"
+            },
+            "additionalWages": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            }
           },
-          "notes": {
-            "type": "array",
-            "items": {
+          "required": ["ordinaryWages", "additionalWages", "total"]
+        },
+        "age": {
+          "type": "object",
+          "properties": {
+            "completedAge": {
+              "type": "integer"
+            },
+            "contributionBand": {
               "type": "string"
+            },
+            "allocationBand": {
+              "type": "string"
+            },
+            "transitionAppliedFromBirthMonth": {
+              "type": "boolean"
             }
+          },
+          "required": [
+            "completedAge",
+            "contributionBand",
+            "allocationBand",
+            "transitionAppliedFromBirthMonth"
+          ]
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "effectiveFrom": {
+              "type": "string"
+            },
+            "effectiveTo": {
+              "type": "string"
+            },
+            "citizenship": {
+              "$ref": "#/definitions/Citizenship"
+            },
+            "employeeRate": {
+              "type": "number"
+            },
+            "employerRate": {
+              "type": "number"
+            },
+            "ordinaryWageCeiling": {
+              "type": "number"
+            },
+            "additionalWageCeiling": {
+              "type": "number"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["official", "assumed"]
+            }
+          },
+          "required": [
+            "id",
+            "effectiveFrom",
+            "effectiveTo",
+            "citizenship",
+            "employeeRate",
+            "employerRate",
+            "ordinaryWageCeiling",
+            "additionalWageCeiling",
+            "status"
+          ]
+        },
+        "routing": {
+          "$ref": "#/definitions/ContributionRouting"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
           }
         },
-        "required": [
-          "dataset",
-          "label",
-          "version",
-          "status",
-          "effectiveFrom",
-          "verifiedAt",
-          "sources"
-        ]
+        "policy": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/PolicyMetadata"
+          }
+        }
       },
-      "ContributionResult": {
-        "type": "object",
-        "properties": {
-          "contribution": {
-            "type": "object",
-            "properties": {
-              "employee": {
-                "type": "number"
-              },
-              "employer": {
-                "type": "number"
-              },
-              "totalContribution": {
-                "type": "number"
-              }
+      "required": [
+        "contribution",
+        "distribution",
+        "afterCpfContribution",
+        "wageBand",
+        "subjectWages",
+        "age",
+        "schedule",
+        "warnings",
+        "policy"
+      ]
+    },
+    "AccountBalances": {
+      "type": "object",
+      "properties": {
+        "oa": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sa": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ma": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ra": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": ["oa", "sa", "ma", "ra"],
+      "additionalProperties": false
+    },
+    "ProjectionAdditionalWageCeilingContext": {
+      "type": "object",
+      "description": "Canonical annual OW and prior-AW context used to resolve the AW ceiling.",
+      "properties": {
+        "annualOrdinaryWagesSubjectToCpf": {
+          "type": "number",
+          "minimum": 0
+        },
+        "priorAdditionalWagesSubjectToCpf": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "annualOrdinaryWagesSubjectToCpf",
+        "priorAdditionalWagesSubjectToCpf"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectionRemainingAdditionalWageCeilingContext": {
+      "type": "object",
+      "description": "Compatibility alternative when payroll records already provide the remaining AW ceiling immediately before the payment.",
+      "properties": {
+        "remainingAdditionalWageCeiling": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": ["remainingAdditionalWageCeiling"],
+      "additionalProperties": false
+    },
+    "ProjectionAdditionalWage": {
+      "type": "object",
+      "properties": {
+        "contributionMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "description": "Exact month in which this AW payment is due. It must fall within the projection range."
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "additionalWageCeilingContext": {
+          "$ref": "#/definitions/ProjectionAdditionalWageCeilingContext"
+        }
+      },
+      "required": [
+        "contributionMonth",
+        "amount",
+        "additionalWageCeilingContext"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectionAdditionalWageWithRemainingCeiling": {
+      "type": "object",
+      "description": "Compatibility AW payment using a payroll-supplied remaining ceiling. Prefer ProjectionAdditionalWage with complete annual context.",
+      "properties": {
+        "contributionMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "additionalWageCeilingContext": {
+          "$ref": "#/definitions/ProjectionRemainingAdditionalWageCeilingContext"
+        }
+      },
+      "required": [
+        "contributionMonth",
+        "amount",
+        "additionalWageCeilingContext"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectionInput": {
+      "type": "object",
+      "description": "Canonical v2 request with an exact birth month, explicit opening month, and all four opening balances. Deprecated envelopes are documented in separate definitions.",
+      "properties": {
+        "monthlyIncome": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Fixed monthly Ordinary Wages. No salary growth is inferred."
+        },
+        "additionalWages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectionAdditionalWage"
+          },
+          "description": "One-off AW payments in exact contribution months. At most one entry is accepted per month; incomplete context, duplicate months, and months outside the projection return 422. No bonus is inferred."
+        },
+        "birthDate": {
+          "type": "string",
+          "pattern": "^(0[1-9]|1[0-2])/\\d{4}$",
+          "description": "Birth month in MM/YYYY format."
+        },
+        "startMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "description": "Opening projection month. Compatibility omission defaults to the current Singapore month and returns a warning."
+        },
+        "initialBalances": {
+          "$ref": "#/definitions/AccountBalances"
+        },
+        "initialYearToDateAccruedInterest": {
+          "$ref": "#/definitions/AccountBalances",
+          "description": "Interest accrued from January through the month before startMonth but not yet credited. Supply destination-account totals from CPF records for starts after January."
+        },
+        "initialRaSavingsForLimits": {
+          "type": "number",
+          "minimum": 0,
+          "description": "CPF Board's RA-savings measure for retirement-sum and top-up limits. It excludes interest and generally government grants while including counted withdrawals and CPF LIFE premiums."
+        },
+        "initialRaSavingsForContributionRouting": {
+          "type": "number",
+          "minimum": 0,
+          "description": "RA cash principal used to route the post-55 retirement share of employment contributions. A property-backed retirement withdrawal reduces this measure."
+        },
+        "initialCashTopUpTaxReliefUsedThisYear": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cash top-up relief cap already used in the start calendar year. This does not determine MRSS/MMSS, giver/recipient, residency, or overall tax-relief eligibility."
+        },
+        "endAge": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 70,
+          "description": "Final pre-CPF-LIFE ledger age. Age 70 is an opening checkpoint immediately before the birthday/payout month."
+        },
+        "startAge": {
+          "type": "integer",
+          "minimum": 0,
+          "x-deprecated": true,
+          "description": "Compatibility field. Prefer birthDate so birthday-month transitions can be resolved exactly."
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "housingWithdrawal": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Optional amount withdrawn from OA every projection month. This is a SimplyCPF scenario input, not a CPF Board assumption."
+        },
+        "permanentResidentSince": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+          "description": "Month PR status began. Required by the UI for SPR Year 1/2 so anniversary transitions can be resolved; legacy omission freezes the selected graduated year and returns a warning."
+        },
+        "netSaSavingsWithdrawnForInvestments": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Net SA savings withdrawn for investments. These count towards the under-55 FRS test for retirement top-ups, OA retirement transfers, and MA overflow routing; omitting the field can overstate capacity or change overflow routing and produces a warning when relevant."
+        },
+        "voluntaryTopUp": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true
             },
-            "required": ["employee", "employer", "totalContribution"]
-          },
-          "distribution": {
-            "$ref": "#/components/schemas/MoneyDistribution"
-          },
-          "afterCpfContribution": {
-            "type": "number"
-          },
-          "wageBand": {
-            "type": "string",
-            "enum": [
-              "no-contribution",
-              "employer-only",
-              "phased-employee-share",
-              "full-rates"
-            ]
-          },
-          "subjectWages": {
-            "type": "object",
-            "properties": {
-              "ordinaryWages": {
-                "type": "number"
-              },
-              "additionalWages": {
-                "type": "number"
-              },
-              "total": {
-                "type": "number"
-              }
+            "account": {
+              "type": "string",
+              "enum": ["retirement", "MA", "SA", "RA"]
             },
-            "required": ["ordinaryWages", "additionalWages", "total"]
+            "frequency": {
+              "type": "string",
+              "enum": ["monthly", "yearly"]
+            }
           },
-          "age": {
+          "required": ["amount", "account", "frequency"]
+        },
+        "retirementTransfer": {
+          "type": "object",
+          "description": "Age-aware OA transfer routed to SA below 55 or RA from 55.",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "timing": {
+              "type": "string",
+              "enum": ["now", "monthly", "yearly"]
+            }
+          },
+          "required": ["amount", "timing"]
+        },
+        "oaToSaTransfer": {
+          "x-deprecated": true,
+          "description": "Deprecated alias for `retirementTransfer`; it is age-aware despite the legacy name.",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "timing": {
+              "type": "string",
+              "enum": ["now", "yearly"]
+            }
+          },
+          "required": ["amount", "timing"]
+        },
+        "retirementRouting": {
+          "type": "string",
+          "enum": ["full-retirement-sum", "basic-retirement-sum-with-property"],
+          "description": "Explicit scenario choice for age-55 routing. If omitted, the engine states its assumption in the result."
+        },
+        "income": {
+          "type": "number",
+          "minimum": 0,
+          "x-deprecated": true,
+          "description": "Legacy projection alias for monthlyIncome. Accepted only with age and years."
+        },
+        "age": {
+          "type": "integer",
+          "minimum": 0,
+          "x-deprecated": true,
+          "description": "Legacy completed-age field. Accepted only with income and years."
+        },
+        "years": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "x-deprecated": true,
+          "description": "Legacy projection duration. Accepted only with income and age."
+        }
+      },
+      "required": [
+        "monthlyIncome",
+        "birthDate",
+        "startMonth",
+        "initialBalances",
+        "citizenship"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectionCompatibilityInput": {
+      "type": "object",
+      "description": "Deprecated v2 compatibility envelope that omits startMonth and initialBalances. The runtime defaults the month and zero balances and returns an explicit warning. Canonical ProjectionInput scenario fields are also accepted.",
+      "properties": {
+        "monthlyIncome": {
+          "type": "number",
+          "minimum": 0
+        },
+        "birthDate": {
+          "type": "string",
+          "pattern": "^(0[1-9]|1[0-2])/\\d{4}$"
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "endAge": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 70
+        }
+      },
+      "required": ["monthlyIncome", "birthDate", "citizenship"]
+    },
+    "ProjectionStartAgeCompatibilityInput": {
+      "type": "object",
+      "description": "Deprecated compatibility envelope that infers a birth month and zero opening balances from startAge. The response carries an explicit migration warning.",
+      "properties": {
+        "monthlyIncome": {
+          "type": "number",
+          "minimum": 0
+        },
+        "startAge": {
+          "type": "integer",
+          "minimum": 0,
+          "x-deprecated": true
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "endAge": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 70
+        }
+      },
+      "required": ["monthlyIncome", "startAge", "citizenship"]
+    },
+    "LegacyProjectionInput": {
+      "type": "object",
+      "description": "Deprecated pre-v2 projection envelope. Migrate to monthlyIncome, birthDate, startMonth, initialBalances, and endAge.",
+      "properties": {
+        "income": {
+          "type": "number",
+          "minimum": 0,
+          "x-deprecated": true
+        },
+        "age": {
+          "type": "integer",
+          "minimum": 0,
+          "x-deprecated": true
+        },
+        "years": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "x-deprecated": true
+        },
+        "citizenship": {
+          "$ref": "#/definitions/Citizenship"
+        },
+        "startMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+        },
+        "birthDate": {
+          "type": "string",
+          "pattern": "^(0[1-9]|1[0-2])/\\d{4}$"
+        }
+      },
+      "required": ["income", "age", "years"]
+    },
+    "ProjectionResult": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "$ref": "#/definitions/ProjectionInput"
+        },
+        "yearlyBalances": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
-              "completedAge": {
+              "year": {
                 "type": "integer"
               },
-              "contributionBand": {
+              "month": {
                 "type": "string"
               },
-              "allocationBand": {
+              "age": {
+                "type": "integer"
+              },
+              "ageGroup": {
                 "type": "string"
               },
-              "transitionAppliedFromBirthMonth": {
-                "type": "boolean"
-              }
-            },
-            "required": [
-              "completedAge",
-              "contributionBand",
-              "allocationBand",
-              "transitionAppliedFromBirthMonth"
-            ]
-          },
-          "schedule": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
+              "balances": {
+                "$ref": "#/definitions/AccountBalances"
               },
-              "effectiveFrom": {
-                "type": "string"
-              },
-              "effectiveTo": {
-                "type": "string"
-              },
-              "citizenship": {
-                "$ref": "#/components/schemas/Citizenship"
-              },
-              "employeeRate": {
-                "type": "number"
-              },
-              "employerRate": {
-                "type": "number"
-              },
-              "ordinaryWageCeiling": {
-                "type": "number"
-              },
-              "additionalWageCeiling": {
-                "type": "number"
-              },
-              "status": {
-                "type": "string",
-                "enum": ["official", "assumed"]
-              }
-            },
-            "required": [
-              "id",
-              "effectiveFrom",
-              "effectiveTo",
-              "citizenship",
-              "employeeRate",
-              "employerRate",
-              "ordinaryWageCeiling",
-              "additionalWageCeiling",
-              "status"
-            ]
-          },
-          "routing": {
-            "type": "object",
-            "description": "For members 55+, exposes both official allocation branches unless FRS context selects one.",
-            "properties": {
-              "selected": {
-                "type": "string",
-                "enum": ["RA", "OA", "undetermined"]
-              },
-              "rule": {
-                "const": "RA until FRS, then OA"
-              },
-              "branches": {
-                "type": "object"
-              }
-            },
-            "required": ["selected", "rule", "branches"]
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "string"
+              "contributions": {
+                "type": "object",
+                "properties": {
+                  "employee": {
+                    "type": "number"
+                  },
+                  "employer": {
+                    "type": "number"
+                  },
+                  "total": {
+                    "type": "number"
+                  }
                 },
-                "message": {
-                  "type": "string"
-                }
+                "required": ["employee", "employer", "total"]
               },
-              "required": ["code", "message"]
-            }
-          },
-          "policy": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/PolicyMetadata"
-            }
-          }
-        },
-        "required": [
-          "contribution",
-          "distribution",
-          "afterCpfContribution",
-          "wageBand",
-          "subjectWages",
-          "age",
-          "schedule",
-          "warnings",
-          "policy"
-        ]
-      },
-      "AccountBalances": {
-        "type": "object",
-        "properties": {
-          "oa": {
-            "type": "number",
-            "minimum": 0
-          },
-          "sa": {
-            "type": "number",
-            "minimum": 0
-          },
-          "ma": {
-            "type": "number",
-            "minimum": 0
-          },
-          "ra": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "required": ["oa", "sa", "ma", "ra"],
-        "additionalProperties": false
-      },
-      "ProjectionInput": {
-        "type": "object",
-        "description": "New clients supply the complete v2 starting context. Compatibility requests may omit startMonth and initialBalances, or use income/age/years, only with explicit response warnings.",
-        "properties": {
-          "monthlyIncome": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Fixed monthly Ordinary Wages. No salary growth or bonus is inferred."
-          },
-          "birthDate": {
-            "type": "string",
-            "pattern": "^(0[1-9]|1[0-2])/\\d{4}$",
-            "description": "Birth month in MM/YYYY format."
-          },
-          "startMonth": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-          },
-          "initialBalances": {
-            "$ref": "#/components/schemas/AccountBalances"
-          },
-          "endAge": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 100
-          },
-          "startAge": {
-            "type": "integer",
-            "minimum": 0,
-            "deprecated": true,
-            "description": "Compatibility field. Prefer birthDate so birthday-month transitions can be resolved exactly."
-          },
-          "citizenship": {
-            "$ref": "#/components/schemas/Citizenship"
-          },
-          "housingWithdrawal": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Optional SimplyCPF scenario input, not a CPF Board assumption."
-          },
-          "permanentResidentSince": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
-            "description": "Month PR status began. Required by the UI for SPR Year 1/2 so anniversary transitions can be resolved; legacy omission freezes the selected graduated year and returns a warning."
-          },
-          "netSaSavingsWithdrawnForInvestments": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Net SA savings withdrawn for investments. These count towards the under-55 FRS limit for retirement top-ups and OA retirement transfers; omitting the field can overstate capacity and produces a warning when relevant."
-          },
-          "voluntaryTopUp": {
-            "type": "object",
-            "properties": {
-              "amount": {
+              "distribution": {
+                "type": "object",
+                "properties": {
+                  "oa": {
+                    "type": "number"
+                  },
+                  "sa": {
+                    "type": "number"
+                  },
+                  "ma": {
+                    "type": "number"
+                  },
+                  "ra": {
+                    "type": "number"
+                  }
+                },
+                "required": ["oa", "sa", "ma", "ra"]
+              },
+              "interestEarned": {
+                "type": "object",
+                "properties": {
+                  "oa": {
+                    "type": "number"
+                  },
+                  "sa": {
+                    "type": "number"
+                  },
+                  "ma": {
+                    "type": "number"
+                  },
+                  "ra": {
+                    "type": "number"
+                  },
+                  "extraInterest": {
+                    "type": "number"
+                  }
+                },
+                "required": ["oa", "sa", "ma", "ra", "extraInterest"]
+              },
+              "uncreditedInterest": {
+                "$ref": "#/definitions/AccountBalances",
+                "description": "Interest accrued but not yet credited at the end of a partial year."
+              },
+              "housingWithdrawal": {
+                "type": "number"
+              },
+              "voluntaryTopUp": {
+                "type": "number"
+              },
+              "retirementTransfer": {
+                "type": "number"
+              },
+              "propertyPledgeWithdrawal": {
                 "type": "number",
-                "exclusiveMinimum": 0
+                "description": "RA cash withdrawn after the default FRS transfer when the qualifying property/BRS branch is selected."
               },
-              "account": {
-                "type": "string",
-                "enum": ["retirement", "MA", "SA", "RA"]
-              },
-              "frequency": {
-                "type": "string",
-                "enum": ["monthly", "yearly"]
-              }
-            },
-            "required": ["amount", "account", "frequency"]
-          },
-          "retirementTransfer": {
-            "type": "object",
-            "description": "Age-aware OA transfer routed to SA below 55 or RA from 55.",
-            "properties": {
-              "amount": {
+              "unappliedVoluntaryTopUp": {
                 "type": "number",
-                "exclusiveMinimum": 0
+                "description": "Requested top-up not applied because an official account limit was reached."
               },
-              "timing": {
-                "type": "string",
-                "enum": ["now", "monthly", "yearly"]
-              }
-            },
-            "required": ["amount", "timing"]
-          },
-          "oaToSaTransfer": {
-            "deprecated": true,
-            "description": "Deprecated alias for `retirementTransfer`; it is age-aware despite the legacy name.",
-            "type": "object",
-            "properties": {
-              "amount": {
+              "topUpPotentialTaxRelief": {
                 "type": "number",
-                "exclusiveMinimum": 0
+                "description": "Maximum potential cash top-up relief before MRSS/MMSS, giver/recipient, residency, and overall personal-relief-cap eligibility checks."
               },
-              "timing": {
-                "type": "string",
-                "enum": ["now", "yearly"]
-              }
-            },
-            "required": ["amount", "timing"]
-          },
-          "retirementRouting": {
-            "type": "string",
-            "enum": [
-              "full-retirement-sum",
-              "basic-retirement-sum-with-property"
-            ],
-            "description": "Explicit scenario choice for age-55 routing. If omitted, the engine states its assumption in the result."
-          },
-          "income": {
-            "type": "number",
-            "minimum": 0,
-            "deprecated": true,
-            "description": "Legacy projection alias for monthlyIncome. Accepted only with age and years."
-          },
-          "age": {
-            "type": "integer",
-            "minimum": 0,
-            "deprecated": true,
-            "description": "Legacy completed-age field. Accepted only with income and years."
-          },
-          "years": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
-            "deprecated": true,
-            "description": "Legacy projection duration. Accepted only with income and age."
-          }
-        },
-        "anyOf": [
-          {
-            "required": [
-              "monthlyIncome",
-              "birthDate",
-              "startMonth",
-              "initialBalances",
-              "citizenship"
-            ]
-          },
-          {
-            "required": ["monthlyIncome", "birthDate", "citizenship"]
-          },
-          {
-            "required": ["income", "age", "years"]
-          }
-        ],
-        "additionalProperties": false
-      },
-      "ProjectionResult": {
-        "type": "object",
-        "properties": {
-          "input": {
-            "$ref": "#/components/schemas/ProjectionInput"
-          },
-          "yearlyBalances": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "year": {
-                  "type": "integer"
-                },
-                "month": {
-                  "type": "string"
-                },
-                "age": {
-                  "type": "integer"
-                },
-                "ageGroup": {
-                  "type": "string"
-                },
-                "balances": {
-                  "$ref": "#/components/schemas/AccountBalances"
-                },
-                "contributions": {
-                  "type": "object",
-                  "properties": {
-                    "employee": { "type": "number" },
-                    "employer": { "type": "number" },
-                    "total": { "type": "number" }
+              "raSavingsForLimits": {
+                "type": "number",
+                "description": "RA savings counted towards retirement-sum and top-up limits."
+              },
+              "raSavingsForContributionRouting": {
+                "type": "number",
+                "description": "RA cash principal used to decide whether employment contributions route to RA or OA."
+              },
+              "bhs": {
+                "type": "number"
+              },
+              "retirementSums": {
+                "type": "object",
+                "properties": {
+                  "brs": {
+                    "type": "number"
                   },
-                  "required": ["employee", "employer", "total"]
-                },
-                "distribution": {
-                  "type": "object",
-                  "properties": {
-                    "oa": { "type": "number" },
-                    "sa": { "type": "number" },
-                    "ma": { "type": "number" },
-                    "ra": { "type": "number" }
+                  "frs": {
+                    "type": "number"
                   },
-                  "required": ["oa", "sa", "ma", "ra"]
+                  "ers": {
+                    "type": "number"
+                  }
                 },
-                "interestEarned": {
-                  "type": "object",
-                  "properties": {
-                    "oa": { "type": "number" },
-                    "sa": { "type": "number" },
-                    "ma": { "type": "number" },
-                    "ra": { "type": "number" },
-                    "extraInterest": { "type": "number" }
+                "required": ["brs", "frs", "ers"]
+              },
+              "policy": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["official", "assumed"]
                   },
-                  "required": ["oa", "sa", "ma", "ra", "extraInterest"]
-                },
-                "housingWithdrawal": {
-                  "type": "number"
-                },
-                "voluntaryTopUp": {
-                  "type": "number"
-                },
-                "retirementTransfer": {
-                  "type": "number"
-                },
-                "topUpTaxReliefEligible": {
-                  "type": "number",
-                  "description": "Tax-relief-eligible portion tracked separately from actual top-up capacity."
-                },
-                "bhs": {
-                  "type": "number"
-                },
-                "retirementSums": {
-                  "type": "object",
-                  "properties": {
-                    "brs": { "type": "number" },
-                    "frs": { "type": "number" },
-                    "ers": { "type": "number" }
+                  "contribution": {
+                    "$ref": "#/definitions/PolicyMetadata"
                   },
-                  "required": ["brs", "frs", "ers"]
-                },
-                "policy": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "enum": ["official", "assumed"]
-                    },
-                    "contribution": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "allocation": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "wageCeiling": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "bhs": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "retirementSums": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "cohortRetirementSum": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "interest": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "extraInterest": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "specialAccountClosure": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "retirementTopUps": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    },
-                    "taxRelief": {
-                      "$ref": "#/components/schemas/PolicyMetadata"
-                    }
+                  "allocation": {
+                    "$ref": "#/definitions/PolicyMetadata"
                   },
-                  "required": [
-                    "status",
-                    "contribution",
-                    "allocation",
-                    "wageCeiling",
-                    "bhs",
-                    "retirementSums",
-                    "cohortRetirementSum",
-                    "interest",
-                    "extraInterest",
-                    "specialAccountClosure",
-                    "retirementTopUps",
-                    "taxRelief"
-                  ]
-                }
-              },
-              "required": [
-                "year",
-                "month",
-                "age",
-                "ageGroup",
-                "balances",
-                "contributions",
-                "distribution",
-                "interestEarned",
-                "bhs",
-                "retirementSums",
-                "policy"
-              ]
-            }
-          },
-          "cpfLifeReference": {
-            "$ref": "#/components/schemas/CpfLifeReference"
-          },
-          "cpfLifeEstimate": {
-            "type": "null",
-            "deprecated": true,
-            "description": "Always null. Personalised payout estimation was removed; use CPF Board's estimator."
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "string",
-                  "enum": [
-                    "initial-balances-defaulted",
-                    "start-month-defaulted",
-                    "legacy-projection-input",
-                    "legacy-transfer-field",
-                    "legacy-top-up-account",
-                    "ma-tax-relief-not-estimated",
-                    "future-policy-frozen",
-                    "retirement-routing-assumed",
-                    "cpf-life-estimate-removed",
-                    "pr-anniversary-not-modelled",
-                    "pr-year-resolved-from-date",
-                    "retirement-top-up-capacity-context-missing"
-                  ]
+                  "wageCeiling": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "bhs": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "retirementSums": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "cohortRetirementSum": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "interest": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "extraInterest": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "specialAccountClosure": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "retirementTopUps": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  },
+                  "taxRelief": {
+                    "$ref": "#/definitions/PolicyMetadata"
+                  }
                 },
-                "message": {
-                  "type": "string"
-                }
-              },
-              "required": ["code", "message"]
-            }
-          },
-          "assumptions": {
-            "type": "object",
-            "description": "SimplyCPF projection assumptions, not CPF Board facts.",
-            "properties": {
-              "salary": {
-                "const": "fixed-monthly-ordinary-wages"
-              },
-              "interest": {
-                "const": "cpf-floor-rates"
-              },
-              "futurePolicy": {
-                "const": "freeze-last-published"
-              },
-              "retirementRouting": {
-                "type": "string",
-                "enum": [
-                  "full-retirement-sum",
-                  "basic-retirement-sum-with-property"
+                "required": [
+                  "status",
+                  "contribution",
+                  "allocation",
+                  "wageCeiling",
+                  "bhs",
+                  "retirementSums",
+                  "cohortRetirementSum",
+                  "interest",
+                  "extraInterest",
+                  "specialAccountClosure",
+                  "retirementTopUps",
+                  "taxRelief"
                 ]
               }
             },
             "required": [
-              "salary",
-              "interest",
-              "futurePolicy",
-              "retirementRouting"
+              "year",
+              "month",
+              "age",
+              "ageGroup",
+              "balances",
+              "contributions",
+              "distribution",
+              "interestEarned",
+              "raSavingsForLimits",
+              "raSavingsForContributionRouting",
+              "bhs",
+              "retirementSums",
+              "policy"
             ]
-          },
-          "milestones": {
-            "type": "object",
-            "properties": {
-              "age55": {
-                "$ref": "#/components/schemas/AccountBalances"
-              },
-              "age65": {
-                "$ref": "#/components/schemas/AccountBalances"
-              },
-              "age70": {
-                "$ref": "#/components/schemas/AccountBalances"
-              }
-            },
-            "required": ["age55", "age65"]
-          },
-          "totalContributed": {
-            "type": "number"
-          },
-          "totalInterestEarned": {
-            "type": "number"
-          },
-          "deprecatedInput": {
-            "type": "object",
-            "deprecated": true,
-            "description": "Echo of the legacy income/age/years envelope when that compatibility path was used."
-          },
-          "projections": {
-            "type": "array",
-            "deprecated": true,
-            "description": "Legacy annual contribution projection supplied only for income/age/years compatibility requests.",
-            "items": {
-              "type": "object"
-            }
           }
         },
-        "required": [
-          "input",
-          "yearlyBalances",
-          "cpfLifeReference",
-          "cpfLifeEstimate",
-          "warnings",
-          "assumptions",
-          "milestones",
-          "totalContributed",
-          "totalInterestEarned"
-        ]
-      },
-      "CpfLifeReference": {
-        "type": "object",
-        "description": "Exact CPF Board 2026 reference rows for a male member on the Standard Plan. Values are not interpolated.",
-        "properties": {
-          "referenceYear": {
-            "const": 2026
-          },
-          "plan": {
-            "const": "Standard"
-          },
-          "profile": {
-            "const": "male"
-          },
-          "rows": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "raAt55": {
-                  "type": "number"
-                },
-                "raAt65": {
-                  "type": "number"
-                },
-                "monthlyPayoutAt65": {
-                  "type": "number"
-                },
-                "monthlyPayoutAt70": {
-                  "type": "number"
-                },
-                "label": {
-                  "type": "string"
-                }
+        "cpfLifeReference": {
+          "$ref": "#/definitions/CpfLifeReference"
+        },
+        "cpfLifeEstimate": {
+          "type": "string",
+          "x-nullable": true,
+          "x-original-type": "null",
+          "x-deprecated": true,
+          "description": "Always null. Personalised payout estimation was removed; use CPF Board's estimator."
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "initial-balances-defaulted",
+                  "year-to-date-interest-defaulted",
+                  "start-month-defaulted",
+                  "legacy-projection-input",
+                  "legacy-transfer-field",
+                  "legacy-top-up-account",
+                  "ma-tax-relief-not-estimated",
+                  "medisave-top-up-rejected",
+                  "retirement-top-up-capped",
+                  "tax-relief-year-to-date-defaulted",
+                  "tax-relief-eligibility-context-missing",
+                  "retirement-account-context-defaulted",
+                  "property-withdrawal-context-simplified",
+                  "future-policy-frozen",
+                  "retirement-routing-assumed",
+                  "cpf-life-estimate-removed",
+                  "pr-anniversary-not-modelled",
+                  "pr-year-resolved-from-date",
+                  "retirement-top-up-capacity-context-missing",
+                  "additional-wages-capped"
+                ]
               },
-              "required": [
-                "raAt55",
-                "raAt65",
-                "monthlyPayoutAt65",
-                "monthlyPayoutAt70"
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "assumptions": {
+          "type": "object",
+          "description": "SimplyCPF projection assumptions, not CPF Board facts.",
+          "properties": {
+            "salary": {
+              "type": "string",
+              "enum": ["fixed-monthly-ordinary-wages"]
+            },
+            "additionalWages": {
+              "type": "string",
+              "enum": ["explicit-dated-payments-only"]
+            },
+            "interest": {
+              "type": "string",
+              "enum": ["official-quarterly-then-floor-assumption"]
+            },
+            "futurePolicy": {
+              "type": "string",
+              "enum": ["freeze-last-published"]
+            },
+            "startingBalances": {
+              "type": "string",
+              "enum": ["opening-of-start-month"]
+            },
+            "initialYearToDateInterest": {
+              "type": "string",
+              "enum": ["provided-or-zero-with-warning"]
+            },
+            "topUpTiming": {
+              "type": "string",
+              "enum": ["after-monthly-employment-contribution"]
+            },
+            "cpfLife": {
+              "type": "string",
+              "enum": ["premiums-and-payouts-not-modelled"]
+            },
+            "retirementRouting": {
+              "type": "string",
+              "enum": [
+                "full-retirement-sum",
+                "basic-retirement-sum-with-property"
               ]
             }
           },
-          "policy": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          },
-          "sourceUrl": {
-            "type": "string",
-            "format": "uri"
-          },
-          "personalisedEstimatorUrl": {
-            "type": "string",
-            "format": "uri"
-          },
-          "verifiedAt": {
-            "type": "string",
-            "format": "date"
-          },
-          "note": {
-            "type": "string"
-          }
+          "required": [
+            "salary",
+            "additionalWages",
+            "interest",
+            "futurePolicy",
+            "startingBalances",
+            "initialYearToDateInterest",
+            "topUpTiming",
+            "cpfLife",
+            "retirementRouting"
+          ]
         },
-        "required": [
-          "referenceYear",
-          "plan",
-          "profile",
-          "rows",
-          "policy",
-          "sourceUrl",
-          "personalisedEstimatorUrl",
-          "verifiedAt",
-          "note"
-        ]
-      },
-      "AgeGroup": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "minAgeExclusive": {
-            "type": "integer"
-          },
-          "maxAgeInclusive": {
-            "type": "integer",
-            "description": "Inclusive upper age bound; omitted only for the final open-ended band."
-          },
-          "retirementAccount": {
-            "type": "string",
-            "enum": ["SA", "RA", "age-dependent"],
-            "description": "A generic band that crosses age 55 is age-dependent; use retirementRouting. Exact lookup responses resolve to SA or RA."
-          },
-          "retirementRouting": {
-            "$ref": "#/components/schemas/AgeRetirementRouting"
-          },
-          "contributionRate": {
-            "type": "object",
-            "properties": {
-              "employee": { "type": "number" },
-              "employer": { "type": "number" }
+        "milestones": {
+          "type": "object",
+          "properties": {
+            "age55": {
+              "$ref": "#/definitions/AccountBalances"
             },
-            "required": ["employee", "employer"]
-          },
-          "allocationRate": {
-            "$ref": "#/components/schemas/AllocationRate"
-          }
-        },
-        "required": [
-          "id",
-          "description",
-          "retirementAccount",
-          "retirementRouting",
-          "contributionRate",
-          "allocationRate"
-        ]
-      },
-      "AllocationRate": {
-        "type": "object",
-        "properties": {
-          "OA": {
-            "type": "number"
-          },
-          "SA": {
-            "type": "number",
-            "description": "Present below 55, and for applicable pre-closure schedules."
-          },
-          "RA": {
-            "type": "number",
-            "description": "Present for members aged 55 and above after the 2025 SA closure."
-          },
-          "retirement": {
-            "type": "number",
-            "description": "Retirement allocation rate when a generic band crosses age 55 and the destination is age-dependent."
-          },
-          "MA": {
-            "type": "number"
-          }
-        },
-        "required": ["OA", "MA"]
-      },
-      "AgeRetirementRouting": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "type": { "const": "fixed" },
-              "account": {
-                "type": "string",
-                "enum": ["SA", "RA"]
-              }
+            "age65": {
+              "$ref": "#/definitions/AccountBalances"
             },
-            "required": ["type", "account"],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": { "const": "age-dependent" },
-              "thresholdAge": { "const": 55 },
-              "belowThresholdAccount": { "const": "SA" },
-              "atOrAboveThresholdAccount": { "const": "RA" }
-            },
-            "required": [
-              "type",
-              "thresholdAge",
-              "belowThresholdAccount",
-              "atOrAboveThresholdAccount"
-            ],
-            "additionalProperties": false
-          }
-        ]
-      },
-      "ScheduleSummary": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "effectiveFrom": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveTo": {
-            "type": "string",
-            "format": "date"
+            "age70": {
+              "$ref": "#/definitions/AccountBalances",
+              "description": "Opening checkpoint immediately before the age-70 birthday and CPF LIFE payout-start month."
+            }
           }
         },
-        "required": ["id", "effectiveFrom", "effectiveTo"]
-      },
-      "AgePolicyMetadata": {
-        "type": "object",
-        "properties": {
-          "contribution": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          },
-          "allocation": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
+        "totalContributed": {
+          "type": "number"
         },
-        "required": ["contribution", "allocation"]
+        "totalInterestEarned": {
+          "type": "number"
+        },
+        "deprecatedInput": {
+          "type": "object",
+          "x-deprecated": true,
+          "description": "Echo of the legacy income/age/years envelope when that compatibility path was used."
+        },
+        "projections": {
+          "type": "array",
+          "x-deprecated": true,
+          "description": "Legacy annual contribution projection supplied only for income/age/years compatibility requests.",
+          "items": {
+            "type": "object"
+          }
+        }
       },
-      "AgeGroupLookupResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AgeGroup"
-          },
-          {
+      "required": [
+        "input",
+        "yearlyBalances",
+        "cpfLifeReference",
+        "cpfLifeEstimate",
+        "warnings",
+        "assumptions",
+        "milestones",
+        "totalContributed",
+        "totalInterestEarned"
+      ]
+    },
+    "CpfLifeReference": {
+      "type": "object",
+      "description": "Exact CPF Board 2026 reference rows for a male member on the Standard Plan. Values are not interpolated.",
+      "properties": {
+        "referenceYear": {
+          "type": "integer",
+          "enum": [2026]
+        },
+        "plan": {
+          "type": "string",
+          "enum": ["Standard"]
+        },
+        "profile": {
+          "type": "string",
+          "enum": ["male"]
+        },
+        "rows": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
-              "contributionMonth": {
+              "raAt55": {
+                "type": "number"
+              },
+              "raAt65": {
+                "type": "number"
+              },
+              "monthlyPayoutAt65": {
+                "type": "number"
+              },
+              "monthlyPayoutAt70": {
+                "type": "number"
+              },
+              "label": {
                 "type": "string"
-              },
-              "citizenship": {
-                "$ref": "#/components/schemas/Citizenship"
-              },
-              "schedule": {
-                "$ref": "#/components/schemas/ScheduleSummary"
-              },
-              "policy": {
-                "$ref": "#/components/schemas/AgePolicyMetadata"
-              },
-              "completedAge": {
-                "type": "integer"
               }
             },
             "required": [
-              "contributionMonth",
-              "citizenship",
-              "schedule",
-              "policy",
-              "completedAge"
+              "raAt55",
+              "raAt65",
+              "monthlyPayoutAt65",
+              "monthlyPayoutAt70"
             ]
           }
-        ]
+        },
+        "policy": {
+          "$ref": "#/definitions/PolicyMetadata"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "personalisedEstimatorUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "note": {
+          "type": "string"
+        }
       },
-      "AgeConversionResponse": {
-        "type": "object",
-        "properties": {
-          "birthDate": {
-            "type": "string",
-            "deprecated": true,
-            "description": "Present only when the deprecated birthDate alias was supplied."
-          },
-          "age": {
-            "type": "integer",
-            "deprecated": true,
-            "description": "Legacy completed-age alias present only with birthDate."
-          },
-          "birthMonth": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-          },
-          "contributionMonth": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
-          },
-          "completedAge": {
-            "type": "integer"
-          },
-          "ageInMonths": {
-            "type": "integer"
-          },
-          "isBirthdayMonth": {
-            "type": "boolean"
-          },
-          "cpfRateTransition": {
-            "type": "object",
-            "properties": {
-              "contributionBand": { "type": "string" },
-              "allocationBand": { "type": "string" },
-              "nextAgeBandStartsMonthAfterBirthday": { "const": true }
+      "required": [
+        "referenceYear",
+        "plan",
+        "profile",
+        "rows",
+        "policy",
+        "sourceUrl",
+        "personalisedEstimatorUrl",
+        "verifiedAt",
+        "note"
+      ]
+    },
+    "AgeGroup": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "minAgeExclusive": {
+          "type": "integer"
+        },
+        "maxAgeInclusive": {
+          "type": "integer",
+          "description": "Inclusive upper age bound; omitted only for the final open-ended band."
+        },
+        "retirementAccount": {
+          "type": "string",
+          "enum": ["SA", "RA", "age-dependent"],
+          "description": "A generic band that crosses age 55 is age-dependent; use retirementRouting. Exact lookup responses resolve to SA or RA."
+        },
+        "retirementRouting": {
+          "$ref": "#/definitions/AgeRetirementRouting"
+        },
+        "contributionRate": {
+          "type": "object",
+          "properties": {
+            "employee": {
+              "type": "number"
             },
-            "required": [
-              "contributionBand",
-              "allocationBand",
-              "nextAgeBandStartsMonthAfterBirthday"
-            ]
-          },
-          "schedule": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "effectiveFrom": { "type": "string", "format": "date" },
-              "effectiveTo": { "type": "string", "format": "date" },
-              "status": {
-                "type": "string",
-                "enum": ["official", "assumed"]
-              }
-            },
-            "required": ["id", "effectiveFrom", "effectiveTo", "status"]
-          },
-          "policy": {
-            "type": "object",
-            "properties": {
-              "contribution": {
-                "$ref": "#/components/schemas/PolicyMetadata"
-              },
-              "allocation": {
-                "$ref": "#/components/schemas/PolicyMetadata"
-              },
-              "ageTransition": {
-                "type": "object",
-                "properties": {
-                  "status": { "const": "official" },
-                  "verifiedAt": { "type": "string", "format": "date" },
-                  "sources": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/PolicySource"
-                    }
-                  }
-                },
-                "required": ["status", "verifiedAt", "sources"]
-              }
-            },
-            "required": ["contribution", "allocation", "ageTransition"]
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "string",
-                  "enum": [
-                    "deprecated-birth-date-alias",
-                    "contribution-month-defaulted"
-                  ]
-                },
-                "message": { "type": "string" }
-              },
-              "required": ["code", "message"]
-            }
-          }
-        },
-        "required": [
-          "birthMonth",
-          "contributionMonth",
-          "completedAge",
-          "ageInMonths",
-          "isBirthdayMonth",
-          "cpfRateTransition",
-          "schedule",
-          "policy",
-          "warnings"
-        ]
-      },
-      "WageCeilingResponse": {
-        "type": "object",
-        "properties": {
-          "effectiveFrom": {
-            "type": "string",
-            "format": "date"
-          },
-          "contributionMonth": {
-            "type": "string"
-          },
-          "effectiveTo": {
-            "type": "string",
-            "format": "date"
-          },
-          "ordinaryWageCeiling": {
-            "type": "number"
-          },
-          "additionalWageCeiling": {
-            "type": "number",
-            "description": "Annual ceiling before subtracting annual OW subject to CPF and prior AW subject to CPF."
-          },
-          "policy": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              },
-              "required": ["code", "message"]
-            }
-          }
-        },
-        "required": [
-          "contributionMonth",
-          "effectiveFrom",
-          "effectiveTo",
-          "ordinaryWageCeiling",
-          "additionalWageCeiling",
-          "policy",
-          "warnings"
-        ]
-      },
-      "WageCeilingTimelineItem": {
-        "type": "object",
-        "properties": {
-          "effectiveFrom": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveTo": {
-            "type": "string",
-            "format": "date"
-          },
-          "ordinaryWageCeiling": {
-            "type": "number"
-          },
-          "additionalWageCeiling": {
-            "type": "number"
-          },
-          "policy": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
-        },
-        "required": [
-          "effectiveFrom",
-          "effectiveTo",
-          "ordinaryWageCeiling",
-          "additionalWageCeiling",
-          "policy"
-        ]
-      },
-      "BhsResponse": {
-        "type": "object",
-        "properties": {
-          "year": {
-            "type": "integer"
-          },
-          "bhs": {
-            "type": "number"
-          },
-          "status": {
-            "const": "official"
-          },
-          "metadata": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
-        },
-        "required": ["year", "bhs", "status", "metadata"]
-      },
-      "BhsCollectionResponse": {
-        "type": "object",
-        "properties": {
-          "years": {
-            "type": "object",
-            "additionalProperties": {
+            "employer": {
               "type": "number"
             }
           },
-          "observations": {
-            "type": "array",
-            "items": {
+          "required": ["employee", "employer"]
+        },
+        "allocationRate": {
+          "$ref": "#/definitions/AllocationRate"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "retirementAccount",
+        "retirementRouting",
+        "contributionRate",
+        "allocationRate"
+      ]
+    },
+    "AllocationRate": {
+      "type": "object",
+      "properties": {
+        "OA": {
+          "type": "number"
+        },
+        "SA": {
+          "type": "number",
+          "description": "Present below 55, and for applicable pre-closure schedules."
+        },
+        "RA": {
+          "type": "number",
+          "description": "Present for members aged 55 and above after the 2025 SA closure."
+        },
+        "retirement": {
+          "type": "number",
+          "description": "Retirement allocation rate when a generic band crosses age 55 and the destination is age-dependent."
+        },
+        "MA": {
+          "type": "number"
+        }
+      },
+      "required": ["OA", "MA"]
+    },
+    "AgeRetirementRouting": {
+      "type": "object",
+      "description": "For type=fixed, account is required. For type=age-dependent, thresholdAge, belowThresholdAccount, and atOrAboveThresholdAccount are required.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["fixed", "age-dependent"]
+        },
+        "account": {
+          "type": "string",
+          "enum": ["SA", "RA"]
+        },
+        "thresholdAge": {
+          "type": "integer"
+        },
+        "belowThresholdAccount": {
+          "type": "string",
+          "enum": ["SA"]
+        },
+        "atOrAboveThresholdAccount": {
+          "type": "string",
+          "enum": ["RA"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "ScheduleSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "effectiveFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "effectiveTo": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": ["id", "effectiveFrom", "effectiveTo"]
+    },
+    "AgePolicyMetadata": {
+      "type": "object",
+      "properties": {
+        "contribution": {
+          "$ref": "#/definitions/PolicyMetadata"
+        },
+        "allocation": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
+      },
+      "required": ["contribution", "allocation"]
+    },
+    "AgeGroupLookupResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AgeGroup"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contributionMonth": {
+              "type": "string"
+            },
+            "citizenship": {
+              "$ref": "#/definitions/Citizenship"
+            },
+            "schedule": {
+              "$ref": "#/definitions/ScheduleSummary"
+            },
+            "policy": {
+              "$ref": "#/definitions/AgePolicyMetadata"
+            },
+            "completedAge": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "contributionMonth",
+            "citizenship",
+            "schedule",
+            "policy",
+            "completedAge"
+          ]
+        }
+      ]
+    },
+    "AgeConversionResponse": {
+      "type": "object",
+      "properties": {
+        "birthDate": {
+          "type": "string",
+          "x-deprecated": true,
+          "description": "Present only when the deprecated birthDate alias was supplied."
+        },
+        "age": {
+          "type": "integer",
+          "x-deprecated": true,
+          "description": "Legacy completed-age alias present only with birthDate."
+        },
+        "birthMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+        },
+        "contributionMonth": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+        },
+        "completedAge": {
+          "type": "integer"
+        },
+        "ageInMonths": {
+          "type": "integer"
+        },
+        "isBirthdayMonth": {
+          "type": "boolean"
+        },
+        "cpfRateTransition": {
+          "type": "object",
+          "properties": {
+            "contributionBand": {
+              "type": "string"
+            },
+            "allocationBand": {
+              "type": "string"
+            },
+            "nextAgeBandStartsMonthAfterBirthday": {
+              "type": "boolean",
+              "enum": [true]
+            }
+          },
+          "required": [
+            "contributionBand",
+            "allocationBand",
+            "nextAgeBandStartsMonthAfterBirthday"
+          ]
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "effectiveFrom": {
+              "type": "string",
+              "format": "date"
+            },
+            "effectiveTo": {
+              "type": "string",
+              "format": "date"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["official"]
+            }
+          },
+          "required": ["id", "effectiveFrom", "effectiveTo", "status"]
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "contribution": {
+              "$ref": "#/definitions/PolicyMetadata"
+            },
+            "allocation": {
+              "$ref": "#/definitions/PolicyMetadata"
+            },
+            "ageTransition": {
               "type": "object",
               "properties": {
-                "year": {
-                  "type": "integer"
-                },
-                "bhs": {
-                  "type": "number"
-                },
                 "status": {
-                  "const": "official"
+                  "type": "string",
+                  "enum": ["official"]
+                },
+                "verifiedAt": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/PolicySource"
+                  }
                 }
               },
-              "required": ["year", "bhs", "status"]
+              "required": ["status", "verifiedAt", "sources"]
             }
           },
-          "latestPublishedYear": {
-            "type": "integer"
-          },
-          "latestPublished": {
-            "type": "number"
-          },
-          "metadata": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
+          "required": ["contribution", "allocation", "ageTransition"]
         },
-        "required": [
-          "years",
-          "observations",
-          "latestPublishedYear",
-          "latestPublished",
-          "metadata"
-        ]
-      },
-      "RetirementSumsResponse": {
-        "type": "object",
-        "properties": {
-          "year": {
-            "type": "integer"
-          },
-          "brs": {
-            "type": "number"
-          },
-          "frs": {
-            "type": "number"
-          },
-          "ers": {
-            "type": "number"
-          },
-          "status": {
-            "const": "official"
-          },
-          "metadata": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
-        },
-        "required": ["year", "brs", "frs", "ers", "status", "metadata"]
-      },
-      "RetirementSumsCollectionResponse": {
-        "type": "object",
-        "properties": {
-          "years": {
+        "warnings": {
+          "type": "array",
+          "items": {
             "type": "object",
-            "additionalProperties": {
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "deprecated-birth-date-alias",
+                  "contribution-month-defaulted"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        }
+      },
+      "required": [
+        "birthMonth",
+        "contributionMonth",
+        "completedAge",
+        "ageInMonths",
+        "isBirthdayMonth",
+        "cpfRateTransition",
+        "schedule",
+        "policy",
+        "warnings"
+      ]
+    },
+    "WageCeilingResponse": {
+      "type": "object",
+      "properties": {
+        "effectiveFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "contributionMonth": {
+          "type": "string"
+        },
+        "effectiveTo": {
+          "type": "string",
+          "format": "date"
+        },
+        "ordinaryWageCeiling": {
+          "type": "number"
+        },
+        "additionalWageCeiling": {
+          "type": "number",
+          "description": "Annual ceiling before subtracting annual OW subject to CPF and prior AW subject to CPF."
+        },
+        "policy": {
+          "$ref": "#/definitions/PolicyMetadata"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        }
+      },
+      "required": [
+        "contributionMonth",
+        "effectiveFrom",
+        "effectiveTo",
+        "ordinaryWageCeiling",
+        "additionalWageCeiling",
+        "policy",
+        "warnings"
+      ]
+    },
+    "WageCeilingTimelineItem": {
+      "type": "object",
+      "properties": {
+        "effectiveFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "effectiveTo": {
+          "type": "string",
+          "format": "date"
+        },
+        "ordinaryWageCeiling": {
+          "type": "number"
+        },
+        "additionalWageCeiling": {
+          "type": "number"
+        },
+        "policy": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
+      },
+      "required": [
+        "effectiveFrom",
+        "effectiveTo",
+        "ordinaryWageCeiling",
+        "additionalWageCeiling",
+        "policy"
+      ]
+    },
+    "BhsResponse": {
+      "type": "object",
+      "properties": {
+        "year": {
+          "type": "integer"
+        },
+        "bhs": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["official"]
+        },
+        "metadata": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
+      },
+      "required": ["year", "bhs", "status", "metadata"]
+    },
+    "BhsCollectionResponse": {
+      "type": "object",
+      "properties": {
+        "years": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "year": {
+                "type": "integer"
+              },
+              "bhs": {
+                "type": "number"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["official"]
+              }
+            },
+            "required": ["year", "bhs", "status"]
+          }
+        },
+        "latestPublishedYear": {
+          "type": "integer"
+        },
+        "latestPublished": {
+          "type": "number"
+        },
+        "metadata": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
+      },
+      "required": [
+        "years",
+        "observations",
+        "latestPublishedYear",
+        "latestPublished",
+        "metadata"
+      ]
+    },
+    "RetirementSumsResponse": {
+      "type": "object",
+      "properties": {
+        "year": {
+          "type": "integer"
+        },
+        "brs": {
+          "type": "number"
+        },
+        "frs": {
+          "type": "number"
+        },
+        "ers": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["official"]
+        },
+        "metadata": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
+      },
+      "required": ["year", "brs", "frs", "ers", "status", "metadata"]
+    },
+    "RetirementSumsCollectionResponse": {
+      "type": "object",
+      "properties": {
+        "years": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "brs": {
+                "type": "number"
+              },
+              "frs": {
+                "type": "number"
+              },
+              "ers": {
+                "type": "number"
+              }
+            },
+            "required": ["brs", "frs", "ers"]
+          }
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "latestPublishedYear": {
+          "type": "integer"
+        },
+        "latestPublished": {
+          "type": "object"
+        },
+        "metadata": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
+      },
+      "required": [
+        "years",
+        "observations",
+        "latestPublishedYear",
+        "latestPublished",
+        "metadata"
+      ]
+    },
+    "QuarterlyInterestObservation": {
+      "type": "object",
+      "properties": {
+        "quarter": {
+          "type": "string"
+        },
+        "effectiveFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "effectiveTo": {
+          "type": "string",
+          "format": "date"
+        },
+        "oaRate": {
+          "type": "number"
+        },
+        "saRate": {
+          "type": "number"
+        },
+        "maRate": {
+          "type": "number"
+        },
+        "raRate": {
+          "type": "number"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["official"]
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "quarter",
+        "effectiveFrom",
+        "effectiveTo",
+        "oaRate",
+        "saRate",
+        "maRate",
+        "raRate",
+        "sourceUrl",
+        "status",
+        "verifiedAt"
+      ]
+    },
+    "QuarterlyInterestDeclaration": {
+      "type": "object",
+      "properties": {
+        "quarter": {
+          "type": "string"
+        },
+        "effectiveFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "effectiveTo": {
+          "type": "string",
+          "format": "date"
+        },
+        "oa": {
+          "type": "number"
+        },
+        "sa": {
+          "type": "number"
+        },
+        "ma": {
+          "type": "number"
+        },
+        "ra": {
+          "type": "number"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["official"]
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "quarter",
+        "effectiveFrom",
+        "effectiveTo",
+        "oa",
+        "sa",
+        "ma",
+        "ra",
+        "sourceUrl",
+        "status",
+        "verifiedAt"
+      ]
+    },
+    "InterestRatesResponse": {
+      "type": "object",
+      "properties": {
+        "quarterlyRates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuarterlyInterestDeclaration"
+          }
+        },
+        "methodology": {
+          "$ref": "#/definitions/InterestRateMethodology"
+        },
+        "metadata": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/PolicyMetadata"
+            },
+            {
               "type": "object",
               "properties": {
-                "brs": {
-                  "type": "number"
-                },
-                "frs": {
-                  "type": "number"
-                },
-                "ers": {
-                  "type": "number"
+                "latestPublishedQuarter": {
+                  "type": "string"
                 }
               },
-              "required": ["brs", "frs", "ers"]
+              "required": ["latestPublishedQuarter"]
             }
-          },
-          "observations": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          },
-          "latestPublishedYear": {
-            "type": "integer"
-          },
-          "latestPublished": {
-            "type": "object"
-          },
-          "metadata": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
-        },
-        "required": [
-          "years",
-          "observations",
-          "latestPublishedYear",
-          "latestPublished",
-          "metadata"
-        ]
+          ]
+        }
       },
-      "QuarterlyInterestObservation": {
-        "type": "object",
-        "properties": {
-          "quarter": {
-            "type": "string"
+      "required": ["quarterlyRates", "methodology", "metadata"]
+    },
+    "InterestRateMethodology": {
+      "type": "object",
+      "properties": {
+        "ordinaryAccount": {
+          "type": "object",
+          "properties": {
+            "peg": {
+              "type": "string"
+            },
+            "floorRate": {
+              "type": "number"
+            },
+            "reviewFrequency": {
+              "type": "string"
+            }
           },
-          "effectiveFrom": {
-            "type": "string",
-            "format": "date"
+          "required": ["peg", "floorRate", "reviewFrequency"]
+        },
+        "specialMediSaveRetirementAccounts": {
+          "type": "object",
+          "properties": {
+            "peg": {
+              "type": "string"
+            },
+            "markupPercentagePoints": {
+              "type": "number"
+            },
+            "floorRate": {
+              "type": "number"
+            },
+            "floorGuaranteedThrough": {
+              "type": "string",
+              "format": "date"
+            },
+            "reviewFrequency": {
+              "type": "string"
+            }
           },
-          "effectiveTo": {
-            "type": "string",
-            "format": "date"
-          },
-          "oaRate": {
-            "type": "number"
-          },
-          "saRate": {
-            "type": "number"
-          },
-          "maRate": {
-            "type": "number"
-          },
-          "raRate": {
-            "type": "number"
-          },
-          "sourceUrl": {
+          "required": [
+            "peg",
+            "markupPercentagePoints",
+            "floorRate",
+            "floorGuaranteedThrough",
+            "reviewFrequency"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["official"]
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "sourceUrls": {
+          "type": "array",
+          "items": {
             "type": "string",
             "format": "uri"
-          },
-          "status": {
-            "const": "official"
-          },
-          "verifiedAt": {
-            "type": "string",
-            "format": "date"
           }
-        },
-        "required": [
-          "quarter",
-          "effectiveFrom",
-          "effectiveTo",
-          "oaRate",
-          "saRate",
-          "maRate",
-          "raRate",
-          "sourceUrl",
-          "status",
-          "verifiedAt"
-        ]
+        }
       },
-      "QuarterlyInterestDeclaration": {
-        "type": "object",
-        "properties": {
-          "quarter": {
-            "type": "string"
-          },
-          "effectiveFrom": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveTo": {
-            "type": "string",
-            "format": "date"
-          },
-          "oa": {
-            "type": "number"
-          },
-          "sa": {
-            "type": "number"
-          },
-          "ma": {
-            "type": "number"
-          },
-          "ra": {
-            "type": "number"
-          },
-          "sourceUrl": {
-            "type": "string",
-            "format": "uri"
-          },
-          "status": {
-            "const": "official"
-          },
-          "verifiedAt": {
-            "type": "string",
-            "format": "date"
+      "required": [
+        "ordinaryAccount",
+        "specialMediSaveRetirementAccounts",
+        "status",
+        "verifiedAt",
+        "sourceUrls"
+      ]
+    },
+    "InterestTrendResponse": {
+      "type": "object",
+      "properties": {
+        "observations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuarterlyInterestObservation"
           }
         },
-        "required": [
-          "quarter",
-          "effectiveFrom",
-          "effectiveTo",
-          "oa",
-          "sa",
-          "ma",
-          "ra",
-          "sourceUrl",
-          "status",
-          "verifiedAt"
-        ]
+        "methodology": {
+          "$ref": "#/definitions/InterestRateMethodology"
+        },
+        "policy": {
+          "$ref": "#/definitions/PolicyMetadata"
+        }
       },
-      "InterestRatesResponse": {
-        "type": "object",
-        "properties": {
-          "quarterlyRates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QuarterlyInterestDeclaration"
-            }
-          },
-          "methodology": {
-            "$ref": "#/components/schemas/InterestRateMethodology"
-          },
-          "metadata": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/PolicyMetadata"
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "latestPublishedQuarter": {
-                    "type": "string"
-                  }
-                },
-                "required": ["latestPublishedQuarter"]
-              }
-            ]
-          }
-        },
-        "required": ["quarterlyRates", "methodology", "metadata"]
-      },
-      "InterestRateMethodology": {
-        "type": "object",
-        "properties": {
-          "ordinaryAccount": {
-            "type": "object",
-            "properties": {
-              "peg": { "type": "string" },
-              "floorRate": { "type": "number" },
-              "reviewFrequency": { "type": "string" }
-            },
-            "required": ["peg", "floorRate", "reviewFrequency"]
-          },
-          "specialMediSaveRetirementAccounts": {
-            "type": "object",
-            "properties": {
-              "peg": { "type": "string" },
-              "markupPercentagePoints": { "type": "number" },
-              "floorRate": { "type": "number" },
-              "floorGuaranteedThrough": {
-                "type": "string",
-                "format": "date"
-              },
-              "reviewFrequency": { "type": "string" }
-            },
-            "required": [
-              "peg",
-              "markupPercentagePoints",
-              "floorRate",
-              "floorGuaranteedThrough",
-              "reviewFrequency"
-            ]
-          },
-          "status": { "const": "official" },
-          "verifiedAt": { "type": "string", "format": "date" },
-          "sourceUrls": {
-            "type": "array",
-            "items": { "type": "string", "format": "uri" }
-          }
-        },
-        "required": [
-          "ordinaryAccount",
-          "specialMediSaveRetirementAccounts",
-          "status",
-          "verifiedAt",
-          "sourceUrls"
-        ]
-      },
-      "InterestTrendResponse": {
-        "type": "object",
-        "properties": {
-          "observations": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QuarterlyInterestObservation"
-            }
-          },
-          "methodology": {
-            "$ref": "#/components/schemas/InterestRateMethodology"
-          },
-          "policy": {
-            "$ref": "#/components/schemas/PolicyMetadata"
-          }
-        },
-        "required": ["observations", "methodology", "policy"]
-      }
+      "required": ["observations", "methodology", "policy"]
     }
   }
 }

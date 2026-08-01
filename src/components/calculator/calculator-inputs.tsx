@@ -16,13 +16,13 @@ import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatDate } from "@/lib/format";
 import {
   selectAge,
-  selectAgeGroup,
   selectBirthDate,
   selectCitizenshipStatus,
   selectMonthlyGrossIncome,
 } from "@/stores/selectors";
 import type { CitizenshipStatus } from "@/types";
 import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
+import type { CalculatorFigures } from "./figures";
 import { formatRate } from "./figures";
 
 const CITIZENSHIP_OPTIONS: { value: CitizenshipStatus; label: string }[] = [
@@ -33,15 +33,14 @@ const CITIZENSHIP_OPTIONS: { value: CitizenshipStatus; label: string }[] = [
 ];
 
 interface CalculatorInputsProps {
-  ceilingDate: string;
+  figures: CalculatorFigures;
 }
 
-export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
+export function CalculatorInputs({ figures }: CalculatorInputsProps) {
   const income = useCpfStore(selectMonthlyGrossIncome);
   const birthDate = useCpfStore(selectBirthDate);
   const citizenshipStatus = useCpfStore(selectCitizenshipStatus);
   const age = useCpfStore(selectAge);
-  const ageGroup = useCpfStore(selectAgeGroup);
 
   const setIncome = useCpfStore((state) => state.setIncome);
   const setBirthDate = useCpfStore((state) => state.setBirthDate);
@@ -71,7 +70,7 @@ export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
         step={100}
         value={income}
       >
-        <Label>Monthly gross salary</Label>
+        <Label>Monthly Ordinary Wages</Label>
         <NumberField.Group className="w-full grid-cols-1">
           <NumberField.Input className="w-full font-semibold" />
         </NumberField.Group>
@@ -118,21 +117,28 @@ export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
         variant="tertiary"
       >
         <Typography type="body-sm">
-          Bracket <strong>{ageGroup.description}</strong>
+          Bracket <strong>{figures.ageGroup.description}</strong>
         </Typography>
         <Typography color="muted" type="body-sm">
-          You {formatRate(ageGroup.contributionRate.employee)} · Employer{" "}
-          {formatRate(ageGroup.contributionRate.employer)} · Total{" "}
-          {formatRate(
-            ageGroup.contributionRate.employee +
-              ageGroup.contributionRate.employer,
-          )}
+          Applied at this wage: you {formatRate(figures.employeeRate)} ·
+          employer {formatRate(figures.employerRate)} · total{" "}
+          {formatRate(figures.totalRate)}
+        </Typography>
+        <Typography color="muted" type="body-xs">
+          {figures.wageBandDescription}
+        </Typography>
+        <Typography color="muted" type="body-xs">
+          Published full-rate schedule: you{" "}
+          {formatRate(figures.nominalEmployeeRate)} · employer{" "}
+          {formatRate(figures.nominalEmployerRate)} · total{" "}
+          {formatRate(figures.nominalTotalRate)}.
         </Typography>
       </Surface>
 
       <Typography color="muted" type="body-xs">
         Rates from the CPF Board contribution table effective{" "}
-        {formatDate(ceilingDate, "d MMMM yyyy")}.
+        {formatDate(figures.scheduleEffectiveFrom, "d MMMM yyyy")}. Applied
+        rates above reflect CPF's statutory dollar rounding.
       </Typography>
     </Card>
   );

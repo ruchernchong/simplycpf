@@ -10,7 +10,10 @@ import {
   useQueryStates,
 } from "nuqs";
 import { useState, useTransition } from "react";
-import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
+import {
+  calculateCpfProjection,
+  getCurrentSingaporeMonth,
+} from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
 import { CPF_CONTRIBUTION_SCHEDULES, CPF_POLICY_RULES } from "@/policy";
 import type { ProjectionParams } from "@/types";
@@ -18,6 +21,7 @@ import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
 import CpfLifeReferenceCard from "./cpf-life-estimate";
 import MilestoneCards from "./milestone-cards";
 import ProjectionForm, { type ProjectionFormValues } from "./projection-form";
+import { isProjectionOpeningAccountStateValid } from "./projection-opening-validation";
 import YearlyProjectionTable from "./yearly-projection-table";
 
 const BalanceGrowthChart = dynamic(() => import("./balance-growth-chart"), {
@@ -34,13 +38,17 @@ const BalanceGrowthChart = dynamic(() => import("./balance-growth-chart"), {
   ),
 });
 
-const defaultStartMonth = new Date().toISOString().slice(0, 7);
+const defaultStartMonth = getCurrentSingaporeMonth();
 const earliestProjectionMonth =
   CPF_CONTRIBUTION_SCHEDULES[0].effectiveFrom.slice(0, 7);
 const retirementAccountAge =
   CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
+const maximumProjectionAge =
+  CPF_POLICY_RULES.lifecycleAges.latestCpfLifePayoutStart;
 const specialAccountClosureMonth =
   CPF_POLICY_RULES.specialAccountClosure.effectiveDate.slice(0, 7);
+const selfCashTopUpReliefCap =
+  CPF_POLICY_RULES.retirementTopUps.taxRelief.selfAnnualCap;
 
 const defaultFormValues: ProjectionFormValues = {
   monthlyIncome: 0,
@@ -53,6 +61,13 @@ const defaultFormValues: ProjectionFormValues = {
   initialSa: 0,
   initialMa: 0,
   initialRa: 0,
+  initialRaSavingsForLimits: 0,
+  initialRaSavingsForContributionRouting: 0,
+  initialYtdOaInterest: 0,
+  initialYtdSaInterest: 0,
+  initialYtdMaInterest: 0,
+  initialYtdRaInterest: 0,
+  initialCashTopUpTaxReliefUsedThisYear: 0,
   housingWithdrawal: 0,
   netSaSavingsWithdrawnForInvestments: 0,
   topUpAmount: 0,
@@ -92,6 +107,27 @@ const projectionSearchParams = {
   initialSa: parseAsFloat.withDefault(defaultFormValues.initialSa),
   initialMa: parseAsFloat.withDefault(defaultFormValues.initialMa),
   initialRa: parseAsFloat.withDefault(defaultFormValues.initialRa),
+  initialRaSavingsForLimits: parseAsFloat.withDefault(
+    defaultFormValues.initialRaSavingsForLimits,
+  ),
+  initialRaSavingsForContributionRouting: parseAsFloat.withDefault(
+    defaultFormValues.initialRaSavingsForContributionRouting,
+  ),
+  initialYtdOaInterest: parseAsFloat.withDefault(
+    defaultFormValues.initialYtdOaInterest,
+  ),
+  initialYtdSaInterest: parseAsFloat.withDefault(
+    defaultFormValues.initialYtdSaInterest,
+  ),
+  initialYtdMaInterest: parseAsFloat.withDefault(
+    defaultFormValues.initialYtdMaInterest,
+  ),
+  initialYtdRaInterest: parseAsFloat.withDefault(
+    defaultFormValues.initialYtdRaInterest,
+  ),
+  initialCashTopUpTaxReliefUsedThisYear: parseAsFloat.withDefault(
+    defaultFormValues.initialCashTopUpTaxReliefUsedThisYear,
+  ),
   housingWithdrawal: parseAsFloat.withDefault(
     defaultFormValues.housingWithdrawal,
   ),
@@ -130,6 +166,34 @@ function getAgeAtMonth(birthDate: string, month: string): number | null {
   return year - birthYear - (monthNumber < birthMonth ? 1 : 0);
 }
 
+function isFiftyFifthBirthdayMonth(birthDate: string, month: string): boolean {
+  const [birthMonth, birthYear] = birthDate.split("/").map(Number);
+  const [year, monthNumber] = month.split("-").map(Number);
+  return (
+    Boolean(birthMonth && birthYear && year && monthNumber) &&
+    monthNumber === birthMonth &&
+    year - birthYear === retirementAccountAge
+  );
+}
+
+function calculateProjectionSafely(params: ProjectionParams | null): {
+  result: ReturnType<typeof calculateCpfProjection> | null;
+  error: string | null;
+} {
+  if (!params) return { result: null, error: null };
+  try {
+    return { result: calculateCpfProjection(params), error: null };
+  } catch (error) {
+    return {
+      result: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : "The projection inputs could not be processed.",
+    };
+  }
+}
+
 export default function ProjectionContent() {
   const [values, setValues] = useQueryStates(projectionSearchParams, {
     urlKeys: {
@@ -140,6 +204,13 @@ export default function ProjectionContent() {
       initialSa: "sa",
       initialMa: "ma",
       initialRa: "ra",
+      initialRaSavingsForLimits: "raLimits",
+      initialRaSavingsForContributionRouting: "raContributionRouting",
+      initialYtdOaInterest: "ytdInterestOa",
+      initialYtdSaInterest: "ytdInterestSa",
+      initialYtdMaInterest: "ytdInterestMa",
+      initialYtdRaInterest: "ytdInterestRa",
+      initialCashTopUpTaxReliefUsedThisYear: "taxReliefUsed",
       housingWithdrawal: "housing",
       netSaSavingsWithdrawnForInvestments: "saInvestments",
       topUpAmount: "topUp",
@@ -158,13 +229,36 @@ export default function ProjectionContent() {
       ? getAgeAtMonth(values.birthDate, values.startMonth)
       : null;
   const hasValidRange =
-    currentAge === null || (currentAge >= 0 && values.endAge >= currentAge);
-  const hasValidAccountState =
     currentAge === null ||
-    (currentAge < retirementAccountAge
-      ? values.initialRa === 0
-      : values.startMonth < specialAccountClosureMonth ||
-        values.initialSa === 0);
+    (currentAge >= 0 &&
+      values.endAge >= currentAge &&
+      values.endAge <= maximumProjectionAge);
+  const turns55InStartMonth = isFiftyFifthBirthdayMonth(
+    values.birthDate,
+    values.startMonth,
+  );
+  const raExistsAtOpening =
+    currentAge !== null &&
+    (currentAge > retirementAccountAge ||
+      (currentAge === retirementAccountAge && !turns55InStartMonth));
+  const hasValidAccountState = isProjectionOpeningAccountStateValid({
+    currentAge,
+    raExistsAtOpening,
+    startMonth: values.startMonth,
+    specialAccountClosureMonth,
+    initialBalances: {
+      oa: values.initialOa,
+      sa: values.initialSa,
+      ma: values.initialMa,
+      ra: values.initialRa,
+    },
+    initialYearToDateAccruedInterest: {
+      oa: values.initialYtdOaInterest,
+      sa: values.initialYtdSaInterest,
+      ma: values.initialYtdMaInterest,
+      ra: values.initialYtdRaInterest,
+    },
+  });
   const needsPermanentResidentSince =
     values.citizenship === "spr-year1" || values.citizenship === "spr-year2";
   const hasValidPermanentResidentSince =
@@ -172,12 +266,37 @@ export default function ProjectionContent() {
     (!values.permanentResidentSince && !needsPermanentResidentSince) ||
     (/^\d{4}-(0[1-9]|1[0-2])$/.test(values.permanentResidentSince) &&
       values.permanentResidentSince <= values.startMonth);
+  const hasValidTaxReliefContext =
+    values.topUpAccount !== "retirement" ||
+    (values.initialCashTopUpTaxReliefUsedThisYear >= 0 &&
+      values.initialCashTopUpTaxReliefUsedThisYear <= selfCashTopUpReliefCap &&
+      (!values.startMonth.endsWith("-01") ||
+        values.initialCashTopUpTaxReliefUsedThisYear === 0));
+  const hasValidMoneyInputs = [
+    values.monthlyIncome,
+    values.initialOa,
+    values.initialSa,
+    values.initialMa,
+    values.initialRa,
+    values.initialRaSavingsForLimits,
+    values.initialRaSavingsForContributionRouting,
+    values.initialYtdOaInterest,
+    values.initialYtdSaInterest,
+    values.initialYtdMaInterest,
+    values.initialYtdRaInterest,
+    values.housingWithdrawal,
+    values.netSaSavingsWithdrawnForInvestments,
+    values.topUpAmount,
+    values.transferAmount,
+  ].every((value) => Number.isFinite(value) && value >= 0);
   const canProject =
     hasValidBirthDate &&
     hasValidStartMonth &&
     hasValidRange &&
     hasValidAccountState &&
-    hasValidPermanentResidentSince;
+    hasValidPermanentResidentSince &&
+    hasValidTaxReliefContext &&
+    hasValidMoneyInputs;
 
   const projectionParams: ProjectionParams | null = canProject
     ? {
@@ -195,8 +314,42 @@ export default function ProjectionContent() {
           ma: values.initialMa,
           ra: values.initialRa,
         },
+        ...(values.startMonth.endsWith("-01") ||
+        values.initialYtdOaInterest > 0 ||
+        values.initialYtdSaInterest > 0 ||
+        values.initialYtdMaInterest > 0 ||
+        values.initialYtdRaInterest > 0
+          ? {
+              initialYearToDateAccruedInterest: {
+                oa: values.initialYtdOaInterest,
+                sa: values.initialYtdSaInterest,
+                ma: values.initialYtdMaInterest,
+                ra: values.initialYtdRaInterest,
+              },
+            }
+          : {}),
+        ...(values.topUpAccount === "retirement" &&
+        (values.startMonth.endsWith("-01") ||
+          values.initialCashTopUpTaxReliefUsedThisYear > 0)
+          ? {
+              initialCashTopUpTaxReliefUsedThisYear:
+                values.initialCashTopUpTaxReliefUsedThisYear,
+            }
+          : {}),
         netSaSavingsWithdrawnForInvestments:
           values.netSaSavingsWithdrawnForInvestments,
+        ...(raExistsAtOpening && values.initialRaSavingsForLimits > 0
+          ? {
+              initialRaSavingsForLimits: values.initialRaSavingsForLimits,
+            }
+          : {}),
+        ...(raExistsAtOpening &&
+        values.initialRaSavingsForContributionRouting > 0
+          ? {
+              initialRaSavingsForContributionRouting:
+                values.initialRaSavingsForContributionRouting,
+            }
+          : {}),
         retirementRouting: values.retirementRouting,
         ...(values.housingWithdrawal > 0
           ? { housingWithdrawal: values.housingWithdrawal }
@@ -221,9 +374,8 @@ export default function ProjectionContent() {
       }
     : null;
 
-  const result = projectionParams
-    ? calculateCpfProjection(projectionParams)
-    : null;
+  const calculation = calculateProjectionSafely(projectionParams);
+  const result = calculation.result;
   const finalBalance = result?.yearlyBalances.at(-1) ?? null;
 
   function handleChange(nextValues: Partial<ProjectionFormValues>): void {
@@ -272,7 +424,14 @@ export default function ProjectionContent() {
       />
 
       <div className="flex flex-col gap-6">
-        {result && finalBalance ? (
+        {calculation.error ? (
+          <Card>
+            <Card.Header>
+              <Card.Title>Check the projection inputs</Card.Title>
+              <Card.Description>{calculation.error}</Card.Description>
+            </Card.Header>
+          </Card>
+        ) : result && finalBalance ? (
           <>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap gap-2">
@@ -348,9 +507,9 @@ export default function ProjectionContent() {
             </Card.Header>
             <Card.Content className="flex flex-col gap-4">
               <Typography color="muted" type="body-sm">
-                The model uses fixed monthly Ordinary Wages, CPF floor interest
-                rates and the last published policy after official schedules
-                end.
+                The model uses fixed monthly Ordinary Wages, CPF Board&apos;s
+                published quarterly rates where available, and explicit floor
+                and frozen-policy assumptions after sourced schedules end.
               </Typography>
               <ul className="flex list-disc flex-col gap-2 pl-6 text-muted text-sm">
                 <li>

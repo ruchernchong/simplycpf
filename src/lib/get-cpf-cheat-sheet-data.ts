@@ -23,10 +23,22 @@ export interface CheatSheetData {
   subtitle: string;
   referenceYear: number;
   effectiveFrom: string;
-  verifiedAt: string;
+  catalogueVersion: string;
   scope: string;
   keyAges: CheatSheetKeyAge[];
   sections: CheatSheetSection[];
+}
+
+/** ISO modification date for page metadata, derived from section provenance. */
+export function getCheatSheetDateModified(data: CheatSheetData): string {
+  const latestVerificationDate = data.sections
+    .map((section) => section.verifiedAt)
+    .sort()
+    .at(-1);
+  if (!latestVerificationDate) {
+    throw new Error("The cheat sheet requires at least one sourced section.");
+  }
+  return latestVerificationDate;
 }
 
 function formatBasisPoints(value: number): string {
@@ -56,19 +68,25 @@ function officialSection(
   section: Omit<CheatSheetSection, "status" | "verifiedAt" | "sourceUrls">,
   ...metadata: PolicyMetadata[]
 ): CheatSheetSection {
+  const primaryMetadata = metadata[0];
+  if (!primaryMetadata) {
+    throw new Error("Cheat-sheet sections require policy metadata.");
+  }
   return {
     ...section,
     status: "official",
-    verifiedAt: CPF_POLICY_CATALOGUE.verifiedAt,
+    verifiedAt: primaryMetadata.verifiedAt,
     sourceUrls: sourceUrls(...metadata),
   };
 }
 
 export function getCpfCheatSheetData(): CheatSheetData {
+  const contributionVerifiedAt =
+    CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt;
   const currentSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.find(
     (schedule) =>
-      CPF_POLICY_CATALOGUE.verifiedAt >= schedule.effectiveFrom &&
-      CPF_POLICY_CATALOGUE.verifiedAt <= schedule.effectiveTo,
+      contributionVerifiedAt >= schedule.effectiveFrom &&
+      contributionVerifiedAt <= schedule.effectiveTo,
   );
   const latestInterest = CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(-1);
   if (!currentSchedule || !latestInterest) {
@@ -95,7 +113,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
     subtitle: `Official CPF reference data for ${referenceYear}, with published historical and forward tables where available. Product assumptions are excluded.`,
     referenceYear,
     effectiveFrom: currentSchedule.effectiveFrom,
-    verifiedAt: CPF_POLICY_CATALOGUE.verifiedAt,
+    catalogueVersion: CPF_POLICY_CATALOGUE.version,
     scope:
       contributionMetadata.scope ??
       "Private-sector and non-pensionable employees using default CPF rates.",
@@ -106,7 +124,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
         sourceUrl: CPF_POLICY_CATALOGUE.sources.specialAccountClosure.url,
       },
       {
-        label: "Statutory retirement age from July 2026",
+        label: `Statutory retirement age from ${rules.statutoryEmploymentAges.effectiveDate}`,
         value: String(rules.statutoryEmploymentAges.retirementAge),
         sourceUrl: CPF_POLICY_CATALOGUE.sources.momRetirementAges.url,
       },
@@ -146,17 +164,19 @@ export function getCpfCheatSheetData(): CheatSheetData {
       officialSection(
         {
           title: "OA / SA or RA / MA Allocation",
-          description:
-            "MA is allocated first, SA or RA second, and OA is the exact remainder. From age 55 after the 2025 SA closure, the retirement share goes to RA until FRS, then to OA.",
+          description: `MA is allocated first, SA or RA second, and OA is the exact remainder. From age ${rules.lifecycleAges.retirementAccountCreated} after the SA closure effective ${rules.specialAccountClosure.effectiveDate}, the retirement share goes to RA until FRS, then to OA.`,
           columns: ["Inclusive age band", "OA", "Retirement share", "MA"],
           rows: currentSchedule.allocationRates.map((band) => {
-            const retirementAccount =
-              band.id === "above-50-to-55"
-                ? "SA below 55; RA at 55"
-                : (band.minAgeExclusive ?? 0) >=
-                    rules.lifecycleAges.retirementAccountCreated
-                  ? "RA"
-                  : "SA";
+            const retirementAge = rules.lifecycleAges.retirementAccountCreated;
+            const straddlesRetirementAge =
+              (band.minAgeExclusive ?? 0) < retirementAge &&
+              (band.maxAgeInclusive ?? Number.POSITIVE_INFINITY) >=
+                retirementAge;
+            const retirementAccount = straddlesRetirementAge
+              ? `SA below ${retirementAge}; RA at ${retirementAge}`
+              : (band.minAgeExclusive ?? 0) >= retirementAge
+                ? "RA"
+                : "SA";
             return [
               band.description,
               formatBasisPoints(band.oaBasisPoints),
@@ -223,8 +243,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
       officialSection(
         {
           title: "CPF Interest Reference",
-          description:
-            "Official quarterly declarations, floor rates, and extra-interest tiers. Interest is computed monthly and credited annually.",
+          description: `Official quarterly declarations, floor rates, and extra-interest tiers. Interest is computed ${rules.interestTransactions.computation} and credited ${rules.interestTransactions.crediting}.`,
           columns: ["Rule", "Published value"],
           rows: [
             [
@@ -240,11 +259,11 @@ export function getCpfCheatSheetData(): CheatSheetData {
               `${formatDecimal(CPF_POLICY_CATALOGUE.interestRateMethodology.specialMediSaveRetirementAccounts.floorRate)}% p.a.`,
             ],
             [
-              "Below 55 extra interest",
+              `Below ${rules.lifecycleAges.retirementAccountCreated} extra interest`,
               `+${formatDecimal(rules.extraInterest.below55.extraPercentagePoints)}% on first ${formatCurrency(rules.extraInterest.below55.balanceCap)} combined; OA capped at ${formatCurrency(rules.extraInterest.ordinaryAccountCap)}`,
             ],
             [
-              "Age 55+ extra interest",
+              `Age ${rules.lifecycleAges.retirementAccountCreated}+ extra interest`,
               `+${formatDecimal(rules.extraInterest.age55AndAbove.firstTier.extraPercentagePoints)}% on first ${formatCurrency(rules.extraInterest.age55AndAbove.firstTier.balanceCap)} and +${formatDecimal(rules.extraInterest.age55AndAbove.secondTier.extraPercentagePoints)}% on next ${formatCurrency(rules.extraInterest.age55AndAbove.secondTier.balanceCap)}`,
             ],
             [
@@ -259,9 +278,13 @@ export function getCpfCheatSheetData(): CheatSheetData {
       officialSection(
         {
           title: "Retirement Sums",
-          description:
-            "BRS and FRS stay fixed for the cohort turning 55 in that year; ERS is the prevailing year's maximum top-up limit.",
-          columns: ["Year turning 55", "BRS", "FRS", "ERS"],
+          description: `BRS and FRS stay fixed for the cohort turning ${rules.lifecycleAges.retirementAccountCreated} in that year; ERS is the prevailing year's maximum top-up limit.`,
+          columns: [
+            `Year turning ${rules.lifecycleAges.retirementAccountCreated}`,
+            "BRS",
+            "FRS",
+            "ERS",
+          ],
           rows: CPF_POLICY_CATALOGUE.retirementSums.map((row) => [
             String(row.year),
             formatCurrency(row.brs),
@@ -274,8 +297,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
       officialSection(
         {
           title: "Basic Healthcare Sum",
-          description:
-            "Published annual BHS amounts. A member's applicable BHS is frozen in the year they turn 65.",
+          description: `Published annual BHS amounts. A member's applicable BHS is frozen in the year they turn ${rules.lifecycleAges.basicHealthcareSumFrozen}.`,
           columns: ["Year", "BHS"],
           rows: CPF_POLICY_CATALOGUE.basicHealthcareSums.map((row) => [
             String(row.year),
@@ -306,11 +328,11 @@ export function getCpfCheatSheetData(): CheatSheetData {
               ),
             ],
             [
-              "Actual retirement top-up capacity below 55",
+              `Actual retirement top-up capacity below ${rules.lifecycleAges.retirementAccountCreated}`,
               rules.retirementTopUps.actualCapacity.below55Limit,
             ],
             [
-              "Actual retirement top-up capacity from 55",
+              `Actual retirement top-up capacity from ${rules.lifecycleAges.retirementAccountCreated}`,
               rules.retirementTopUps.actualCapacity.from55Limit,
             ],
             [

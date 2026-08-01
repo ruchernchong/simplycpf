@@ -30,10 +30,13 @@ const payoutEligibilityAge =
   CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
 const interest = CPF_POLICY_CATALOGUE.interestRateMethodology;
 const closure = CPF_POLICY_CATALOGUE.rules.specialAccountClosure;
+const withdrawals = CPF_POLICY_CATALOGUE.rules.retirementWithdrawals;
+const withdrawalMetadata =
+  CPF_POLICY_CATALOGUE.metadata["cpf-retirement-withdrawals"];
 
 const PAGE_HEADER = {
   eyebrow: `At ${retirementAge}`,
-  title: "Your Special Account closes. Here is where the money goes.",
+  title: "Your Special Account closes. Here is the routing order.",
   lede: `CPF Board's Special Account closure took effect on ${closure.effectiveDate}. From age ${retirementAge}, retirement savings route to RA up to the applicable limit and then OA; the destinations have different uses and rates.`,
 } as const;
 
@@ -51,11 +54,10 @@ interface At55Figures {
 }
 
 /**
- * The projection captures milestones.age55 after a full year of contributions,
- * interest and the SA to RA conversion, so it cannot be read as the moment of
- * the birthday. The last balance before 55 is the honest "day before", and the
- * "day after" applies the conversion order to it directly: SA fills the FRS
- * first, then OA, and whatever is left over lands in OA.
+ * Annual projection rows are not day-level statements. Use the final modelled
+ * pre-55 year-end as an illustrative starting point, then apply CPF Board's
+ * age-55 transfer order directly: SA fills the FRS first, OA follows, and
+ * remaining SA savings move to OA.
  */
 function deriveFigures(
   projection: ProjectionResult,
@@ -171,11 +173,9 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
   return (
     <Card>
       <Card.Header className="flex flex-wrap items-start justify-between gap-4">
-        <Card.Title>
-          Your projected balances the day before, and the day after
-        </Card.Title>
+        <Card.Title>A pre-55 snapshot, then the age-55 transfer</Card.Title>
         <Typography color="muted" type="body-xs">
-          You turn {retirementAge} in {figures.year55} · FRS used{" "}
+          You turn {retirementAge} in {figures.year55} · illustrative FRS{" "}
           {money(figures.frs)}
         </Typography>
       </Card.Header>
@@ -183,7 +183,7 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
         <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex flex-col gap-4">
             <Typography color="muted" type="body-xs">
-              Day before · age {retirementAge - 1}
+              Last modelled year-end below {retirementAge}
             </Typography>
             <AccountRow
               amount={figures.dayBefore.sa}
@@ -204,7 +204,7 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
           <MovesDivider />
           <div className="flex flex-col gap-4">
             <Typography className="text-accent" type="body-xs">
-              Day after · age {retirementAge}
+              Same balances after the age-{retirementAge} routing order
             </Typography>
             <AccountRow
               highlight
@@ -228,10 +228,13 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
         </div>
         <Surface className="rounded-2xl p-4" variant="tertiary">
           <Typography color="muted" type="body-sm">
-            Nothing is lost in the move: the same {money(figures.total)} is
-            still yours. What changes is the interest rate on each part and when
-            you can reach it, {money(figures.dayAfter.ra)} is committed to
-            retirement savings at a published floor of{" "}
+            This is not a day-specific CPF statement: it applies the official
+            transfer order to the last annual snapshot below age {retirementAge}
+            . Nothing is lost in the illustrated move: the same{" "}
+            {money(figures.total)} remains in CPF. What changes is the account,
+            applicable rate, and withdrawal treatment. In this scenario,{" "}
+            {money(figures.dayAfter.ra)} is committed to retirement savings at a
+            published floor of{" "}
             {interest.specialMediSaveRetirementAccounts.floorRate.toFixed(2)}%,
             while {money(figures.dayAfter.oa)} sits in OA at a published floor
             of {interest.ordinaryAccount.floorRate.toFixed(2)}%. Access to
@@ -272,8 +275,8 @@ function ChangedCard(): ReactNode {
       <Card.Header>
         <Card.Title>What changed, and what did not</Card.Title>
         <Card.Description>
-          The 2025 change moved savings between accounts. It did not change how
-          much you have.
+          The change effective {closure.effectiveDate} moved savings between
+          accounts. It did not remove them from CPF.
         </Card.Description>
       </Card.Header>
       <Card.Content>
@@ -297,6 +300,63 @@ function ChangedCard(): ReactNode {
             </li>
           ))}
         </ul>
+      </Card.Content>
+    </Card>
+  );
+}
+
+function WithdrawalRulesCard(): ReactNode {
+  const cohortYear = withdrawals.cohortBornOnOrAfter.slice(0, 4);
+  const property = withdrawals.fromAge55.propertyOption;
+
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>What may be withdrawable</Card.Title>
+        <Card.Description>
+          Current CPF Board rules verified {withdrawalMetadata.verifiedAt}.
+          actual eligibility is personal and cohort-dependent.
+        </Card.Description>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
+        <ul className="flex flex-col gap-4">
+          <li>
+            <Typography color="muted" type="body-sm">
+              For members born in {cohortYear} or later, up to{" "}
+              <strong className="text-foreground">
+                {money(withdrawals.fromAge55.unconditionalAmount)}
+              </strong>{" "}
+              is unconditionally withdrawable from age {retirementAge}.
+            </Typography>
+          </li>
+          <li>
+            <Typography color="muted" type="body-sm">
+              After the Full Retirement Sum is set aside, excess OA savings are
+              withdrawable.
+            </Typography>
+          </li>
+          <li>
+            <Typography color="muted" type="body-sm">
+              A qualifying completed Singapore property whose lease lasts to at
+              least age {property.minimumRemainingLeaseThroughAge} may allow
+              eligible RA principal above BRS to be withdrawn, subject to
+              restoring RA towards FRS when the property is sold or transferred.
+            </Typography>
+          </li>
+        </ul>
+        <Typography color="muted" type="body-xs">
+          Interest, government grants and retirement top-ups are generally
+          excluded from the property-backed RA amount. Check CPF Board's
+          Retirement Dashboard before relying on a withdrawal figure.
+        </Typography>
+        <Link
+          href={CPF_POLICY_CATALOGUE.sources.retirementWithdrawals.url}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          CPF Board withdrawal guidance
+          <Link.Icon aria-hidden="true" />
+        </Link>
       </Card.Content>
     </Card>
   );
@@ -441,7 +501,7 @@ export default function At55Content(): ReactNode {
 
       {mounted && formStep < 2 && (
         <PromptCard title="Enter your salary and date of birth">
-          The day-before and day-after balances are projected from your own
+          The pre-55 annual snapshot and age-55 transfer illustration use your
           salary and age, so they need both. The inputs live on the home page
           and carry across every screen.
         </PromptCard>
@@ -449,18 +509,20 @@ export default function At55Content(): ReactNode {
 
       {alreadyPast && (
         <PromptCard title="This has already happened for you">
-          You are {retirementAge} or older, so your Special Account has closed and your
-          Retirement Account already exists. This screen projects the move for
-          members who have not reached {retirementAge} yet, so there is nothing left to
-          project for you. The two explanations below still apply.
+          You are {retirementAge} or older, so your Special Account has closed
+          and your Retirement Account already exists. This screen projects the
+          move for members who have not reached {retirementAge} yet, so there is
+          nothing left to project for you. The two explanations below still
+          apply.
         </PromptCard>
       )}
 
       {mounted && figures && <BalancesCard figures={figures} />}
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-3">
         <ChangedCard />
         {mounted && figures && <RetirementSumsCard figures={figures} />}
+        <WithdrawalRulesCard />
       </div>
     </div>
   );

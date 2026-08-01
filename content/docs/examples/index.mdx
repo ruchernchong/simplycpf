@@ -85,6 +85,13 @@ response = requests.post(
             "ma": 50000,
             "ra": 0,
         },
+        "initialYearToDateAccruedInterest": {
+            "oa": 0,
+            "sa": 0,
+            "ma": 0,
+            "ra": 0,
+        },
+        "initialCashTopUpTaxReliefUsedThisYear": 0,
         "endAge": 65,
         "citizenship": "citizen",
         "retirementTransfer": {
@@ -97,13 +104,20 @@ response.raise_for_status()
 projection = response.json()
 
 for row in projection["yearlyBalances"]:
-    print(row["year"], row["balances"], row["policy"]["status"])
+    print(
+        row["year"],
+        row["balances"],
+        row["raSavingsForLimits"],
+        row["raSavingsForContributionRouting"],
+        row.get("uncreditedInterest"),
+        row["policy"]["status"],
+    )
 
 assert projection["cpfLifeEstimate"] is None
 print(projection["cpfLifeReference"]["rows"])
 ```
 
-The returned salary and future-policy assumptions are part of the response. CPF LIFE rows are exact CPF Board references, not personalised estimates.
+Opening balances, accrued-interest context, top-up timing, interest policy, and CPF LIFE exclusions are explicit in the returned assumptions and warnings. CPF LIFE rows are exact CPF Board references, not personalised estimates.
 
 ## Official quarterly interest observations
 
@@ -133,13 +147,18 @@ This endpoint contains official quarterly declarations. It does not expose a rec
 ## Editable investment assumptions
 
 ```python
+rate_policy = requests.get(
+    "https://simplycpf.com/api/cpf/interest-rates"
+).json()
+oa_floor = rate_policy["methodology"]["ordinaryAccount"]["floorRate"]
+
 response = requests.post(
     "https://simplycpf.com/api/cpf/investment-comparison",
     json={
         "principal": 100000,
         "years": 20,
         "scenarios": [
-            {"name": "CPF OA floor preset", "rate": 2.5},
+            {"name": "CPF OA floor preset", "rate": oa_floor},
             {"name": "User investment assumption", "rate": 6.0},
         ],
     },
@@ -148,4 +167,4 @@ response.raise_for_status()
 print(response.json()["results"])
 ```
 
-The CPF floor preset is an official policy input. The 6% non-CPF return is a user assumption, not a CPF Board fact or market forecast.
+The CPF floor preset is loaded with official policy metadata. The 6% non-CPF return is a user assumption, not a CPF Board fact or market forecast.

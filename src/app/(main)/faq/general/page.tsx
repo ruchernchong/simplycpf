@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
-import faqData from "@/data/faq.json";
+import { buildFaqJsonLdMainEntity, faqData } from "@/data/cpf-faqs";
 
 export const metadata: Metadata = {
   title: "General CPF FAQ",
@@ -68,11 +68,7 @@ const GeneralFAQ = () => {
       },
       {
         "@type": "FAQPage",
-        mainEntity: faqData.map(({ question, answer }) => ({
-          "@type": "Question" as const,
-          name: question,
-          acceptedAnswer: { "@type": "Answer" as const, text: answer },
-        })),
+        mainEntity: buildFaqJsonLdMainEntity(faqData),
       },
     ],
   };

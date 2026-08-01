@@ -7,6 +7,7 @@ export default function CpfProjectionIntroBlock() {
   const extra = CPF_POLICY_CATALOGUE.rules.extraInterest;
   const ages = CPF_POLICY_CATALOGUE.rules.lifecycleAges;
   const cpfLifeReference = CPF_POLICY_CATALOGUE.cpfLife.reference;
+  const latestInterest = CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(-1);
 
   return (
     <section
@@ -22,8 +23,9 @@ export default function CpfProjectionIntroBlock() {
         <Card.Content className="flex flex-col gap-4">
           <Typography>
             The <strong>CPF Projection</strong> tool estimates how your CPF
-            balances will grow from now until retirement, based on your current
-            age, income, and contribution patterns.
+            balances may grow from the selected start month, based on the OA,
+            SA, MA and RA balances at the opening of that month, your birth
+            month, and a fixed monthly Ordinary Wage assumption.
           </Typography>
           <Typography>The projection accounts for:</Typography>
           <ul className="flex flex-col gap-2 text-muted">
@@ -37,10 +39,13 @@ export default function CpfProjectionIntroBlock() {
               (RA), and MediSave Account (MA)
             </li>
             <li>
-              <strong>Base interest rates</strong>, OA at{" "}
-              {interest.ordinaryAccount.floorRate}% and SA/MA/RA at{" "}
-              {interest.specialMediSaveRetirementAccounts.floorRate}% per annum
-              (the published floor rates used by this projection)
+              <strong>Base interest rates</strong>, CPF Board&apos;s published
+              quarterly declarations through{" "}
+              {latestInterest?.quarter ?? "the latest loaded quarter"}; later
+              months use the official OA {interest.ordinaryAccount.floorRate}%
+              and SA/MA/RA{" "}
+              {interest.specialMediSaveRetirementAccounts.floorRate}% floors as
+              an explicit SimplyCPF assumption
             </li>
             <li>
               <strong>Extra interest</strong>, Additional{" "}
@@ -53,8 +58,9 @@ export default function CpfProjectionIntroBlock() {
             <li>
               <strong>Key milestones</strong>, Age{" "}
               {ages.retirementAccountCreated} (SA closure and RA creation), age{" "}
-              {ages.cpfLifePayoutEligibility} (cohort BHS freeze and payout
-              eligibility age)
+              {ages.basicHealthcareSumFrozen} (cohort BHS freeze); CPF LIFE
+              payout eligibility is tracked separately from age{" "}
+              {ages.cpfLifePayoutEligibility}
             </li>
           </ul>
           <Typography>

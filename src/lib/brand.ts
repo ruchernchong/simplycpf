@@ -31,7 +31,7 @@ export const BRAND = {
   greenMid: "#5E9B79",
   /** Employer contribution. MA in charts. */
   greenLight: "#9CC4AC",
-  /** Caveats, ceilings hit, "this changed in 2025". Sparingly. */
+  /** Caveats, ceilings hit, and dated policy changes. Sparingly. */
   clay: "#8A5B33",
 
   /** Fixed chart encoding, never rotated. */

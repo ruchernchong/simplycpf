@@ -23,7 +23,14 @@ export const isValidDateFormat = (date: string): boolean => {
   if (!regex.test(date)) return false;
 
   const [month, year] = date.split("/").map(Number);
-  const currentYear = new Date().getFullYear();
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
 
-  return month >= 1 && month <= 12 && year > 1900 && year <= currentYear;
+  return (
+    month >= 1 &&
+    month <= 12 &&
+    year > 1900 &&
+    (year < currentYear || (year === currentYear && month <= currentMonth))
+  );
 };

@@ -46,9 +46,9 @@ export default function CpfLifeDefinitionBlock() {
             <strong>
               S$${formatNumber(inclusion.minimumRetirementSavingsAtPayoutStart)}
             </strong>{" "}
-            in retirement savings when payouts start are included
-            automatically. That amount is an automatic-inclusion condition, not
-            a minimum joining balance or minimum payout balance.
+            in retirement savings when payouts start are included automatically.
+            That amount is an automatic-inclusion condition, not a minimum
+            joining balance or minimum payout balance.
           </Typography>
           <Typography>
             CPF Board states that deferring payouts can increase them by up to{" "}

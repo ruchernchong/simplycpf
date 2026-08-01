@@ -3,8 +3,12 @@ import { formatNumber } from "@/lib/format";
 import { CPF_POLICY_CATALOGUE } from "@/policy";
 
 export default function CpfRetirementSumsBlock() {
+  const verifiedAt =
+    CPF_POLICY_CATALOGUE.metadata["cpf-retirement-sums"].verifiedAt;
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
   const sums = CPF_POLICY_CATALOGUE.retirementSums.find(
-    (row) => row.year === 2026,
+    (row) => verifiedAt >= row.effectiveFrom && verifiedAt <= row.effectiveTo,
   );
   if (!sums) throw new Error("Current CPF retirement sums are unavailable.");
 
@@ -50,8 +54,8 @@ export default function CpfRetirementSumsBlock() {
                 S${formatNumber(sums.frs)}
               </Typography>
               <Typography className="mt-1" color="muted" type="body-xs">
-                {frsMultiple}× BRS. The default amount set aside in RA at age 55
-                when sufficient savings are available.
+                {frsMultiple}× BRS. The default amount set aside in RA at age{" "}
+                {retirementAge} when sufficient savings are available.
               </Typography>
             </div>
             <div className="rounded-lg border border-border bg-muted/50 p-4">
@@ -86,9 +90,9 @@ export default function CpfRetirementSumsBlock() {
           )}
 
           <Typography color="muted" type="body-sm">
-            Withdrawal at 55 depends on the amount set aside, property-related
-            conditions and other CPF withdrawal rules. Amounts left in CPF
-            continue earning the applicable interest.
+            Withdrawal at {retirementAge} depends on the amount set aside,
+            property-related conditions and other CPF withdrawal rules. Amounts
+            left in CPF continue earning the applicable interest.
           </Typography>
         </Card.Content>
       </Card>

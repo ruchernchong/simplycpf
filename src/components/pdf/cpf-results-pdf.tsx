@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import { BRAND } from "@/lib/brand";
 import type { PdfData } from "@/lib/download-pdf";
+import type { ContributionAllocationBranch } from "@/policy";
 
 /*
  * @react-pdf/renderer cannot read CSS custom properties, which is what
@@ -135,6 +136,16 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: SLATE_600,
   },
+  contextBox: {
+    padding: 10,
+    backgroundColor: SLATE_100,
+    borderRadius: 4,
+  },
+  contextText: {
+    color: SLATE_600,
+    lineHeight: 1.4,
+    marginBottom: 4,
+  },
 });
 
 function formatCurrency(value: number, decimals = 2): string {
@@ -157,6 +168,22 @@ function formatDate(date: Date): string {
 function formatDifference(value: number): string {
   const prefix = value > 0 ? "+" : "";
   return `${prefix}${formatCurrency(value)}`;
+}
+
+function formatRate(rate: number): string {
+  const percentage = rate * 100;
+  const rounded = Math.round(percentage * 100) / 100;
+  const decimalPlaces = Number.isInteger(rounded)
+    ? 0
+    : Number.isInteger(rounded * 10)
+      ? 1
+      : 2;
+
+  return new Intl.NumberFormat("en-SG", {
+    style: "percent",
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  }).format(rate);
 }
 
 interface PieChartProps {
@@ -245,14 +272,16 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>You save ({data.employeeRate}%)</Text>
+            <Text style={styles.rowLabel}>
+              You save ({formatRate(data.employeeRate)} effective)
+            </Text>
             <Text style={styles.rowValueAccent}>
               {formatCurrency(data.employeeContribution)}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>
-              Your employer adds ({data.employerRate}%)
+              Your employer adds ({formatRate(data.employerRate)} effective)
             </Text>
             <Text style={styles.rowValueAccent}>
               {formatCurrency(data.employerContribution)}
@@ -267,12 +296,37 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Additional Wage (AW) room left</Text>
+            <Text style={styles.rowLabel}>Applied wage band</Text>
+            <Text style={styles.rowValue}>{data.wageBandLabel}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>
+              Remaining Additional Wage ceiling
+            </Text>
             <Text style={styles.rowValue}>
-              {formatCurrency(data.remainingAW, 0)}
+              {data.remainingAdditionalWageCeiling === null
+                ? "Not calculated — annual OW and prior AW are required"
+                : formatCurrency(data.remainingAdditionalWageCeiling, 0)}
             </Text>
           </View>
+          <Text style={styles.contextText}>
+            Effective rates above divide the rounded contribution amounts by
+            contributable wages. They are not nominal full-wage-band rates.
+          </Text>
         </View>
+
+        {data.warnings.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Important Context</Text>
+            <View style={styles.contextBox}>
+              {data.warnings.map((warning) => (
+                <Text key={warning} style={styles.contextText}>
+                  • {warning}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Ceiling Comparison */}
         {data.ceilingComparison && (
@@ -285,7 +339,9 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
                 <Text style={styles.ceilingValue}>
                   {formatCurrency(data.ceilingComparison.preCeiling, 0)}
                 </Text>
-                <Text style={styles.ceilingLabel}>Pre-Sept 2023</Text>
+                <Text style={styles.ceilingLabel}>
+                  Previous published ceiling
+                </Text>
               </View>
               <Text style={{ color: SLATE_400 }}>→</Text>
               <View>
@@ -331,27 +387,49 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
         {/* Distribution */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Where Your Retirement Money Goes
+            {data.routing?.selected === "undetermined"
+              ? "Two Official Account-Routing Outcomes"
+              : "Where This Month's CPF Goes"}
           </Text>
-          <View style={styles.distributionRow}>
-            <View style={styles.distributionTable}>
-              <View style={styles.row}>
-                <Text style={styles.rowLabel}>Total Going Into Your CPF</Text>
-                <Text style={styles.rowValue}>
-                  {formatCurrency(data.totalContribution)}
-                </Text>
+          {data.routing?.selected === "undetermined" ? (
+            <View>
+              <Text style={styles.contextText}>
+                The retirement allocation goes to RA until the Full Retirement
+                Sum is set aside, then to OA. Account context was not supplied,
+                so neither branch is selected.
+              </Text>
+              <View style={styles.comparisonGrid}>
+                <RoutingBranch
+                  distribution={data.routing.branches.beforeFullRetirementSum}
+                  title="Before FRS is set aside"
+                />
+                <RoutingBranch
+                  distribution={data.routing.branches.afterFullRetirementSum}
+                  title="After FRS is set aside"
+                />
               </View>
-              {data.distribution.map(({ name, value }) => (
-                <View key={name} style={styles.row}>
-                  <Text style={styles.rowLabel}>{name}</Text>
-                  <Text style={styles.rowValue}>{formatCurrency(value)}</Text>
+            </View>
+          ) : data.distribution ? (
+            <View style={styles.distributionRow}>
+              <View style={styles.distributionTable}>
+                <View style={styles.row}>
+                  <Text style={styles.rowLabel}>Total Going Into Your CPF</Text>
+                  <Text style={styles.rowValue}>
+                    {formatCurrency(data.totalContribution)}
+                  </Text>
                 </View>
-              ))}
+                {data.distribution.map(({ name, value }) => (
+                  <View key={name} style={styles.row}>
+                    <Text style={styles.rowLabel}>{name}</Text>
+                    <Text style={styles.rowValue}>{formatCurrency(value)}</Text>
+                  </View>
+                ))}
+              </View>
+              <View style={styles.chartContainer}>
+                <PieChart data={data.distribution} size={100} />
+              </View>
             </View>
-            <View style={styles.chartContainer}>
-              <PieChart data={data.distribution} size={100} />
-            </View>
-          </View>
+          ) : null}
         </View>
 
         {/* Footer */}
@@ -361,5 +439,30 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
         </Text>
       </Page>
     </Document>
+  );
+}
+
+interface RoutingBranchProps {
+  title: string;
+  distribution: ContributionAllocationBranch;
+}
+
+function RoutingBranch({ title, distribution }: RoutingBranchProps) {
+  const rows = [
+    ["Ordinary Account (OA)", distribution.OA],
+    ["Retirement Account (RA)", distribution.RA],
+    ["MediSave Account (MA)", distribution.MA],
+  ] as const;
+
+  return (
+    <View style={styles.comparisonCard}>
+      <Text style={styles.comparisonLabel}>{title}</Text>
+      {rows.map(([name, value]) => (
+        <View key={name} style={styles.row}>
+          <Text style={styles.rowLabel}>{name}</Text>
+          <Text style={styles.rowValue}>{formatCurrency(value)}</Text>
+        </View>
+      ))}
+    </View>
   );
 }

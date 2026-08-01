@@ -1,16 +1,17 @@
 import type { PolicyMetadata } from "@/policy";
 import {
   CPF_COHORT_FULL_RETIREMENT_SUM_ROWS,
-  CPF_POLICY_VERIFIED_AT,
   CPF_RETIREMENT_SUM_ROWS,
   findCohortFullRetirementSum,
   getPolicyMetadata,
+  POLICY_METADATA,
   POLICY_SOURCES,
 } from "@/policy";
 
 export const CPF_RETIREMENT_SUMS_SOURCE_URL = POLICY_SOURCES.retirementSums.url;
 
-export const CPF_RETIREMENT_SUMS_VERIFIED_AT = CPF_POLICY_VERIFIED_AT;
+export const CPF_RETIREMENT_SUMS_VERIFIED_AT =
+  POLICY_METADATA["cpf-retirement-sums"].verifiedAt;
 
 export interface RetirementSums {
   brs: number;
@@ -74,7 +75,7 @@ export function getRetirementSumsForYear(year: number): RetirementSums {
   return value;
 }
 
-/** Holds 2027 sums constant for unpublished future projection years. */
+/** Holds the latest published sums constant for future projection years. */
 export function getRetirementSumsForProjection(
   year: number,
 ): RetirementSumsPolicyValue {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, cn, Typography } from "@heroui/react";
+import { Card, Chip, cn, Surface, Typography } from "@heroui/react";
 import { KPI } from "@heroui-pro/react";
 import { formatCurrency } from "@/lib/format";
 import { AssumptionsCard } from "./assumptions-card";
@@ -34,25 +34,25 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
     {
       label: "From your pay",
       value: figures.employee,
-      note: `${formatRate(figures.employeeRate)} of ${formatCurrency(figures.contributable, 0)}`,
+      note: `${formatRate(figures.employeeRate)} effective after CPF rounding`,
       tone: "plain",
     },
     {
       label: "From employer",
       value: figures.employer,
-      note: `${formatRate(figures.employerRate)}, on top of pay`,
+      note: `${formatRate(figures.employerRate)} effective, on top of pay`,
       tone: "plain",
     },
     {
       label: "Into CPF",
       value: figures.total,
-      note: `${formatRate(figures.totalRate)} of ${formatCurrency(figures.contributable, 0)}`,
+      note: `${formatRate(figures.totalRate)} effective on ${formatCurrency(figures.contributable, 0)}`,
       tone: "accent",
     },
   ];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <Card className="gap-4 p-6">
         <Card.Header>
           <Typography color="muted" type="body-xs">
@@ -70,6 +70,25 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
               Illustrative figures for {formatCurrency(ILLUSTRATIVE_INCOME, 0)}{" "}
               a month at {ILLUSTRATIVE_AGE}, enter your own numbers on the left.
             </Typography>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip size="sm" variant="tertiary">
+              {figures.wageBandLabel}
+            </Chip>
+            <Typography color="muted" type="body-xs">
+              {figures.wageBandDescription}
+            </Typography>
+          </div>
+          {figures.warnings.length > 0 && (
+            <Surface className="rounded-2xl p-4" variant="tertiary">
+              <ul className="flex flex-col gap-2">
+                {figures.warnings.map((warning) => (
+                  <li key={warning.code}>
+                    <Typography type="body-sm">{warning.message}</Typography>
+                  </li>
+                ))}
+              </ul>
+            </Surface>
           )}
         </Card.Content>
       </Card>
@@ -118,11 +137,12 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
 
       <DistributionCard figures={figures} />
 
-      <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <CeilingComparisonCard figures={figures} />
         <AssumptionsCard
           ceiling={figures.ceiling}
           ceilingDate={figures.ceilingDate}
+          citizenship={figures.citizenship}
         />
       </div>
     </div>

@@ -6,6 +6,9 @@ export default function CpfInterestTiersBlock() {
   const policy = CPF_POLICY_CATALOGUE.rules.extraInterest;
   const below55 = policy.below55;
   const senior = policy.age55AndAbove;
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+  const transactionTiming = CPF_POLICY_CATALOGUE.rules.interestTransactions;
   const under55Maximum =
     below55.balanceCap * (below55.extraPercentagePoints / 100);
   const seniorMaximum =
@@ -34,7 +37,7 @@ export default function CpfInterestTiersBlock() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-secondary p-4">
               <Typography type="body-sm" weight="semibold">
-                Under Age 55
+                Under age {retirementAge}
               </Typography>
               <Typography type="h3" weight="bold">
                 +{below55.extraPercentagePoints}%
@@ -51,7 +54,7 @@ export default function CpfInterestTiersBlock() {
             </div>
             <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-secondary p-4">
               <Typography type="body-sm" weight="semibold">
-                Age 55 and Above
+                Age {retirementAge} and above
               </Typography>
               <Typography type="h3" weight="bold">
                 +{senior.firstTier.extraPercentagePoints}% then +
@@ -75,15 +78,16 @@ export default function CpfInterestTiersBlock() {
             any CPF LIFE premium balance), then OA up to S$
             {formatNumber(policy.ordinaryAccountCap)}, SA, and MA. Extra
             interest earned on OA goes to {below55.oaExtraInterestCreditedTo}{" "}
-            below 55 or {senior.oaExtraInterestCreditedTo} from 55; extra
-            interest earned on the other accounts stays in the respective
-            account.
+            below {retirementAge} or {senior.oaExtraInterestCreditedTo} from{" "}
+            {retirementAge}; extra interest earned on the other accounts stays
+            in the respective account.
           </Typography>
 
           <Typography color="muted" type="body-sm">
-            CPF interest is computed monthly and credited annually. Transactions
-            during a month affect which balances earn interest, so a simple
-            annual percentage multiplication is not always the credited amount.
+            CPF interest is computed {transactionTiming.computation} and
+            credited {transactionTiming.crediting}. Fresh inflows start earning
+            in the {transactionTiming.freshInflowsStartEarning}; withdrawals
+            stop earning in the {transactionTiming.withdrawalsStopEarning}.
           </Typography>
 
           <Link

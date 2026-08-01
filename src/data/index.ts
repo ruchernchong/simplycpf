@@ -2,6 +2,7 @@ import {
   type AllocationRateBand,
   type ContributionCitizenship,
   type ContributionRateBand,
+  CPF_POLICY_CATALOGUE,
   getContributionRatesForCitizenship,
   resolveContributionSchedule,
 } from "@/policy";
@@ -23,17 +24,25 @@ export function getAgeGroupsForMonth(
 
   return schedule.allocationRates.map((allocation) => {
     const contribution = findContributionBand(contributionRates, allocation);
+    const retirementAge =
+      CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
     const retirementAccount =
-      contributionMonth >= "2025-01" && (allocation.minAgeExclusive ?? 0) >= 55
+      contributionMonth >=
+        CPF_POLICY_CATALOGUE.rules.specialAccountClosure.effectiveDate.slice(
+          0,
+          7,
+        ) && (allocation.minAgeExclusive ?? 0) >= retirementAge
         ? "RA"
         : "SA";
 
     return {
       description: allocation.description,
-      minAge: allocation.minAgeExclusive ?? 0,
+      ...(allocation.minAgeExclusive === undefined
+        ? {}
+        : { minAgeExclusive: allocation.minAgeExclusive }),
       ...(allocation.maxAgeInclusive === undefined
         ? {}
-        : { maxAge: allocation.maxAgeInclusive }),
+        : { maxAgeInclusive: allocation.maxAgeInclusive }),
       contributionRate: {
         employee: contribution.employeeBasisPoints / 10000,
         employer: contribution.employerBasisPoints / 10000,
@@ -47,16 +56,25 @@ export function getAgeGroupsForMonth(
   });
 }
 
-/** Current (2026) rates; retained for existing UI and selector imports. */
-export const ageGroups: AgeGroup[] = getAgeGroupsForMonth("2026-01", "citizen");
+/** Rates current on the contribution dataset's verification date. */
+export const ageGroups: AgeGroup[] = getAgeGroupsForMonth(
+  CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
+  "citizen",
+);
 
 function findContributionBand(
   contributionRates: readonly ContributionRateBand[],
   allocation: AllocationRateBand,
 ): ContributionRateBand {
   const contributionAgeBand =
-    allocation.maxAgeInclusive !== undefined && allocation.maxAgeInclusive <= 55
-      ? "55-and-below"
+    allocation.maxAgeInclusive !== undefined &&
+    allocation.maxAgeInclusive <=
+      CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated
+      ? contributionRates.find(
+          (candidate) =>
+            candidate.maxAgeInclusive ===
+            CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated,
+        )?.id
       : allocation.id;
   const match = contributionRates.find(
     (candidate) => candidate.id === contributionAgeBand,

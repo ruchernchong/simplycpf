@@ -62,12 +62,19 @@ Omitting that context returns HTTP `422`; the service does not infer annual wage
     "ma": 50000,
     "ra": 0
   },
+  "initialYearToDateAccruedInterest": {
+    "oa": 0,
+    "sa": 0,
+    "ma": 0,
+    "ra": 0
+  },
+  "initialCashTopUpTaxReliefUsedThisYear": 0,
   "endAge": 65,
   "citizenship": "citizen"
 }
 ```
 
-The projection ledger is monthly. It holds fixed monthly OW and the last published future policy constant unless the caller supplies different context, and labels affected rows `assumed`. The `retirementTransfer` field routes OA to SA below 55 and RA from 55.
+`initialBalances` are the opening balances of `startMonth`. For a start after January, supply accrued-but-uncredited interest from CPF records and cash top-up relief already used in that calendar year. The projection ledger is monthly. It holds fixed monthly OW and the last published future policy constant unless the caller supplies different context, and labels affected rows `assumed`. The `retirementTransfer` field routes OA to SA below 55 and RA from 55.
 
 ## Errors
 
@@ -82,6 +89,6 @@ Deprecated for one compatibility cycle: contribution `income` → `ordinaryWages
 
 ## Next steps
 
-- Explore the [API reference](/developer/api)
-- Copy complete [examples](/developer/examples)
-- Review the [v2 migration changelog](/developer/changelog)
+- Explore the [API reference](/docs/api)
+- Copy complete [examples](/docs/examples)
+- Review the [v2 migration changelog](/docs/changelog)

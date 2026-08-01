@@ -1,21 +1,25 @@
 "use client";
 
 import { Card, Separator, Typography } from "@heroui/react";
-import { CPF_ADDITIONAL_WAGE_CEILING } from "@/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+import type { CitizenshipStatus } from "@/types";
 
 interface AssumptionsCardProps {
   ceiling: number;
   ceilingDate: string;
+  citizenship: CitizenshipStatus;
 }
 
 export function AssumptionsCard({
   ceiling,
   ceilingDate,
+  citizenship,
 }: AssumptionsCardProps) {
+  const wageRules = CPF_POLICY_CATALOGUE.rules.wageBands;
   const assumptions = [
-    `Ordinary wages only. Bonuses sit under the ${formatCurrency(CPF_ADDITIONAL_WAGE_CEILING, 0)} annual ceiling.`,
-    "Citizen or PR from the 3rd year, earning above $750 a month.",
+    `Ordinary Wages only. Additional Wages use a separate annual ceiling of ${formatCurrency(wageRules.annualAdditionalWageCeiling, 0)} and need annual OW and prior-AW context.`,
+    `Citizenship schedule: ${citizenship}. The full-rate band starts above ${formatCurrency(wageRules.fullRatesAbove, 0)}; lower wages use CPF's phased rules.`,
     `Ordinary wage ceiling of ${formatCurrency(ceiling, 0)}, effective ${formatDate(ceilingDate, "d MMMM yyyy")}.`,
     "Shown to the cent. CPF rounds the total contribution to the nearest dollar.",
   ];

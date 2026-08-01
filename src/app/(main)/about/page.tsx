@@ -6,8 +6,14 @@ import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, WEBSITE_ID } from "@/config";
-import faqData from "@/data/faq.json";
+import { faqData } from "@/data/cpf-faqs";
 import { cn } from "@/lib/utils";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
+const retirementAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+const firstSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.at(0);
+const latestSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.at(-1);
 
 export const metadata: Metadata = {
   title: "About SimplyCPF: Free Singapore CPF Contribution Calculator",
@@ -41,7 +47,7 @@ export const metadata: Metadata = {
   },
 };
 
-const About = () => {
+export default function About() {
   const schema: Graph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -53,6 +59,8 @@ const About = () => {
           "About SimplyCPF, a free, open-source CPF contribution calculator for Singapore employees and employers, with frequently asked questions about CPF contributions, income ceiling changes, and account distributions.",
         url: `${BASE_URL}/about`,
         inLanguage: "en-SG",
+        dateModified:
+          CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
         isPartOf: { "@id": WEBSITE_ID },
         speakable: {
           "@type": "SpeakableSpecification",
@@ -90,7 +98,7 @@ const About = () => {
           <Card.Header>
             <Card.Title>About SimplyCPF</Card.Title>
             <Card.Description>
-              No guesswork. The core tools stay free and sign-up is optional.
+              No guesswork. The core tools stay free with no sign-up required.
             </Card.Description>
           </Card.Header>
           <Card.Content className="flex flex-col gap-4">
@@ -103,36 +111,25 @@ const About = () => {
             </Typography>
             <Typography>
               Contribution and allocation schedules vary by age, wage band,
-              effective month and citizenship status. From age 55, the
-              retirement share may go to RA or OA depending on whether the Full
-              Retirement Sum has been set aside, so SimplyCPF exposes both
+              effective month and citizenship status. From age {retirementAge},
+              the retirement share may go to RA or OA depending on whether the
+              Full Retirement Sum has been set aside, so SimplyCPF exposes both
               official branches when account context is unavailable.
             </Typography>
             <Typography>
-              All calculation logic is open-source and verifiable on GitHub.
-              The versioned policy catalogue links every official dataset to
-              CPF Board, IRAS or MOM and records its effective and verification
+              All calculation logic is open-source and verifiable on GitHub. The
+              versioned policy catalogue links every official dataset to CPF
+              Board, IRAS or MOM and records its effective and verification
               dates. SimplyCPF assumptions are labelled separately.
             </Typography>
             <Typography>
-              If you ask SimplyCPF to email you a CPF cheat sheet or readiness
-              report, we only use your email address to send that requested
-              resource. You can read the current disclosure on the{" "}
-              <Link
-                href="/privacy"
-                className="text-accent underline underline-offset-2 hover:text-accent/80"
-              >
-                privacy page
-              </Link>
-              .
-            </Typography>
-            <Typography>
-              This tool covers the progressive increases in CPF Income Ceiling
-              from 2023 to 2026 and published contribution schedules through
-              2027. Its contribution scope is private-sector and non-pensionable
-              employees who are Singapore Citizens or SPRs using default G/G
-              rates. Platform workers, self-employed persons, pensionable
-              employees and alternative SPR arrangements remain out of scope.
+              This tool covers published CPF contribution and ceiling schedules
+              from {firstSchedule?.effectiveFrom} through{" "}
+              {latestSchedule?.effectiveTo}. Its contribution scope is
+              private-sector and non-pensionable employees who are Singapore
+              Citizens or SPRs using default G/G rates. Platform workers,
+              self-employed persons, pensionable employees and alternative SPR
+              arrangements remain out of scope.
             </Typography>
           </Card.Content>
         </Card>
@@ -209,6 +206,4 @@ const About = () => {
       </div>
     </>
   );
-};
-
-export default About;
+}

@@ -7,6 +7,8 @@ function thousands(value: number) {
 
 const interestMethodology = CPF_POLICY_CATALOGUE.interestRateMethodology;
 const extraInterest = CPF_POLICY_CATALOGUE.rules.extraInterest;
+const retirementAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
 
 interface Tile {
   label: string;
@@ -27,13 +29,13 @@ const tiles: Tile[] = [
     note: `${interestMethodology.specialMediSaveRetirementAccounts.peg}, plus ${interestMethodology.specialMediSaveRetirementAccounts.markupPercentagePoints} percentage point, subject to the published floor.`,
   },
   {
-    label: "Extra, under 55",
+    label: `Extra, under ${retirementAge}`,
     value: `+${extraInterest.below55.extraPercentagePoints.toFixed(2)}%`,
     note: `On the first ${thousands(extraInterest.below55.balanceCap)} combined, of which at most ${thousands(extraInterest.ordinaryAccountCap)} from OA.`,
     accent: true,
   },
   {
-    label: "Extra, 55 and over",
+    label: `Extra, ${retirementAge} and over`,
     value: `+${extraInterest.age55AndAbove.firstTier.extraPercentagePoints.toFixed(2)}%`,
     note: `On the first ${thousands(extraInterest.age55AndAbove.firstTier.balanceCap)}, then +${extraInterest.age55AndAbove.secondTier.extraPercentagePoints.toFixed(0)}% on the next ${thousands(extraInterest.age55AndAbove.secondTier.balanceCap)}.`,
     accent: true,

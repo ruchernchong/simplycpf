@@ -15,17 +15,21 @@ export function CeilingComparisonCard({ figures }: CeilingComparisonCardProps) {
   const previousDate = findPreviousCeilingDate(figures.ceilingDate);
   const previousCeiling = CPF_INCOME_CEILING[previousDate];
 
-  const previousResult = calculateCpfContribution({
-    contributionMonth: previousDate,
-    ordinaryWages: figures.gross,
+  const previousInputBase = {
+    contributionMonth: figures.contributionMonth,
+    ordinaryWages: Math.min(figures.gross, previousCeiling),
     citizenship: figures.citizenship,
-    age: figures.age,
-  });
+  };
+  const previousResult = calculateCpfContribution(
+    figures.birthMonth
+      ? { ...previousInputBase, birthMonth: figures.birthMonth }
+      : { ...previousInputBase, age: figures.age },
+  );
 
-  const previousTakeHome = previousResult.afterCpfContribution;
+  const previousTakeHome = figures.gross - previousResult.contribution.employee;
   const previousTotal = previousResult.contribution.totalContribution;
 
-  const currentLabel = formatDate(figures.ceilingDate, "yyyy");
+  const currentLabel = "Current ceiling";
   const previousLabel = `${formatDate(previousDate, "yyyy")} ceiling`;
 
   const deltaBase =
@@ -51,10 +55,7 @@ export function CeilingComparisonCard({ figures }: CeilingComparisonCardProps) {
   return (
     <Card className="gap-6 p-6">
       <Card.Header className="flex-row flex-wrap items-baseline justify-between gap-2">
-        <Card.Title>
-          Why {formatDate(figures.ceilingDate, "MMMM")}&apos;s pay looked
-          different
-        </Card.Title>
+        <Card.Title>What the latest ceiling step changes</Card.Title>
         <Typography color="muted" type="body-xs">
           {formatCurrency(previousCeiling, 0)} →{" "}
           {formatCurrency(figures.ceiling, 0)}
@@ -93,8 +94,8 @@ export function CeilingComparisonCard({ figures }: CeilingComparisonCardProps) {
         <Surface className="rounded-2xl p-4" variant="tertiary">
           <Typography type="body-sm">
             {figures.gross <= previousCeiling
-              ? `Your salary sits below both the ${formatDate(previousDate, "yyyy")} and ${currentLabel} ceilings, so the increase changed nothing for you.`
-              : `The ceiling rose from ${formatCurrency(previousCeiling, 0)} to ${formatCurrency(figures.ceiling, 0)}, so ${formatCurrency(deltaBase)} more of your salary is now CPF-eligible. You see ${formatCurrency(takeHomeDrop)} less in the bank and ${formatCurrency(cpfGain)} more in CPF each month, of which ${formatCurrency(employerDelta)} is your employer's money, not yours.`}
+              ? `Your salary sits below both the previous and current ceilings, so the increase changed nothing for you.`
+              : `Holding this month's contribution rates and age band constant, the ceiling step from ${formatCurrency(previousCeiling, 0)} to ${formatCurrency(figures.ceiling, 0)} makes ${formatCurrency(deltaBase)} more of your salary CPF-eligible. You see ${formatCurrency(takeHomeDrop)} less in the bank and ${formatCurrency(cpfGain)} more in CPF each month, of which ${formatCurrency(employerDelta)} is your employer's money, not yours.`}
           </Typography>
         </Surface>
       </Card.Content>

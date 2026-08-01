@@ -19,6 +19,7 @@ import {
   CPF_CONTRIBUTION_SCHEDULES,
   CPF_INTEREST_FLOOR_RATES,
   CPF_POLICY_RULES,
+  CPF_QUARTERLY_INTEREST_RATES,
 } from "@/policy";
 import type {
   CitizenshipStatus,
@@ -34,11 +35,12 @@ const specialAccountClosureMonth =
 const earliestProjectionMonth =
   CPF_CONTRIBUTION_SCHEDULES[0].effectiveFrom.slice(0, 7);
 const maximumProjectionAge =
-  CPF_POLICY_RULES.lifecycleAges.latestVoluntaryCpfLifeJoinAgeExclusive;
+  CPF_POLICY_RULES.lifecycleAges.latestCpfLifePayoutStart;
 const selfTaxReliefCap =
   CPF_POLICY_RULES.retirementTopUps.taxRelief.selfAnnualCap;
 const propertyLeaseQualifyingAge =
   CPF_POLICY_RULES.age55PropertyPledge.qualifyingLeaseMustLastThroughAge;
+const latestDeclaredInterestQuarter = CPF_QUARTERLY_INTEREST_RATES.at(-1);
 
 export type ProjectionTopUpAccount = "retirement" | "MA";
 
@@ -53,6 +55,13 @@ export interface ProjectionFormValues {
   initialSa: number;
   initialMa: number;
   initialRa: number;
+  initialRaSavingsForLimits: number;
+  initialRaSavingsForContributionRouting: number;
+  initialYtdOaInterest: number;
+  initialYtdSaInterest: number;
+  initialYtdMaInterest: number;
+  initialYtdRaInterest: number;
+  initialCashTopUpTaxReliefUsedThisYear: number;
   housingWithdrawal: number;
   netSaSavingsWithdrawnForInvestments: number;
   topUpAmount: number;
@@ -115,7 +124,7 @@ const retirementRoutingOptions: {
 }[] = [
   { label: "Full Retirement Sum", value: "full-retirement-sum" },
   {
-    label: "Basic sum + eligible property",
+    label: "Withdraw to basic sum + property",
     value: "basic-retirement-sum-with-property",
   },
 ];
@@ -198,32 +207,54 @@ export default function ProjectionForm({
   onChange,
   onReset,
 }: ProjectionFormProps) {
+  const [birthMonth, birthYear] = values.birthDate.split("/").map(Number);
+  const [startYear, startMonthNumber] = values.startMonth
+    .split("-")
+    .map(Number);
+  const turns55InStartMonth =
+    Boolean(birthMonth && birthYear && startYear && startMonthNumber) &&
+    startMonthNumber === birthMonth &&
+    startYear - birthYear === retirementAccountAge;
+  const raExistsAtOpening =
+    currentAge !== null &&
+    (currentAge > retirementAccountAge ||
+      (currentAge === retirementAccountAge && !turns55InStartMonth));
   const raIsInvalid =
     currentAge !== null &&
-    currentAge < retirementAccountAge &&
-    values.initialRa > 0;
+    !raExistsAtOpening &&
+    (values.initialRa > 0 || values.initialYtdRaInterest > 0);
   const saIsInvalid =
-    currentAge !== null &&
-    currentAge >= retirementAccountAge &&
-    values.startMonth >= specialAccountClosureMonth &&
+    raExistsAtOpening &&
+    values.startMonth > specialAccountClosureMonth &&
     values.initialSa > 0;
   const isPermanentResident = values.citizenship !== "citizen";
   const needsPermanentResidentSince =
     values.citizenship === "spr-year1" || values.citizenship === "spr-year2";
+  const startsInJanuary = startMonthNumber === 1;
+  const hasJanuaryAccruedInterest =
+    startsInJanuary &&
+    (values.initialYtdOaInterest > 0 ||
+      values.initialYtdSaInterest > 0 ||
+      values.initialYtdMaInterest > 0 ||
+      values.initialYtdRaInterest > 0);
 
   return (
     <Card>
       <Card.Header>
         <Card.Title>Projection assumptions</Card.Title>
         <Card.Description>
-          Enter the balances shown in your CPF statement. A zero is still an
-          explicit starting balance.
+          Enter the balances at the opening of the selected month, before that
+          month&apos;s contributions or withdrawals. A current statement may
+          need reconciliation if transactions have already posted.
         </Card.Description>
         <div className="flex items-center gap-2 rounded-md bg-accent/5 px-4 py-2">
           <HugeiconsIcon icon={FlashIcon} className="size-4" strokeWidth={2} />
           <Typography className="text-accent" type="body-xs">
-            Uses CPF floor rates: OA {CPF_INTEREST_FLOOR_RATES.OA}% p.a.; SA, MA
-            and RA {CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.
+            Uses CPF Board&apos;s quarterly declared rates through{" "}
+            {latestDeclaredInterestQuarter?.quarter}. Later months use the{" "}
+            {CPF_INTEREST_FLOOR_RATES.OA}% OA and{" "}
+            {CPF_INTEREST_FLOOR_RATES.SMRA}% SA/MA/RA floors as explicit
+            assumptions.
           </Typography>
         </div>
       </Card.Header>
@@ -291,7 +322,11 @@ export default function ProjectionForm({
             </NumberField.Group>
             {hasValidBirthDate && !hasValidRange ? (
               <FieldError>
-                Choose an end age at or above your start age.
+                Choose an end age from your start age through age{" "}
+                {maximumProjectionAge}. From age 65, balances are a pre-CPF-LIFE
+                illustration because premiums and payouts are not modelled. Age
+                70 is an opening checkpoint immediately before the birthday
+                month, when payouts must start.
               </FieldError>
             ) : null}
           </NumberField>
@@ -353,8 +388,9 @@ export default function ProjectionForm({
           <div>
             <Typography type="h4">Starting CPF balances</Typography>
             <Typography color="muted" type="body-sm">
-              Required so existing savings and age-55 routing are not silently
-              omitted.
+              Enter the balances at the opening of the selected start month,
+              before that month's transactions. This keeps interest and
+              retirement-account routing timing explicit.
             </Typography>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
@@ -382,10 +418,90 @@ export default function ProjectionForm({
               isInvalid={raIsInvalid}
               error={`RA does not exist before age ${retirementAccountAge}.`}
             />
+            {raExistsAtOpening ? (
+              <>
+                <CurrencyField
+                  label="RA savings counted for CPF limits"
+                  value={values.initialRaSavingsForLimits}
+                  onChange={(initialRaSavingsForLimits) =>
+                    onChange({ initialRaSavingsForLimits })
+                  }
+                  description="From your CPF Retirement Dashboard: excludes interest and generally grants, and includes counted retirement withdrawals and CPF LIFE premiums. Used for top-up and MediSave-overflow limits."
+                />
+                <CurrencyField
+                  label="RA principal for contribution routing"
+                  value={values.initialRaSavingsForContributionRouting}
+                  onChange={(initialRaSavingsForContributionRouting) =>
+                    onChange({ initialRaSavingsForContributionRouting })
+                  }
+                  description="Principal still set aside in RA for deciding whether the retirement share of employment contributions goes to RA or OA. A property-backed RA withdrawal reduces this amount."
+                />
+              </>
+            ) : null}
           </div>
+          <div>
+            <Typography type="h4">Uncredited interest this year</Typography>
+            <Typography color="muted" type="body-sm">
+              For a start after January, enter interest earned from January
+              through the month before the selected start month, by the account
+              where CPF will credit it. Without these figures, the first
+              December credit is incomplete.
+            </Typography>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <CurrencyField
+              label="OA interest accrued before start"
+              value={values.initialYtdOaInterest}
+              onChange={(initialYtdOaInterest) =>
+                onChange({ initialYtdOaInterest })
+              }
+              isInvalid={startsInJanuary && values.initialYtdOaInterest > 0}
+              error="A January projection has no earlier months in the same calendar year."
+            />
+            <CurrencyField
+              label="SA interest accrued before start"
+              value={values.initialYtdSaInterest}
+              onChange={(initialYtdSaInterest) =>
+                onChange({ initialYtdSaInterest })
+              }
+              isInvalid={startsInJanuary && values.initialYtdSaInterest > 0}
+              error="A January projection has no earlier months in the same calendar year."
+            />
+            <CurrencyField
+              label="MA interest accrued before start"
+              value={values.initialYtdMaInterest}
+              onChange={(initialYtdMaInterest) =>
+                onChange({ initialYtdMaInterest })
+              }
+              isInvalid={startsInJanuary && values.initialYtdMaInterest > 0}
+              error="A January projection has no earlier months in the same calendar year."
+            />
+            <CurrencyField
+              label="RA interest accrued before start"
+              value={values.initialYtdRaInterest}
+              onChange={(initialYtdRaInterest) =>
+                onChange({ initialYtdRaInterest })
+              }
+              isInvalid={
+                (startsInJanuary && values.initialYtdRaInterest > 0) ||
+                (!raExistsAtOpening && values.initialYtdRaInterest > 0)
+              }
+              error={
+                startsInJanuary
+                  ? "A January projection has no earlier months in the same calendar year."
+                  : `RA interest cannot exist before age ${retirementAccountAge}.`
+              }
+            />
+          </div>
+          {hasJanuaryAccruedInterest ? (
+            <Typography className="text-accent" type="body-sm">
+              Set all uncredited interest to zero for a January start.
+            </Typography>
+          ) : null}
           {!hasValidAccountState ? (
             <Typography className="text-accent" type="body-sm">
-              Correct the SA or RA starting balance before projecting.
+              Correct the starting account or accrued-interest fields before
+              projecting.
             </Typography>
           ) : null}
         </div>
@@ -415,10 +531,32 @@ export default function ProjectionForm({
             onChange={(topUpAmount) => onChange({ topUpAmount })}
             description={
               values.topUpAccount === "MA"
-                ? "Actual capacity is based on BHS. MediSave tax relief is not estimated without full annual CPF contribution context."
-                : `Actual capacity is based on FRS or ERS. S$${selfTaxReliefCap.toLocaleString("en-SG")} is only the annual retirement cash top-up tax-relief cap.`
+                ? "Actual capacity is based on BHS. A transaction above the remaining capacity is rejected in full. MediSave tax relief is not estimated without full annual CPF contribution context."
+                : `Actual capacity is based on FRS or ERS. S$${selfTaxReliefCap.toLocaleString("en-SG")} is only the shared annual cap for maximum potential self cash top-up relief; MRSS and tax eligibility still apply.`
             }
           />
+
+          {values.topUpAccount === "retirement" ? (
+            <CurrencyField
+              label="Cash top-up relief cap used this year"
+              value={values.initialCashTopUpTaxReliefUsedThisYear}
+              onChange={(initialCashTopUpTaxReliefUsedThisYear) =>
+                onChange({ initialCashTopUpTaxReliefUsedThisYear })
+              }
+              isInvalid={
+                values.initialCashTopUpTaxReliefUsedThisYear >
+                  selfTaxReliefCap ||
+                (startsInJanuary &&
+                  values.initialCashTopUpTaxReliefUsedThisYear > 0)
+              }
+              error={
+                startsInJanuary
+                  ? "A January projection has no earlier months in the same calendar year."
+                  : `This shared self cash top-up relief cap cannot exceed S$${selfTaxReliefCap.toLocaleString("en-SG")}.`
+              }
+              description="Include qualifying retirement and MediSave cash top-ups already made in the start calendar year. This does not determine MRSS or personal tax eligibility."
+            />
+          ) : null}
 
           <div className="flex flex-col gap-2">
             <Label id="projection-top-up-account-label">
@@ -472,7 +610,9 @@ export default function ProjectionForm({
               ))}
             </ToggleButtonGroup>
             <Description>
-              Yearly repeats in the projection start month each year.
+              Yearly repeats in the projection start month each year. Because no
+              transaction day is supplied, each cash top-up is applied after
+              that month&apos;s employment contribution.
             </Description>
           </div>
 
@@ -540,7 +680,10 @@ export default function ProjectionForm({
             <Description>
               The property branch is only for an eligible Singapore property
               whose remaining lease lasts to at least age{" "}
-              {propertyLeaseQualifyingAge}.
+              {propertyLeaseQualifyingAge}. It also treats the BRS cash amount
+              plus that property as meeting the FRS condition for MediSave
+              overflow routing and models the eligible RA amount above BRS as
+              withdrawn from CPF.
             </Description>
           </div>
         </div>

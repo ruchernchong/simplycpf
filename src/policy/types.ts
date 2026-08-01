@@ -9,6 +9,7 @@ export type PolicyDatasetId =
   | "cpf-interest-rates"
   | "cpf-extra-interest"
   | "cpf-special-account-closure"
+  | "cpf-retirement-withdrawals"
   | "cpf-life-reference-payouts"
   | "cpf-retirement-top-ups"
   | "cpf-housing-refunds"

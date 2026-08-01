@@ -7,7 +7,7 @@ SimplyCPF exposes CPF Board's quarterly declarations. API v2 removes the unsourc
 
 ## GET `/interest-rates`
 
-Returns official quarterly observations through 2026 Q3. Each row contains:
+Returns every official quarterly observation currently loaded in the catalogue. The response metadata identifies the latest published quarter, effective coverage, verification date and first-party sources. Each row contains:
 
 ```typescript
 interface QuarterlyInterestDeclaration {
@@ -28,10 +28,10 @@ SA, MA, and RA are separate fields because their declared rates were not identic
 
 The response envelope is `{ quarterlyRates, methodology, metadata }`. `metadata` is the full `PolicyMetadata` record for the interest dataset plus `latestPublishedQuarter`.
 
-The methodology block records:
+The methodology block records the policy inputs instead of requiring callers to duplicate them:
 
-- OA: three-month average of major local banks' interest rates, subject to the 2.5% legislated floor.
-- SMRA: 12-month average yield of 10-year Singapore Government Securities plus one percentage point, subject to the current 4% floor through 2026.
+- OA: the three-month average of major local banks' interest rates, the applicable floor, and the review frequency.
+- SMRA: the 12-month average yield of 10-year Singapore Government Securities, the percentage-point markup, applicable floor, floor-guarantee end date, and review frequency.
 
 Source: [CPF Board — How are CPF interest rates determined?](https://www.cpf.gov.sg/service/article/how-are-cpf-interest-rates-determined).
 
@@ -43,18 +43,25 @@ Apply the published SMRA peg to a caller-supplied 12-month average 10YSGS yield:
 curl "https://simplycpf.com/api/cpf/interest-rates/smra?averageSgsYield=3.1"
 ```
 
-```json
-{
-  "averageSgsYield": 3.1,
-  "peggedRate": 4.1,
-  "floorApplied": false,
-  "actualRate": 4.1,
-  "methodology": "12-month average yield of 10-year Singapore Government Securities plus 1 percentage point, subject to the current 4% floor",
-  "warnings": []
+```typescript
+interface SmraRateResponse {
+  averageSgsYield: number;
+  peggedRate: number;
+  floorApplied: boolean;
+  actualRate: number;
+  methodology: string;
+  policy: {
+    status: "official";
+    verifiedAt: string;
+    sourceUrls: string[];
+  };
+  warnings: string[];
 }
 ```
 
 `sgsYield` remains a deprecated alias for one compatibility cycle and produces a warning. It means the 12-month average input, not a single monthly observation.
+
+Successful responses include catalogue-derived methodology provenance under `policy`. A missing or negative average is semantically invalid and returns `422`.
 
 ## GET `/interest-rates/trend`
 

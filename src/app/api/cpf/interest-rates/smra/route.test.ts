@@ -12,24 +12,22 @@ const createRequest = (
 };
 
 describe("GET /api/cpf/interest-rates/smra", () => {
-  it("returns 400 when averageSgsYield is not provided", async () => {
+  it("returns 422 when averageSgsYield is not provided", async () => {
     const request = createRequest();
     const response = await GET(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(422);
     expect(data.error).toBe("averageSgsYield is required");
   });
 
-  it("returns 400 when averageSgsYield is negative", async () => {
+  it("returns 422 when averageSgsYield is negative", async () => {
     const request = createRequest(-1);
     const response = await GET(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe(
-      "averageSgsYield must be a non-negative number",
-    );
+    expect(response.status).toBe(422);
+    expect(data.error).toBe("averageSgsYield must be a non-negative number");
   });
 
   it("returns the documented SMRA methodology", async () => {
@@ -43,6 +41,12 @@ describe("GET /api/cpf/interest-rates/smra", () => {
     expect(data).toHaveProperty("floorApplied");
     expect(data).toHaveProperty("actualRate");
     expect(data).toHaveProperty("methodology");
+    expect(data.policy).toMatchObject({
+      dataset: "cpf-interest-rates",
+      status: "official",
+      verifiedAt: "2026-08-01",
+    });
+    expect(data.policy.sources.length).toBeGreaterThan(0);
     expect(data.warnings).toEqual([]);
   });
 

@@ -4,10 +4,13 @@ import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
-import faqData from "@/data/faq.json";
-import faqCalculatorData from "@/data/faq-calculator.json";
-import faqCpfLifeData from "@/data/faq-cpf-life.json";
-import faqProjectionData from "@/data/faq-projection.json";
+import {
+  buildFaqJsonLdMainEntity,
+  faqCalculatorData,
+  faqCpfLifeData,
+  faqData,
+  faqProjectionData,
+} from "@/data/cpf-faqs";
 
 export const metadata: Metadata = {
   title: "CPF FAQ: Common Questions Answered",
@@ -71,11 +74,7 @@ const FAQIndex = () => {
       },
       {
         "@type": "FAQPage",
-        mainEntity: allFaqs.map(({ question, answer }) => ({
-          "@type": "Question" as const,
-          name: question,
-          acceptedAnswer: { "@type": "Answer" as const, text: answer },
-        })),
+        mainEntity: buildFaqJsonLdMainEntity(allFaqs),
       },
     ],
   };

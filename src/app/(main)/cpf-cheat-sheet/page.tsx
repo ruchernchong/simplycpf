@@ -6,13 +6,17 @@ import { PrintButton } from "@/components/cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
-import { getCpfCheatSheetData } from "@/lib/get-cpf-cheat-sheet-data";
+import {
+  getCheatSheetDateModified,
+  getCpfCheatSheetData,
+} from "@/lib/get-cpf-cheat-sheet-data";
 
 const PAGE_URL = `${BASE_URL}/cpf-cheat-sheet`;
 const PAGE_TITLE = "CPF Cheat Sheet";
 const PAGE_DESCRIPTION =
   "Free source-backed CPF cheat sheet covering contribution rates, OA, SA, RA and MA allocation, PR graduated rates, retirement sums, BHS, interest and top-up rules.";
 const cheatSheetData = getCpfCheatSheetData();
+const cheatSheetDateModified = getCheatSheetDateModified(cheatSheetData);
 
 export const metadata: Metadata = {
   title: "CPF Cheat Sheet: Free CPF Rates and Retirement Reference",
@@ -45,7 +49,7 @@ const schema: Graph = {
       description: PAGE_DESCRIPTION,
       url: PAGE_URL,
       inLanguage: "en-SG",
-      dateModified: cheatSheetData.verifiedAt,
+      dateModified: cheatSheetDateModified,
       isPartOf: { "@id": WEBSITE_ID },
       speakable: {
         "@type": "SpeakableSpecification",
@@ -93,7 +97,7 @@ export default function CpfCheatSheetPage() {
       <PageHeader
         eyebrow="Cheat sheet"
         title="One page, on the fridge, done"
-        lede={`Official ${cheatSheetData.referenceYear} reference data, plus every published historical or forward row available in the catalogue. Each dataset is linked to its first-party source and verified ${cheatSheetData.verifiedAt}.`}
+        lede={`Official ${cheatSheetData.referenceYear} reference data, plus every published historical or forward row available in the catalogue. Each dataset shows its own verification date and first-party sources.`}
         actions={
           <div className="flex flex-wrap gap-2">
             <PrintButton />

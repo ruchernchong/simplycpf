@@ -1,12 +1,22 @@
-import { getCpfCheatSheetData } from "../get-cpf-cheat-sheet-data";
+import {
+  getCheatSheetDateModified,
+  getCpfCheatSheetData,
+} from "../get-cpf-cheat-sheet-data";
 
 describe("getCpfCheatSheetData", () => {
+  it("derives an ISO page-modification date from section provenance", () => {
+    const data = getCpfCheatSheetData();
+
+    expect(getCheatSheetDateModified(data)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(getCheatSheetDateModified(data)).not.toBe(data.catalogueVersion);
+  });
+
   it("returns the expected printable reference sections", () => {
     const data = getCpfCheatSheetData();
 
     expect(data.title).toBe("SimplyCPF CPF Cheat Sheet");
     expect(data.referenceYear).toBe(2026);
-    expect(data.verifiedAt).toBe("2026-08-01");
+    expect(data.catalogueVersion).toBe("2.0.0");
     expect(data.sections).toHaveLength(9);
     expect(data.sections.map((section) => section.title)).toEqual(
       expect.arrayContaining([

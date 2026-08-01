@@ -18,6 +18,7 @@ import { CPF_POLICY_CATALOGUE } from "@/policy";
 const lifecycle = CPF_POLICY_CATALOGUE.rules.lifecycleAges;
 const employment = CPF_POLICY_CATALOGUE.rules.statutoryEmploymentAges;
 const escalatingPlan = CPF_POLICY_CATALOGUE.cpfLife.plans.escalating;
+const housingRefunds = CPF_POLICY_CATALOGUE.rules.housingRefunds;
 
 const PAGE_HEADER = {
   eyebrow: "Check",
@@ -44,7 +45,7 @@ const CHECK_ITEMS: CheckItem[] = [
   {
     id: "accrued-interest",
     title: "I know OA used for my home keeps accruing interest",
-    body: "The principal plus accrued interest returns to CPF when the property is sold.",
+    body: `CPF principal used plus accrued interest is due for refund. For a market-value sale, the refund is capped at ${housingRefunds.marketValueNetProceedsLimit.maximumRefund}, with no cash top-up required for any shortfall.`,
     href: "/accrued-interest",
     linkLabel: "Home & OA, accrued interest",
   },

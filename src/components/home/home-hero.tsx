@@ -9,6 +9,7 @@ import {
   Meter,
   NumberField,
   Separator,
+  Surface,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -16,11 +17,15 @@ import {
 } from "@heroui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { getWageBandCopy } from "@/components/calculator/figures";
 import { Eyebrow } from "@/components/shared/section-header";
 import { SplitBar } from "@/components/shared/split-bar";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
-import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
+import {
+  convertBirthDateToAge,
+  convertBirthDateToBirthMonth,
+} from "@/lib/convert-birth-date-to-age";
 import { findAgeGroup } from "@/lib/find-age-group";
 import { formatCurrency } from "@/lib/format";
 import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
@@ -97,21 +102,50 @@ export function HomeHero() {
   const gross = hasIncome ? monthlyGrossIncome : EXAMPLE_INCOME;
   const isExample = !(hasBirthDate && hasIncome);
 
-  const result = calculateCpfContribution({
-    contributionMonth: ceilingDate,
+  const birthMonth = convertBirthDateToBirthMonth(birthDate);
+  const calculationBase = {
+    contributionMonth: CPF_POLICY_CATALOGUE.metadata[
+      "cpf-contribution-rates"
+    ].verifiedAt.slice(0, 7),
     ordinaryWages: gross,
     citizenship: mounted ? citizenshipStatus : "citizen",
-    age,
-  });
+  };
+  const result = calculateCpfContribution(
+    hasBirthDate && birthMonth
+      ? { ...calculationBase, birthMonth }
+      : { ...calculationBase, age },
+  );
   const { employee, employer, totalContribution } = result.contribution;
   const takeHome = result.afterCpfContribution;
   const totalPackage = gross + employer;
+  const wageBandCopy = getWageBandCopy(result.wageBand);
+  const undeterminedRouting =
+    result.routing?.selected === "undetermined" ? result.routing : undefined;
+  const hasUndeterminedRouting = undeterminedRouting !== undefined;
 
-  const accounts = Object.entries(result.distribution).map(([key, value]) => ({
-    key,
-    value,
-    ...accountMeta[key],
-  }));
+  const accounts = hasUndeterminedRouting
+    ? []
+    : Object.entries(result.distribution).map(([key, value]) => ({
+        key,
+        value,
+        ...accountMeta[key],
+      }));
+  const routingBranches = undeterminedRouting
+    ? [
+        {
+          key: "before-frs",
+          title: "Before FRS is set aside",
+          body: "The retirement allocation goes to RA.",
+          distribution: undeterminedRouting.branches.beforeFullRetirementSum,
+        },
+        {
+          key: "after-frs",
+          title: "After FRS is set aside",
+          body: "The retirement allocation goes to OA instead.",
+          distribution: undeterminedRouting.branches.afterFullRetirementSum,
+        },
+      ]
+    : [];
 
   return (
     <section className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr]">
@@ -135,7 +169,7 @@ export function HomeHero() {
             <Card.Content>
               <NumberField
                 fullWidth
-                aria-label="Monthly salary"
+                aria-label="Monthly Ordinary Wages"
                 className="flex flex-col gap-2"
                 formatOptions={{
                   style: "currency",
@@ -148,7 +182,7 @@ export function HomeHero() {
                 value={hasIncome ? monthlyGrossIncome : EXAMPLE_INCOME}
                 onChange={(value) => setIncome(value ?? 0)}
               >
-                <Label>Monthly salary</Label>
+                <Label>Monthly Ordinary Wages</Label>
                 <NumberField.Group className="h-auto w-full grid-cols-1">
                   <NumberField.Input className="w-full font-semibold text-2xl leading-tight tracking-tight" />
                 </NumberField.Group>
@@ -243,6 +277,27 @@ export function HomeHero() {
             pay.
           </Typography>
 
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip size="sm" variant="tertiary">
+              <Chip.Label>{wageBandCopy.label}</Chip.Label>
+            </Chip>
+            <Typography color="muted" type="body-xs">
+              {wageBandCopy.description}
+            </Typography>
+          </div>
+
+          {result.warnings.length > 0 && (
+            <Surface className="rounded-2xl p-4" variant="tertiary">
+              <div className="flex flex-col gap-2">
+                {result.warnings.map((warning) => (
+                  <Typography key={warning.code} type="body-xs">
+                    {warning.message}
+                  </Typography>
+                ))}
+              </div>
+            </Surface>
+          )}
+
           <div className="flex flex-col gap-2">
             <SplitBar
               formatValue={currency}
@@ -265,31 +320,64 @@ export function HomeHero() {
 
           <Separator />
 
-          <div className="flex flex-col gap-4">
-            {accounts.map((account) => (
-              <Meter
-                key={account.key}
-                aria-label={`${account.key} share of this month's CPF`}
-                className="flex flex-col gap-2"
-                valueLabel={formatCurrency(account.value)}
-                value={
-                  totalContribution > 0
-                    ? (account.value / totalContribution) * 100
-                    : 0
-                }
-              >
-                <div className="flex items-baseline justify-between gap-4">
-                  <Label>
-                    {account.key} · {account.note}
-                  </Label>
-                  <Meter.Output />
-                </div>
-                <Meter.Track className="h-1.5 rounded-full bg-foreground/10">
-                  <Meter.Fill className={cn("h-1.5", account.fill)} />
-                </Meter.Track>
-              </Meter>
-            ))}
-          </div>
+          {hasUndeterminedRouting ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {routingBranches.map((branch) => (
+                <Surface
+                  className="flex flex-col gap-4 rounded-2xl p-4"
+                  key={branch.key}
+                  variant="tertiary"
+                >
+                  <div className="flex flex-col gap-2">
+                    <Typography type="body-sm" weight="semibold">
+                      {branch.title}
+                    </Typography>
+                    <Typography color="muted" type="body-xs">
+                      {branch.body}
+                    </Typography>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {Object.entries(branch.distribution).map(([key, value]) => (
+                      <div className="flex justify-between gap-4" key={key}>
+                        <Typography color="muted" type="body-xs">
+                          {key}
+                        </Typography>
+                        <Typography type="body-xs" weight="semibold">
+                          {formatCurrency(value)}
+                        </Typography>
+                      </div>
+                    ))}
+                  </div>
+                </Surface>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {accounts.map((account) => (
+                <Meter
+                  key={account.key}
+                  aria-label={`${account.key} share of this month's CPF`}
+                  className="flex flex-col gap-2"
+                  valueLabel={formatCurrency(account.value)}
+                  value={
+                    totalContribution > 0
+                      ? (account.value / totalContribution) * 100
+                      : 0
+                  }
+                >
+                  <div className="flex items-baseline justify-between gap-4">
+                    <Label>
+                      {account.key} · {account.note}
+                    </Label>
+                    <Meter.Output />
+                  </div>
+                  <Meter.Track className="h-1.5 rounded-full bg-foreground/10">
+                    <Meter.Fill className={cn("h-1.5", account.fill)} />
+                  </Meter.Track>
+                </Meter>
+              ))}
+            </div>
+          )}
 
           <Link href="/calculator" className="link text-[13px]">
             See the full breakdown and the ceiling comparison →

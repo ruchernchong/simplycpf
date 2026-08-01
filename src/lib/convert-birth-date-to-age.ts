@@ -6,3 +6,9 @@ export const convertBirthDateToAge = (birthDate: string): number => {
 
   return differenceInYears(currentDate, parsedDate);
 };
+
+/** Convert the UI's MM/YYYY value to the policy engine's YYYY-MM value. */
+export function convertBirthDateToBirthMonth(birthDate: string): string | null {
+  const match = /^(0[1-9]|1[0-2])\/(\d{4})$/.exec(birthDate);
+  return match ? `${match[2]}-${match[1]}` : null;
+}

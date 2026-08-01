@@ -6,6 +6,7 @@ import {
   ContributionPolicyError,
   type ContributionPolicySchedule,
   type ContributionRateBand,
+  CPF_POLICY_RULES,
   getContributionRatesForCitizenship,
   resolveContributionSchedule,
 } from "@/policy";
@@ -17,7 +18,8 @@ export interface PolicyAgeGroup {
   maxAgeInclusive?: number;
   /**
    * Fixed for an exact-age lookup. A generic allocation band can straddle
-   * age 55, in which case callers must use `retirementRouting`.
+   * the retirement-account threshold, in which case callers must use
+   * `retirementRouting`.
    */
   retirementAccount: "SA" | "RA" | "age-dependent";
   retirementRouting: PolicyRetirementRouting;
@@ -42,7 +44,7 @@ export type PolicyRetirementRouting =
     }
   | {
       type: "age-dependent";
-      thresholdAge: 55;
+      thresholdAge: number;
       belowThresholdAccount: "SA";
       atOrAboveThresholdAccount: "RA";
     };
@@ -205,20 +207,28 @@ function resolveRetirementRouting(
   schedule: ContributionPolicySchedule,
   exactAge?: number,
 ): PolicyRetirementRouting {
-  if (schedule.effectiveFrom < "2025-01-01") {
+  const retirementAccountAge =
+    CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
+  const closureMonth =
+    CPF_POLICY_RULES.specialAccountClosure.effectiveDate.slice(0, 7);
+  if (schedule.effectiveFrom.slice(0, 7) < closureMonth) {
     return { type: "fixed", account: "SA" };
   }
   if (exactAge !== undefined) {
-    return { type: "fixed", account: exactAge >= 55 ? "RA" : "SA" };
+    return {
+      type: "fixed",
+      account: exactAge >= retirementAccountAge ? "RA" : "SA",
+    };
   }
 
-  const includesMembersBelow55 = (band.minAgeExclusive ?? 0) < 55;
-  const includesAge55 =
-    (band.maxAgeInclusive ?? Number.POSITIVE_INFINITY) >= 55;
-  if (includesMembersBelow55 && includesAge55) {
+  const includesMembersBelowRetirementAge =
+    (band.minAgeExclusive ?? 0) < retirementAccountAge;
+  const includesRetirementAge =
+    (band.maxAgeInclusive ?? Number.POSITIVE_INFINITY) >= retirementAccountAge;
+  if (includesMembersBelowRetirementAge && includesRetirementAge) {
     return {
       type: "age-dependent",
-      thresholdAge: 55,
+      thresholdAge: retirementAccountAge,
       belowThresholdAccount: "SA",
       atOrAboveThresholdAccount: "RA",
     };
@@ -226,7 +236,7 @@ function resolveRetirementRouting(
 
   return {
     type: "fixed",
-    account: (band.minAgeExclusive ?? 0) >= 55 ? "RA" : "SA",
+    account: (band.minAgeExclusive ?? 0) >= retirementAccountAge ? "RA" : "SA",
   };
 }
 

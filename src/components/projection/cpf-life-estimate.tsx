@@ -13,17 +13,15 @@ export default function CpfLifeReference({ result }: CpfLifeReferenceProps) {
     CPF_POLICY_RULES.lifecycleAges.retirementAccountCreated;
   const payoutEligibilityAge = CPF_LIFE_POLICY.payoutStart.earliestAge;
   const latestPayoutStartAge = CPF_LIFE_POLICY.payoutStart.latestAge;
-  const hasPayoutEligibilityAge = result.yearlyBalances.some(
-    ({ age }) => age >= payoutEligibilityAge,
-  );
+  const payoutEligibilityBalances = result.milestones.age65;
 
   return (
     <Card>
       <Card.Header>
         <Card.Title>CPF LIFE official reference rows</Card.Title>
         <Card.Description>
-          {hasPayoutEligibilityAge
-            ? `Your projected RA around age ${payoutEligibilityAge} is ${formatCurrency(result.milestones.age65.ra, 0)}. CPF Board does not publish a formula that SimplyCPF can use to turn it into a personalised payout.`
+          {payoutEligibilityBalances
+            ? `Your projected pre-CPF-LIFE RA checkpoint around age ${payoutEligibilityAge} is ${formatCurrency(payoutEligibilityBalances.ra, 0)}. Premiums and payouts are not deducted, and CPF Board does not publish a formula that SimplyCPF can use to turn this into a personalised payout.`
             : `Extend the projection through age ${payoutEligibilityAge} to see your projected RA alongside CPF Board's exact reference rows.`}
         </Card.Description>
       </Card.Header>

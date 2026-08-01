@@ -1,9 +1,9 @@
 import {
   CPF_INTEREST_FLOOR_RATES,
-  type OfficialQuarterlyCpfRate,
-  PEGGED_RATE_MARKUP,
-  QUARTERLY_CPF_RATES,
-} from "@/constants/cpf-interest-rates";
+  CPF_QUARTERLY_INTEREST_RATES,
+  CPF_SMRA_PEGGED_RATE_MARKUP,
+  type OfficialQuarterlyCpfInterestRate,
+} from "@/policy";
 
 export interface OfficialInterestRateObservation {
   quarter: string;
@@ -15,7 +15,7 @@ export interface OfficialInterestRateObservation {
   raRate: number;
   sourceUrl: string;
   status: "official";
-  verifiedAt: "2026-08-01";
+  verifiedAt: OfficialQuarterlyCpfInterestRate["verifiedAt"];
 }
 
 /**
@@ -24,18 +24,21 @@ export interface OfficialInterestRateObservation {
  */
 export function calculateSmraRate(averageSgsYield: number): number {
   return Math.max(
-    averageSgsYield + PEGGED_RATE_MARKUP,
+    averageSgsYield + CPF_SMRA_PEGGED_RATE_MARKUP,
     CPF_INTEREST_FLOOR_RATES.SMRA,
   );
 }
 
 export function isFloorRateApplied(averageSgsYield: number): boolean {
-  return averageSgsYield + PEGGED_RATE_MARKUP < CPF_INTEREST_FLOOR_RATES.SMRA;
+  return (
+    averageSgsYield + CPF_SMRA_PEGGED_RATE_MARKUP <
+    CPF_INTEREST_FLOOR_RATES.SMRA
+  );
 }
 
 /** Return CPF Board's official quarterly declarations without interpolation. */
 export function calculateInterestTrend(
-  rates: readonly OfficialQuarterlyCpfRate[] = QUARTERLY_CPF_RATES,
+  rates: readonly OfficialQuarterlyCpfInterestRate[] = CPF_QUARTERLY_INTEREST_RATES,
 ): OfficialInterestRateObservation[] {
   return rates.map((rate) => ({
     quarter: rate.quarter,

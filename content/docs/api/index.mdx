@@ -27,10 +27,10 @@ All endpoints are served below `https://simplycpf.com/api/cpf`. Policy responses
 |---|---|---|
 | GET | `/ceiling` | Official OW/AW ceiling for a supported month |
 | GET | `/ceiling/timeline` | Published ceiling schedules only |
-| GET | `/bhs` | Published BHS through 2026 |
-| GET | `/retirement-sums` | Published BRS/FRS/ERS through 2027 |
+| GET | `/bhs` | Published BHS observations in the policy catalogue |
+| GET | `/retirement-sums` | Published BRS/FRS/ERS observations in the policy catalogue |
 
-Unsupported public reference years return `404`; values are never extrapolated.
+Unsupported public reference years return `404`; values are never extrapolated. Use each response's effective range, `verifiedAt` date and first-party source links instead of copying a year range into an integration.
 
 ## Interest rates
 

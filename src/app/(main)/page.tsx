@@ -11,14 +11,19 @@ import { BASE_URL, WEBSITE_ID } from "@/config";
 import { formatCurrency } from "@/lib/format";
 import { CPF_POLICY_CATALOGUE, resolveContributionSchedule } from "@/policy";
 
-const currentSchedule = resolveContributionSchedule("2026-08").schedule;
+const currentSchedule = resolveContributionSchedule(
+  CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
+).schedule;
+const currentPolicyYear = Number(currentSchedule.effectiveFrom.slice(0, 4));
 const currentRetirementSums = CPF_POLICY_CATALOGUE.retirementSums.find(
-  (row) => row.year === 2026,
+  (row) => row.year === currentPolicyYear,
 );
 const latestInterestDeclaration =
   CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(-1);
 const earliestSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.at(0);
 const latestSchedule = CPF_POLICY_CATALOGUE.contributionSchedules.at(-1);
+const retirementAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
 
 export const metadata: Metadata = {
   // `absolute` opts out of the root title template, which would otherwise
@@ -97,11 +102,11 @@ export default function HomePage() {
         "@type": "WebPage",
         "@id": `${BASE_URL}/#webpage`,
         name: "SimplyCPF",
-        description:
-          "Work out your CPF contributions, project your balances, and see what changes at 55.",
+        description: `Work out your CPF contributions, project your balances, and see what changes at ${retirementAge}.`,
         url: BASE_URL,
         inLanguage: "en-SG",
-        dateModified: CPF_POLICY_CATALOGUE.verifiedAt,
+        dateModified:
+          CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
         isPartOf: { "@id": WEBSITE_ID },
         speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1"] },
       },
@@ -114,8 +119,8 @@ export default function HomePage() {
         applicationCategory: "FinanceApplication",
         featureList: [
           "Calculate CPF contributions by age group and income",
-          "View distribution across OA, SA, MA accounts",
-          "Track progressive income ceiling changes from 2023 to 2026",
+          "View OA, SA, RA and MA allocation",
+          "Track every published income-ceiling schedule",
           "Download a CPF cheat sheet",
           "Use a SimplyCPF retirement-readiness rubric",
           "Compare CPF floor rates with editable investment-return assumptions",
@@ -132,8 +137,7 @@ export default function HomePage() {
       {
         "@type": "Dataset",
         name: "CPF Contribution Rates by Age Group",
-        description:
-          "Official contribution schedules, allocation rates, and wage ceilings for supported private-sector Singapore Citizen and default G/G SPR scenarios from 2023 through 2027.",
+        description: `Official contribution schedules, allocation rates, and wage ceilings for supported private-sector Singapore Citizen and default G/G SPR scenarios from ${earliestSchedule?.effectiveFrom ?? "the first published schedule"} through ${latestSchedule?.effectiveTo ?? "the latest published schedule"}.`,
         url: `${BASE_URL}/api/cpf/age-groups`,
         creator: { "@id": `${BASE_URL}/#organization` },
         isAccessibleForFree: true,

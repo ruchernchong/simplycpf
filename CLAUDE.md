@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # SimplyCPF - Development Guide
 
-A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions and helps users plan CPF outcomes following Singapore's 2023 Budget changes to income ceilings.
+A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions and helps users plan CPF outcomes from a versioned, source-backed policy catalogue.
 
 ## Build and Test Commands
 - `pnpm dev` - Start development server via Portless at `https://simplycpf.localhost`
@@ -62,21 +62,22 @@ Lead magnet flows such as the retirement readiness score use page-local client s
 
 ### CPF Calculation Logic
 The core calculation happens in `src/lib/calculate-cpf-contribution.ts`:
-- Takes income, year, and optional age group/ceiling preferences
-- Uses age groups from `src/data/index.ts` which define contribution and distribution rates by age brackets
-- Returns `ComputedResult` with employee/employer contributions and OA/SA/MA distributions
-- Income is capped at the ceiling defined in `src/constants/index.ts` based on the year
+- Accepts contribution month, Ordinary Wages, optional Additional Wages with annual context, citizenship, and either completed age or birth month
+- Resolves official schedules from the canonical `src/policy/` catalogue; legacy `income`/`date` inputs remain warned aliases for one compatibility cycle
+- Applies low-wage bands and CPF rounding in integer cents, then allocates MA first, SA/RA second, and OA as the exact remainder
+- Returns contribution, wage-band, schedule, routing, warning, and per-dataset provenance metadata
 
 Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
-- Projects yearly balances across OA, SA, MA, and RA from the current age to a chosen end age
-- Applies CPF floor interest rates, extra interest tiers, BHS overflow handling, and the age 55 SA to RA conversion
-- Supports optional housing withdrawals, annual voluntary top-ups, and OA to SA transfers
-- Returns `ProjectionResult` with yearly balances, milestone snapshots, and simplified CPF LIFE estimates
+- Runs a monthly ledger from an explicit start month and supplied OA, SA, MA, and RA balances
+- Applies monthly contributions and birthdays, SA closure, BHS overflow, retirement-sum routing, monthly interest, annual crediting, and CPF extra-interest priority
+- Supports housing withdrawals, monthly or yearly top-ups, and age-aware retirement transfers
+- Freezes unpublished future BHS and retirement sums with per-year `assumed` metadata; it never extrapolates them
+- Returns CPF Board's exact published CPF LIFE reference table and a null deprecated estimate field; personalised estimates remain with CPF Board
 
 ### Key Data Structures
-- **Age Groups** (`src/data/index.ts`): 8 age brackets with varying contribution rates (employee/employer) and distribution rates (OA/SA/MA percentages)
-- **Income Ceilings** (`src/constants/index.ts`): Ceiling values by year following the gradual increase from $6000 (pre-Sept 2023) to $8000 (Sept 2026)
-- **Projection Constants** (`src/constants/cpf-retirement-sums.ts`, `src/constants/cpf-bhs.ts`, `src/constants/cpf-interest-tiers.ts`, `src/data/permanent-resident-rates.ts`): Retirement sums, BHS values, extra interest tiers, and PR graduated rates
+- **Policy Catalogue** (`src/policy/`): Versioned contribution schedules, wage rules, PR G/G rates, allocations, interest declarations, BHS, retirement sums, CPF LIFE references, source URLs, and verification metadata
+- **Compatibility Adapters** (`src/constants/`, `src/data/index.ts`): Derived views for older internal callers; authoritative values must not be added here
+- **Projection Policy** (`src/lib/calculate-cpf-projection.ts`): Monthly ledger logic and explicit SimplyCPF assumptions for unpublished future policy
 - **Types** (`src/types/index.ts`): `AgeGroup`, `ContributionRate`, `DistributionRate`, `ComputedResult`, `ContributionResult`, `ProjectionParams`, `ProjectionResult`, `YearlyBalance`
 
 ### Testing Strategy
@@ -101,7 +102,7 @@ The application uses Next.js route groups for organisation:
 - `(docs)` - Developer portal routes powered by Fumadocs
 
 ### Developer Portal
-Documentation site powered by Fumadocs at `/developer`:
+Documentation site powered by Fumadocs at `/docs`:
 - **Configuration**: `source.config.ts` defines MDX processing with Twoslash support
 - **Content**: MDX files in `content/docs/` organised by category (api, examples, changelog)
 - **Features**: Interactive API documentation with TypeScript code examples, syntax highlighting with Twoslash
@@ -149,16 +150,16 @@ Located in `src/hooks/`:
 - `src/config/index.ts` - Application configuration constants
 
 ### Key Components
-- **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline showing the progression of CPF income ceiling changes from pre-2023 to final 2026 ceiling
+- **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline generated from the published ceiling schedules in the policy catalogue
 - **PDF Export** (`cpf-results-pdf.tsx`, `download-pdf.tsx`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
 - **Lead Magnet Components** (`src/components/lead-magnets/`): On-page readiness score assessment form and result view for the `/retirement-readiness` page
 - **Home Page Components** (`src/components/home/`): `home-hero.tsx` (global salary/DOB/citizenship inputs + short-answer card), `home-confusions.tsx`, `home-three-ages.tsx`
-- **At 55** (`src/components/at-55/`): projected day-before/day-after balances around the SA closure, cohort retirement sums for `/at-55`
+- **At the RA threshold** (`src/components/at-55/`): an explicitly modelled pre-55 annual snapshot followed by the official SA/OA-to-RA transfer order, with the threshold and cohort retirement sums sourced from the catalogue
 - **Accrued Interest** (`src/components/housing/`): OA housing accrued-interest illustration for `/accrued-interest`, powered by `src/lib/calculate-accrued-interest.ts`
 - **CPF Check** (`src/components/check/`): five self-assessment cards for `/cpf-check` (local state only, nothing recorded)
-- **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
+- **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF Board CPF LIFE reference table, and yearly projection table for the `/projection` page
 - **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
-- **CPF LIFE Components** (`src/components/cpf-life/`): CPF LIFE payout estimator inputs, plan comparison cards, and retirement sum references for the `/cpf-life` page
+- **CPF LIFE Components** (`src/components/cpf-life/`): CPF Board reference-table controls, plan characteristic cards, and retirement sum references for the `/cpf-life` page; personalised payout estimates remain with CPF Board
 
 ## Design System
 

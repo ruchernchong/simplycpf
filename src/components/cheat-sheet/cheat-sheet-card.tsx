@@ -42,8 +42,7 @@ function Block({
 }
 
 /**
- * The printable reference sheet: three hairline-separated columns of 2026
- * figures, all sourced from the shared cheat sheet data.
+ * The printable reference sheet, sourced from the shared catalogue data.
  */
 export function CheatSheetCard(): ReactNode {
   const data = getCpfCheatSheetData();
@@ -64,6 +63,9 @@ export function CheatSheetCard(): ReactNode {
   const prYear1 = firstBand(rowsOf("PR Graduated Rates: Year 1"));
   const prYear2 = firstBand(rowsOf("PR Graduated Rates: Year 2"));
   const fullRates = firstBand(contributionRows);
+  const retirementAccountAge = data.keyAges.find(
+    (age) => age.label === "RA opens; SA closes",
+  )?.value;
   const currentCeiling = rowsOf("Wage Ceiling Timeline").find((row) =>
     row[0]?.startsWith(data.effectiveFrom),
   );
@@ -82,7 +84,7 @@ export function CheatSheetCard(): ReactNode {
           <Card.Title>CPF reference sheet · {data.referenceYear}</Card.Title>
         </div>
         <Card.Description>
-          Effective {data.effectiveFrom} · verified {data.verifiedAt}
+          Effective {data.effectiveFrom} · catalogue v{data.catalogueVersion}
         </Card.Description>
       </Card.Header>
 
@@ -151,7 +153,9 @@ export function CheatSheetCard(): ReactNode {
                 <Table.ScrollContainer>
                   <Table.Content aria-label="CPF retirement sums by cohort">
                     <Table.Header>
-                      <Table.Column isRowHeader>Turn 55</Table.Column>
+                      <Table.Column isRowHeader>
+                        Turn {retirementAccountAge}
+                      </Table.Column>
                       <Table.Column className="text-right">BRS</Table.Column>
                       <Table.Column className="text-right">FRS</Table.Column>
                       <Table.Column className="text-right">ERS</Table.Column>
@@ -175,7 +179,7 @@ export function CheatSheetCard(): ReactNode {
                 <SheetRow key={year} label={year} value={amount} />
               ))}
             </Block>
-            <Block title="PR rates · 55 and below">
+            <Block title={`PR rates · ${fullRates?.[0] ?? "first age band"}`}>
               <SheetRow
                 label="1st year of PR"
                 value={`${prYear1?.[1]} + ${prYear1?.[2]}`}
@@ -197,10 +201,10 @@ export function CheatSheetCard(): ReactNode {
 
       <Card.Footer className="flex flex-wrap items-end justify-between gap-4">
         <Typography className="max-w-[76ch]" color="muted" type="body-xs">
-          Official policy status verified {data.verifiedAt}. Employee share is
-          stated first. Retirement sums are cohort-specific; ERS follows the
-          prevailing year. Scope: {data.scope} Independent tool, not financial
-          advice.
+          Each policy section carries its own verification date and first-party
+          sources. Employee share is stated first. Retirement sums are
+          cohort-specific; ERS follows the prevailing year. Scope: {data.scope}
+          Independent tool, not financial advice.
         </Typography>
         <div className="flex max-w-[76ch] flex-wrap justify-end gap-2">
           {officialSourceUrls.map((url, index) => (

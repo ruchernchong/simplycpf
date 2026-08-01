@@ -14,8 +14,8 @@ export const CPF_LIFE_PAYOUT_ELIGIBILITY_AGE =
 export const CPF_LIFE_LATEST_PAYOUT_AGE = CPF_LIFE_POLICY.payoutStart.latestAge;
 
 /**
- * One of CPF LIFE's automatic-inclusion conditions for members born in 1958
- * or later. It is not a minimum joining balance or a zero-payout threshold.
+ * The published retirement-savings condition for automatic inclusion. It is
+ * not a minimum joining balance or a zero-payout threshold.
  */
 export const CPF_LIFE_AUTO_INCLUSION_BALANCE =
   CPF_LIFE_POLICY.automaticInclusion.minimumRetirementSavingsAtPayoutStart;
@@ -27,9 +27,8 @@ export const CPF_LIFE_PERSONALISED_ESTIMATOR_URL =
   CPF_LIFE_POLICY.reference.personalisedEstimatorUrl;
 
 /**
- * CPF Board's 2026 reference table for a male member on the Standard Plan.
- * These rows are displayed exactly; they are never interpolated into a
- * personalised payout estimate.
+ * CPF Board's canonical reference table. These rows are displayed exactly;
+ * they are never interpolated into a personalised payout estimate.
  */
 export const CPF_LIFE_2026_REFERENCE: CpfLifeReference = {
   referenceYear: CPF_LIFE_POLICY.reference.year,

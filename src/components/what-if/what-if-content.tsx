@@ -22,6 +22,7 @@ import {
   calculateVoluntaryTopUpScenario,
 } from "@/lib/calculate-what-if";
 import { formatCurrency } from "@/lib/format";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import {
   selectAge,
   selectBirthDate,
@@ -31,6 +32,7 @@ import {
 } from "@/stores/selectors";
 import type {
   AccountBalances,
+  ProjectionParams,
   ProjectionResult,
   ScenarioResult,
 } from "@/types";
@@ -57,13 +59,20 @@ const TOP_UP_AMOUNT = 5_000;
 const OA_TO_SA_AMOUNT = 30_000;
 const SALARY_DELTA = 1_000;
 const YEARS_LATER = 5;
-const END_AGE = 65;
+const END_AGE =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
+const RETIREMENT_AGE =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
+const START_MONTH = CPF_POLICY_CATALOGUE.metadata[
+  "cpf-contribution-rates"
+].verifiedAt.slice(0, 7);
+const INTEREST_TIMING = CPF_POLICY_CATALOGUE.rules.interestTransactions;
 
 const assumptions = [
   "Salary held flat, no raises, no gaps in employment, no bonuses.",
   "Starting OA, SA, MA, and RA balances are set to zero in this quick comparison.",
   "Published CPF policies are used where available; later BHS and retirement sums are frozen and flagged as assumptions.",
-  "Interest is accrued monthly and credited annually; no housing use or Additional Wages are inferred.",
+  `Interest is accrued ${INTEREST_TIMING.computation} and credited ${INTEREST_TIMING.crediting}; no housing use or Additional Wages are inferred.`,
 ];
 
 interface ComparisonRow {
@@ -75,9 +84,11 @@ interface ComparisonRow {
 
 function balancesAt65(result: ProjectionResult): AccountBalances {
   const milestone = result.milestones.age65;
-  const total = milestone.oa + milestone.sa + milestone.ma + milestone.ra;
+  const total = milestone
+    ? milestone.oa + milestone.sa + milestone.ma + milestone.ra
+    : 0;
 
-  if (total > 0) {
+  if (milestone && total > 0) {
     return milestone;
   }
 
@@ -100,7 +111,7 @@ function buildRows(
 
   return [
     {
-      label: "Total contributed to 65",
+      label: `Total contributed to ${END_AGE}`,
       baseline: baseline.totalContributed,
       scenario: scenario.totalContributed,
     },
@@ -110,12 +121,12 @@ function buildRows(
       scenario: scenario.totalInterestEarned,
     },
     {
-      label: "All accounts at 65",
+      label: `All accounts at ${END_AGE}`,
       baseline: baselineTotal,
       scenario: scenarioTotal,
     },
     {
-      label: "Retirement Account at 65",
+      label: `Retirement Account at ${END_AGE}`,
       baseline: baselineAt65.ra,
       scenario: scenarioAt65.ra,
     },
@@ -262,11 +273,14 @@ export default function WhatIfContent() {
       return null;
     }
 
-    const projection = {
+    const projection: ProjectionParams = {
       monthlyIncome,
       birthDate,
+      startMonth: START_MONTH,
       endAge: END_AGE,
       initialBalances: { oa: 0, sa: 0, ma: 0, ra: 0 },
+      netSaSavingsWithdrawnForInvestments: 0,
+      retirementRouting: "full-retirement-sum",
       citizenship: citizenshipStatus,
     };
 
@@ -301,9 +315,9 @@ export default function WhatIfContent() {
   }, [formStep, monthlyIncome, birthDate, citizenshipStatus, scenario, age]);
 
   const descriptions: Record<ScenarioKey, string> = {
-    topup: `${formatCurrency(TOP_UP_AMOUNT, 0)} added each year to SA before 55 or RA from 55, on top of mandatory contributions. Tax relief is assessed separately.`,
-    oasa: `Up to ${formatCurrency(OA_TO_SA_AMOUNT, 0)} moved once from OA to SA before 55 or RA from 55, limited by the available OA balance. The transfer is irreversible.`,
-    salary: `${formatCurrency(monthlyIncome + SALARY_DELTA, 0)} a month instead of ${formatCurrency(monthlyIncome, 0)}, held flat to 65.`,
+    topup: `${formatCurrency(TOP_UP_AMOUNT, 0)} added each year to SA before ${RETIREMENT_AGE} or RA from ${RETIREMENT_AGE}, on top of mandatory contributions. Tax relief is assessed separately.`,
+    oasa: `Up to ${formatCurrency(OA_TO_SA_AMOUNT, 0)} moved once from OA to SA before ${RETIREMENT_AGE} or RA from ${RETIREMENT_AGE}, limited by the available OA balance. The transfer is irreversible.`,
+    salary: `${formatCurrency(monthlyIncome + SALARY_DELTA, 0)} a month instead of ${formatCurrency(monthlyIncome, 0)}, held flat to ${END_AGE}.`,
     later: `First contribution at age ${age + YEARS_LATER} instead of ${age}, five fewer years of contributions and compounding.`,
   };
 

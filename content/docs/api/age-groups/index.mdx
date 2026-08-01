@@ -3,9 +3,9 @@ title: Age Groups
 description: Resolve official CPF bands with inclusive upper bounds
 ---
 
-CPF contribution bands use inclusive upper ages: 55 and below, above 55 to 60, above 60 to 65, above 65 to 70, and above 70. Allocation bands also split at 35, 45, and 50. API v2 exposes `maxAgeInclusive` instead of an ambiguous exclusive maximum.
+CPF contribution bands use inclusive upper ages. Allocation bands split some contribution bands further, so contribution rates and account-allocation rates must not be treated as the same schedule. API v2 exposes `maxAgeInclusive` instead of an ambiguous exclusive maximum.
 
-The next contribution rate applies from the first day of the month after the member turns 55, 60, 65, or 70. Supply `birthMonth` plus `contributionMonth` when exact transition treatment matters.
+The next contribution rate applies from the first day of the month after a threshold birthday. Supply `birthMonth` plus `contributionMonth` when exact transition treatment matters; the API returns the applicable thresholds from the effective catalogue schedule.
 
 ## GET `/age-groups`
 
@@ -26,7 +26,7 @@ interface AgeGroupsResponse {
       | { type: "fixed"; account: "SA" | "RA" }
       | {
           type: "age-dependent";
-          thresholdAge: 55;
+          thresholdAge: number;
           belowThresholdAccount: "SA";
           atOrAboveThresholdAccount: "RA";
         };
@@ -46,7 +46,7 @@ interface AgeGroupsResponse {
 }
 ```
 
-Following the 2025 SA closure, the generic above-50-to-55 allocation band crosses the age-55 boundary. It therefore returns `retirementAccount: "age-dependent"`, a `retirement` allocation rate, and an explicit SA-below-55/RA-from-55 routing object. It does not silently label the whole band SA or RA.
+Following the SA closure, a generic allocation band can cross the SA-to-RA threshold. It therefore returns `retirementAccount: "age-dependent"`, a `retirement` allocation rate, the threshold supplied by policy, and an explicit SA-below-threshold/RA-from-threshold routing object. It does not silently label the whole band SA or RA.
 
 ```bash
 curl "https://simplycpf.com/api/cpf/age-groups?contributionMonth=2026-08&citizenship=citizen"
@@ -54,7 +54,7 @@ curl "https://simplycpf.com/api/cpf/age-groups?contributionMonth=2026-08&citizen
 
 ## GET `/age-group/find`
 
-Supply either completed `age` or `birthMonth`, plus `contributionMonth`. The response flattens the matching group fields and adds `contributionMonth`, `citizenship`, `schedule`, and the same contribution/allocation policy metadata. Because the member's age is known, the routing is fixed: an exact age-55 lookup after the SA closure returns `retirementAccount: "RA"` and `allocationRate.RA`.
+Supply either completed `age` or `birthMonth`, plus `contributionMonth`. The response flattens the matching group fields and adds `contributionMonth`, `citizenship`, `schedule`, and the same contribution/allocation policy metadata. Because the member's age is known, routing is fixed: a lookup at or above the post-closure threshold returns `retirementAccount: "RA"` and `allocationRate.RA`.
 
 ```bash
 curl "https://simplycpf.com/api/cpf/age-group/find?birthMonth=1971-08&contributionMonth=2026-08"
@@ -74,4 +74,4 @@ The response returns `completedAge`, `ageInMonths`, `isBirthdayMonth`, the contr
 
 `birthDate=MM/YYYY` remains a deprecated alias for one compatibility cycle. If that path omits `contributionMonth`, the server uses the current Singapore month, includes legacy `birthDate` and `age` fields plus warnings, and returns `private, no-store` because the result is not deterministic. Invalid combinations return `422`; an unsupported policy month returns `404`.
 
-Source: [CPF Board — Which rate applies when an employee enters the next age group?](https://www.cpf.gov.sg/service/article/which-cpf-contribution-rate-should-be-applied-when-my-employee-enters-the-next-age-group).
+Source: [CPF Board — Which rate applies when an employee enters the next age group?](https://www.cpf.gov.sg/service/article/which-cpf-contribution-rate-should-be-applied-when-my-employee-enters-the-next-age-group). The response's contribution and allocation `PolicyMetadata` records are the canonical effective-period and verification record.

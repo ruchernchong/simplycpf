@@ -5,28 +5,18 @@ description: Published CPF Ordinary and Additional Wage ceilings
 
 ## GET `/ceiling`
 
-Supply `contributionMonth` in `YYYY-MM` format. The endpoint returns the sourced monthly Ordinary Wage ceiling, the S$102,000 annual Additional Wage ceiling, effective dates, and policy provenance.
+Supply `contributionMonth` in `YYYY-MM` format. The endpoint returns the sourced monthly Ordinary Wage ceiling, annual Additional Wage ceiling, effective dates, and policy provenance for that month.
 
 ```bash
 curl "https://simplycpf.com/api/cpf/ceiling?contributionMonth=2026-08"
 ```
 
-The supported OW schedule is:
-
-| Effective period | Monthly OW ceiling |
-|---|---:|
-| January–August 2023 | S$6,000 |
-| September–December 2023 | S$6,300 |
-| 2024 | S$6,800 |
-| 2025 | S$7,400 |
-| 2026–2027 | S$8,000 |
-
 An unsupported contribution month returns `404`; the endpoint does not silently clamp it. `date` is a deprecated alias for one compatibility cycle.
 
-The remaining AW ceiling is `max(0, 102000 − annual OW subject to CPF − prior AW subject to CPF)`. The contribution endpoint returns `422` when positive AW is supplied without this annual context.
+The remaining AW ceiling is `max(0, annual AW ceiling − annual OW subject to CPF − prior AW subject to CPF)`. The contribution endpoint returns `422` when positive AW is supplied without this annual context.
 
 ## GET `/ceiling/timeline`
 
-Returns the published schedule above with per-dataset provenance. It contains no future extrapolation.
+Returns every published schedule in the catalogue with per-dataset provenance. It contains no future extrapolation; use this response rather than copying a static ceiling timeline.
 
-Source: [CPF Board — What is the Ordinary Wage ceiling?](https://www.cpf.gov.sg/service/article/what-is-the-ordinary-wage-ow-ceiling).
+Source: [CPF Board — What is the Ordinary Wage ceiling?](https://www.cpf.gov.sg/service/article/what-is-the-ordinary-wage-ow-ceiling). The response metadata records the dataset verification date and all sources used for the OW and AW rules.

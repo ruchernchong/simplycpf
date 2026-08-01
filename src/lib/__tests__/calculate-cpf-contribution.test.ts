@@ -6,8 +6,10 @@ import {
 } from "@/policy";
 import {
   CITIZEN_MAXIMUM_OW_GOLDEN,
+  CITIZENSHIP_SCHEDULE_GOLDEN,
   CPF_BOARD_CALCULATOR_REGRESSION,
   PR_MAXIMUM_OW_GOLDEN,
+  WAGE_BAND_BOUNDARY_GOLDEN,
 } from "@/policy/__fixtures__/contribution-golden";
 import {
   calculateCpfContribution,
@@ -17,6 +19,7 @@ import {
 describe("calculateCpfContribution official golden vectors", () => {
   it.each([
     ...CITIZEN_MAXIMUM_OW_GOLDEN,
+    ...CITIZENSHIP_SCHEDULE_GOLDEN,
     ...PR_MAXIMUM_OW_GOLDEN,
   ])("matches $citizenship $ageBand for $contributionMonth", (fixture) => {
     const result = calculateCpfContribution({
@@ -63,19 +66,21 @@ describe("calculateCpfContribution official golden vectors", () => {
 });
 
 describe("wage bands and statutory rounding", () => {
-  it.each([
-    [50, "no-contribution", 0, 0, 0],
-    [50.01, "employer-only", 9, 0, 9],
-    [500, "employer-only", 85, 0, 85],
-    [500.01, "phased-employee-share", 85, 0, 85],
-    [600, "phased-employee-share", 162, 60, 102],
-    [750, "phased-employee-share", 278, 150, 128],
-    [750.01, "full-rates", 278, 150, 128],
-  ] as const)("$%s uses the %s band", (ordinaryWages, wageBand, total, employee, employer) => {
+  it.each(
+    WAGE_BAND_BOUNDARY_GOLDEN,
+  )("$citizenship at $ordinaryWages uses $wageBand", ({
+    ordinaryWages,
+    citizenship,
+    wageBand,
+    total,
+    employee,
+    employer,
+    source,
+  }) => {
     const result = calculateCpfContribution({
       contributionMonth: "2026-01",
       ordinaryWages,
-      citizenship: "citizen",
+      citizenship,
       age: 30,
     });
     expect(result.wageBand).toBe(wageBand);
@@ -84,6 +89,7 @@ describe("wage bands and statutory rounding", () => {
       employee,
       employer,
     });
+    expect(source).toMatch(/^https:\/\/www\.cpf\.gov\.sg\//);
   });
 
   it("rounds total half-up, truncates employee, and makes employer the remainder", () => {
@@ -150,6 +156,20 @@ describe("age and birthday-month transitions", () => {
     });
     expect(age55Month.age.contributionBand).toBe("55-and-below");
     expect(after55Month.age.contributionBand).toBe("above-55-to-60");
+  });
+
+  it("warns when a completed boundary age omits birth-month context", () => {
+    const result = calculateCpfContribution({
+      contributionMonth: "2026-08",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      age: 55,
+    });
+
+    expect(result.age.contributionBand).toBe("55-and-below");
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "age-month-context-required" }),
+    );
   });
 });
 

@@ -3,7 +3,6 @@ import { CACHE_HEADERS } from "@/lib/cache-headers";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import {
   ContributionPolicyError,
-  CPF_POLICY_VERIFIED_AT,
   POLICY_SOURCES,
   resolveContributionAgeFromBirthMonth,
 } from "@/policy";
@@ -104,7 +103,7 @@ export const GET = async (request: Request): Promise<NextResponse> => {
           allocation: calculation.policy.allocation,
           ageTransition: {
             status: "official",
-            verifiedAt: CPF_POLICY_VERIFIED_AT,
+            verifiedAt: calculation.policy.contribution.verifiedAt,
             sources: [POLICY_SOURCES.ageGroupTransition],
           },
         },

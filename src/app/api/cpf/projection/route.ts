@@ -1,9 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
+import {
+  calculateCpfProjection,
+  getCurrentSingaporeMonth,
+} from "@/lib/calculate-cpf-projection";
+import { ContributionPolicyError } from "@/policy";
 import type {
   AccountBalances,
   CitizenshipStatus,
   OaToSaTransfer,
+  ProjectionAdditionalWage,
   ProjectionParams,
   ProjectionWarning,
   RetirementRouting,
@@ -48,6 +53,12 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
+    if (error instanceof ContributionPolicyError) {
+      return NextResponse.json(
+        { error: error.message, code: error.code },
+        { status: error.code === "UNSUPPORTED_POLICY_MONTH" ? 404 : 422 },
+      );
+    }
     if (
       error instanceof ProjectionRequestError ||
       error instanceof RangeError
@@ -92,7 +103,7 @@ function normaliseLegacyRequest(
   }
 
   const startMonth = optionalString(value.startMonth, "startMonth");
-  const effectiveStartMonth = startMonth ?? currentMonth();
+  const effectiveStartMonth = startMonth ?? getCurrentSingaporeMonth();
   const birthDate =
     optionalString(value.birthDate, "birthDate") ??
     birthDateForCompletedAge(age, effectiveStartMonth);
@@ -144,18 +155,23 @@ function normaliseModernRequest(
   if (!birthDateValue && startAge === undefined) {
     throw invalid("birthDate is required for v2 requests.");
   }
-  const effectiveStartMonth = startMonth ?? currentMonth();
+  const effectiveStartMonth = startMonth ?? getCurrentSingaporeMonth();
   const birthDate =
     birthDateValue ??
     birthDateForCompletedAge(startAge ?? 0, effectiveStartMonth);
   const endAge = optionalWholeNumber(value.endAge, "endAge", 0);
-  if (startAge !== undefined && endAge !== undefined && endAge < startAge) {
+  const compatibilityStartAge = birthDateValue ? undefined : startAge;
+  if (
+    compatibilityStartAge !== undefined &&
+    endAge !== undefined &&
+    endAge < compatibilityStartAge
+  ) {
     throw invalid("endAge must be greater than or equal to startAge.");
   }
   if (
-    startAge !== undefined &&
+    compatibilityStartAge !== undefined &&
     endAge !== undefined &&
-    endAge - startAge + 1 > MAX_YEARS
+    endAge - compatibilityStartAge + 1 > MAX_YEARS
   ) {
     throw invalid(`Maximum ${MAX_YEARS} years allowed.`);
   }
@@ -172,6 +188,13 @@ function normaliseModernRequest(
         "This compatibility request omitted v2 starting context. Add birthDate, startMonth and initialBalances; zero balances or an inferred birth month are not complete personal data.",
     });
   }
+  if (birthDateValue && startAge !== undefined) {
+    warnings.push({
+      code: "legacy-projection-input",
+      message:
+        "startAge is deprecated and was ignored because birthDate is the canonical age input.",
+    });
+  }
 
   return {
     params: {
@@ -179,7 +202,9 @@ function normaliseModernRequest(
       birthDate,
       ...(startMonth ? { startMonth } : {}),
       ...(initialBalances ? { initialBalances } : {}),
-      ...(startAge === undefined ? {} : { startAge }),
+      ...(compatibilityStartAge === undefined
+        ? {}
+        : { startAge: compatibilityStartAge }),
       ...(endAge === undefined ? {} : { endAge }),
       citizenship,
       ...enhancements,
@@ -199,6 +224,11 @@ function parseEnhancements(
   | "retirementRouting"
   | "permanentResidentSince"
   | "netSaSavingsWithdrawnForInvestments"
+  | "initialYearToDateAccruedInterest"
+  | "initialRaSavingsForLimits"
+  | "initialRaSavingsForContributionRouting"
+  | "initialCashTopUpTaxReliefUsedThisYear"
+  | "additionalWages"
 > {
   const housingWithdrawal = optionalNonNegativeNumber(
     value.housingWithdrawal,
@@ -221,6 +251,26 @@ function parseEnhancements(
     value.netSaSavingsWithdrawnForInvestments,
     "netSaSavingsWithdrawnForInvestments",
   );
+  const initialYearToDateAccruedInterest =
+    value.initialYearToDateAccruedInterest === undefined
+      ? undefined
+      : parseBalances(
+          value.initialYearToDateAccruedInterest,
+          "initialYearToDateAccruedInterest",
+        );
+  const initialRaSavingsForLimits = optionalNonNegativeNumber(
+    value.initialRaSavingsForLimits,
+    "initialRaSavingsForLimits",
+  );
+  const initialRaSavingsForContributionRouting = optionalNonNegativeNumber(
+    value.initialRaSavingsForContributionRouting,
+    "initialRaSavingsForContributionRouting",
+  );
+  const initialCashTopUpTaxReliefUsedThisYear = optionalNonNegativeNumber(
+    value.initialCashTopUpTaxReliefUsedThisYear,
+    "initialCashTopUpTaxReliefUsedThisYear",
+  );
+  const additionalWages = parseAdditionalWages(value.additionalWages);
 
   return {
     ...(housingWithdrawal === undefined ? {} : { housingWithdrawal }),
@@ -232,18 +282,117 @@ function parseEnhancements(
     ...(netSaSavingsWithdrawnForInvestments === undefined
       ? {}
       : { netSaSavingsWithdrawnForInvestments }),
+    ...(initialYearToDateAccruedInterest
+      ? { initialYearToDateAccruedInterest }
+      : {}),
+    ...(initialRaSavingsForLimits === undefined
+      ? {}
+      : { initialRaSavingsForLimits }),
+    ...(initialRaSavingsForContributionRouting === undefined
+      ? {}
+      : { initialRaSavingsForContributionRouting }),
+    ...(initialCashTopUpTaxReliefUsedThisYear === undefined
+      ? {}
+      : { initialCashTopUpTaxReliefUsedThisYear }),
+    ...(additionalWages ? { additionalWages } : {}),
   };
 }
 
-function parseBalances(value: unknown): AccountBalances {
+function parseAdditionalWages(
+  value: unknown,
+): ProjectionAdditionalWage[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) {
+    throw invalid(
+      "additionalWages must be an array of explicitly dated payments.",
+    );
+  }
+
+  const seenMonths = new Set<string>();
+  return value.map((entry, index) => {
+    const field = `additionalWages[${index}]`;
+    if (!isRecord(entry)) throw invalid(`${field} must be an object.`);
+
+    const contributionMonth = optionalString(
+      entry.contributionMonth,
+      `${field}.contributionMonth`,
+    );
+    if (
+      !contributionMonth ||
+      !/^\d{4}-(0[1-9]|1[0-2])$/.test(contributionMonth)
+    ) {
+      throw invalid(`${field}.contributionMonth must be in YYYY-MM format.`);
+    }
+    if (seenMonths.has(contributionMonth)) {
+      throw invalid(
+        `additionalWages contains more than one payment for ${contributionMonth}; combine payments made in the same contribution month.`,
+      );
+    }
+    seenMonths.add(contributionMonth);
+
+    const amount = requiredPositiveNumber(entry.amount, `${field}.amount`);
+    if (!isRecord(entry.additionalWageCeilingContext)) {
+      throw invalid(
+        `${field}.additionalWageCeilingContext is required for a positive Additional Wage payment.`,
+      );
+    }
+    const context = entry.additionalWageCeilingContext;
+    const hasRemaining = context.remainingAdditionalWageCeiling !== undefined;
+    const hasAnnual = context.annualOrdinaryWagesSubjectToCpf !== undefined;
+    const hasPrior = context.priorAdditionalWagesSubjectToCpf !== undefined;
+
+    if (hasRemaining) {
+      if (hasAnnual || hasPrior) {
+        throw invalid(
+          `${field}.additionalWageCeilingContext must provide either remainingAdditionalWageCeiling or both annualOrdinaryWagesSubjectToCpf and priorAdditionalWagesSubjectToCpf, not both forms.`,
+        );
+      }
+      return {
+        contributionMonth,
+        amount,
+        additionalWageCeilingContext: {
+          remainingAdditionalWageCeiling: requiredNonNegativeNumber(
+            context.remainingAdditionalWageCeiling,
+            `${field}.additionalWageCeilingContext.remainingAdditionalWageCeiling`,
+          ),
+        },
+      };
+    }
+
+    if (!hasAnnual || !hasPrior) {
+      throw invalid(
+        `${field}.additionalWageCeilingContext must provide both annualOrdinaryWagesSubjectToCpf and priorAdditionalWagesSubjectToCpf, or remainingAdditionalWageCeiling.`,
+      );
+    }
+    return {
+      contributionMonth,
+      amount,
+      additionalWageCeilingContext: {
+        annualOrdinaryWagesSubjectToCpf: requiredNonNegativeNumber(
+          context.annualOrdinaryWagesSubjectToCpf,
+          `${field}.additionalWageCeilingContext.annualOrdinaryWagesSubjectToCpf`,
+        ),
+        priorAdditionalWagesSubjectToCpf: requiredNonNegativeNumber(
+          context.priorAdditionalWagesSubjectToCpf,
+          `${field}.additionalWageCeilingContext.priorAdditionalWagesSubjectToCpf`,
+        ),
+      },
+    };
+  });
+}
+
+function parseBalances(
+  value: unknown,
+  field = "initialBalances",
+): AccountBalances {
   if (!isRecord(value)) {
-    throw invalid("initialBalances must be an object.");
+    throw invalid(`${field} must be an object.`);
   }
   return {
-    oa: requiredNonNegativeNumber(value.oa, "initialBalances.oa"),
-    sa: requiredNonNegativeNumber(value.sa, "initialBalances.sa"),
-    ma: requiredNonNegativeNumber(value.ma, "initialBalances.ma"),
-    ra: requiredNonNegativeNumber(value.ra, "initialBalances.ra"),
+    oa: requiredNonNegativeNumber(value.oa, `${field}.oa`),
+    sa: requiredNonNegativeNumber(value.sa, `${field}.sa`),
+    ma: requiredNonNegativeNumber(value.ma, `${field}.ma`),
+    ra: requiredNonNegativeNumber(value.ra, `${field}.ra`),
   };
 }
 
@@ -332,11 +481,6 @@ function birthDateForCompletedAge(age: number, startMonth: string): string {
   const match = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(startMonth);
   if (!match) throw invalid("startMonth must be in YYYY-MM format.");
   return `${match[2]}/${Number(match[1]) - age}`;
-}
-
-function currentMonth(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function requiredNonNegativeNumber(value: unknown, field: string): number {

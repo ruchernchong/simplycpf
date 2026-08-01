@@ -4,13 +4,14 @@ import { Button } from "@heroui/react";
 import { Check, Download, Link2 } from "lucide-react";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
-import { CPF_ACCOUNT_MAP, CPF_INCOME_CEILING } from "@/constants";
+import { CPF_INCOME_CEILING } from "@/constants";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
-import { CPF_POLICY_CATALOGUE } from "@/policy";
+import { convertBirthDateToBirthMonth } from "@/lib/convert-birth-date-to-age";
 import {
   selectAge,
   selectAgeGroup,
+  selectBirthDate,
   selectCitizenshipStatus,
   selectFormStep,
   selectLatestIncomeCeilingDate,
@@ -21,6 +22,7 @@ import {
   buildIllustrativeFigures,
   findPreviousCeilingDate,
 } from "./figures";
+import { buildCalculatorPdfData } from "./pdf-data";
 
 export function CalculatorActions() {
   const [isCopied, setIsCopied] = useState(false);
@@ -31,6 +33,7 @@ export function CalculatorActions() {
   const income = useCpfStore(selectMonthlyGrossIncome);
   const age = useCpfStore(selectAge);
   const ageGroup = useCpfStore(selectAgeGroup);
+  const birthDate = useCpfStore(selectBirthDate);
   const citizenship = useCpfStore(selectCitizenshipStatus);
 
   useEffect(() => {
@@ -50,11 +53,13 @@ export function CalculatorActions() {
   }
 
   async function handleDownloadPdf() {
+    const birthMonth = convertBirthDateToBirthMonth(birthDate);
     const figures =
       formStep >= 2
         ? buildFigures({
             income,
             age,
+            ...(birthMonth ? { birthMonth } : {}),
             ageGroup,
             citizenship,
             ceilingDate,
@@ -63,12 +68,17 @@ export function CalculatorActions() {
         : buildIllustrativeFigures(ceilingDate);
 
     const previousDate = findPreviousCeilingDate(figures.ceilingDate);
-    const previousResult = calculateCpfContribution({
-      contributionMonth: previousDate,
-      ordinaryWages: figures.gross,
+    const previousCeiling = CPF_INCOME_CEILING[previousDate];
+    const previousInputBase = {
+      contributionMonth: figures.contributionMonth,
+      ordinaryWages: Math.min(figures.gross, previousCeiling),
       citizenship: figures.citizenship,
-      age: figures.age,
-    });
+    };
+    const previousResult = calculateCpfContribution(
+      figures.birthMonth
+        ? { ...previousInputBase, birthMonth: figures.birthMonth }
+        : { ...previousInputBase, age: figures.age },
+    );
 
     posthog.capture("pdf_download_click");
     setIsGeneratingPdf(true);
@@ -76,41 +86,21 @@ export function CalculatorActions() {
     try {
       const { openPdf } = await import("@/lib/download-pdf");
 
-      await openPdf({
-        generatedAt: new Date(),
-        ageGroup: figures.ageGroup.description,
-        monthlyGrossIncome: figures.gross,
-        takeHomeIncome: figures.takeHome,
-        employeeContribution: figures.employee,
-        employerContribution: figures.employer,
-        employeeRate: Math.round(figures.employeeRate * 100),
-        employerRate: Math.round(figures.employerRate * 100),
-        totalContribution: figures.total,
-        remainingAW: Math.max(
-          0,
-          CPF_POLICY_CATALOGUE.rules.wageBands.annualAdditionalWageCeiling -
-            figures.contributable * 12,
-        ),
-        ceilingComparison: {
-          preCeiling: CPF_INCOME_CEILING[previousDate],
-          currentCeiling: figures.ceiling,
-          takeHomeImpact:
-            figures.takeHome - previousResult.afterCpfContribution,
-          cpfImpact:
-            figures.total - previousResult.contribution.totalContribution,
-        },
-        distribution: [
-          { key: "OA", value: figures.oa },
-          {
-            key: figures.isRetirementAccount ? "RA" : "SA",
-            value: figures.sa,
+      await openPdf(
+        buildCalculatorPdfData({
+          figures,
+          generatedAt: new Date(),
+          ceilingComparison: {
+            preCeiling: previousCeiling,
+            currentCeiling: figures.ceiling,
+            takeHomeImpact:
+              figures.takeHome -
+              (figures.gross - previousResult.contribution.employee),
+            cpfImpact:
+              figures.total - previousResult.contribution.totalContribution,
           },
-          { key: "MA", value: figures.ma },
-        ].map(({ key, value }) => ({
-          name: `${CPF_ACCOUNT_MAP[key]} (${key})`,
-          value,
-        })),
-      });
+        }),
+      );
     } catch (error) {
       posthog.captureException(error);
     } finally {

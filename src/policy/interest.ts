@@ -1,4 +1,4 @@
-import { CPF_POLICY_VERIFIED_AT, POLICY_SOURCES } from "./sources";
+import { POLICY_METADATA, POLICY_SOURCES } from "./sources";
 
 export const CPF_INTEREST_FLOOR_RATES = {
   OA: 2.5,
@@ -22,7 +22,7 @@ export const CPF_INTEREST_RATE_METHODOLOGY = {
     reviewFrequency: "quarterly",
   },
   status: "official",
-  verifiedAt: CPF_POLICY_VERIFIED_AT,
+  verifiedAt: POLICY_METADATA["cpf-interest-rates"].verifiedAt,
   sourceUrls: [
     POLICY_SOURCES.interest.url,
     POLICY_SOURCES.interestMethodology.url,
@@ -39,7 +39,7 @@ export interface OfficialQuarterlyCpfInterestRate {
   ra: number;
   sourceUrl: string;
   status: "official";
-  verifiedAt: typeof CPF_POLICY_VERIFIED_AT;
+  verifiedAt: string;
 }
 
 /**
@@ -217,5 +217,5 @@ export const CPF_QUARTERLY_INTEREST_RATES: readonly OfficialQuarterlyCpfInterest
   ].map((row) => ({
     ...row,
     status: "official" as const,
-    verifiedAt: CPF_POLICY_VERIFIED_AT,
+    verifiedAt: POLICY_METADATA["cpf-interest-rates"].verifiedAt,
   }));

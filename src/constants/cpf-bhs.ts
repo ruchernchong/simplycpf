@@ -2,19 +2,17 @@ import type { PolicyMetadata } from "@/policy";
 import {
   CPF_BASIC_HEALTHCARE_SUM_ROWS,
   CPF_POLICY_RULES,
-  CPF_POLICY_VERIFIED_AT,
   getPolicyMetadata,
+  POLICY_METADATA,
   POLICY_SOURCES,
 } from "@/policy";
 
 export const CPF_BHS_SOURCE_URL = POLICY_SOURCES.basicHealthcareSum.url;
 
-export const CPF_BHS_VERIFIED_AT = CPF_POLICY_VERIFIED_AT;
+export const CPF_BHS_VERIFIED_AT =
+  POLICY_METADATA["cpf-basic-healthcare-sum"].verifiedAt;
 
-/**
- * Published BHS amounts for members below 65 and for the cohort turning 65 in
- * each year. Members born in 1951 or earlier have a fixed BHS of S$49,800.
- */
+/** Compatibility map derived from the canonical published BHS policy rows. */
 export const CPF_BASIC_HEALTHCARE_SUM = CPF_BASIC_HEALTHCARE_SUM_ROWS.reduce<
   Record<string, number>
 >((amounts, row) => {
@@ -56,9 +54,9 @@ export function getBhsForYear(year: number): number {
 }
 
 /**
- * Resolves the BHS for a projection. A member's BHS freezes in the year they
- * turn 65. For an unpublished future year, the last published amount is held
- * constant and explicitly marked as an assumption.
+ * Resolves the BHS for a projection. A member's BHS freezes at the catalogue's
+ * official cohort age. For an unpublished future year, the last published
+ * amount is held constant and explicitly marked as an assumption.
  */
 export function getBhsForProjection(
   year: number,

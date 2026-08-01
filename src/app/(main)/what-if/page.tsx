@@ -4,6 +4,10 @@ import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import WhatIfContent from "@/components/what-if/what-if-content";
 import { BASE_URL, WEBSITE_ID } from "@/config";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
+const payoutEligibilityAge =
+  CPF_POLICY_CATALOGUE.rules.lifecycleAges.cpfLifePayoutEligibility;
 
 export const metadata: Metadata = {
   title: "CPF What-If Simulator: Salary, Top-Ups and Retirement Transfers",
@@ -39,6 +43,8 @@ const schema: Graph = {
         "Compare SimplyCPF balance scenarios such as salary changes, annual top-ups, age-aware retirement transfers, and delayed starts.",
       url: `${BASE_URL}/what-if`,
       inLanguage: "en-SG",
+      dateModified:
+        CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
       isPartOf: { "@id": WEBSITE_ID },
       keywords:
         "CPF what-if calculator, CPF retirement transfer, CPF top-up calculator, CPF salary change",
@@ -78,7 +84,7 @@ const schema: Graph = {
           "@type": "HowToStep",
           position: 3,
           name: "Review the side-by-side outcome",
-          text: "Compare the baseline and scenario balances, contributions, interest, and key differences at age 65.",
+          text: `Compare the baseline and scenario balances, contributions, interest, and key differences at age ${payoutEligibilityAge}.`,
         },
       ],
     },

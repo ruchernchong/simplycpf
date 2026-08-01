@@ -58,6 +58,19 @@ describe("POST /api/cpf/investment-comparison", () => {
     expect(data.error).toBe("Maximum 50 years allowed");
   });
 
+  it("should return 400 when years is fractional", async () => {
+    const request = createRequest({
+      principal: 10000,
+      years: 10.5,
+      scenarios: [{ name: "Test", rate: 5 }],
+    });
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe("years must be a positive whole number");
+  });
+
   it("should return 400 when scenarios is not provided", async () => {
     const request = createRequest({
       principal: 10000,
@@ -81,6 +94,22 @@ describe("POST /api/cpf/investment-comparison", () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe("scenarios array cannot be empty");
+  });
+
+  it("should return 400 when scenarios exceed the documented maximum", async () => {
+    const request = createRequest({
+      principal: 10000,
+      years: 10,
+      scenarios: Array.from({ length: 11 }, (_, index) => ({
+        name: `Scenario ${index + 1}`,
+        rate: 5,
+      })),
+    });
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe("Maximum 10 scenarios allowed");
   });
 
   it("should return 400 when scenario name is missing", async () => {

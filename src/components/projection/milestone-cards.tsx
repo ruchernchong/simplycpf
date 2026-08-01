@@ -22,31 +22,25 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
     {
       age: retirementAccountAge,
       balances: result.milestones.age55,
-      available: result.yearlyBalances.some(
-        ({ age }) => age === retirementAccountAge,
-      ),
+      available: result.milestones.age55 !== undefined,
       description:
         result.assumptions.retirementRouting === "full-retirement-sum"
           ? "SA, then OA, is routed to RA up to the cohort FRS; remaining SA moves to OA after closure."
-          : "Shows the selected BRS cash branch with an eligible property pledge. Later contributions and MediSave overflow still refill RA towards the cohort FRS; actual eligibility must be confirmed with CPF.",
+          : "Shows the selected property branch after the FRS transfer and an eligible RA withdrawal down to BRS. Cash plus property satisfies the FRS test for MediSave overflow, while later employment contributions refill RA cash principal towards FRS; confirm actual eligibility with CPF.",
     },
     {
       age: payoutEligibilityAge,
       balances: result.milestones.age65,
-      available: result.yearlyBalances.some(
-        ({ age }) => age === payoutEligibilityAge,
-      ),
+      available: result.milestones.age65 !== undefined,
       description:
-        "A useful checkpoint for retirement readiness and CPF LIFE planning.",
+        "Pre-CPF-LIFE checkpoint for retirement planning; premiums and payouts are not deducted.",
     },
     {
       age: latestPayoutStartAge,
       balances: result.milestones.age70,
-      available: result.yearlyBalances.some(
-        ({ age }) => age === latestPayoutStartAge,
-      ),
+      available: result.milestones.age70 !== undefined,
       description:
-        "A balance checkpoint only; CPF LIFE payout deferment is not estimated here.",
+        "Opening balance checkpoint immediately before the 70th-birthday month. CPF payouts must start in that month and are not modelled here.",
     },
   ];
 

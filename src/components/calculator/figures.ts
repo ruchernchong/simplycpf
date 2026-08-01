@@ -1,7 +1,13 @@
 import { CPF_INCOME_CEILING } from "@/constants";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import { findAgeGroup } from "@/lib/find-age-group";
-import { formatPercentage } from "@/lib/format";
+import { formatCurrency, formatPercentage } from "@/lib/format";
+import type {
+  ContributionRouting,
+  ContributionWageBand,
+  ContributionWarning,
+} from "@/policy";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
 import type { AgeGroup, CitizenshipStatus } from "@/types";
 
 /** Figures shown before the visitor has entered anything of their own. */
@@ -12,7 +18,10 @@ export interface CalculatorFigures {
   /** True when the numbers come from the illustrative defaults, not the visitor. */
   isIllustrative: boolean;
   age: number;
+  birthMonth?: string;
   citizenship: CitizenshipStatus;
+  contributionMonth: string;
+  scheduleEffectiveFrom: string;
   ageGroup: AgeGroup;
   ceilingDate: string;
   ceiling: number;
@@ -24,22 +33,36 @@ export interface CalculatorFigures {
   total: number;
   takeHome: number;
   takeHomeShare: number;
+  /** Effective rates produced by the contribution amounts after CPF rounding. */
   employeeRate: number;
   employerRate: number;
   totalRate: number;
-  oa: number;
-  sa: number;
-  ma: number;
+  /** Published full-wage-band schedule rates for the resolved age/citizenship. */
+  nominalEmployeeRate: number;
+  nominalEmployerRate: number;
+  nominalTotalRate: number;
+  wageBand: ContributionWageBand;
+  wageBandLabel: string;
+  wageBandDescription: string;
+  /** Null until a post-55 FRS routing branch can be selected from account context. */
+  selectedDistribution: {
+    oa: number;
+    retirement: number;
+    ma: number;
+  } | null;
   oaRate: number;
-  saRate: number;
+  retirementRate: number;
   maRate: number;
-  /** Special Account closes at 55 and the share goes to the Retirement Account. */
+  /** Whether the retirement share is routed to the Retirement Account. */
   isRetirementAccount: boolean;
+  routing?: ContributionRouting;
+  warnings: readonly ContributionWarning[];
 }
 
 interface BuildFiguresParams {
   income: number;
   age: number;
+  birthMonth?: string;
   ageGroup: AgeGroup;
   citizenship: CitizenshipStatus;
   ceilingDate: string;
@@ -49,25 +72,45 @@ interface BuildFiguresParams {
 export function buildFigures({
   income,
   age,
+  birthMonth,
   ageGroup,
   citizenship,
   ceilingDate,
   isIllustrative,
 }: BuildFiguresParams): CalculatorFigures {
-  const result = calculateCpfContribution({
-    contributionMonth: ceilingDate,
+  const contributionMonth = CPF_POLICY_CATALOGUE.metadata[
+    "cpf-contribution-rates"
+  ].verifiedAt.slice(0, 7);
+  const base = {
+    contributionMonth,
     ordinaryWages: income,
     citizenship,
-    age,
-  });
+  };
+  const result = calculateCpfContribution(
+    birthMonth ? { ...base, birthMonth } : { ...base, age },
+  );
   const ceiling = CPF_INCOME_CEILING[ceilingDate];
-  const contributable = Math.min(income, ceiling);
+  const contributable = result.subjectWages.total;
   const { employee, employer, totalContribution } = result.contribution;
+  const employeeRate = contributable > 0 ? employee / contributable : 0;
+  const employerRate = contributable > 0 ? employer / contributable : 0;
+  const wageBandCopy = getWageBandCopy(result.wageBand);
+  const selectedDistribution =
+    result.routing?.selected === "undetermined"
+      ? null
+      : {
+          oa: result.distribution.OA,
+          retirement: result.distribution.RA ?? result.distribution.SA ?? 0,
+          ma: result.distribution.MA,
+        };
 
   return {
     isIllustrative,
     age,
+    ...(birthMonth ? { birthMonth } : {}),
     citizenship,
+    contributionMonth,
+    scheduleEffectiveFrom: result.schedule.effectiveFrom,
     ageGroup,
     ceilingDate,
     ceiling,
@@ -78,16 +121,25 @@ export function buildFigures({
     total: totalContribution,
     takeHome: result.afterCpfContribution,
     takeHomeShare: income > 0 ? result.afterCpfContribution / income : 0,
-    employeeRate: result.schedule.employeeRate,
-    employerRate: result.schedule.employerRate,
-    totalRate: result.schedule.employeeRate + result.schedule.employerRate,
-    oa: result.distribution.OA,
-    sa: result.distribution.RA ?? result.distribution.SA ?? 0,
-    ma: result.distribution.MA,
+    employeeRate,
+    employerRate,
+    totalRate: employeeRate + employerRate,
+    nominalEmployeeRate: result.schedule.employeeRate,
+    nominalEmployerRate: result.schedule.employerRate,
+    nominalTotalRate:
+      result.schedule.employeeRate + result.schedule.employerRate,
+    wageBand: result.wageBand,
+    wageBandLabel: wageBandCopy.label,
+    wageBandDescription: wageBandCopy.description,
+    selectedDistribution,
     oaRate: ageGroup.distributionRate.OA ?? 0,
-    saRate: ageGroup.distributionRate.SA ?? 0,
+    retirementRate:
+      ageGroup.distributionRate.RA ?? ageGroup.distributionRate.SA ?? 0,
     maRate: ageGroup.distributionRate.MA ?? 0,
-    isRetirementAccount: result.distribution.RA !== undefined,
+    isRetirementAccount:
+      result.routing !== undefined || result.distribution.RA !== undefined,
+    ...(result.routing ? { routing: result.routing } : {}),
+    warnings: result.warnings,
   };
 }
 
@@ -117,7 +169,44 @@ export function findPreviousCeilingDate(ceilingDate: string): string {
 
 /** Whole percentages stay whole; graduated rates such as 14.5% keep one decimal. */
 export function formatRate(rate: number): string {
+  const percentage = rate * 100;
+  const hundredthPercentage = Math.round(percentage * 100) / 100;
+  const decimalPlaces = Number.isInteger(hundredthPercentage)
+    ? 0
+    : Number.isInteger(hundredthPercentage * 10)
+      ? 1
+      : 2;
+
   return formatPercentage(rate, {
-    decimalPlaces: Number.isInteger(Math.round(rate * 10000) / 100) ? 0 : 1,
+    decimalPlaces,
   });
+}
+
+export function getWageBandCopy(wageBand: ContributionWageBand): {
+  label: string;
+  description: string;
+} {
+  const rules = CPF_POLICY_CATALOGUE.rules.wageBands;
+  switch (wageBand) {
+    case "no-contribution":
+      return {
+        label: "No-contribution wage band",
+        description: `Monthly wages at or below ${formatCurrency(rules.noContributionAtOrBelow, 0)} attract no CPF contribution.`,
+      };
+    case "employer-only":
+      return {
+        label: "Employer-only wage band",
+        description: `For monthly wages above ${formatCurrency(rules.noContributionAtOrBelow, 0)} through ${formatCurrency(rules.employerOnlyAtOrBelow, 0)}, only the employer share applies.`,
+      };
+    case "phased-employee-share":
+      return {
+        label: "Phased employee-share wage band",
+        description: `For monthly wages above ${formatCurrency(rules.employerOnlyAtOrBelow, 0)} through ${formatCurrency(rules.phasedEmployeeShareAtOrBelow, 0)}, the employee share phases in under CPF Board's formula.`,
+      };
+    case "full-rates":
+      return {
+        label: "Full-rate wage band",
+        description: `Monthly wages above ${formatCurrency(rules.fullRatesAbove, 0)} use the published full schedule rates, followed by CPF's statutory rounding.`,
+      };
+  }
 }

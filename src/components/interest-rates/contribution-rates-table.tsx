@@ -5,8 +5,20 @@ function pct(rate: number) {
   return `${(rate * 100).toFixed(1)}%`;
 }
 
-const currentSchedule = resolveContributionSchedule("2026-08").schedule;
-const nextSchedule = resolveContributionSchedule("2027-01").schedule;
+const currentSchedule = resolveContributionSchedule(
+  CPF_POLICY_CATALOGUE.metadata["cpf-contribution-rates"].verifiedAt,
+).schedule;
+const nextSchedule = (() => {
+  const schedule = CPF_POLICY_CATALOGUE.contributionSchedules.find(
+    (candidate) => candidate.effectiveFrom > currentSchedule.effectiveTo,
+  );
+  if (!schedule) {
+    throw new Error(
+      "A published next CPF contribution schedule is unavailable.",
+    );
+  }
+  return schedule;
+})();
 const rows = currentSchedule.citizenRates.map((group) => {
   const nextRate = nextSchedule.citizenRates.find(
     (candidate) => candidate.id === group.id,
@@ -29,8 +41,10 @@ const rows = currentSchedule.citizenRates.map((group) => {
   };
 });
 
-/** Full contribution rates by age band, with the legislated 2027 step. */
+/** Current and next published full contribution rates by age band. */
 export function ContributionRatesTable() {
+  const retirementAge =
+    CPF_POLICY_CATALOGUE.rules.lifecycleAges.retirementAccountCreated;
   return (
     <Card>
       <Card.Header>
@@ -81,8 +95,8 @@ export function ContributionRatesTable() {
       <Card.Footer>
         <Typography color="muted" type="body-sm">
           The next published schedule changes the two senior bands immediately
-          above age 55. Rate changes apply from the month after a threshold
-          birthday.
+          above age {retirementAge}. Rate changes apply from the month after a
+          threshold birthday.
         </Typography>
       </Card.Footer>
     </Card>

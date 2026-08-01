@@ -9,28 +9,37 @@ import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import CpfTopUpLimitsBlock from "@/components/seo/cpf-top-up-limits-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, WEBSITE_ID } from "@/config";
-import faqProjectionData from "@/data/faq-projection.json";
+import { faqProjectionData } from "@/data/cpf-faqs";
+import { CPF_POLICY_CATALOGUE } from "@/policy";
+
+const lifecycle = CPF_POLICY_CATALOGUE.rules.lifecycleAges;
+const milestoneAges = [
+  lifecycle.retirementAccountCreated,
+  lifecycle.cpfLifePayoutEligibility,
+  lifecycle.latestCpfLifePayoutStart,
+];
+const milestoneLabel = milestoneAges.join(", ");
+const latestInterestDeclaration =
+  CPF_POLICY_CATALOGUE.quarterlyInterestRates.at(-1)?.quarter ??
+  "the latest published quarter";
+const projectionRateDescription = `CPF Board's published quarterly rates through ${latestInterestDeclaration}, then official floor-rate presets as an explicit assumption`;
 
 export const metadata: Metadata = {
-  title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
-  description:
-    "Project supplied OA, SA, MA and RA balances month by month using CPF floor interest rates, published contribution schedules, and clearly marked assumptions for unpublished future policy.",
-  keywords:
-    "CPF projection calculator, CPF projection Singapore, CPF at 55, CPF at 65, CPF retirement projection, CPF OA SA MA RA projection",
+  title: `CPF Projection Calculator: Project Your CPF to Ages ${milestoneLabel}`,
+  description: `Project supplied opening-of-start-month OA, SA, MA and RA balances month by month using ${projectionRateDescription}, published contribution schedules, and clearly marked assumptions for unpublished future policy.`,
+  keywords: `CPF projection calculator, CPF projection Singapore, CPF at ${lifecycle.retirementAccountCreated}, CPF at ${lifecycle.cpfLifePayoutEligibility}, CPF retirement projection, CPF OA SA MA RA projection`,
   alternates: {
     canonical: "/projection",
   },
   openGraph: {
-    title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
-    description:
-      "Project your CPF balances month by month with floor rates, milestone snapshots, and per-year policy status.",
+    title: `CPF Projection Calculator: Project Your CPF to Ages ${milestoneLabel}`,
+    description: `Project opening-of-start-month CPF balances using ${projectionRateDescription}, milestone snapshots, and per-year policy status.`,
     url: `${BASE_URL}/projection`,
   },
   twitter: {
     card: "summary_large_image",
-    title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
-    description:
-      "Project your CPF balances month by month with floor rates, milestone snapshots, and per-year policy status.",
+    title: `CPF Projection Calculator: Project Your CPF to Ages ${milestoneLabel}`,
+    description: `Project opening-of-start-month CPF balances using ${projectionRateDescription}, milestone snapshots, and per-year policy status.`,
   },
 };
 
@@ -41,13 +50,13 @@ const schema: Graph = {
       "@type": "WebPage",
       "@id": `${BASE_URL}/projection/#webpage`,
       name: "CPF Projection Calculator",
-      description:
-        "Project your CPF balances to age 55, 65 or 70 using CPF floor rates, age-based contribution rates, and retirement account rules.",
+      description: `Project your opening-of-start-month CPF balances to ages ${milestoneLabel} using ${projectionRateDescription}, age-based contribution rates, and retirement account rules.`,
       url: `${BASE_URL}/projection`,
       inLanguage: "en-SG",
       isPartOf: { "@id": WEBSITE_ID },
-      keywords:
-        "CPF projection calculator, CPF at 55, CPF at 65, CPF retirement projection",
+      keywords: `CPF projection calculator, CPF at ${lifecycle.retirementAccountCreated}, CPF at ${lifecycle.cpfLifePayoutEligibility}, CPF retirement projection`,
+      dateModified:
+        CPF_POLICY_CATALOGUE.metadata["cpf-interest-rates"].verifiedAt,
       speakable: {
         "@type": "SpeakableSpecification",
         cssSelector: ["h1", "[data-projection-intro]"],
@@ -69,13 +78,13 @@ const schema: Graph = {
       "@type": "HowTo",
       name: "How to project your CPF balances",
       description:
-        "Enter your current balances, income and birth date, adjust optional assumptions, and review projected balances with policy provenance.",
+        "Enter balances at the opening of your selected start month, income and birth date, adjust optional assumptions, and review projected balances with policy provenance.",
       step: [
         {
           "@type": "HowToStep",
           position: 1,
-          name: "Enter your balances, monthly income and birth date",
-          text: "Add your current OA, SA, MA and RA balances, monthly income, and birth month and year so the calculator starts from your actual position and applies the right contribution schedule.",
+          name: "Enter opening balances, monthly income and birth date",
+          text: "Add the OA, SA, MA and RA balances at the opening of your selected start month, before that month's transactions, plus monthly income and birth month and year.",
         },
         {
           "@type": "HowToStep",
@@ -87,7 +96,7 @@ const schema: Graph = {
           "@type": "HowToStep",
           position: 3,
           name: "Review milestone balances",
-          text: "See how your CPF balances may look at age 55, age 65 and age 70, including the effect of the age 55 SA to RA transfer.",
+          text: `See milestone balances at ages ${milestoneLabel}, including the SA-to-RA transfer from age ${lifecycle.retirementAccountCreated}.`,
         },
         {
           "@type": "HowToStep",
@@ -115,7 +124,7 @@ const schema: Graph = {
       featureList: [
         "Project CPF balances by age",
         "Model housing withdrawals and top-ups",
-        "See age 55, 65 and 70 milestone balances",
+        `See age ${milestoneLabel} milestone balances`,
         "Show published versus assumed policy years",
       ],
     },
@@ -137,8 +146,10 @@ export default function ProjectionPage() {
             data-projection-intro
             className="mx-auto max-w-3xl"
           >
-            Project your CPF balances using conservative floor rates, current
-            published contribution rules, and key milestones like the age 55
+            Project your CPF balances using published quarterly declarations,
+            then official floor rates as an explicit assumption after the last
+            declaration, together with published contribution rules and key
+            milestones like the age {lifecycle.retirementAccountCreated}{" "}
             transfer to your Retirement Account. Unpublished future policy is
             held constant and labelled, so the output stays a transparent
             planning scenario rather than a forecast.

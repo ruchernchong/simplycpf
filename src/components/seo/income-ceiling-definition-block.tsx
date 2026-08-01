@@ -14,6 +14,7 @@ export default function IncomeCeilingDefinitionBlock() {
   if (!first || !latest) {
     throw new Error("The CPF Ordinary Wage ceiling timeline is unavailable.");
   }
+  const sourceUrl = latest.wageCeilingMetadata.sources[0]?.url;
 
   return (
     <section
@@ -51,19 +52,17 @@ export default function IncomeCeilingDefinitionBlock() {
             })}
           </ul>
           <Typography>
-            For wages above an earlier ceiling, an increase can reduce
-            take-home pay while increasing both employee and employer CPF
-            contributions. Additional Wages use a separate annual ceiling and
-            require annual OW and prior-AW context.
+            For wages above an earlier ceiling, an increase can reduce take-home
+            pay while increasing both employee and employer CPF contributions.
+            Additional Wages use a separate annual ceiling and require annual OW
+            and prior-AW context.
           </Typography>
-          <Link
-            href={latest.wageCeilingMetadata.sourceUrls[0]}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            CPF Board wage-ceiling source
-            <Link.Icon aria-hidden="true" />
-          </Link>
+          {sourceUrl && (
+            <Link href={sourceUrl} rel="noopener noreferrer" target="_blank">
+              CPF Board wage-ceiling source
+              <Link.Icon aria-hidden="true" />
+            </Link>
+          )}
         </Card.Content>
       </Card>
     </section>
