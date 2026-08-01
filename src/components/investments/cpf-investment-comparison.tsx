@@ -1,6 +1,13 @@
 "use client";
 
-import { Card, Label, NumberField, Slider, Table } from "@heroui/react";
+import {
+  Card,
+  Label,
+  NumberField,
+  Slider,
+  Table,
+  Typography,
+} from "@heroui/react";
 import posthog from "posthog-js";
 import { useState } from "react";
 import {
@@ -136,13 +143,13 @@ export function CPFInvestmentComparison() {
       {/* Disclaimer Banner */}
       <Card className="border-amber-200 bg-amber-50">
         <Card.Content>
-          <p className="text-amber-900 text-sm">
+          <Typography className="text-amber-900" type="body-sm">
             <strong>Disclaimer:</strong> The investment returns shown are
             historical averages and do not guarantee future performance.
             Investments carry risks including potential loss of principal. CPF
             savings are guaranteed by the Singapore Government. Always consult a
             financial adviser before making investment decisions.
-          </p>
+          </Typography>
         </Card.Content>
       </Card>
 
@@ -211,15 +218,19 @@ export function CPFInvestmentComparison() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <p className="mb-2 font-semibold text-sm">
+                      <Typography
+                        className="mb-2"
+                        type="body-sm"
+                        weight="semibold"
+                      >
                         {scenario.name}
-                      </p>
-                      <p className="text-xs text-zinc-600">
+                      </Typography>
+                      <Typography className="text-zinc-600" type="body-xs">
                         {formatPercentage(scenario.rate / 100, {
                           decimalPlaces: 1,
                         })}{" "}
                         p.a.
-                      </p>
+                      </Typography>
                     </div>
                     <span
                       className={`rounded px-2 py-1 text-xs ${
@@ -243,7 +254,9 @@ export function CPFInvestmentComparison() {
             role="img"
             aria-label="Investment growth comparison chart showing projected returns over time for selected scenarios"
           >
-            <h3 className="mb-4 font-semibold text-lg">Growth Over Time</h3>
+            <Typography className="mb-4" type="h5">
+              Growth Over Time
+            </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -373,9 +386,9 @@ export function CPFInvestmentComparison() {
         <Card.Content className="flex flex-col gap-4">
           <div className="flex flex-col gap-4 text-sm">
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <h4 className="mb-2 font-semibold text-blue-900">
+              <Typography className="mb-2 text-blue-900" type="h6">
                 CPF Advantages
-              </h4>
+              </Typography>
               <ul className="flex flex-col gap-2 text-blue-800">
                 <li>• Guaranteed returns by Singapore Government</li>
                 <li>• No market volatility risk</li>
@@ -385,9 +398,9 @@ export function CPFInvestmentComparison() {
             </div>
 
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-              <h4 className="mb-2 font-semibold text-amber-900">
+              <Typography className="mb-2 text-amber-900" type="h6">
                 Investment Advantages
-              </h4>
+              </Typography>
               <ul className="flex flex-col gap-2 text-amber-800">
                 <li>• Potential for higher returns (with higher risk)</li>
                 <li>• More liquidity and flexibility</li>
@@ -397,9 +410,9 @@ export function CPFInvestmentComparison() {
             </div>
 
             <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h4 className="mb-2 font-semibold text-red-900">
+              <Typography className="mb-2 text-red-900" type="h6">
                 Investment Risks
-              </h4>
+              </Typography>
               <ul className="flex flex-col gap-2 text-red-800">
                 <li>• Market volatility can lead to losses</li>
                 <li>• No guaranteed returns</li>

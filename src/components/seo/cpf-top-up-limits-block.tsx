@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import { formatNumber } from "@/lib/format";
 
 /**
@@ -38,50 +38,50 @@ const CpfTopUpLimitsBlock = () => {
           </Card.Title>
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
-          <p>
+          <Typography>
             You can boost your CPF savings through cash top-ups, which also
             qualify for <strong>tax relief</strong>. This is one of the most
             tax-efficient ways to save for retirement in Singapore.
-          </p>
+          </Typography>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-lg border border-border bg-muted/50 p-4">
-              <p className="mb-1 font-semibold text-sm">
+              <Typography className="mb-1" type="body-sm" weight="semibold">
                 Top-Up to Your Own Account
-              </p>
-              <p className="font-bold text-2xl text-foreground">
+              </Typography>
+              <Typography type="h3" weight="bold">
                 Up to S${formatNumber(TAX_RELIEF_SELF)}
-              </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              </Typography>
+              <Typography className="mt-1" color="muted" type="body-xs">
                 Cash top-up to your SA (under 55) or RA (55+) qualifies for tax
                 relief
-              </p>
-              <p className="mt-2 text-accent text-xs">
+              </Typography>
+              <Typography className="mt-2 text-accent" type="body-xs">
                 Tax relief cap: S${formatNumber(TAX_RELIEF_SELF)} per calendar
                 year
-              </p>
+              </Typography>
             </div>
             <div className="rounded-lg border border-border bg-muted/50 p-4">
-              <p className="mb-1 font-semibold text-sm">
+              <Typography className="mb-1" type="body-sm" weight="semibold">
                 Top-Up for Family Members
-              </p>
-              <p className="font-bold text-2xl text-foreground">
+              </Typography>
+              <Typography type="h3" weight="bold">
                 Up to S${formatNumber(TAX_RELIEF_FAMILY)}
-              </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              </Typography>
+              <Typography className="mt-1" color="muted" type="body-xs">
                 Top-up parents, parents-in-law, grandparents, spouse, or
                 siblings
-              </p>
-              <p className="mt-2 text-accent text-xs">
+              </Typography>
+              <Typography className="mt-2 text-accent" type="body-xs">
                 Separate S${formatNumber(TAX_RELIEF_FAMILY)} cap for family
                 top-ups
-              </p>
+              </Typography>
             </div>
           </div>
 
-          <p>
+          <Typography>
             <strong>How the tax relief works:</strong>
-          </p>
+          </Typography>
           <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
             <li>
               The relief goes to the person making the top-up, not the person
@@ -105,9 +105,9 @@ const CpfTopUpLimitsBlock = () => {
             </li>
           </ul>
 
-          <p>
+          <Typography>
             <strong>Matched Retirement Savings Scheme (MRSS):</strong>
-          </p>
+          </Typography>
           <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
             <li>
               A separate government matching grant, dollar for dollar, on cash
@@ -128,19 +128,19 @@ const CpfTopUpLimitsBlock = () => {
             </li>
           </ul>
 
-          <p className="text-muted-foreground text-sm">
+          <Typography color="muted" type="body-sm">
             <strong>Note:</strong> Top-ups are irreversible. Once you transfer
             cash to CPF, it stays in CPF until retirement age (or for approved
             housing/education/insurance purposes from OA only).
-          </p>
+          </Typography>
 
-          <p className="text-muted-foreground text-sm">
+          <Typography color="muted" type="body-sm">
             <strong>Strategy tip:</strong> Top-ups early in the year earn a full
             year of interest. A S${formatNumber(TAX_RELIEF_SELF)} top-up to SA
             at age 30, left untouched at the 4% floor rate, would be worth about
             S${formatNumber(topUpAtFiftyFive)} at 55. This illustration uses the
             floor rate only and ignores extra interest.
-          </p>
+          </Typography>
         </Card.Content>
       </Card>
     </section>

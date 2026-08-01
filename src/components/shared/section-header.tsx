@@ -1,4 +1,4 @@
-import { cn } from "@heroui/react";
+import { cn, Typography } from "@heroui/react";
 import type { ReactNode } from "react";
 
 interface EyebrowProps {
@@ -13,14 +13,18 @@ interface EyebrowProps {
  */
 export function Eyebrow({ children, withDot, className }: EyebrowProps) {
   return (
-    <span className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {withDot && (
         <span aria-hidden className="size-1.5 rounded-full bg-accent" />
       )}
-      <span className="font-mono text-[10.5px] text-accent uppercase tracking-[0.13em]">
+      <Typography
+        className="text-accent uppercase"
+        type="body-xs"
+        weight="semibold"
+      >
         {children}
-      </span>
-    </span>
+      </Typography>
+    </div>
   );
 }
 
@@ -35,19 +39,19 @@ interface PageHeaderProps {
 export function PageHeader({ eyebrow, title, lede, actions }: PageHeaderProps) {
   return (
     <header className="flex flex-col gap-2">
-      <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+      <Typography color="muted" type="body-xs" weight="semibold">
         {eyebrow}
-      </span>
+      </Typography>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+        <Typography className="text-balance" type="h1">
           {title}
-        </h1>
+        </Typography>
         {actions}
       </div>
       {lede && (
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+        <Typography className="max-w-[76ch] text-pretty" color="muted">
           {lede}
-        </p>
+        </Typography>
       )}
     </header>
   );

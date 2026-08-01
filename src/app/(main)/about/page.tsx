@@ -1,4 +1,4 @@
-import { Accordion, buttonVariants, Card } from "@heroui/react";
+import { Accordion, buttonVariants, Card, Typography } from "@heroui/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
@@ -94,27 +94,27 @@ const About = () => {
             </Card.Description>
           </Card.Header>
           <Card.Content className="flex flex-col gap-4">
-            <p>
+            <Typography>
               SimplyCPF is a free, open-source tool that helps Singapore
               Citizens and Permanent Residents see exactly where their CPF
               retirement money goes, based on income, age group, and the latest
               ceiling changes. The main calculators and planning tools work
               without sign-up.
-            </p>
-            <p>
+            </Typography>
+            <Typography>
               CPF contribution rates vary across 8 age brackets, and
               contributions are distributed differently across your Ordinary
               Account (OA), Special Account (SA), and MediSave Account (MA)
               depending on your age. SimplyCPF handles all of this automatically
               so you get the numbers that matter: your take-home pay and
               retirement savings, without cross-referencing government tables.
-            </p>
-            <p>
+            </Typography>
+            <Typography>
               All calculation logic is open-source and verifiable on GitHub.
               Rates are sourced directly from CPF Board publications and updated
               within days when changes are announced.
-            </p>
-            <p>
+            </Typography>
+            <Typography>
               If you ask SimplyCPF to email you a CPF cheat sheet or readiness
               report, we only use your email address to send that requested
               resource. You can read the current disclosure on the{" "}
@@ -125,8 +125,8 @@ const About = () => {
                 privacy page
               </Link>
               .
-            </p>
-            <p>
+            </Typography>
+            <Typography>
               This tool covers the progressive increases in CPF Income Ceiling
               from 2023 to 2026 following Budget 2023, so you can see exactly
               how much more of your income becomes retirement savings over time.
@@ -134,7 +134,7 @@ const About = () => {
               employer verifying contribution amounts, or a financial planner
               comparing CPF growth with other investments: SimplyCPF gives you
               the numbers in seconds.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
 
@@ -143,13 +143,13 @@ const About = () => {
             <Card.Title>Important Disclaimer</Card.Title>
           </Card.Header>
           <Card.Content>
-            <p className="mb-4">
+            <Typography className="mb-4">
               This calculator is an independent tool to help with CPF
               contribution calculations. It is not affiliated with, endorsed by,
               or connected to the Central Provident Fund Board (CPF Board),
               Ministry of Manpower (MOM), or any government agency.
-            </p>
-            <p>
+            </Typography>
+            <Typography>
               All rates are sourced from CPF Board publications and the
               calculation logic is open for anyone to verify. For official CPF
               matters, always refer to the{" "}
@@ -162,7 +162,7 @@ const About = () => {
                 CPF Board website
               </a>{" "}
               or contact CPF Board directly.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
 
@@ -196,9 +196,9 @@ const About = () => {
         </Card>
 
         <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
+          <Typography className="mb-4" type="h5" weight="medium">
             Try the calculator. Free, instant, no sign-up required
-          </p>
+          </Typography>
           <Link
             href="/calculator"
             className={cn(buttonVariants({ size: "lg" }), "gap-2")}

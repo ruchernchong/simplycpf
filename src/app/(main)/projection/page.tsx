@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import type { Graph } from "schema-dts";
@@ -127,18 +128,20 @@ export default function ProjectionPage() {
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
         <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
+          <Typography align="center" className="mb-4" type="h1">
             Will Your CPF Be Enough for Retirement?
-          </h1>
-          <p
+          </Typography>
+          <Typography
+            align="center"
+            color="muted"
             data-projection-intro
-            className="mx-auto max-w-3xl text-muted-foreground"
+            className="mx-auto max-w-3xl"
           >
             Project your CPF balances using conservative floor rates, current
             contribution rules, and key milestones like the age 55 transfer to
             your Retirement Account. You can also test how housing withdrawals,
             annual top-ups, and OA to SA transfers may change the outcome.
-          </p>
+          </Typography>
         </div>
         <Suspense
           fallback={<div className="min-h-[480px] rounded-lg bg-muted/30" />}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Separator } from "@heroui/react";
+import { Card, Separator, Typography } from "@heroui/react";
 import { CPF_ADDITIONAL_WAGE_CEILING } from "@/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -23,32 +23,27 @@ export function AssumptionsCard({
   return (
     <Card className="gap-6 p-6">
       <Card.Header>
-        <Card.Title className="font-semibold text-base tracking-tight">
-          What this assumes
-        </Card.Title>
+        <Card.Title>What this assumes</Card.Title>
       </Card.Header>
 
       <Card.Content className="gap-6">
         <ol className="flex flex-col gap-4">
           {assumptions.map((assumption, index) => (
-            <li
-              className="flex gap-4 text-[13px] leading-relaxed"
-              key={assumption}
-            >
-              <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+            <li className="flex gap-4" key={assumption}>
+              <Typography color="muted" type="body-xs">
                 {String(index + 1).padStart(2, "0")}
-              </span>
-              <span>{assumption}</span>
+              </Typography>
+              <Typography type="body-sm">{assumption}</Typography>
             </li>
           ))}
         </ol>
 
         <Separator />
 
-        <p className="text-muted text-xs">
+        <Typography color="muted" type="body-xs">
           Estimates only, not financial advice. Check against your CPF
           statement.
-        </p>
+        </Typography>
       </Card.Content>
     </Card>
   );

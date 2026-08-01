@@ -1,6 +1,15 @@
 "use client";
 
-import { Card, Checkbox, cn, Link, Separator, Surface } from "@heroui/react";
+import {
+  Card,
+  Checkbox,
+  cn,
+  Description,
+  Link,
+  Separator,
+  Surface,
+  Typography,
+} from "@heroui/react";
 import { ArrowRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { PageHeader } from "@/components/shared/section-header";
@@ -72,20 +81,14 @@ function CheckCard({ item, isTicked, onToggle }: CheckCardProps): ReactNode {
       value={item.id}
     >
       <Card className={cn("w-full", isTicked && "border-accent/40")}>
-        <Card.Content>
+        <Card.Content className="flex flex-col gap-2">
           <Checkbox.Content className="flex items-start gap-4">
             <Checkbox.Control className="shrink-0">
               <Checkbox.Indicator />
             </Checkbox.Control>
-            <span className="flex flex-col gap-2">
-              <span className="font-semibold text-base tracking-tight">
-                {item.title}
-              </span>
-              <span className="max-w-[64ch] text-muted text-sm leading-relaxed">
-                {item.body}
-              </span>
-            </span>
+            {item.title}
           </Checkbox.Content>
+          <Description className="max-w-[64ch] pl-8">{item.body}</Description>
         </Card.Content>
       </Card>
     </Checkbox>
@@ -96,10 +99,10 @@ function PointerRow({ item }: { item: CheckItem }): ReactNode {
   return (
     <Link className="block w-full" href={item.href}>
       <Surface
-        className="flex items-center justify-between gap-4 rounded-lg p-4 text-sm"
+        className="flex items-center justify-between gap-4 rounded-2xl p-4"
         variant="tertiary"
       >
-        <span>{item.linkLabel}</span>
+        <Typography type="body-sm">{item.linkLabel}</Typography>
         <ArrowRight aria-hidden className="size-4 shrink-0 text-accent" />
       </Surface>
     </Link>
@@ -137,14 +140,14 @@ export default function CpfCheckContent(): ReactNode {
 
         <Card className="lg:sticky lg:top-24">
           <Card.Content className="flex flex-col gap-6">
-            <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+            <Typography color="muted" type="body-xs">
               Where to read the rest
-            </span>
-            <p className="text-base leading-relaxed">
+            </Typography>
+            <Typography>
               {allTicked
                 ? "All five ticked. Nothing left to point you at, the screens are still there if you want the numbers for your own salary."
                 : `You have ticked ${tickedIds.length} of five. Here is where each of the others is explained, in your own numbers.`}
-            </p>
+            </Typography>
             {untickedItems.length > 0 && (
               <ul className="flex flex-col gap-2">
                 {untickedItems.map((item) => (
@@ -156,10 +159,10 @@ export default function CpfCheckContent(): ReactNode {
             )}
             <div className="flex flex-col gap-4">
               <Separator variant="secondary" />
-              <p className="text-[12px] text-muted leading-relaxed">
+              <Typography color="muted" type="body-xs">
                 We do not assess your readiness or suggest what to do, this only
                 shows which explanation you have not read yet.
-              </p>
+              </Typography>
             </div>
           </Card.Content>
         </Card>

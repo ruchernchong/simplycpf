@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card } from "@heroui/react";
+import { Button, Card, Typography } from "@heroui/react";
 import dynamic from "next/dynamic";
 import {
   parseAsInteger,
@@ -27,7 +27,7 @@ const BalanceGrowthChart = dynamic(() => import("./balance-growth-chart"), {
         <Card.Title>Balance Growth Over Time</Card.Title>
       </Card.Header>
       <Card.Content>
-        <div className="h-[360px] animate-pulse rounded-lg bg-zinc-200" />
+        <div className="h-[360px] animate-pulse rounded-2xl bg-surface-secondary" />
       </Card.Content>
     </Card>
   ),
@@ -201,7 +201,7 @@ export default function ProjectionContent() {
                   <Card.Description>
                     Projected CPF at age {finalBalance.age}
                   </Card.Description>
-                  <Card.Title className="text-2xl">
+                  <Card.Title>
                     {formatCurrency(getTotalBalance(finalBalance.balances), 0)}
                   </Card.Title>
                 </Card.Header>
@@ -209,7 +209,7 @@ export default function ProjectionContent() {
               <Card>
                 <Card.Header>
                   <Card.Description>Total contributions</Card.Description>
-                  <Card.Title className="text-2xl">
+                  <Card.Title>
                     {formatCurrency(result.totalContributed, 0)}
                   </Card.Title>
                 </Card.Header>
@@ -217,7 +217,7 @@ export default function ProjectionContent() {
               <Card>
                 <Card.Header>
                   <Card.Description>Total interest earned</Card.Description>
-                  <Card.Title className="text-2xl">
+                  <Card.Title>
                     {formatCurrency(result.totalInterestEarned, 0)}
                   </Card.Title>
                 </Card.Header>
@@ -237,21 +237,21 @@ export default function ProjectionContent() {
                 Add your income and birth date to start the projection.
               </Card.Description>
             </Card.Header>
-            <Card.Content className="flex flex-col gap-4 text-muted-foreground text-sm">
-              <p>
+            <Card.Content className="flex flex-col gap-4">
+              <Typography color="muted" type="body-sm">
                 The current model uses CPF floor interest rates, your selected
                 citizenship status, and today&apos;s contribution rules.
-              </p>
-              <ul className="flex list-disc flex-col gap-2 pl-6">
+              </Typography>
+              <ul className="flex list-disc flex-col gap-2 pl-6 text-muted text-sm">
                 <li>Age 55 conversion from SA to RA is included.</li>
                 <li>BHS overflow from MA is redirected automatically.</li>
                 <li>CPF LIFE payouts are estimates, not official quotes.</li>
               </ul>
               {!hasValidRange && currentAge !== null ? (
-                <p className="text-accent">
+                <Typography className="text-accent" type="body-sm">
                   Your end age needs to be above your current age of{" "}
                   {currentAge}.
-                </p>
+                </Typography>
               ) : null}
             </Card.Content>
           </Card>

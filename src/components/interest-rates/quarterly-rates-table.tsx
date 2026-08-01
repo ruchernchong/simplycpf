@@ -1,4 +1,4 @@
-import { Card, Table } from "@heroui/react";
+import { Card, Table, Typography } from "@heroui/react";
 import { QUARTERLY_CPF_RATES } from "@/constants/cpf-interest-rates";
 
 const LATEST_QUARTERS = 6;
@@ -10,12 +10,8 @@ export function QuarterlyRatesTable() {
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="font-semibold text-base tracking-tight">
-          Declared quarterly rates
-        </Card.Title>
-        <Card.Description className="text-[12.5px] text-muted">
-          Per year
-        </Card.Description>
+        <Card.Title>Declared quarterly rates</Card.Title>
+        <Card.Description>Per year</Card.Description>
       </Card.Header>
       <Card.Content>
         <Table variant="secondary">
@@ -44,10 +40,10 @@ export function QuarterlyRatesTable() {
         </Table>
       </Card.Content>
       <Card.Footer>
-        <p className="text-[12.5px] text-muted leading-relaxed">
+        <Typography color="muted" type="body-sm">
           SMRA rates have sat at the 4.00% floor since 2025 Q1. Rates are
           declared each quarter.
-        </p>
+        </Typography>
       </Card.Footer>
     </Card>
   );

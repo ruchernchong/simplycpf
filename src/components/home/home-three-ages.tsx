@@ -1,4 +1,4 @@
-import { Card, Chip, Separator } from "@heroui/react";
+import { Card, Chip, Separator, Typography } from "@heroui/react";
 import { Fragment } from "react";
 
 const ages: { figure: string; note?: string; label: string; body: string }[] = [
@@ -24,10 +24,8 @@ export function HomeThreeAges() {
   return (
     <Card>
       <Card.Header className="flex flex-col gap-2">
-        <Card.Title className="font-semibold text-base tracking-tight">
-          Three ages, and they are not the same age
-        </Card.Title>
-        <Card.Description className="text-muted text-sm">
+        <Card.Title>Three ages, and they are not the same age</Card.Title>
+        <Card.Description>
           Raising one does not move the others. This is the most common mix-up
           of 2026.
         </Card.Description>
@@ -42,20 +40,20 @@ export function HomeThreeAges() {
               />
             )}
             <div className="flex flex-1 flex-col gap-2">
-              <span className="flex items-baseline gap-2">
-                <span className="font-semibold text-[34px] tracking-tight">
-                  {age.figure}
-                </span>
+              <div className="flex items-baseline gap-2">
+                <Typography type="h1">{age.figure}</Typography>
                 {age.note && (
                   <Chip size="sm" variant="soft">
                     <Chip.Label>{age.note}</Chip.Label>
                   </Chip>
                 )}
-              </span>
-              <span className="font-semibold text-sm">{age.label}</span>
-              <span className="text-[13px] text-muted leading-relaxed">
+              </div>
+              <Typography type="body-sm" weight="semibold">
+                {age.label}
+              </Typography>
+              <Typography color="muted" type="body-sm">
                 {age.body}
-              </span>
+              </Typography>
             </div>
           </Fragment>
         ))}

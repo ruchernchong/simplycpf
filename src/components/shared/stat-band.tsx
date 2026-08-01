@@ -1,3 +1,5 @@
+import { Typography } from "@heroui/react";
+
 export interface StatBandItem {
   label: string;
   value: string;
@@ -18,15 +20,17 @@ export function StatBand({ items }: StatBandProps) {
       <dl className="container mx-auto grid grid-cols-2 gap-8 px-4 py-6 md:grid-cols-5">
         {items.map((item) => (
           <div key={item.label} className="flex flex-col gap-1">
-            <dt className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
-              {item.label}
+            <dt>
+              <Typography color="muted" type="body-xs" weight="semibold">
+                {item.label}
+              </Typography>
             </dt>
             <dd className="flex flex-col">
-              <span className="font-semibold text-xl tracking-tight">
-                {item.value}
-              </span>
+              <Typography type="h4">{item.value}</Typography>
               {item.note && (
-                <span className="text-muted text-xs">{item.note}</span>
+                <Typography color="muted" type="body-xs">
+                  {item.note}
+                </Typography>
               )}
             </dd>
           </div>

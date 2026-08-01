@@ -1,4 +1,4 @@
-import { Breadcrumbs, Card } from "@heroui/react";
+import { Breadcrumbs, Card, Chip } from "@heroui/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Graph } from "schema-dts";
@@ -140,11 +140,11 @@ const FAQIndex = () => {
                 >
                   <Card className="h-full transition-colors hover:border-accent">
                     <Card.Header>
-                      <Card.Title className="flex items-center justify-between text-lg">
+                      <Card.Title className="flex items-center justify-between">
                         {category.title}
-                        <span className="rounded-full bg-accent/10 px-2 py-0.5 font-medium text-accent text-xs">
-                          {category.count}
-                        </span>
+                        <Chip color="accent" size="sm" variant="soft">
+                          <Chip.Label>{category.count}</Chip.Label>
+                        </Chip>
                       </Card.Title>
                       <Card.Description>
                         {category.description}

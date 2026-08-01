@@ -3,12 +3,15 @@
 import {
   Button,
   Card,
+  Description,
+  FieldError,
   Input,
   Label,
   NumberField,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { FlashIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -99,13 +102,15 @@ export default function ProjectionForm({
           Start with your income and birth month, then adjust optional CPF
           planning moves.
         </Card.Description>
-        <div className="flex items-center gap-2 rounded-md bg-accent/5 px-4 py-2 text-accent text-xs">
+        <div className="flex items-center gap-2 rounded-md bg-accent/5 px-4 py-2">
           <HugeiconsIcon
             icon={FlashIcon}
             className="size-3.5"
             strokeWidth={2}
           />
-          Uses conservative floor rates: OA 2.5% p.a., SA/MA/RA 4.0% p.a.
+          <Typography className="text-accent" type="body-xs">
+            Uses conservative floor rates: OA 2.5% p.a., SA/MA/RA 4.0% p.a.
+          </Typography>
         </div>
       </Card.Header>
       <Card.Content className="flex flex-col gap-6">
@@ -140,14 +145,12 @@ export default function ProjectionForm({
             <Label>Birth month and year</Label>
             <Input inputMode="numeric" maxLength={7} placeholder="MM/YYYY" />
             {values.birthDate && !hasValidBirthDate ? (
-              <span className="text-danger text-xs">
+              <FieldError>
                 Enter a valid month and year between 1901 and the current year.
-              </span>
+              </FieldError>
             ) : null}
             {currentAge !== null ? (
-              <span className="text-muted text-xs">
-                Current age: {currentAge}
-              </span>
+              <Description>Current age: {currentAge}</Description>
             ) : null}
           </TextField>
         </div>
@@ -180,6 +183,7 @@ export default function ProjectionForm({
 
           <NumberField
             className="flex flex-col gap-2"
+            isInvalid={hasValidBirthDate && !hasValidRange}
             maxValue={80}
             minValue={Math.max(currentAge ?? 0, 1)}
             onChange={(value) =>
@@ -192,9 +196,7 @@ export default function ProjectionForm({
               <NumberField.Input className="w-full" />
             </NumberField.Group>
             {hasValidBirthDate && !hasValidRange ? (
-              <span className="text-danger text-xs">
-                Choose an end age above your current age.
-              </span>
+              <FieldError>Choose an end age above your current age.</FieldError>
             ) : null}
           </NumberField>
         </div>
@@ -221,9 +223,9 @@ export default function ProjectionForm({
             <NumberField.Group className="w-full grid-cols-1">
               <NumberField.Input className="w-full" />
             </NumberField.Group>
-            <span className="text-muted text-xs">
+            <Description>
               Use this if you regularly use OA for your housing loan.
-            </span>
+            </Description>
           </NumberField>
 
           <NumberField
@@ -245,10 +247,10 @@ export default function ProjectionForm({
             <NumberField.Group className="w-full grid-cols-1">
               <NumberField.Input className="w-full" />
             </NumberField.Group>
-            <span className="text-muted text-xs">
+            <Description>
               The current model treats this as a yearly top-up and caps tax
               relief at S$8,000.
-            </span>
+            </Description>
           </NumberField>
 
           <div className="flex flex-col gap-2">

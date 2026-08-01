@@ -1,4 +1,4 @@
-import { Card, Separator, Table } from "@heroui/react";
+import { Card, Separator, Table, Typography } from "@heroui/react";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/logo";
 import { CPF_ADDITIONAL_WAGE_CEILING, CPF_INCOME_CEILING } from "@/constants";
@@ -23,9 +23,13 @@ function stripPercent(value: string) {
 
 function SheetRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 text-[12.5px]">
-      <span className="text-muted">{label}</span>
-      <span className="shrink-0 font-medium text-foreground">{value}</span>
+    <div className="flex items-baseline justify-between gap-4">
+      <Typography color="muted" type="body-sm">
+        {label}
+      </Typography>
+      <Typography className="shrink-0" type="body-sm" weight="medium">
+        {value}
+      </Typography>
     </div>
   );
 }
@@ -33,9 +37,9 @@ function SheetRow({ label, value }: { label: string; value: ReactNode }) {
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="font-mono text-[10px] text-accent uppercase tracking-[0.12em]">
+      <Typography className="text-accent" type="h6">
         {title}
-      </h3>
+      </Typography>
       <div className="flex flex-col gap-1.5">{children}</div>
     </section>
   );
@@ -71,13 +75,9 @@ export function CheatSheetCard() {
       <Card.Header className="flex flex-row flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Logo className="size-[22px]" />
-          <Card.Title className="font-semibold text-[13px] text-foreground">
-            CPF reference sheet · 2026
-          </Card.Title>
+          <Card.Title>CPF reference sheet · 2026</Card.Title>
         </div>
-        <Card.Description className="font-mono text-[11px] text-muted">
-          Effective 1 January 2026
-        </Card.Description>
+        <Card.Description>Effective 1 January 2026</Card.Description>
       </Card.Header>
 
       <Separator />
@@ -141,12 +141,7 @@ export function CheatSheetCard() {
                 <SheetRow
                   key={band}
                   label={band}
-                  value={
-                    <span className="font-mono text-[11.5px]">
-                      {stripPercent(oa)} / {stripPercent(sa)} /{" "}
-                      {stripPercent(ma)}
-                    </span>
-                  }
+                  value={`${stripPercent(oa)} / ${stripPercent(sa)} / ${stripPercent(ma)}`}
                 />
               ))}
             </Block>
@@ -156,9 +151,9 @@ export function CheatSheetCard() {
 
           <div className="flex flex-1 flex-col gap-6">
             <section className="flex flex-col gap-2">
-              <h3 className="font-mono text-[10px] text-accent uppercase tracking-[0.12em]">
+              <Typography className="text-accent" type="h6">
                 Retirement sums
-              </h3>
+              </Typography>
               <Table variant="secondary">
                 <Table.ScrollContainer>
                   <Table.Content aria-label="CPF retirement sums by cohort">
@@ -207,14 +202,16 @@ export function CheatSheetCard() {
 
       <Separator />
 
-      <Card.Footer className="flex flex-wrap items-end justify-between gap-4 text-[11.5px]">
-        <p className="max-w-[76ch] text-muted leading-relaxed">
+      <Card.Footer className="flex flex-wrap items-end justify-between gap-4">
+        <Typography className="max-w-[76ch]" color="muted" type="body-xs">
           Figures as published by the CPF Board; employee share stated first.
           Retirement sums apply to the cohort turning 55 in that year and stay
           fixed for life. Independent tool, estimates only, not financial
           advice.
-        </p>
-        <span className="font-mono text-muted">simplycpf.com</span>
+        </Typography>
+        <Typography color="muted" type="body-xs">
+          simplycpf.com
+        </Typography>
       </Card.Footer>
     </Card>
   );

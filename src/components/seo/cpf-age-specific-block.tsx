@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import Link from "next/link";
 import type { AgeGroup } from "@/types";
 
@@ -38,76 +38,86 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
         </Card.Header>
         <Card.Content className="flex flex-col gap-6">
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg bg-muted p-4">
-              <p className="mb-1 text-muted-foreground text-sm">
+            <div className="rounded-2xl bg-surface-secondary p-4">
+              <Typography className="mb-1" color="muted" type="body-sm">
                 Employee Rate
-              </p>
-              <p className="font-bold font-mono text-2xl text-foreground">
+              </Typography>
+              <Typography type="h3" weight="bold">
                 {fmtPct(employeeRate)}
-              </p>
+              </Typography>
             </div>
-            <div className="rounded-lg bg-muted p-4">
-              <p className="mb-1 text-muted-foreground text-sm">
+            <div className="rounded-2xl bg-surface-secondary p-4">
+              <Typography className="mb-1" color="muted" type="body-sm">
                 Employer Rate
-              </p>
-              <p className="font-bold font-mono text-2xl text-foreground">
+              </Typography>
+              <Typography type="h3" weight="bold">
                 {fmtPct(employerRate)}
-              </p>
+              </Typography>
             </div>
-            <div className="rounded-lg bg-accent/10 p-4">
-              <p className="mb-1 text-accent-foreground text-sm">Total Rate</p>
-              <p className="font-bold font-mono text-2xl text-accent">
+            <div className="rounded-2xl bg-accent/10 p-4">
+              <Typography className="mb-1 text-accent" type="body-sm">
+                Total Rate
+              </Typography>
+              <Typography className="text-accent" type="h3" weight="bold">
                 {fmtPct(totalRate)}
-              </p>
+              </Typography>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-3 font-semibold text-sm">
+            <Typography className="mb-3" type="h6">
               OA/SA/MA Distribution
-            </h3>
+            </Typography>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-1">
-                <span className="text-muted-foreground text-xs">OA</span>
-                <span className="font-medium font-mono">
+                <Typography color="muted" type="body-xs">
+                  OA
+                </Typography>
+                <Typography weight="medium">
                   {fmtPct(ageGroup.distributionRate.OA)}
-                </span>
-                <span className="text-muted-foreground text-xs">
+                </Typography>
+                <Typography color="muted" type="body-xs">
                   of contributions
-                </span>
+                </Typography>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-muted-foreground text-xs">SA</span>
-                <span className="font-medium font-mono">
+                <Typography color="muted" type="body-xs">
+                  SA
+                </Typography>
+                <Typography weight="medium">
                   {fmtPct(ageGroup.distributionRate.SA)}
-                </span>
-                <span className="text-muted-foreground text-xs">
+                </Typography>
+                <Typography color="muted" type="body-xs">
                   of contributions
-                </span>
+                </Typography>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-muted-foreground text-xs">MA</span>
-                <span className="font-medium font-mono">
+                <Typography color="muted" type="body-xs">
+                  MA
+                </Typography>
+                <Typography weight="medium">
                   {fmtPct(ageGroup.distributionRate.MA)}
-                </span>
-                <span className="text-muted-foreground text-xs">
+                </Typography>
+                <Typography color="muted" type="body-xs">
                   of contributions
-                </span>
+                </Typography>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center justify-between rounded-2xl border p-4">
             <div>
-              <p className="font-medium">See Your Long-Term Projection</p>
-              <p className="text-muted-foreground text-sm">
+              <Typography weight="medium">
+                See Your Long-Term Projection
+              </Typography>
+              <Typography color="muted" type="body-sm">
                 Project your CPF balances through retirement based on these
                 rates
-              </p>
+              </Typography>
             </div>
             <Link
               href={`/projection?birthDate=${birthDate}`}
-              className="inline-flex h-9 items-center justify-center rounded-4xl bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/80"
+              className="inline-flex h-9 items-center justify-center rounded-4xl bg-foreground px-4 font-medium text-background text-sm transition-colors hover:bg-foreground/80"
             >
               View Projection
             </Link>

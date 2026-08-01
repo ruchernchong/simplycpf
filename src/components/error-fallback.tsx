@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card } from "@heroui/react";
+import { Button, Card, Typography } from "@heroui/react";
 import { AlertCircleIcon, RefreshIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import posthog from "posthog-js";
@@ -35,7 +35,7 @@ export function ErrorFallback({
           <div className="flex items-center gap-2">
             <HugeiconsIcon
               icon={AlertCircleIcon}
-              className="size-6 text-red-500"
+              className="size-6 text-danger"
               strokeWidth={2}
             />
             <Card.Title>{title}</Card.Title>
@@ -43,13 +43,13 @@ export function ErrorFallback({
           <Card.Description>{description}</Card.Description>
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
-          <p className="text-muted-foreground text-sm">
+          <Typography color="muted" type="body-sm">
             {error.message || "An unexpected error occurred"}
-          </p>
+          </Typography>
           {error.digest && (
-            <p className="text-muted-foreground text-xs">
+            <Typography color="muted" type="body-xs">
               Error ID: {error.digest}
-            </p>
+            </Typography>
           )}
           <Button onPress={reset} className="w-full" variant="primary">
             <HugeiconsIcon

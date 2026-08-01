@@ -12,6 +12,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -32,9 +33,6 @@ import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
 /** Illustrative figures shown before anyone types anything. */
 const EXAMPLE_INCOME = 5000;
 const EXAMPLE_AGE = 32;
-
-const EYEBROW_LABEL =
-  "font-mono text-[10px] text-muted uppercase tracking-[0.12em]";
 
 const citizenshipOptions: { id: CitizenshipStatus; label: string }[] = [
   { id: "citizen", label: "Citizen" },
@@ -98,14 +96,14 @@ export function HomeHero() {
     <section className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr]">
       <div className="flex flex-col gap-6">
         <Eyebrow withDot>Updated for 1 Jan 2026 rates</Eyebrow>
-        <h1 className="text-balance font-semibold text-5xl tracking-tight md:text-6xl">
+        <Typography className="text-balance" type="h1">
           Five questions about CPF, answered in plain English.
-        </h1>
-        <p className="max-w-[47ch] text-pretty text-[17.5px] text-muted leading-relaxed">
+        </Typography>
+        <Typography className="max-w-[47ch] text-pretty" color="muted">
           Where this month&rsquo;s money went. What happens at 55. What a flat
           really costs your OA. What arrives every month at 65. No sign-up, no
           jargon, no advice, just the arithmetic, with every assumption shown.
-        </p>
+        </Typography>
 
         <div className="flex flex-col gap-4 sm:flex-row">
           <Card variant="secondary" className="flex-[1.3]">
@@ -125,7 +123,7 @@ export function HomeHero() {
                 value={hasIncome ? monthlyGrossIncome : EXAMPLE_INCOME}
                 onChange={(value) => setIncome(value ?? 0)}
               >
-                <Label className={EYEBROW_LABEL}>Monthly salary</Label>
+                <Label>Monthly salary</Label>
                 <NumberField.Group className="h-auto w-full grid-cols-1">
                   <NumberField.Input className="w-full font-semibold text-2xl leading-tight tracking-tight" />
                 </NumberField.Group>
@@ -148,7 +146,7 @@ export function HomeHero() {
                   setBirthDate(formatDateInput(value, birthDate))
                 }
               >
-                <Label className={EYEBROW_LABEL}>Date of birth (MM/YYYY)</Label>
+                <Label>Date of birth (MM/YYYY)</Label>
                 <Input
                   className="w-full"
                   inputMode="numeric"
@@ -157,19 +155,19 @@ export function HomeHero() {
                 />
               </TextField>
               <div className="flex flex-col">
-                <span className="font-semibold text-[28px] tracking-tight">
-                  {age}
-                </span>
-                <span className="text-muted text-xs">
+                <Typography type="h2">{age}</Typography>
+                <Typography color="muted" type="body-xs">
                   {ageGroup.description}
-                </span>
+                </Typography>
               </div>
             </Card.Content>
           </Card>
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className={EYEBROW_LABEL}>Citizenship</span>
+          <Typography color="muted" type="body-xs" weight="medium">
+            Citizenship
+          </Typography>
           <ToggleButtonGroup
             disallowEmptySelection
             aria-label="Citizenship status"
@@ -192,11 +190,11 @@ export function HomeHero() {
           </ToggleButtonGroup>
         </div>
 
-        <p className="max-w-[54ch] text-muted text-xs leading-relaxed">
+        <Typography className="max-w-[54ch]" color="muted" type="body-xs">
           Nothing leaves your browser. SimplyCPF is independent and not
           affiliated with the CPF Board. Every figure is an estimate from
           published rates, not financial advice.
-        </p>
+        </Typography>
       </div>
 
       <Card className="h-fit shadow-(--overlay-shadow)">
@@ -212,13 +210,13 @@ export function HomeHero() {
             )}
           </div>
 
-          <p className="text-pretty text-[19px] leading-[1.45]">
-            You keep <span className="font-semibold">{currency(takeHome)}</span>{" "}
-            of your {currency(gross)} salary.{" "}
-            <span className="font-semibold">{currency(totalContribution)}</span>{" "}
-            goes into your CPF accounts, and only {currency(employee)} of that
-            came out of your pay.
-          </p>
+          <Typography className="text-pretty">
+            You keep <strong>{currency(takeHome)}</strong> of your{" "}
+            {currency(gross)} salary.{" "}
+            <strong>{currency(totalContribution)}</strong> goes into your CPF
+            accounts, and only {currency(employee)} of that came out of your
+            pay.
+          </Typography>
 
           <div className="flex flex-col gap-2">
             <SplitBar
@@ -230,9 +228,13 @@ export function HomeHero() {
                 { label: "Employer", value: employer, color: "chart-3" },
               ]}
             />
-            <div className="flex justify-between gap-4 text-muted text-xs">
-              <span>{currency(takeHome)} in your bank</span>
-              <span>{currency(totalPackage)} total value of the month</span>
+            <div className="flex justify-between gap-4">
+              <Typography color="muted" type="body-xs">
+                {currency(takeHome)} in your bank
+              </Typography>
+              <Typography color="muted" type="body-xs">
+                {currency(totalPackage)} total value of the month
+              </Typography>
             </div>
           </div>
 
@@ -244,6 +246,7 @@ export function HomeHero() {
                 key={account.key}
                 aria-label={`${account.key} share of this month's CPF`}
                 className="flex flex-col gap-2"
+                valueLabel={formatCurrency(account.value)}
                 value={
                   totalContribution > 0
                     ? (account.value / totalContribution) * 100
@@ -251,13 +254,10 @@ export function HomeHero() {
                 }
               >
                 <div className="flex items-baseline justify-between gap-4">
-                  <span className="flex items-baseline gap-2">
-                    <span className="font-medium text-sm">{account.key}</span>
-                    <span className="text-muted text-xs">{account.note}</span>
-                  </span>
-                  <span className="font-semibold text-sm">
-                    {formatCurrency(account.value)}
-                  </span>
+                  <Label>
+                    {account.key} · {account.note}
+                  </Label>
+                  <Meter.Output />
                 </div>
                 <Meter.Track className="h-1.5 rounded-full bg-foreground/10">
                   <Meter.Fill className={cn("h-1.5", account.fill)} />

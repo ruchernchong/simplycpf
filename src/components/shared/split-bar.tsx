@@ -79,7 +79,7 @@ export function SplitBar({
       aria-label={description}
       className={cn(
         "flex w-full overflow-hidden",
-        size === "sm" ? "rounded-[5px]" : "rounded-lg",
+        size === "sm" ? "rounded-lg" : "rounded-2xl",
         className,
       )}
       style={{ height: HEIGHTS[size] }}
@@ -96,7 +96,7 @@ export function SplitBar({
           {showLabels && (
             <span
               className={cn(
-                "overflow-hidden whitespace-nowrap pl-3 font-medium text-[12.5px]",
+                "overflow-hidden whitespace-nowrap pl-3 font-medium text-small",
                 TEXT_CLASSES[segment.color],
               )}
             >

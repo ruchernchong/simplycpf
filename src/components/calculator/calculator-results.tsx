@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, cn } from "@heroui/react";
+import { Card, cn, Typography } from "@heroui/react";
 import { KPI } from "@heroui-pro/react";
 import { formatCurrency } from "@/lib/format";
 import { AssumptionsCard } from "./assumptions-card";
@@ -55,21 +55,21 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
     <div className="flex flex-col gap-5">
       <Card className="gap-4 p-6">
         <Card.Header>
-          <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+          <Typography color="muted" type="body-xs">
             The short answer
-          </span>
+          </Typography>
         </Card.Header>
         <Card.Content className="gap-4">
-          <p className="max-w-[64ch] text-pretty text-[19px] leading-relaxed">
+          <Typography className="max-w-[64ch] text-pretty">
             {isAboveCeiling
               ? `Your salary is above the ${formatCurrency(figures.ceiling, 0)} ceiling, so contributions stop there. You keep ${formatCurrency(figures.takeHome)}, your employer adds ${formatCurrency(figures.employer)} on top, and ${formatCurrency(figures.total)} lands in your CPF accounts.`
               : `You keep ${formatCurrency(figures.takeHome)} of ${formatCurrency(figures.gross)}. ${formatCurrency(figures.employee)} came out of your pay and your employer added ${formatCurrency(figures.employer)} on top of it, so ${formatCurrency(figures.total)} goes into your accounts.`}
-          </p>
+          </Typography>
           {figures.isIllustrative && (
-            <p className="text-muted text-xs">
+            <Typography color="muted" type="body-xs">
               Illustrative figures for {formatCurrency(ILLUSTRATIVE_INCOME, 0)}{" "}
               a month at {ILLUSTRATIVE_AGE}, enter your own numbers on the left.
-            </p>
+            </Typography>
           )}
         </Card.Content>
       </Card>
@@ -87,7 +87,6 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
             <KPI.Header>
               <KPI.Title
                 className={cn(
-                  "font-mono text-[10px] uppercase tracking-[0.12em]",
                   tile.tone === "inverse" ? "text-background/70" : "text-muted",
                 )}
               >
@@ -97,7 +96,6 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
             <KPI.Content>
               <KPI.Value
                 className={cn(
-                  "font-semibold text-[26px] tracking-tight",
                   tile.tone === "accent" && "text-accent",
                   tile.tone === "inverse" && "text-background",
                 )}
@@ -109,7 +107,6 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
             </KPI.Content>
             <KPI.Footer
               className={cn(
-                "text-[11.5px]",
                 tile.tone === "inverse" ? "text-background/70" : "text-muted",
               )}
             >

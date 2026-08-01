@@ -8,6 +8,7 @@ import {
   Skeleton,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -58,8 +59,6 @@ const OA_TO_SA_AMOUNT = 30_000;
 const SALARY_DELTA = 1_000;
 const YEARS_LATER = 5;
 const END_AGE = 65;
-
-const MONO_LABEL = "font-mono text-[10px] uppercase tracking-[0.12em]";
 
 const assumptions = [
   "Salary held flat, no raises, no gaps in employment, no bonuses.",
@@ -147,19 +146,23 @@ interface ValueRowProps {
 function ValueRow({ label, value, delta, isAccent }: ValueRowProps) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-3">
-      <span className="text-muted text-sm">{label}</span>
-      <span className="flex items-baseline gap-2">
+      <Typography color="muted" type="body-sm">
+        {label}
+      </Typography>
+      <div className="flex items-baseline gap-2">
         {delta !== undefined && (
-          <span
-            className={isAccent ? "text-accent text-xs" : "text-muted text-xs"}
+          <Typography
+            className={isAccent ? "text-accent" : undefined}
+            color={isAccent ? "default" : "muted"}
+            type="body-xs"
           >
             {formatDelta(delta)}
-          </span>
+          </Typography>
         )}
-        <span className="font-semibold text-sm">
+        <Typography type="body-sm" weight="semibold">
           {formatCurrency(value, 0)}
-        </span>
-      </span>
+        </Typography>
+      </div>
     </div>
   );
 }
@@ -175,9 +178,9 @@ function ColumnCard({ title, tag, rows, isScenario }: ColumnCardProps) {
   return (
     <Card className={isScenario ? "border-accent/30" : undefined}>
       <Card.Header className="flex flex-row items-center justify-between gap-4">
-        <Card.Title className="text-base">{title}</Card.Title>
+        <Card.Title>{title}</Card.Title>
         <Chip size="sm" color={isScenario ? "accent" : "default"}>
-          <Chip.Label className={MONO_LABEL}>{tag}</Chip.Label>
+          <Chip.Label>{tag}</Chip.Label>
         </Chip>
       </Card.Header>
       <Card.Content className="flex flex-col">
@@ -215,33 +218,33 @@ function EmptyState() {
 }
 
 function ComparisonSkeleton() {
-  return <Skeleton className="h-96 w-full rounded-lg" />;
+  return <Skeleton className="h-96 w-full" />;
 }
 
 function AssumptionsCard() {
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="text-base">What both columns assume</Card.Title>
+        <Card.Title>What both columns assume</Card.Title>
       </Card.Header>
       <Card.Content className="flex flex-col gap-6">
         <div className="grid gap-6 sm:grid-cols-2">
           {assumptions.map((assumption, index) => (
             <div key={assumption} className="flex gap-4">
-              <span className={`${MONO_LABEL} text-muted`}>
+              <Typography color="muted" type="body-xs">
                 {String(index + 1).padStart(2, "0")}
-              </span>
-              <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+              </Typography>
+              <Typography className="max-w-[64ch]" color="muted" type="body-sm">
                 {assumption}
-              </p>
+              </Typography>
             </div>
           ))}
         </div>
         <Separator />
-        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+        <Typography className="max-w-[64ch]" color="muted" type="body-sm">
           A projection is a calculation about assumptions, not a forecast about
           you. Estimates only, not financial advice.
-        </p>
+        </Typography>
       </Card.Content>
     </Card>
   );
@@ -322,9 +325,9 @@ export default function WhatIfContent() {
 
       <Card>
         <Card.Header>
-          <span className={`${MONO_LABEL} text-muted`}>
+          <Typography color="muted" type="body-xs">
             Change one assumption
-          </span>
+          </Typography>
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
           <ToggleButtonGroup
@@ -348,9 +351,9 @@ export default function WhatIfContent() {
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
-          <p className="max-w-[64ch] text-[13px] text-muted leading-relaxed">
+          <Typography className="max-w-[64ch]" color="muted" type="body-sm">
             {mounted ? descriptions[scenario] : null}
-          </p>
+          </Typography>
         </Card.Content>
       </Card>
 

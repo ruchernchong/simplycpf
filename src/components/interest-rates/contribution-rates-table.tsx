@@ -1,4 +1,4 @@
-import { Card, Table } from "@heroui/react";
+import { Card, Table, Typography } from "@heroui/react";
 import { CPF_TOTAL_CONTRIBUTION_RATES_2027 } from "@/constants/cpf-contribution-rates-2027";
 import { ageGroups } from "@/data";
 
@@ -24,10 +24,8 @@ export function ContributionRatesTable() {
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="font-semibold text-base tracking-tight">
-          Contribution rates by age
-        </Card.Title>
-        <Card.Description className="text-[12.5px] text-muted">
+        <Card.Title>Contribution rates by age</Card.Title>
+        <Card.Description>
           Citizens and PRs from the 3rd year · wages above $750
         </Card.Description>
       </Card.Header>
@@ -66,11 +64,11 @@ export function ContributionRatesTable() {
         </Table>
       </Card.Content>
       <Card.Footer>
-        <p className="text-[12.5px] text-muted leading-relaxed">
+        <Typography color="muted" type="body-sm">
           Rates for ages above 55 to 65 rose on 1 January 2026 and are
           legislated to rise again in 2027, moving senior rates towards the
           under-55 rate.
-        </p>
+        </Typography>
       </Card.Footer>
     </Card>
   );

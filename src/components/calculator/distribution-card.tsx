@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Chip, cn, Separator } from "@heroui/react";
+import { Card, Chip, cn, Separator, Typography } from "@heroui/react";
 import { Fragment } from "react";
 import { SplitBar } from "@/components/shared/split-bar";
 import { formatCurrency } from "@/lib/format";
@@ -42,7 +42,7 @@ export function DistributionCard({ figures }: DistributionCardProps) {
   return (
     <Card className="gap-6 p-6">
       <Card.Header className="flex-row flex-wrap items-baseline justify-between gap-2">
-        <Card.Title className="font-semibold text-base tracking-tight">
+        <Card.Title>
           How {formatCurrency(figures.total)} is distributed
         </Card.Title>
         <Chip size="sm" variant="tertiary">
@@ -82,16 +82,18 @@ export function DistributionCard({ figures }: DistributionCardProps) {
                 <div className="flex items-center gap-2">
                   <span
                     aria-hidden
-                    className={cn("size-2 rounded-[2px]", account.swatch)}
+                    className={cn("size-2 rounded-xs", account.swatch)}
                   />
-                  <span className="font-semibold text-sm">{account.name}</span>
+                  <Typography type="body-sm" weight="semibold">
+                    {account.name}
+                  </Typography>
                 </div>
-                <span className="font-semibold text-[23px] tracking-tight">
+                <Typography type="h3">
                   {formatCurrency(account.amount)}
-                </span>
-                <p className="text-[12.5px] text-muted leading-relaxed">
+                </Typography>
+                <Typography color="muted" type="body-sm">
                   {account.body}
-                </p>
+                </Typography>
               </div>
             </Fragment>
           ))}

@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import { formatNumber } from "@/lib/format";
@@ -36,15 +36,17 @@ const CpfStatisticBlock = () => {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg border border-border bg-muted/30 p-4"
+                className="rounded-2xl border border-border bg-surface-secondary p-4"
               >
-                <p className="mb-2 text-muted-foreground text-sm">
+                <Typography className="mb-2" color="muted" type="body-sm">
                   {stat.label}
-                </p>
-                <p className="font-bold font-mono text-2xl text-foreground">
+                </Typography>
+                <Typography type="h3" weight="bold">
                   {stat.value}
-                </p>
-                <p className="text-muted-foreground text-xs">{stat.detail}</p>
+                </Typography>
+                <Typography color="muted" type="body-xs">
+                  {stat.detail}
+                </Typography>
               </div>
             ))}
           </div>

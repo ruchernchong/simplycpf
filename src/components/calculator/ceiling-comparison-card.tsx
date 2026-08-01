@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Chip, Surface } from "@heroui/react";
+import { Card, Chip, Surface, Typography } from "@heroui/react";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -48,52 +48,51 @@ export function CeilingComparisonCard({ figures }: CeilingComparisonCardProps) {
   return (
     <Card className="gap-6 p-6">
       <Card.Header className="flex-row flex-wrap items-baseline justify-between gap-2">
-        <Card.Title className="font-semibold text-base tracking-tight">
+        <Card.Title>
           Why {formatDate(figures.ceilingDate, "MMMM")}&apos;s pay looked
           different
         </Card.Title>
-        <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+        <Typography color="muted" type="body-xs">
           {formatCurrency(previousCeiling, 0)} →{" "}
           {formatCurrency(figures.ceiling, 0)}
-        </span>
+        </Typography>
       </Card.Header>
 
       <Card.Content className="gap-6">
         <div className="grid gap-6 sm:grid-cols-2">
           {rows.map((row) => (
             <div className="flex flex-col gap-2" key={row.label}>
-              <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+              <Typography color="muted" type="body-xs">
                 {row.label}
-              </span>
+              </Typography>
               <div className="flex flex-col items-start gap-2">
-                <span className="flex items-center gap-2">
-                  <span className="font-semibold text-xl tracking-tight">
+                <div className="flex items-center gap-2">
+                  <Typography type="h4">
                     {formatCurrency(row.current)}
-                  </span>
+                  </Typography>
                   <Chip size="sm" variant="soft">
                     {currentLabel}
                   </Chip>
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="text-muted text-sm">
+                </div>
+                <div className="flex items-center gap-2">
+                  <Typography color="muted" type="body-sm">
                     {formatCurrency(row.previous)}
-                  </span>
+                  </Typography>
                   <Chip size="sm" variant="tertiary">
                     {previousLabel}
                   </Chip>
-                </span>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <Surface
-          className="rounded-lg p-4 text-[13px] leading-relaxed"
-          variant="tertiary"
-        >
-          {figures.gross <= previousCeiling
-            ? `Your salary sits below both the ${formatDate(previousDate, "yyyy")} and ${currentLabel} ceilings, so the increase changed nothing for you.`
-            : `The ceiling rose from ${formatCurrency(previousCeiling, 0)} to ${formatCurrency(figures.ceiling, 0)}, so ${formatCurrency(deltaBase)} more of your salary is now CPF-eligible. You see ${formatCurrency(takeHomeDrop)} less in the bank and ${formatCurrency(cpfGain)} more in CPF each month, of which ${formatCurrency(employerDelta)} is your employer's money, not yours.`}
+        <Surface className="rounded-2xl p-4" variant="tertiary">
+          <Typography type="body-sm">
+            {figures.gross <= previousCeiling
+              ? `Your salary sits below both the ${formatDate(previousDate, "yyyy")} and ${currentLabel} ceilings, so the increase changed nothing for you.`
+              : `The ceiling rose from ${formatCurrency(previousCeiling, 0)} to ${formatCurrency(figures.ceiling, 0)}, so ${formatCurrency(deltaBase)} more of your salary is now CPF-eligible. You see ${formatCurrency(takeHomeDrop)} less in the bank and ${formatCurrency(cpfGain)} more in CPF each month, of which ${formatCurrency(employerDelta)} is your employer's money, not yours.`}
+          </Typography>
         </Surface>
       </Card.Content>
     </Card>

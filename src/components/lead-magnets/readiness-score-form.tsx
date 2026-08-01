@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Typography } from "@heroui/react";
 import { useState } from "react";
 import ReadinessScoreResult from "@/components/lead-magnets/readiness-score-result";
 import {
@@ -174,8 +174,15 @@ export default function ReadinessScoreForm() {
       <form className="flex flex-col gap-6" onSubmit={handleCalculate}>
         {questions.map((question) => (
           <fieldset key={question.key} className="flex flex-col gap-3">
-            <legend className="font-semibold text-foreground">
-              {question.label}
+            <legend>
+              <Typography
+                render={({ children, ...domProps }) => (
+                  <span {...domProps}>{children}</span>
+                )}
+                weight="semibold"
+              >
+                {question.label}
+              </Typography>
             </legend>
             <div className="grid gap-3 md:grid-cols-2">
               {question.options.map((option) => {
@@ -204,12 +211,23 @@ export default function ReadinessScoreForm() {
                       }
                       className="sr-only"
                     />
-                    <span className="font-medium text-foreground">
+                    <Typography
+                      render={({ children, ...domProps }) => (
+                        <span {...domProps}>{children}</span>
+                      )}
+                      weight="medium"
+                    >
                       {option.label}
-                    </span>
-                    <span className="text-muted-foreground text-sm">
+                    </Typography>
+                    <Typography
+                      color="muted"
+                      render={({ children, ...domProps }) => (
+                        <span {...domProps}>{children}</span>
+                      )}
+                      type="body-sm"
+                    >
                       {option.description}
-                    </span>
+                    </Typography>
                   </label>
                 );
               })}
@@ -218,7 +236,9 @@ export default function ReadinessScoreForm() {
         ))}
 
         {formError ? (
-          <p className="text-destructive text-sm">{formError}</p>
+          <Typography className="text-destructive" type="body-sm">
+            {formError}
+          </Typography>
         ) : null}
         <Button type="submit" size="lg">
           Calculate my readiness score

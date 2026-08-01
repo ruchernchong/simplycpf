@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import { formatCurrency } from "@/lib/format";
 import type { AccountBalances, ProjectionResult } from "@/types";
 
@@ -47,37 +47,53 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
             {milestone.available && milestone.balances ? (
               <div className="flex flex-col gap-4">
                 <div>
-                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                  <Typography color="muted" type="body-xs">
                     Total projected CPF
-                  </p>
-                  <p className="font-semibold text-2xl text-foreground">
+                  </Typography>
+                  <Typography type="h3">
                     {formatCurrency(getTotalBalance(milestone.balances), 0)}
-                  </p>
+                  </Typography>
                 </div>
-                <div className="grid gap-4 text-sm">
+                <div className="grid gap-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">OA</span>
-                    <span>{formatCurrency(milestone.balances.oa, 0)}</span>
+                    <Typography color="muted" type="body-sm">
+                      OA
+                    </Typography>
+                    <Typography type="body-sm">
+                      {formatCurrency(milestone.balances.oa, 0)}
+                    </Typography>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">SA</span>
-                    <span>{formatCurrency(milestone.balances.sa, 0)}</span>
+                    <Typography color="muted" type="body-sm">
+                      SA
+                    </Typography>
+                    <Typography type="body-sm">
+                      {formatCurrency(milestone.balances.sa, 0)}
+                    </Typography>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">MA</span>
-                    <span>{formatCurrency(milestone.balances.ma, 0)}</span>
+                    <Typography color="muted" type="body-sm">
+                      MA
+                    </Typography>
+                    <Typography type="body-sm">
+                      {formatCurrency(milestone.balances.ma, 0)}
+                    </Typography>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">RA</span>
-                    <span>{formatCurrency(milestone.balances.ra, 0)}</span>
+                    <Typography color="muted" type="body-sm">
+                      RA
+                    </Typography>
+                    <Typography type="body-sm">
+                      {formatCurrency(milestone.balances.ra, 0)}
+                    </Typography>
                   </div>
                 </div>
               </div>
             ) : (
-              <p className="text-muted-foreground text-sm">
+              <Typography color="muted" type="body-sm">
                 Extend your projection to age {milestone.age} to see this
                 milestone.
-              </p>
+              </Typography>
             )}
           </Card.Content>
         </Card>

@@ -7,21 +7,28 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import { BRAND } from "@/lib/brand";
 import type { PdfData } from "@/lib/download-pdf";
 
-const TEAL = "#0d9488";
-const SLATE_600 = "#475569";
-const SLATE_400 = "#94a3b8";
-const SLATE_100 = "#f1f5f9";
+/*
+ * @react-pdf/renderer cannot read CSS custom properties, which is what
+ * src/lib/brand.ts exists for. The export previously shipped its own teal and
+ * slate palette, a different identity from the app.
+ */
+const TEAL = BRAND.forest;
+const SLATE_600 = BRAND.textBody;
+const SLATE_400 = BRAND.textSubtle;
+const SLATE_100 = BRAND.card;
 
-const PIE_COLOURS = ["#0d9488", "#14b8a6", "#5eead4"];
+/* The fixed chart encoding: OA, SA/RA, MA. */
+const PIE_COLOURS = [BRAND.chart1, BRAND.chart2, BRAND.chart3];
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontFamily: "Helvetica",
     fontSize: 10,
-    color: "#1e293b",
+    color: BRAND.ink,
   },
   header: {
     marginBottom: 24,
@@ -46,7 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Helvetica-Bold",
     marginBottom: 10,
-    color: "#1e293b",
+    color: BRAND.ink,
   },
   row: {
     flexDirection: "row",
@@ -86,10 +93,10 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
   },
   positive: {
-    color: "#059669",
+    color: BRAND.greenMid,
   },
   negative: {
-    color: "#d97706",
+    color: BRAND.clay,
   },
   distributionRow: {
     flexDirection: "row",

@@ -1,4 +1,4 @@
-import { Card, cn } from "@heroui/react";
+import { Card, cn, Typography } from "@heroui/react";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import {
   CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
@@ -55,25 +55,20 @@ export function RateTiles() {
           className={cn(tile.accent && "border-accent/25 bg-accent/10")}
         >
           <Card.Content className="flex flex-col gap-2">
-            <span
-              className={cn(
-                "font-mono text-[10px] uppercase tracking-[0.12em]",
-                tile.accent ? "text-accent" : "text-muted",
-              )}
+            <Typography
+              className={tile.accent ? "text-accent" : undefined}
+              color={tile.accent ? "default" : "muted"}
+              type="body-xs"
             >
               {tile.label}
-            </span>
-            <span
-              className={cn(
-                "font-semibold text-[30px] leading-none tracking-tight",
-                tile.accent ? "text-accent" : "text-foreground",
-              )}
+            </Typography>
+            <Typography
+              className={tile.accent ? "text-accent" : undefined}
+              type="h2"
             >
               {tile.value}
-            </span>
-            <Card.Description className="text-[12.5px] text-muted leading-relaxed">
-              {tile.note}
-            </Card.Description>
+            </Typography>
+            <Card.Description>{tile.note}</Card.Description>
           </Card.Content>
         </Card>
       ))}

@@ -46,7 +46,7 @@ function CalculatorContent() {
       {isMounted ? (
         <CalculatorInputs ceilingDate={ceilingDate} />
       ) : (
-        <Skeleton className="h-[420px] w-full rounded-lg" />
+        <Skeleton className="h-[420px] w-full" />
       )}
       <CalculatorResults figures={figures} />
     </div>

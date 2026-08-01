@@ -1,5 +1,6 @@
 "use client";
 
+import { Typography } from "@heroui/react";
 import { Segment } from "@heroui-pro/react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -71,9 +72,9 @@ function InputSummary() {
   if (!mounted || formStep < 2) return null;
 
   return (
-    <span className="hidden text-muted text-xs xl:block">
+    <Typography className="hidden xl:block" color="muted" type="body-xs">
       Age {age} · {formatCurrency(income, 0)}/mo
-    </span>
+    </Typography>
   );
 }
 
@@ -82,7 +83,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-border border-b bg-background">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-2xl focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground"
       >
         Skip to content
       </a>

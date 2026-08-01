@@ -2,6 +2,7 @@
 
 import {
   Card,
+  Description,
   Input,
   Label,
   NumberField,
@@ -9,6 +10,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { formatDate } from "@/lib/format";
@@ -52,9 +54,9 @@ export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
 
   return (
     <Card className="sticky top-24 flex flex-col gap-6 p-6">
-      <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+      <Typography color="muted" type="body-xs">
         Your inputs
-      </span>
+      </Typography>
 
       <NumberField
         className="flex flex-col gap-2"
@@ -83,9 +85,7 @@ export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
       >
         <div className="flex items-baseline justify-between gap-4">
           <Label>Date of birth</Label>
-          <span className="text-muted text-xs">
-            {hasBirthDate ? `Age ${age}` : "MM/YYYY"}
-          </span>
+          <Description>{hasBirthDate ? `Age ${age}` : "MM/YYYY"}</Description>
         </div>
         <Input inputMode="numeric" placeholder="MM/YYYY" />
       </TextField>
@@ -114,26 +114,26 @@ export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
       </div>
 
       <Surface
-        className="flex flex-col gap-1 rounded-lg p-4 text-sm"
+        className="flex flex-col gap-1 rounded-2xl p-4"
         variant="tertiary"
       >
-        <span>
-          Bracket <span className="font-semibold">{ageGroup.description}</span>
-        </span>
-        <span className="text-muted">
+        <Typography type="body-sm">
+          Bracket <strong>{ageGroup.description}</strong>
+        </Typography>
+        <Typography color="muted" type="body-sm">
           You {formatRate(ageGroup.contributionRate.employee)} · Employer{" "}
           {formatRate(ageGroup.contributionRate.employer)} · Total{" "}
           {formatRate(
             ageGroup.contributionRate.employee +
               ageGroup.contributionRate.employer,
           )}
-        </span>
+        </Typography>
       </Surface>
 
-      <p className="text-muted text-xs">
+      <Typography color="muted" type="body-xs">
         Rates from the CPF Board contribution table effective{" "}
         {formatDate(ceilingDate, "d MMMM yyyy")}.
-      </p>
+      </Typography>
     </Card>
   );
 }

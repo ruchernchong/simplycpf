@@ -9,6 +9,7 @@ import {
   Separator,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { type Key, useEffect, useMemo, useState } from "react";
 import { useCpfStore } from "@/hooks/use-cpf-store";
@@ -205,19 +206,19 @@ export function CpfLifeContent() {
           </div>
 
           {!hasProjection && (
-            <p className="text-muted text-xs">
+            <Typography color="muted" type="body-xs">
               Enter salary and DOB on the <Link href="/">home page</Link> to use
               your own projection.
-            </p>
+            </Typography>
           )}
 
-          <p className="max-w-[64ch] text-[19px] leading-relaxed">
+          <Typography className="max-w-[64ch]">
             A Retirement Account of {monthly(raBalance)} at 65 supports roughly{" "}
             {monthly(standard)} a month on the Standard plan,{" "}
             {monthly(escalating)} rising 2% a year on Escalating, or{" "}
             {monthly(basic)} on Basic. Over twenty years the Escalating payout
             reaches {monthly(escalating85)}.
-          </p>
+          </Typography>
         </Card.Content>
       </Card>
 
@@ -229,24 +230,24 @@ export function CpfLifeContent() {
                 aria-hidden
                 className={cn("size-2 rounded-full", plan.swatch)}
               />
-              <Card.Title className="font-semibold text-base tracking-tight">
-                {plan.name}
-              </Card.Title>
+              <Card.Title>{plan.name}</Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-col gap-4">
-              <p className="flex items-baseline gap-2">
-                <span className="font-semibold text-[32px] leading-none tracking-tight">
-                  {monthly(plan.value)}
-                </span>
-                <span className="text-muted text-xs">{plan.suffix}</span>
-              </p>
+              <div className="flex items-baseline gap-2">
+                <Typography type="h2">{monthly(plan.value)}</Typography>
+                <Typography color="muted" type="body-xs">
+                  {plan.suffix}
+                </Typography>
+              </div>
               <MiniBars color={plan.swatch} max={maxBar} values={plan.bars} />
-              <div className="flex items-baseline justify-between gap-2 font-mono text-[10.5px] text-muted">
+              <div className="flex items-baseline justify-between gap-2">
                 {plan.ages.map((age) => (
-                  <span key={age}>{age}</span>
+                  <Typography color="muted" key={age} type="body-xs">
+                    {age}
+                  </Typography>
                 ))}
               </div>
-              <p className="text-[12.5px] leading-relaxed">{plan.body}</p>
+              <Typography type="body-sm">{plan.body}</Typography>
             </Card.Content>
           </Card>
         ))}
@@ -255,9 +256,7 @@ export function CpfLifeContent() {
       <div className="grid gap-8 md:grid-cols-2">
         <Card>
           <Card.Header>
-            <Card.Title className="font-semibold text-base tracking-tight">
-              Starting later instead
-            </Card.Title>
+            <Card.Title>Starting later instead</Card.Title>
             <Card.Description>
               Payouts can begin any time between 65 and 70. Each year deferred
               raises the monthly amount permanently.
@@ -266,20 +265,18 @@ export function CpfLifeContent() {
           <Card.Content className="flex flex-col gap-4">
             {deferralRows.map((row) => (
               <div className="flex items-baseline gap-4" key={row.age}>
-                <span className="w-8 font-mono text-[10.5px] text-muted tracking-[0.12em]">
+                <Typography className="w-8" color="muted" type="body-xs">
                   {row.age}
-                </span>
-                <span
-                  className={cn(
-                    "w-28 font-semibold text-xl tracking-tight",
-                    row.accent && "text-accent",
-                  )}
+                </Typography>
+                <Typography
+                  className={cn("w-28", row.accent && "text-accent")}
+                  type="h4"
                 >
                   {row.value}
-                </span>
-                <span className="flex-1 text-[12.5px] text-muted leading-relaxed">
+                </Typography>
+                <Typography className="flex-1" color="muted" type="body-sm">
                   {row.note}
-                </span>
+                </Typography>
               </div>
             ))}
           </Card.Content>
@@ -287,26 +284,24 @@ export function CpfLifeContent() {
 
         <Card>
           <Card.Header>
-            <Card.Title className="font-semibold text-base tracking-tight">
-              How these numbers were produced
-            </Card.Title>
+            <Card.Title>How these numbers were produced</Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-col gap-4">
             <ol className="flex flex-col gap-3">
               {method.map((item, index) => (
                 <li className="flex gap-3" key={item}>
-                  <span className="font-mono text-[10.5px] text-muted tracking-[0.12em]">
+                  <Typography color="muted" type="body-xs">
                     {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-[12.5px] leading-relaxed">{item}</span>
+                  </Typography>
+                  <Typography type="body-sm">{item}</Typography>
                 </li>
               ))}
             </ol>
             <Separator />
-            <p className="text-muted text-xs">
+            <Typography color="muted" type="body-xs">
               Indicative only. Use CPF's own payout estimator for figures tied
               to your record. SimplyCPF does not recommend a plan.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
       </div>

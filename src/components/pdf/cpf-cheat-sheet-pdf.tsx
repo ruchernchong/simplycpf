@@ -1,15 +1,17 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { BRAND } from "@/lib/brand";
 import {
   type CheatSheetSection,
   getCpfCheatSheetData,
 } from "@/lib/get-cpf-cheat-sheet-data";
 
-const TEAL = "#0f766e";
-const SLATE_900 = "#0f172a";
-const SLATE_700 = "#334155";
-const SLATE_500 = "#64748b";
-const SLATE_100 = "#e2e8f0";
-const SLATE_50 = "#f8fafc";
+/* See cpf-results-pdf.tsx: the PDF renderer cannot read CSS custom properties. */
+const TEAL = BRAND.forest;
+const SLATE_900 = BRAND.ink;
+const SLATE_700 = BRAND.textBody;
+const SLATE_500 = BRAND.textSubtle;
+const SLATE_100 = BRAND.bone;
+const SLATE_50 = BRAND.card;
 
 const styles = StyleSheet.create({
   page: {

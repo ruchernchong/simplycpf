@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
@@ -61,17 +61,19 @@ export default function PrivacyPage() {
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
         <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
+          <Typography align="center" className="mb-4" type="h1">
             Privacy
-          </h1>
-          <p
+          </Typography>
+          <Typography
+            align="center"
+            color="muted"
             data-privacy-summary
-            className="mx-auto max-w-3xl text-muted-foreground"
+            className="mx-auto max-w-3xl"
           >
             SimplyCPF works without sign-up. There is no account to create, no
             email address to hand over, and no backend database holding your
             calculator inputs.
-          </p>
+          </Typography>
         </div>
 
         <Card>
@@ -81,18 +83,18 @@ export default function PrivacyPage() {
               Calculator inputs never leave your device
             </Card.Description>
           </Card.Header>
-          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
-            <p>
+          <Card.Content className="flex flex-col gap-4">
+            <Typography color="muted">
               Salary, age, citizenship, and other inputs you enter into the
               calculator, projection, what-if, and CPF LIFE tools are held in
               memory on your device and, where relevant, serialised into the URL
               so you can share or reopen a scenario.
-            </p>
-            <p>
+            </Typography>
+            <Typography color="muted">
               These values are not transmitted to a SimplyCPF backend because
               there is no backend database. The CPF calculations run in your
               browser.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
 
@@ -103,18 +105,18 @@ export default function PrivacyPage() {
               PostHog, routed through a first-party proxy
             </Card.Description>
           </Card.Header>
-          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
-            <p>
+          <Card.Content className="flex flex-col gap-4">
+            <Typography color="muted">
               SimplyCPF uses PostHog to understand how the tools are used in
               aggregate. It captures anonymous events such as page views,
               interactions, and errors. Requests are routed through a
               first-party <code>/ph</code> proxy.
-            </p>
-            <p>
+            </Typography>
+            <Typography color="muted">
               Calculator inputs, email addresses, and personal identifiers are
               not attached to these events. PostHog may set its own cookies or
               local storage entries for session analytics.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
 
@@ -122,15 +124,15 @@ export default function PrivacyPage() {
           <Card.Header>
             <Card.Title>Cookies</Card.Title>
           </Card.Header>
-          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
-            <p>
+          <Card.Content className="flex flex-col gap-4">
+            <Typography color="muted">
               A theme preference cookie is set so that your light or dark mode
               choice persists between visits.
-            </p>
-            <p>
+            </Typography>
+            <Typography color="muted">
               Beyond that and the PostHog entries noted above, SimplyCPF does
               not set cookies of its own.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
 
@@ -138,20 +140,22 @@ export default function PrivacyPage() {
           <Card.Header>
             <Card.Title>What we do not do</Card.Title>
           </Card.Header>
-          <Card.Content className="flex flex-col gap-4 text-muted-foreground">
-            <p>We do not sell your personal data.</p>
-            <p>
+          <Card.Content className="flex flex-col gap-4">
+            <Typography color="muted">
+              We do not sell your personal data.
+            </Typography>
+            <Typography color="muted">
               We do not require sign-up to use the CPF calculators and planning
               tools.
-            </p>
-            <p>
+            </Typography>
+            <Typography color="muted">
               We do not send marketing emails or newsletters, and there is no
               email collection flow on the site.
-            </p>
-            <p>
+            </Typography>
+            <Typography color="muted">
               We do not claim to replace the official CPF Board website for
               formal account actions or government services.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
       </div>

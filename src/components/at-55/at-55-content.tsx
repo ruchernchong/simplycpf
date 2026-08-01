@@ -8,6 +8,7 @@ import {
   Separator,
   Skeleton,
   Surface,
+  Typography,
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/section-header";
@@ -28,8 +29,6 @@ const PAGE_HEADER = {
   title: "Your Special Account closes. Here is where the money goes.",
   lede: "The CPF Board closed the Special Accounts of about 1.4 million members aged 55 and above on 19 January 2025. If you turn 55 after that date, it happens on your birthday. Nothing is taken away, it moves, and the two destinations behave differently.",
 } as const;
-
-const MONO_LABEL = "font-mono text-[10px] uppercase tracking-[0.12em]";
 
 interface At55Figures {
   year55: number;
@@ -102,30 +101,30 @@ function AccountRow({
   return (
     <Surface
       className={cn(
-        "flex flex-col gap-2 rounded-lg p-4",
+        "flex flex-col gap-2 rounded-2xl p-4",
         highlight && "border border-accent/25 bg-accent/10",
       )}
       variant={highlight ? "transparent" : "tertiary"}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2">
           <Chip
             color={highlight ? "accent" : "default"}
             size="sm"
             variant="tertiary"
           >
-            <Chip.Label className={MONO_LABEL}>{code}</Chip.Label>
+            <Chip.Label>{code}</Chip.Label>
           </Chip>
-          <span className="font-medium text-sm">{label}</span>
-        </span>
-        <span className="font-semibold text-lg tracking-tight">
-          {money(amount)}
-        </span>
+          <Typography type="body-sm" weight="medium">
+            {label}
+          </Typography>
+        </div>
+        <Typography type="h5">{money(amount)}</Typography>
       </div>
       {body && (
-        <p className="max-w-[52ch] text-muted text-sm leading-relaxed">
+        <Typography className="max-w-[52ch]" color="muted" type="body-sm">
           {body}
-        </p>
+        </Typography>
       )}
     </Surface>
   );
@@ -143,9 +142,9 @@ function MovesDivider(): ReactNode {
         orientation="vertical"
         variant="secondary"
       />
-      <span className={cn(MONO_LABEL, "whitespace-nowrap text-muted")}>
+      <Typography className="whitespace-nowrap" color="muted" type="body-xs">
         moves
-      </span>
+      </Typography>
       <Separator className="flex-1 md:hidden" variant="secondary" />
       <Separator
         className="hidden md:block md:flex-1"
@@ -160,20 +159,20 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
   return (
     <Card>
       <Card.Header className="flex flex-wrap items-start justify-between gap-4">
-        <Card.Title className="font-semibold text-base tracking-tight">
+        <Card.Title>
           Your projected balances the day before, and the day after
         </Card.Title>
-        <span className={cn(MONO_LABEL, "text-muted")}>
+        <Typography color="muted" type="body-xs">
           You turn 55 in {figures.year55} · FRS for that cohort{" "}
           {money(figures.frs)}
-        </span>
+        </Typography>
       </Card.Header>
       <Card.Content className="flex flex-col gap-6">
         <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex flex-col gap-4">
-            <span className={cn(MONO_LABEL, "text-muted")}>
+            <Typography color="muted" type="body-xs">
               Day before · age 54
-            </span>
+            </Typography>
             <AccountRow
               amount={figures.dayBefore.sa}
               code="SA"
@@ -192,9 +191,9 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
           </div>
           <MovesDivider />
           <div className="flex flex-col gap-4">
-            <span className={cn(MONO_LABEL, "text-accent")}>
+            <Typography className="text-accent" type="body-xs">
               Day after · age 55
-            </span>
+            </Typography>
             <AccountRow
               highlight
               amount={figures.dayAfter.ra}
@@ -215,15 +214,14 @@ function BalancesCard({ figures }: { figures: At55Figures }): ReactNode {
             />
           </div>
         </div>
-        <Surface
-          className="rounded-lg p-4 text-[13px] text-muted leading-relaxed"
-          variant="tertiary"
-        >
-          Nothing is lost in the move: the same {money(figures.total)} is still
-          yours. What changes is the interest rate on each part and when you can
-          reach it, {money(figures.dayAfter.ra)} is committed to payouts at
-          4.00%, and {money(figures.dayAfter.oa)} sits in OA at 2.50%,
-          withdrawable whenever you want it.
+        <Surface className="rounded-2xl p-4" variant="tertiary">
+          <Typography color="muted" type="body-sm">
+            Nothing is lost in the move: the same {money(figures.total)} is
+            still yours. What changes is the interest rate on each part and when
+            you can reach it, {money(figures.dayAfter.ra)} is committed to
+            payouts at 4.00%, and {money(figures.dayAfter.oa)} sits in OA at
+            2.50%, withdrawable whenever you want it.
+          </Typography>
         </Surface>
       </Card.Content>
     </Card>
@@ -257,10 +255,8 @@ function ChangedCard(): ReactNode {
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="font-semibold text-base tracking-tight">
-          What changed, and what did not
-        </Card.Title>
-        <Card.Description className="text-muted text-sm leading-relaxed">
+        <Card.Title>What changed, and what did not</Card.Title>
+        <Card.Description>
           The 2025 change moved savings between accounts. It did not change how
           much you have.
         </Card.Description>
@@ -279,10 +275,10 @@ function ChangedCard(): ReactNode {
                   note.tone === "accent" ? "bg-accent" : "bg-chart-3",
                 )}
               />
-              <p className="text-sm leading-relaxed">
-                <span className="font-medium">{note.lead}</span>{" "}
-                <span className="text-muted">{note.text}</span>
-              </p>
+              <Typography color="muted" type="body-sm">
+                <strong className="text-foreground">{note.lead}</strong>{" "}
+                {note.text}
+              </Typography>
             </li>
           ))}
         </ul>
@@ -316,10 +312,10 @@ function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="font-semibold text-base tracking-tight">
+        <Card.Title>
           The three retirement sums, in your cohort's dollars
         </Card.Title>
-        <Card.Description className="text-muted text-sm leading-relaxed">
+        <Card.Description>
           Which one applies to you depends on property and on how much you
           choose to set aside.
         </Card.Description>
@@ -329,42 +325,38 @@ function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
           {rows.map((row, index) => (
             <li className="flex flex-col gap-4" key={row.code}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="flex items-baseline gap-3">
+                <div className="flex items-baseline gap-3">
                   <Chip
                     color={row.highlight ? "accent" : "default"}
                     size="sm"
                     variant="tertiary"
                   >
-                    <Chip.Label className={MONO_LABEL}>{row.code}</Chip.Label>
+                    <Chip.Label>{row.code}</Chip.Label>
                   </Chip>
-                  <span
-                    className={cn(
-                      "text-sm",
-                      row.highlight ? "text-accent" : "text-muted",
-                    )}
+                  <Typography
+                    className={cn(row.highlight ? "text-accent" : "text-muted")}
+                    type="body-sm"
                   >
                     {row.note}
-                  </span>
-                </span>
-                <span
-                  className={cn(
-                    "font-semibold text-lg tracking-tight",
-                    row.highlight && "text-accent",
-                  )}
+                  </Typography>
+                </div>
+                <Typography
+                  className={cn(row.highlight && "text-accent")}
+                  type="h5"
                 >
                   {money(row.amount)}
-                </span>
+                </Typography>
               </div>
               {index < rows.length - 1 && <Separator variant="secondary" />}
             </li>
           ))}
         </ul>
-        <p className="max-w-[64ch] text-[12px] text-muted leading-relaxed">
+        <Typography className="max-w-[64ch]" color="muted" type="body-xs">
           Sums for the cohort turning 55 in {figures.year55}, projected from
           published figures at 3.5% a year beyond 2026. Balances projected from
           a zero starting balance today, with your salary held flat; housing use
           is not modelled. Estimates, not advice.
-        </p>
+        </Typography>
       </Card.Content>
     </Card>
   );
@@ -380,14 +372,12 @@ function PromptCard({
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="font-semibold text-base tracking-tight">
-          {title}
-        </Card.Title>
+        <Card.Title>{title}</Card.Title>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
-        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+        <Typography className="max-w-[64ch]" color="muted" type="body-sm">
           {children}
-        </p>
+        </Typography>
         <Link href="/">Go to the home page</Link>
       </Card.Content>
     </Card>
@@ -427,7 +417,7 @@ export default function At55Content(): ReactNode {
     <div className="flex flex-col gap-12">
       <PageHeader {...PAGE_HEADER} />
 
-      {!mounted && <Skeleton className="h-96 w-full rounded-lg" />}
+      {!mounted && <Skeleton className="h-96 w-full" />}
 
       {mounted && formStep < 2 && (
         <PromptCard title="Enter your salary and date of birth">
