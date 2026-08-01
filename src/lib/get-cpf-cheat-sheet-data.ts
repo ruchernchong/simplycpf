@@ -33,7 +33,7 @@ export interface CheatSheetData {
 export function getCheatSheetDateModified(data: CheatSheetData): string {
   const latestVerificationDate = data.sections
     .map((section) => section.verifiedAt)
-    .sort()
+    .sort((left, right) => left.localeCompare(right))
     .at(-1);
   if (!latestVerificationDate) {
     throw new Error("The cheat sheet requires at least one sourced section.");

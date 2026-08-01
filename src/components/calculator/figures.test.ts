@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findAgeGroup } from "@/lib/find-age-group";
-import { buildFigures, formatRate } from "./figures";
+import { buildFigures, findPreviousCeilingDate, formatRate } from "./figures";
 
 const currentCeilingDate = "2026-01-01";
 
@@ -55,5 +55,9 @@ describe("calculator public figures", () => {
     expect(formatRate(0.125)).toBe("12.5%");
     expect(formatRate(0.075)).toBe("7.5%");
     expect(formatRate(0.145)).toBe("14.5%");
+  });
+
+  it("finds the previous ceiling from chronologically sorted ISO dates", () => {
+    expect(findPreviousCeilingDate("2026-01-01")).toBe("2025-01-01");
   });
 });

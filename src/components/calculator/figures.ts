@@ -162,7 +162,9 @@ export function buildIllustrativeFigures(
  * what the latest step change did to a salary.
  */
 export function findPreviousCeilingDate(ceilingDate: string): string {
-  const dates = Object.keys(CPF_INCOME_CEILING).sort();
+  const dates = Object.keys(CPF_INCOME_CEILING).sort((left, right) =>
+    left.localeCompare(right),
+  );
   const index = dates.indexOf(ceilingDate);
   return index > 0 ? dates[index - 1] : dates[0];
 }

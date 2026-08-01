@@ -11,6 +11,22 @@ describe("getCpfCheatSheetData", () => {
     expect(getCheatSheetDateModified(data)).not.toBe(data.catalogueVersion);
   });
 
+  it("selects the latest verification date regardless of section order", () => {
+    const data = getCpfCheatSheetData();
+    const section = data.sections[0];
+    if (!section) {
+      throw new Error("Expected at least one cheat-sheet section.");
+    }
+    const dates = ["2026-01-15", "2025-12-31", "2026-08-01"];
+
+    expect(
+      getCheatSheetDateModified({
+        ...data,
+        sections: dates.map((verifiedAt) => ({ ...section, verifiedAt })),
+      }),
+    ).toBe("2026-08-01");
+  });
+
   it("returns the expected printable reference sections", () => {
     const data = getCpfCheatSheetData();
 
