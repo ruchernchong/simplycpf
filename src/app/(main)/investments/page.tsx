@@ -10,33 +10,33 @@ import { BASE_URL, WEBSITE_ID } from "@/config";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "CPF vs Other Investments: Compare Your CPF Returns Side by Side",
+  title: "CPF Growth vs Your Investment Assumptions",
   description:
-    "Is keeping money in CPF your best move? Compare CPF account growth against Singapore Government bonds, STI ETF, global equity, and more. Adjust time horizons and principal amounts to see how different strategies stack up.",
+    "Compare official CPF floor-rate presets with annual return assumptions you enter yourself. Non-CPF returns are illustrations, not CPF Board facts or forecasts.",
   keywords:
     "CPF investment, CPF investment scheme, CPFIS, CPF vs investment, CPF returns comparison, CPF OA returns, CPF SA returns, STI ETF vs CPF, Singapore investment comparison, CPF growth calculator",
   alternates: {
     canonical: "/investments",
   },
   openGraph: {
-    title: "CPF vs Other Investments: Compare Your CPF Returns Side by Side",
+    title: "CPF Growth vs Your Investment Assumptions",
     description:
-      "Compare CPF account growth against Singapore bonds, STI ETF, and other investments. Adjust time horizons and see side-by-side returns.",
+      "Compare official CPF floor rates with editable, user-supplied non-CPF return assumptions.",
     url: `${BASE_URL}/investments`,
     images: [
       {
         url: `${BASE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: "CPF vs Other Investments, SimplyCPF",
+        alt: "CPF growth and editable investment assumptions, SimplyCPF",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CPF vs Other Investments: Compare Your CPF Returns Side by Side",
+    title: "CPF Growth vs Your Investment Assumptions",
     description:
-      "Compare CPF account growth against Singapore bonds, STI ETF, and other investments. Adjust time horizons and see side-by-side returns.",
+      "Compare official CPF floor rates with editable, user-supplied non-CPF return assumptions.",
     images: [`${BASE_URL}/opengraph-image`],
   },
 };
@@ -50,7 +50,7 @@ const InvestmentsPage = () => {
         "@id": `${BASE_URL}/investments/#webpage`,
         name: "CPF Investment Comparison",
         description:
-          "Compare CPF account growth against Singapore bonds, STI ETF, and other investment options. Adjust time horizons and see side-by-side returns over time.",
+          "Compare CPF account growth at official floor rates with editable user assumptions for non-CPF investments.",
         url: `${BASE_URL}/investments`,
         inLanguage: "en-SG",
         isPartOf: { "@id": WEBSITE_ID },
@@ -82,19 +82,17 @@ const InvestmentsPage = () => {
       <div className="flex flex-col gap-8">
         <div className="text-center">
           <Typography align="center" className="mb-4" type="h1">
-            Is Keeping Money in CPF Your Best Move?
+            Compare CPF With Your Own Return Assumptions
           </Typography>
           <Typography
             align="center"
             className="mx-auto max-w-2xl"
             color="muted"
           >
-            CPF accounts offer guaranteed returns backed by the Singapore
-            Government, but they are not your only option. Compare CPF growth
-            against Singapore Government bonds, the STI ETF, or global equity
-            ETFs. Adjust the initial amount and investment period to see how
-            each strategy performs side by side, so you can decide what best
-            fits your retirement timeline.
+            The CPF presets use published OA and SMRA floor rates. For every
+            non-CPF option, enter the annual return you want to illustrate.
+            Those rates are your assumptions, before fees, tax, and volatility;
+            SimplyCPF does not present market-return forecasts as CPF facts.
           </Typography>
         </div>
         <CPFInvestmentComparison />

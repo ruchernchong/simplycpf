@@ -3,21 +3,21 @@
 [![Version](https://img.shields.io/github/package-json/v/ruchernchong/simplycpf)](https://github.com/ruchernchong/simplycpf)
 [![License](https://img.shields.io/github/license/ruchernchong/simplycpf)](LICENSE)
 
-A modern web application to calculate CPF (Central Provident Fund) contributions and project retirement balances following the 2023 income ceiling changes announced by Singapore's Ministry of Finance.
+A CPF (Central Provident Fund) contribution and planning application for Singapore employees, backed by dated policy tables and first-party government sources.
 
 **[🚀 Visit SimplyCPF](https://simplycpf.com)**
 
 ## Features
 
-- 💰 **Accurate CPF Calculations** - Compute employee and employer contributions based on current income ceilings
-- 📊 **Age-Based Rates** - Automatic calculation using 8 different age brackets with varying contribution rates
-- 📈 **Distribution Breakdown** - View OA (Ordinary Account), SA (Special Account), and MA (MediSave Account) allocations
-- 🔮 **Retirement Projection** - Project your CPF balances to age 55, 65, or 70 with CPF LIFE estimates and optional housing, top-up, and OA to SA assumptions
-- 🧪 **What-If Simulator** - Compare salary changes, OA to SA transfers, annual top-ups, and the cost of starting later
+- 💰 **Source-backed CPF calculations** - Apply the effective contribution month, wage band, OW/AW ceilings, citizenship status, and CPF statutory rounding rules
+- 📊 **Dated age-based schedules** - Resolve official contribution and allocation tables from 2023 through the published 2027 schedule
+- 📈 **Distribution breakdown** - View exact OA (Ordinary Account), SA/RA (Special or Retirement Account), and MA (MediSave Account) allocations
+- 🔮 **Monthly retirement projection** - Project supplied starting OA, SA, MA, and RA balances with published CPF schedules and clearly labelled frozen-policy assumptions
+- 🧪 **What-if simulator** - Compare salary changes, age-aware retirement transfers, top-ups, and the cost of starting later
 - 🔗 **Shareable URLs** - Copy projection and what-if links with the current inputs already encoded in the URL
-- 🛟 **CPF LIFE Estimator** - Estimate monthly CPF LIFE payouts from your Retirement Account balance and compare the main plan types
+- 🛟 **CPF LIFE Reference** - Review CPF Board's published 2026 Standard Plan reference rows and plan characteristics, with a link to CPF's personalised planner
 - 🧾 **CPF Cheat Sheet** - Download a printable PDF with contribution rates, account distribution, retirement sums, BHS, and PR reference points
-- ✅ **Retirement Readiness Score** - Answer 5 quick questions to see which CPF planning gap to fix next and get a tailored follow-up report by email
+- ✅ **SimplyCPF Readiness Score** - Use an editorial self-check to identify a planning topic to review next; it is not a CPF Board assessment
 - 🕒 **Interactive Timeline** - Visualise CPF income ceiling changes from 2023 to 2026 with an interactive timeline
 - 📱 **Mobile-Friendly** - Responsive design with PWA support for offline use
 - 📄 **PDF Export** - Download your CPF calculation results as a PDF document
@@ -26,9 +26,9 @@ A modern web application to calculate CPF (Central Provident Fund) contributions
 
 ## About
 
-Following the Ministry of Finance announcement at Singapore Budget 2023 (13 February 2023), the CPF income ceiling is being progressively raised:
+Following the Ministry of Finance announcement at Singapore Budget 2023 (13 February 2023), the CPF Ordinary Wage ceiling was progressively raised:
 - **Previous ceiling**: $6,000 (before September 2023)
-- **Current target**: $8,000 (by September 2026)
+- **Current ceiling**: $8,000 (from 1 January 2026)
 
 This calculator helps Singaporeans estimate their take-home income after CPF contributions under the new ceiling structure while accounting for age-specific contribution and distribution rates. It also includes a CPF projection page for modelling how your balances may grow across OA, SA, MA, and RA over time.
 
@@ -38,9 +38,9 @@ The core calculators and planning tools work without sign-up. Email is only requ
 
 - **Framework**: [Next.js 16](https://nextjs.org/) with React 19
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4.x with shadcn/ui components
+- **Styling**: Tailwind CSS 4.x with HeroUI v3 and HeroUI Pro
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **UI Components**: Base UI primitives
+- **UI Components**: HeroUI v3 React components
 - **Charts**: Recharts
 - **Testing**: Vitest with React Testing Library
 - **Linting**: Biome
@@ -118,7 +118,7 @@ pnpm test:coverage
 The application includes a comprehensive API documentation portal at `/docs` with:
 
 - **Getting Started** - Quick start guide for developers
-- **API Reference** - Complete documentation for all 12 endpoints
+- **API Reference** - Complete documentation for all 14 CPF endpoints
 - **Examples** - Code samples in JavaScript/TypeScript and Python
 - **Changelog** - Version history and updates
 
@@ -137,6 +137,7 @@ The site provides LLM-friendly endpoints following the [llms.txt specification](
 | Income Ceiling | `/ceiling`, `/ceiling/timeline` |
 | Interest Rates | `/interest-rates`, `/interest-rates/smra`, `/interest-rates/trend` |
 | Investment | `/investment-comparison` |
+| Reference Data | `/bhs`, `/retirement-sums` |
 
 ## Project Structure
 
@@ -144,11 +145,11 @@ The site provides LLM-friendly endpoints following the [llms.txt specification](
 src/
 ├── app/              # Next.js app directory (routes, layouts)
 │   └── (docs)/      # Developer portal (Fumadocs)
-├── atoms/            # Jotai state atoms
+├── stores/           # Zustand state stores
 ├── components/       # React components
-│   └── ui/          # shadcn/ui components
 ├── data/            # CPF age groups and rates data
 ├── lib/             # Core calculation logic
+├── policy/          # Versioned CPF policy catalogue and provenance
 ├── types/           # TypeScript type definitions
 ├── constants/       # CPF income ceilings by year
 └── utils/           # Utility functions
@@ -172,8 +173,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- CPF contribution rates and distribution data sourced from [Singapore's CPF Board](https://www.cpf.gov.sg/)
-- Income ceiling changes based on Ministry of Finance Budget 2023 announcements
+- CPF contribution, allocation, ceiling, interest, healthcare, retirement, housing, and CPF LIFE references are linked to the relevant [CPF Board publications](https://www.cpf.gov.sg/).
+- Tax-relief references use IRAS, and statutory retirement/re-employment ages use MOM. SimplyCPF assumptions are labelled separately from official policy.
 
 ## Author
 

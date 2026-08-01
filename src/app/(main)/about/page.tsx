@@ -97,22 +97,22 @@ const About = () => {
             <Typography>
               SimplyCPF is a free, open-source tool that helps Singapore
               Citizens and Permanent Residents see exactly where their CPF
-              retirement money goes, based on income, age group, and the latest
-              ceiling changes. The main calculators and planning tools work
+              contributions go, based on contribution month, wages, age and
+              citizenship status. The main calculators and planning tools work
               without sign-up.
             </Typography>
             <Typography>
-              CPF contribution rates vary across 8 age brackets, and
-              contributions are distributed differently across your Ordinary
-              Account (OA), Special Account (SA), and MediSave Account (MA)
-              depending on your age. SimplyCPF handles all of this automatically
-              so you get the numbers that matter: your take-home pay and
-              retirement savings, without cross-referencing government tables.
+              Contribution and allocation schedules vary by age, wage band,
+              effective month and citizenship status. From age 55, the
+              retirement share may go to RA or OA depending on whether the Full
+              Retirement Sum has been set aside, so SimplyCPF exposes both
+              official branches when account context is unavailable.
             </Typography>
             <Typography>
               All calculation logic is open-source and verifiable on GitHub.
-              Rates are sourced directly from CPF Board publications and updated
-              within days when changes are announced.
+              The versioned policy catalogue links every official dataset to
+              CPF Board, IRAS or MOM and records its effective and verification
+              dates. SimplyCPF assumptions are labelled separately.
             </Typography>
             <Typography>
               If you ask SimplyCPF to email you a CPF cheat sheet or readiness
@@ -128,12 +128,11 @@ const About = () => {
             </Typography>
             <Typography>
               This tool covers the progressive increases in CPF Income Ceiling
-              from 2023 to 2026 following Budget 2023, so you can see exactly
-              how much more of your income becomes retirement savings over time.
-              Whether you are an employee estimating your take-home pay, an
-              employer verifying contribution amounts, or a financial planner
-              comparing CPF growth with other investments: SimplyCPF gives you
-              the numbers in seconds.
+              from 2023 to 2026 and published contribution schedules through
+              2027. Its contribution scope is private-sector and non-pensionable
+              employees who are Singapore Citizens or SPRs using default G/G
+              rates. Platform workers, self-employed persons, pensionable
+              employees and alternative SPR arrangements remain out of scope.
             </Typography>
           </Card.Content>
         </Card>

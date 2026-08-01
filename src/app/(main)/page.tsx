@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     absolute: "SimplyCPF: Free CPF Calculator and Planning Tools for Singapore",
   },
   description:
-    "Free CPF calculator and planning tools for Singapore. Calculate CPF contributions, project balances to retirement, compare CPF LIFE payouts, and keep a CPF cheat sheet close by.",
+    "Free CPF tools for Singapore. Calculate contributions, project balances with explicit assumptions, and review official CPF LIFE reference rows.",
   keywords:
     "CPF contribution calculator, CPF calculator Singapore, CPF income ceiling, CPF ceiling change, CPF ceiling timeline, CPF $6000 to $8000, Budget 2023 CPF, progressive ceiling, Singapore CPF, take-home pay CPF",
   alternates: {
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SimplyCPF: Free CPF Contribution Calculator for Singapore",
     description:
-      "Free CPF calculator and planning tools for Singapore. Calculate CPF contributions, project balances to retirement, compare CPF LIFE payouts, and keep a CPF cheat sheet close by.",
+      "Calculate CPF contributions, project balances with explicit assumptions, and review official CPF LIFE reference rows.",
     url: BASE_URL,
     images: [
       {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SimplyCPF: Free CPF Contribution Calculator for Singapore",
     description:
-      "Free CPF calculator and planning tools for Singapore. Calculate CPF contributions, project balances to retirement, compare CPF LIFE payouts, and keep a CPF cheat sheet close by.",
+      "Calculate CPF contributions, project balances with explicit assumptions, and review official CPF LIFE reference rows.",
     images: [`${BASE_URL}/opengraph-image`],
   },
 };
@@ -60,7 +60,7 @@ export default function HomePage() {
     {
       label: "SA · MA · RA",
       value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
-      note: "Plus 1% on first $60k",
+      note: "Declared for 2026 Q3",
     },
     {
       label: "Wage ceiling",
@@ -97,7 +97,7 @@ export default function HomePage() {
         "@type": "SoftwareApplication" as const,
         name: "SimplyCPF",
         description:
-          "Free CPF calculator and planning tools for Singapore. Calculate contributions, project balances, compare CPF LIFE payouts, and review CPF reference numbers in one place.",
+          "Free CPF tools for Singapore. Calculate source-backed contributions, project balances with labelled assumptions, and review official CPF LIFE reference rows.",
         url: BASE_URL,
         applicationCategory: "FinanceApplication",
         featureList: [
@@ -105,9 +105,9 @@ export default function HomePage() {
           "View distribution across OA, SA, MA accounts",
           "Track progressive income ceiling changes from 2023 to 2026",
           "Download a CPF cheat sheet",
-          "Check a retirement readiness score",
-          "Compare CPF returns against investment options",
-          "Access current CPF interest rates and distribution rates",
+          "Use a SimplyCPF retirement-readiness rubric",
+          "Compare CPF floor rates with editable investment-return assumptions",
+          "Access official quarterly CPF interest declarations",
         ],
         inLanguage: "en-SG",
       },
@@ -121,11 +121,10 @@ export default function HomePage() {
         "@type": "Dataset",
         name: "CPF Contribution Rates by Age Group",
         description:
-          "Contribution rates, distribution rates, and income ceiling data for Singapore CPF across 8 age brackets, including progressive ceiling changes from 2023 to 2026.",
+          "Official contribution schedules, allocation rates, and wage ceilings for supported private-sector Singapore Citizen and default G/G SPR scenarios from 2023 through 2027.",
         url: `${BASE_URL}/api/cpf/age-groups`,
         creator: { "@id": `${BASE_URL}/#organization` },
         isAccessibleForFree: true,
-        license: "https://creativecommons.org/licenses/by/4.0/",
         distribution: [
           {
             "@type": "DataDownload",
@@ -143,10 +142,11 @@ export default function HomePage() {
           "Employer contribution rate",
           "OA distribution rate",
           "SA distribution rate",
+          "RA distribution rate after SA closure",
           "MA distribution rate",
           "Income ceiling",
         ],
-        temporalCoverage: "2023/2026",
+        temporalCoverage: "2023/2027",
       },
     ],
   };

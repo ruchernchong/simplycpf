@@ -15,7 +15,7 @@ export async function GET(): Promise<Response> {
 
   return new Response(new Uint8Array(buffer), {
     headers: {
-      ...CACHE_HEADERS.immutable,
+      ...CACHE_HEADERS.policy,
       "Content-Disposition":
         'attachment; filename="simplycpf-cpf-cheat-sheet.pdf"',
       "Content-Type": "application/pdf",

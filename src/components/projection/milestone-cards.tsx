@@ -17,7 +17,9 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
       balances: result.milestones.age55,
       available: result.yearlyBalances.some(({ age }) => age === 55),
       description:
-        "Special Account funds move into your Retirement Account up to the FRS.",
+        result.assumptions.retirementRouting === "full-retirement-sum"
+          ? "SA, then OA, is routed to RA up to the cohort FRS; remaining SA moves to OA after closure."
+          : "Shows the selected BRS cash branch with an eligible property pledge; actual eligibility must be confirmed with CPF.",
     },
     {
       age: 65,
@@ -31,7 +33,7 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
       balances: result.milestones.age70,
       available: result.yearlyBalances.some(({ age }) => age === 70),
       description:
-        "Extending the projection helps you see the value of delaying payouts.",
+        "A balance checkpoint only; CPF LIFE payout deferment is not estimated here.",
     },
   ];
 

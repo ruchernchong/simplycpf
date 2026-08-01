@@ -14,7 +14,7 @@ export default function ReadinessScoreResult({
   return (
     <Card>
       <Card.Header>
-        <Card.Title>Your readiness score: {result.score}/100</Card.Title>
+        <Card.Title>Your SimplyCPF rubric score: {result.score}/100</Card.Title>
         <Card.Description>{result.bucketLabel}</Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">

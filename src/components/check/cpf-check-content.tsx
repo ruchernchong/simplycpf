@@ -17,7 +17,7 @@ import { PageHeader } from "@/components/shared/section-header";
 const PAGE_HEADER = {
   eyebrow: "Check",
   title: "Five things worth knowing. Which do you already?",
-  lede: "Not a score, and no right answer. Tick what you already know and we will point you at the screen that explains each of the rest. Nothing is recorded and no email is asked for.",
+  lede: "A SimplyCPF self-check, not a CPF Board assessment. There is no score or right answer: tick what you know and we will point you to an explanation for each of the rest. Nothing is recorded and no email is asked for.",
 } as const;
 
 interface CheckItem {
@@ -160,7 +160,8 @@ export default function CpfCheckContent(): ReactNode {
             <div className="flex flex-col gap-4">
               <Separator variant="secondary" />
               <Typography color="muted" type="body-xs">
-                We do not assess your readiness or suggest what to do, this only
+                This SimplyCPF editorial checklist does not assess your
+                retirement readiness or represent CPF Board guidance. It only
                 shows which explanation you have not read yet.
               </Typography>
             </div>

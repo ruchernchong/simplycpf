@@ -3,6 +3,7 @@ import {
   CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
+  CPF_OA_EXTRA_INTEREST_CAP,
 } from "@/constants/cpf-interest-tiers";
 import { formatNumber } from "@/lib/format";
 
@@ -11,7 +12,7 @@ const CpfInterestTiersBlock = () => (
     <Card>
       <Card.Header>
         <Card.Title id="cpf-interest-tiers">
-          CPF Extra Interest: How the 1% Bonus Works
+          CPF Extra Interest: How the Tiers Work
         </Card.Title>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
@@ -31,7 +32,8 @@ const CpfInterestTiersBlock = () => (
             </Typography>
             <Typography className="mt-1" color="muted" type="body-sm">
               On the first S${formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined
-              OA + SA + MA balances
+              balances, with no more than S$
+              {formatNumber(CPF_OA_EXTRA_INTEREST_CAP)} from OA
             </Typography>
             <Typography className="mt-2" color="muted" type="body-xs">
               Max extra interest: S$
@@ -67,16 +69,17 @@ const CpfInterestTiersBlock = () => (
         </div>
 
         <Typography color="muted" type="body-sm">
-          <strong>How it works:</strong> The extra interest is paid into your
-          Special Account (or Retirement Account if you{"'"}re 55+). This means
-          your SA/RA grows faster, directly increasing your CPF LIFE payouts in
-          retirement.
+          <strong>Balance order:</strong> CPF Board counts RA first (including
+          any CPF LIFE premium balance), then OA up to S$
+          {formatNumber(CPF_OA_EXTRA_INTEREST_CAP)}, SA, and MA. Extra interest
+          earned on OA goes to SA below 55 or RA from 55; extra interest earned
+          on the other accounts stays in the respective account.
         </Typography>
 
         <Typography color="muted" type="body-sm">
-          <strong>Example:</strong> A 30-year-old with S$50,000 across OA + SA +
-          MA earns an extra S${(50000 * 0.01).toFixed(0)} per year (S$
-          {((50000 * 0.01) / 12).toFixed(0)} per month) on top of base rates.
+          CPF interest is computed monthly and credited annually. Transactions
+          during a month affect which balances earn interest, so a simple annual
+          percentage multiplication is not always the credited amount.
         </Typography>
       </Card.Content>
     </Card>

@@ -1,107 +1,60 @@
 ---
 title: Interest Rates
-description: Access CPF interest rates and SGS yield data
+description: Official quarterly CPF declarations and published methodologies
 ---
 
-Endpoints for retrieving CPF interest rate information.
+SimplyCPF exposes CPF Board's quarterly declarations. API v2 removes the unsourced monthly SGS series and does not reconstruct a trend from invented observations.
 
-## GET /interest-rates
+## GET `/interest-rates`
 
-Get all CPF interest rates and SGS yield data.
-
-### Response
+Returns official quarterly observations through 2026 Q3. Each row contains:
 
 ```typescript
-{
-  quarterlyRates: Array<{
-    quarter: string;
-    OA: number;
-    SA: number;
-    MA: number;
-    RA: number;
-  }>;
-  sgsYields: Array<{
-    month: string;
-    yield: number;
-  }>;
+interface QuarterlyInterestObservation {
+  quarter: string;
+  effectiveFrom: string;
+  effectiveTo: string;
+  oaRate: number;
+  saRate: number;
+  maRate: number;
+  raRate: number;
+  sourceUrl: string;
+  status: "official";
+  verifiedAt: string;
 }
 ```
 
-### Example
+SA, MA, and RA are separate fields because their declared rates were not identical in every historical quarter.
+
+The response also includes CPF Board's methodology:
+
+- OA: three-month average of major local banks' interest rates, subject to the 2.5% legislated floor.
+- SMRA: 12-month average yield of 10-year Singapore Government Securities plus one percentage point, subject to the current 4% floor through 2026.
+
+Source: [CPF Board — How are CPF interest rates determined?](https://www.cpf.gov.sg/service/article/how-are-cpf-interest-rates-determined).
+
+## GET `/interest-rates/smra`
+
+Apply the published SMRA peg to a caller-supplied 12-month average 10YSGS yield:
 
 ```bash
-curl https://simplycpf.com/api/cpf/interest-rates
-```
-
----
-
-## GET /interest-rates/smra
-
-Calculate the SMRA (Special/MediSave/Retirement Account) rate based on SGS yield.
-
-### Query Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `sgsYield` | float | Yes | SGS bond yield percentage (non-negative) |
-
-### Response
-
-```typescript
-{
-  sgsYield: number;       // Input SGS yield
-  peggedRate: number;     // SGS yield + pegged rate markup
-  floorApplied: boolean;  // Whether minimum floor rate was applied
-  actualRate: number;     // Final calculated SMRA rate
-}
-```
-
-### Example
-
-```bash
-curl "https://simplycpf.com/api/cpf/interest-rates/smra?sgsYield=3.5"
+curl "https://simplycpf.com/api/cpf/interest-rates/smra?averageSgsYield=3.1"
 ```
 
 ```json
 {
-  "sgsYield": 3.5,
-  "peggedRate": 4.5,
+  "averageSgsYield": 3.1,
+  "peggedRate": 4.1,
   "floorApplied": false,
-  "actualRate": 4.5
+  "actualRate": 4.1,
+  "warnings": []
 }
 ```
 
-### Errors
+`sgsYield` remains a deprecated alias for one compatibility cycle and produces a warning. It means the 12-month average input, not a single monthly observation.
 
-| Status | Error |
-|--------|-------|
-| 400 | Missing or invalid sgsYield parameter |
+## GET `/interest-rates/trend`
 
----
+Returns the official quarterly observations in chronological order. This is a declaration timeline, not a synthetic SGS-yield series.
 
-## GET /interest-rates/trend
-
-Calculate historical interest rate trends based on SGS yields.
-
-### Response
-
-```typescript
-Array<{
-  month: string;
-  sgsYield: number;
-  peggedRate: number;
-  actualRate: number;
-}>
-```
-
-### Example
-
-```bash
-curl https://simplycpf.com/api/cpf/interest-rates/trend
-```
-
-## CPF Interest Rate Information
-
-- **Ordinary Account (OA)**: Pegged to market rates, minimum 2.5% p.a.
-- **Special/MediSave/Retirement Accounts**: Higher rates, pegged to SGS yields + 1%
-- First $60,000 of combined CPF balances earns an extra 1% interest
+Policy responses use 24-hour edge caching with stale revalidation and are not immutable.

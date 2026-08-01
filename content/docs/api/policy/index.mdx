@@ -1,0 +1,24 @@
+---
+title: Policy Reference
+description: Official CPF reference values with per-dataset provenance
+---
+
+Public policy endpoints return only values published by CPF Board. They do not silently clamp an unsupported year to the nearest known value and do not extrapolate future amounts.
+
+| Endpoint | Published coverage | Unsupported request |
+|---|---|---|
+| `/ceiling` | Contribution schedules from 2023 through 2027 | `404` |
+| `/bhs?year=YYYY` | BHS cohorts from 2016 through 2026 | `404` |
+| `/retirement-sums?year=YYYY` | BRS, FRS, and ERS from 2023 through 2027 | `404` |
+
+Each response carries `PolicyMetadata`, including `status`, effective dates, verification date, and a first-party source URL. Public values are `official`.
+
+Projections use different semantics: when a later BHS or retirement sum has not been published, the last published amount is frozen and each affected projection row is marked `assumed`, with its base year and a warning.
+
+Sources:
+
+- [CPF Board — Basic Healthcare Sum](https://www.cpf.gov.sg/service/article/what-is-the-basic-healthcare-sum)
+- [CPF Board — CPF retirement sums](https://www.cpf.gov.sg/member/infohub/educational-resources/what-is-the-cpf-retirement-sum)
+- [CPF Board — Ordinary Wage ceiling](https://www.cpf.gov.sg/service/article/what-is-the-ordinary-wage-ow-ceiling)
+
+Policy responses are cached at the edge for 24 hours with stale revalidation. They are not marked immutable.

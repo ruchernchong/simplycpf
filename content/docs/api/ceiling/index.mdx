@@ -1,81 +1,32 @@
 ---
-title: Income Ceiling
-description: Access CPF income ceiling data and historical timeline
+title: Wage Ceilings
+description: Published CPF Ordinary and Additional Wage ceilings
 ---
 
-Endpoints for retrieving CPF income ceiling information.
+## GET `/ceiling`
 
-## GET /ceiling
-
-Get the CPF income ceiling for a specific date.
-
-### Query Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `date` | string | No | Date in YYYY-MM-DD format (defaults to current date) |
-
-### Response
-
-```typescript
-{
-  date: string;       // The requested date
-  ceiling: number;    // Income ceiling for that date (6000-8000)
-}
-```
-
-### Example
+Supply `contributionMonth` in `YYYY-MM` format. The endpoint returns the sourced monthly Ordinary Wage ceiling, the S$102,000 annual Additional Wage ceiling, effective dates, and policy provenance.
 
 ```bash
-curl "https://simplycpf.com/api/cpf/ceiling?date=2024-06-01"
+curl "https://simplycpf.com/api/cpf/ceiling?contributionMonth=2026-08"
 ```
 
-```json
-{
-  "date": "2024-06-01",
-  "ceiling": 6800
-}
-```
+The supported OW schedule is:
 
----
+| Effective period | Monthly OW ceiling |
+|---|---:|
+| January–August 2023 | S$6,000 |
+| September–December 2023 | S$6,300 |
+| 2024 | S$6,800 |
+| 2025 | S$7,400 |
+| 2026–2027 | S$8,000 |
 
-## GET /ceiling/timeline
+An unsupported contribution month returns `404`; the endpoint does not silently clamp it. `date` is a deprecated alias for one compatibility cycle.
 
-Get the historical timeline of CPF income ceiling changes.
+The remaining AW ceiling is `max(0, 102000 − annual OW subject to CPF − prior AW subject to CPF)`. The contribution endpoint returns `422` when positive AW is supplied without this annual context.
 
-### Response
+## GET `/ceiling/timeline`
 
-```typescript
-Array<{
-  date: string;       // Date of ceiling change
-  ceiling: number;    // Income ceiling value
-}>
-```
+Returns the published schedule above with per-dataset provenance. It contains no future extrapolation.
 
-### Example
-
-```bash
-curl https://simplycpf.com/api/cpf/ceiling/timeline
-```
-
-```json
-[
-  { "date": "2023-01-01", "ceiling": 6000 },
-  { "date": "2023-09-01", "ceiling": 6300 },
-  { "date": "2024-01-01", "ceiling": 6800 },
-  { "date": "2025-01-01", "ceiling": 7400 },
-  { "date": "2026-01-01", "ceiling": 8000 }
-]
-```
-
-## Income Ceiling History
-
-Following the Ministry of Finance announcement at Singapore Budget 2023, the CPF income ceiling was progressively raised, reaching its final value of $8,000 on 1 January 2026:
-
-| Effective Date | Ceiling |
-|----------------|---------|
-| Before Sep 2023 | $6,000 |
-| Sep 2023 | $6,300 |
-| Jan 2024 | $6,800 |
-| Jan 2025 | $7,400 |
-| Jan 2026 | $8,000 |
+Source: [CPF Board — What is the Ordinary Wage ceiling?](https://www.cpf.gov.sg/service/article/what-is-the-ordinary-wage-ow-ceiling).

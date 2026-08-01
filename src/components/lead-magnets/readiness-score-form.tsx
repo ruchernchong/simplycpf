@@ -171,6 +171,11 @@ export default function ReadinessScoreForm() {
 
   return (
     <div className="flex flex-col gap-6">
+      <Typography color="muted" type="body-sm">
+        This score uses a SimplyCPF editorial rubric. It is not a CPF Board
+        assessment and does not measure whether your retirement savings are
+        adequate.
+      </Typography>
       <form className="flex flex-col gap-6" onSubmit={handleCalculate}>
         {questions.map((question) => (
           <fieldset key={question.key} className="flex flex-col gap-3">
@@ -241,7 +246,7 @@ export default function ReadinessScoreForm() {
           </Typography>
         ) : null}
         <Button type="submit" size="lg">
-          Calculate my readiness score
+          Calculate my SimplyCPF score
         </Button>
       </form>
 

@@ -1,149 +1,69 @@
 ---
 title: Calculation
-description: Calculate CPF contributions and projections
+description: Month-aware CPF contributions and monthly-ledger projections
 ---
 
-Endpoints for calculating CPF contributions for single income, batch scenarios, and multi-year projections.
-
-## POST /calculate
-
-Calculate CPF contributions for a single income amount.
-
-### Request Body
+## POST `/calculate`
 
 ```typescript
-interface CalculateRequest {
-  income: number;    // Required - Monthly gross income (non-negative)
-  date?: string;     // Optional - Date in YYYY-MM-DD format (defaults to today)
-  age?: number;      // Optional - Age for age-group lookup
-}
-```
-
-### Response
-
-```typescript
-interface CalculateResponse {
-  contribution: {
-    totalContribution: number;
-    employer: number;
-    employee: number;
+type ContributionInput = {
+  contributionMonth: string;
+  ordinaryWages: number;
+  additionalWages?: number;
+  additionalWageCeilingContext?: {
+    annualOrdinaryWagesSubjectToCpf: number;
+    priorAdditionalWagesSubjectToCpf: number;
   };
-  distribution: {
-    OA: number;
-    SA: number;
-    MA: number;
+  citizenship: "citizen" | "spr-year1" | "spr-year2" | "spr-year3-plus";
+  hasReachedFullRetirementSum?: boolean;
+} & ({ age: number } | { birthMonth: string });
+```
+
+Use `birthMonth` for exact month-after-birthday handling. The API applies the official S$50, S$500, and S$750 bands, OW/AW ceilings, PR G/G schedules, total-contribution half-up dollar rounding, employee-share cent truncation, and employer-as-remainder rule.
+
+The response keeps the v1 contribution fields and adds:
+
+- `wageBand` and wages actually subject to CPF
+- effective schedule and citizenship rate
+- explicit `RA` after the 2025 SA closure
+- both official 55+ allocation branches if FRS context is absent
+- warnings and per-dataset provenance
+
+Additional Wages without annual OW and prior-AW context return `422`. A month outside the sourced 2023–2027 catalogue returns `404`.
+
+## POST `/calculate/batch`
+
+Send one to 100 `ContributionInput` objects in `scenarios`. Results preserve request order and use the same validation, warnings, and provenance contract.
+
+## POST `/projection`
+
+```typescript
+interface ProjectionInput {
+  monthlyIncome: number;
+  birthDate: string;
+  startMonth: string;
+  initialBalances: { oa: number; sa: number; ma: number; ra: number };
+  citizenship: "citizen" | "spr-year1" | "spr-year2" | "spr-year3-plus";
+  endAge?: number;
+  retirementTransfer?: {
+    amount: number;
+    timing: "now" | "monthly" | "yearly";
   };
-  afterCpfContribution: number;
 }
 ```
 
-### Example
+The engine runs a monthly ledger and returns annual snapshots. It applies monthly contributions, birthday transitions, the 2025 SA closure, age-65 BHS freezing, MA overflow, FRS routing, monthly interest accrual, and annual crediting.
 
-```bash
-curl -X POST https://simplycpf.com/api/cpf/calculate \
-  -H "Content-Type: application/json" \
-  -d '{"income": 5000, "age": 30}'
-```
+Every annual row has policy metadata. Published dates are `official`; post-publication policies held constant are `assumed`. Fixed salary, CPF floor interest, and retirement-routing choices are returned under `assumptions` rather than presented as CPF Board facts.
 
-```json
-{
-  "contribution": {
-    "totalContribution": 1850,
-    "employer": 850,
-    "employee": 1000
-  },
-  "distribution": {
-    "OA": 1085.5,
-    "SA": 277.5,
-    "MA": 487
-  },
-  "afterCpfContribution": 4000
-}
-```
+`cpfLifeReference` contains CPF Board's exact 2026 male Standard Plan reference rows. `cpfLifeEstimate` is deprecated and always `null`; use CPF Board's personalised planner for an estimate.
 
----
+## Compatibility aliases
 
-## POST /calculate/batch
+Accepted for one release cycle with warnings:
 
-Calculate CPF contributions for multiple income scenarios (up to 100).
+- `income` → `ordinaryWages`
+- `date` → `contributionMonth`
+- `oaToSaTransfer` → age-aware `retirementTransfer`
 
-### Request Body
-
-```typescript
-interface BatchCalculateRequest {
-  scenarios: Array<{
-    income: number;    // Required - Monthly income
-    date?: string;     // Optional - Date in YYYY-MM-DD
-    age?: number;      // Optional - Age for age-group lookup
-  }>;
-}
-```
-
-### Constraints
-
-- Maximum 100 scenarios per request
-- Array cannot be empty
-
-### Response
-
-Returns an array of `ComputedResult` objects matching input scenarios.
-
-### Example
-
-```bash
-curl -X POST https://simplycpf.com/api/cpf/calculate/batch \
-  -H "Content-Type: application/json" \
-  -d '{"scenarios": [{"income": 4000}, {"income": 6000}, {"income": 8000}]}'
-```
-
----
-
-## POST /projection
-
-Generate multi-year CPF contribution projection with cumulative totals.
-
-### Request Body
-
-```typescript
-interface ProjectionRequest {
-  income: number;    // Required - Monthly income (non-negative)
-  age: number;       // Required - Starting age
-  years: number;     // Required - Number of years to project (1-50)
-}
-```
-
-### Constraints
-
-- Maximum 50 years per request
-- All fields are required
-
-### Response
-
-```typescript
-interface ProjectionResponse {
-  input: { income: number; age: number; years: number };
-  projections: Array<{
-    year: number;
-    age: number;
-    ageGroup: string;
-    contribution: {
-      employee: number;
-      employer: number;
-      totalContribution: number;
-    };
-    cumulative: {
-      employee: number;
-      employer: number;
-      totalContribution: number;
-    };
-  }>;
-}
-```
-
-### Example
-
-```bash
-curl -X POST https://simplycpf.com/api/cpf/projection \
-  -H "Content-Type: application/json" \
-  -d '{"income": 5000, "age": 30, "years": 5}'
-```
+A legacy projection may omit starting balances and default them to zero only when an explicit warning is returned.

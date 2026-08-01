@@ -14,23 +14,23 @@ import faqProjectionData from "@/data/faq-projection.json";
 export const metadata: Metadata = {
   title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
   description:
-    "Project your CPF balances from today to age 55, 65 or 70 using conservative CPF floor interest rates. See your projected OA, SA, MA and RA balances, CPF LIFE estimates, and the impact of housing withdrawals, top-ups and OA to SA transfers.",
+    "Project supplied OA, SA, MA and RA balances month by month using CPF floor interest rates, published contribution schedules, and clearly marked assumptions for unpublished future policy.",
   keywords:
-    "CPF projection calculator, CPF projection Singapore, CPF at 55, CPF at 65, CPF retirement projection, CPF LIFE estimate, CPF OA SA MA projection",
+    "CPF projection calculator, CPF projection Singapore, CPF at 55, CPF at 65, CPF retirement projection, CPF OA SA MA RA projection",
   alternates: {
     canonical: "/projection",
   },
   openGraph: {
     title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
     description:
-      "Project your CPF balances with conservative floor rates, milestone snapshots, and CPF LIFE payout estimates.",
+      "Project your CPF balances month by month with floor rates, milestone snapshots, and per-year policy status.",
     url: `${BASE_URL}/projection`,
   },
   twitter: {
     card: "summary_large_image",
     title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
     description:
-      "Project your CPF balances with conservative floor rates, milestone snapshots, and CPF LIFE payout estimates.",
+      "Project your CPF balances month by month with floor rates, milestone snapshots, and per-year policy status.",
   },
 };
 
@@ -47,7 +47,7 @@ const schema: Graph = {
       inLanguage: "en-SG",
       isPartOf: { "@id": WEBSITE_ID },
       keywords:
-        "CPF projection calculator, CPF at 55, CPF at 65, CPF retirement projection, CPF LIFE estimate",
+        "CPF projection calculator, CPF at 55, CPF at 65, CPF retirement projection",
       speakable: {
         "@type": "SpeakableSpecification",
         cssSelector: ["h1", "[data-projection-intro]"],
@@ -69,19 +69,19 @@ const schema: Graph = {
       "@type": "HowTo",
       name: "How to project your CPF balances",
       description:
-        "Enter your current income and birth date, adjust optional CPF assumptions, and review your projected balances and CPF LIFE estimates.",
+        "Enter your current balances, income and birth date, adjust optional assumptions, and review projected balances with policy provenance.",
       step: [
         {
           "@type": "HowToStep",
           position: 1,
-          name: "Enter your monthly income and birth date",
-          text: "Add your monthly income and birth month and year so the calculator can apply the right CPF age group and contribution rates.",
+          name: "Enter your balances, monthly income and birth date",
+          text: "Add your current OA, SA, MA and RA balances, monthly income, and birth month and year so the calculator starts from your actual position and applies the right contribution schedule.",
         },
         {
           "@type": "HowToStep",
           position: 2,
           name: "Adjust optional CPF assumptions",
-          text: "Optionally add housing withdrawals, annual voluntary top-ups, and OA to SA transfers to model common planning decisions.",
+          text: "Optionally add housing withdrawals, voluntary top-ups, and age-aware OA retirement transfers to model common planning decisions.",
         },
         {
           "@type": "HowToStep",
@@ -92,8 +92,8 @@ const schema: Graph = {
         {
           "@type": "HowToStep",
           position: 4,
-          name: "Check your estimated CPF LIFE payouts",
-          text: "Use your projected Retirement Account balance to estimate CPF LIFE payouts across the Standard, Escalating, Basic and deferred-to-70 options.",
+          name: "Review policy status and CPF LIFE references",
+          text: "Check which projected years use published CPF policy and which freeze the last published value, then compare milestone balances with CPF Board's published CPF LIFE reference rows.",
         },
       ],
     },
@@ -116,7 +116,7 @@ const schema: Graph = {
         "Project CPF balances by age",
         "Model housing withdrawals and top-ups",
         "See age 55, 65 and 70 milestone balances",
-        "Estimate CPF LIFE payouts",
+        "Show published versus assumed policy years",
       ],
     },
   ],
@@ -138,9 +138,10 @@ export default function ProjectionPage() {
             className="mx-auto max-w-3xl"
           >
             Project your CPF balances using conservative floor rates, current
-            contribution rules, and key milestones like the age 55 transfer to
-            your Retirement Account. You can also test how housing withdrawals,
-            annual top-ups, and OA to SA transfers may change the outcome.
+            published contribution rules, and key milestones like the age 55
+            transfer to your Retirement Account. Unpublished future policy is
+            held constant and labelled, so the output stays a transparent
+            planning scenario rather than a forecast.
           </Typography>
         </div>
         <Suspense

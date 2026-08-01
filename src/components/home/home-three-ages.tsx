@@ -5,18 +5,18 @@ const ages: { figure: string; note?: string; label: string; body: string }[] = [
   {
     figure: "55",
     label: "Retirement Account opens",
-    body: "SA closes. Savings above your Full Retirement Sum become withdrawable. Nothing forces you to stop working.",
+    body: "SA closes. SA then OA savings move to RA up to the applicable retirement sum; withdrawal eligibility depends on CPF's rules.",
   },
   {
     figure: "64",
     note: "from 1 Jul 2026",
     label: "Statutory retirement age",
-    body: "The earliest your employer may ask you to retire. Re-employment age rises to 69. This has no effect on CPF payouts.",
+    body: "For people born on or after 1 Jul 1963. Earlier cohorts retain retirement ages 62 or 63; the re-employment age is 69.",
   },
   {
     figure: "65",
     label: "Payout eligibility age",
-    body: "CPF LIFE payouts can start. You may defer to 70 for higher monthly payouts. Unchanged in 2026.",
+    body: "Monthly retirement payouts can start. Deferring to 70 can increase payouts by up to 7% for each year deferred.",
   },
 ];
 

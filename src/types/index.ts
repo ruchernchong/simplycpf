@@ -1,3 +1,7 @@
+import type { PolicyMetadata, PolicyStatus } from "@/policy";
+
+export type { PolicyMetadata, PolicyStatus } from "@/policy";
+
 // Interface for contribution rates by employee and employer
 export interface ContributionRate {
   employee: number;
@@ -100,7 +104,7 @@ export type CitizenshipStatus =
 
 export interface VoluntaryTopUp {
   amount: number;
-  account: "SA" | "MA" | "RA";
+  account: "retirement" | "MA" | "SA" | "RA";
   frequency: "monthly" | "yearly";
 }
 
@@ -109,14 +113,35 @@ export interface OaToSaTransfer {
   timing: "now" | "yearly";
 }
 
+/**
+ * An irreversible OA transfer to the member's retirement account: SA before
+ * age 55 and RA from age 55. `OaToSaTransfer` remains accepted for one
+ * compatibility cycle.
+ */
+export interface RetirementTransfer {
+  amount: number;
+  timing: "now" | "monthly" | "yearly";
+}
+
+export type RetirementRouting =
+  | "full-retirement-sum"
+  | "basic-retirement-sum-with-property";
+
 export interface ProjectionParams {
   monthlyIncome: number;
   birthDate: string;
+  /** Contribution month in YYYY-MM format. Defaults to the current month. */
+  startMonth?: string;
+  /** Required by the UI. Omitted legacy requests start from zero with a warning. */
+  initialBalances?: AccountBalances;
   startAge?: number;
   endAge?: number;
   housingWithdrawal?: number;
   voluntaryTopUp?: VoluntaryTopUp;
+  retirementTransfer?: RetirementTransfer;
+  /** @deprecated Use `retirementTransfer`. */
   oaToSaTransfer?: OaToSaTransfer;
+  retirementRouting?: RetirementRouting;
   citizenship: CitizenshipStatus;
 }
 
@@ -150,6 +175,8 @@ export interface YearlyInterest {
 
 export interface YearlyBalance {
   year: number;
+  /** Last contribution month included in this row, in YYYY-MM format. */
+  month: string;
   age: number;
   ageGroup: string;
   balances: AccountBalances;
@@ -158,13 +185,70 @@ export interface YearlyBalance {
   interestEarned: YearlyInterest;
   housingWithdrawal?: number;
   voluntaryTopUp?: number;
+  retirementTransfer?: number;
+  topUpTaxReliefEligible?: number;
+  bhs: number;
+  retirementSums: {
+    brs: number;
+    frs: number;
+    ers: number;
+  };
+  policy: ProjectionPolicyMetadata;
 }
 
+/** @deprecated SimplyCPF no longer estimates personalised CPF LIFE payouts. */
 export interface CpfLifeEstimate {
   standardMonthly: number;
   escalatingStartMonthly: number;
   basicMonthly: number;
   deferredTo70Monthly: number;
+}
+
+export interface CpfLifeReferenceRow {
+  raAt55: number;
+  raAt65: number;
+  monthlyPayoutAt65: number;
+  monthlyPayoutAt70: number;
+  label?: string;
+}
+
+export interface CpfLifeReference {
+  referenceYear: number;
+  plan: "Standard";
+  profile: "male";
+  rows: CpfLifeReferenceRow[];
+  sourceUrl: string;
+  personalisedEstimatorUrl: string;
+  verifiedAt: string;
+  note: string;
+}
+
+export interface ProjectionPolicyMetadata {
+  status: PolicyStatus;
+  contribution: PolicyMetadata;
+  allocation: PolicyMetadata;
+  wageCeiling: PolicyMetadata;
+  bhs: PolicyMetadata;
+  retirementSums: PolicyMetadata;
+  interest: PolicyMetadata;
+}
+
+export interface ProjectionWarning {
+  code:
+    | "initial-balances-defaulted"
+    | "start-month-defaulted"
+    | "legacy-transfer-field"
+    | "future-policy-frozen"
+    | "retirement-routing-assumed"
+    | "cpf-life-estimate-removed";
+  message: string;
+}
+
+export interface ProjectionAssumptions {
+  salary: "fixed-monthly-ordinary-wages";
+  interest: "cpf-floor-rates";
+  futurePolicy: "freeze-last-published";
+  retirementRouting: RetirementRouting;
 }
 
 export interface ProjectionResult {
@@ -175,7 +259,11 @@ export interface ProjectionResult {
     age65: AccountBalances;
     age70?: AccountBalances;
   };
-  cpfLifeEstimate: CpfLifeEstimate;
+  cpfLifeReference: CpfLifeReference;
+  /** @deprecated Personalised payout estimates belong to CPF Board. */
+  cpfLifeEstimate: null;
+  warnings: ProjectionWarning[];
+  assumptions: ProjectionAssumptions;
   totalContributed: number;
   totalInterestEarned: number;
 }
@@ -184,7 +272,6 @@ export interface ScenarioDifference {
   totalContributions: number;
   totalInterestEarned: number;
   age65Balance: number;
-  cpfLifeMonthlyPayout: number;
 }
 
 export interface ScenarioResult {

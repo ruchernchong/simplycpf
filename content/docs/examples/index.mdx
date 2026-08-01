@@ -1,209 +1,148 @@
 ---
 title: Examples
-description: Code examples for common use cases
+description: API v2 examples with explicit policy context and assumptions
 ---
 
-Practical examples for integrating the CPF API into your applications.
-
-## JavaScript / TypeScript
-
-### Calculate Monthly Contribution
+## TypeScript contribution calculation
 
 ```typescript
-async function calculateCpfContribution(income: number, age?: number) {
-  const response = await fetch(
-    "https://simplycpf.com/api/cpf/calculate",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ income, age }),
-    }
-  );
+type Citizenship =
+  | "citizen"
+  | "spr-year1"
+  | "spr-year2"
+  | "spr-year3-plus";
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error);
-  }
+async function calculateCpfContribution(
+  contributionMonth: string,
+  ordinaryWages: number,
+  birthMonth: string,
+  citizenship: Citizenship,
+) {
+  const response = await fetch("https://simplycpf.com/api/cpf/calculate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contributionMonth,
+      ordinaryWages,
+      birthMonth,
+      citizenship,
+    }),
+  });
 
-  return response.json();
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error);
+  return data;
 }
 
-// Usage
-const result = await calculateCpfContribution(5000, 30);
-console.log(`Take-home pay: $${result.afterCpfContribution}`);
+const result = await calculateCpfContribution(
+  "2026-08",
+  5000,
+  "1996-04",
+  "citizen",
+);
+
+console.log(result.contribution);
+console.log(result.wageBand);
+console.log(result.policy);
 ```
 
-### Batch Processing
+## Additional Wages with annual context
 
 ```typescript
-async function batchCalculate(incomes: number[]) {
-  const scenarios = incomes.map((income) => ({ income }));
-
-  const response = await fetch(
-    "https://simplycpf.com/api/cpf/calculate/batch",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ scenarios }),
-    }
-  );
-
-  return response.json();
-}
-
-// Calculate for multiple income levels
-const results = await batchCalculate([4000, 5000, 6000, 7000, 8000]);
+const response = await fetch("https://simplycpf.com/api/cpf/calculate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    contributionMonth: "2026-12",
+    ordinaryWages: 8000,
+    additionalWages: 20000,
+    additionalWageCeilingContext: {
+      annualOrdinaryWagesSubjectToCpf: 96000,
+      priorAdditionalWagesSubjectToCpf: 0,
+    },
+    citizenship: "citizen",
+    age: 40,
+  }),
+});
 ```
 
-### Get Age-Appropriate Rates
+The service returns `422` if positive AW is supplied without both annual context values.
 
-```typescript
-async function getAgeGroupRates(age: number) {
-  const response = await fetch(
-    `https://simplycpf.com/api/cpf/age-group/find?age=${age}`
-  );
-
-  return response.json();
-}
-
-const rates = await getAgeGroupRates(45);
-console.log(`Employee rate: ${rates.contributionRate.employee * 100}%`);
-```
-
----
-
-## Python
-
-### Basic Calculation
+## Python monthly projection
 
 ```python
 import requests
 
-def calculate_cpf(income: float, age: int = None) -> dict:
-    payload = {"income": income}
-    if age:
-        payload["age"] = age
-
-    response = requests.post(
-        "https://simplycpf.com/api/cpf/calculate",
-        json=payload
-    )
-    response.raise_for_status()
-    return response.json()
-
-# Usage
-result = calculate_cpf(5000, age=30)
-print(f"Employee contribution: ${result['contribution']['employee']}")
-print(f"Employer contribution: ${result['contribution']['employer']}")
-```
-
-### Multi-Year Projection
-
-```python
-import requests
-
-def project_cpf(income: float, age: int, years: int) -> dict:
-    response = requests.post(
-        "https://simplycpf.com/api/cpf/projection",
-        json={"income": income, "age": age, "years": years}
-    )
-    response.raise_for_status()
-    return response.json()
-
-# Project 10 years of contributions
-projection = project_cpf(6000, 30, 10)
-
-for year_data in projection["projections"]:
-    print(f"Year {year_data['year']}: "
-          f"Cumulative total: ${year_data['cumulative']['totalContribution']:,.2f}")
-```
-
-### Compare Investment Returns
-
-```python
-import requests
-
-def compare_investments(principal: float, years: int, scenarios: list) -> dict:
-    response = requests.post(
-        "https://simplycpf.com/api/cpf/investment-comparison",
-        json={
-            "principal": principal,
-            "years": years,
-            "scenarios": scenarios
-        }
-    )
-    response.raise_for_status()
-    return response.json()
-
-# Compare different investment options
-result = compare_investments(
-    principal=100000,
-    years=20,
-    scenarios=[
-        {"name": "CPF OA (2.5%)", "rate": 2.5},
-        {"name": "CPF SA (4.0%)", "rate": 4.0},
-        {"name": "Index Fund (7%)", "rate": 7.0}
-    ]
+response = requests.post(
+    "https://simplycpf.com/api/cpf/projection",
+    json={
+        "monthlyIncome": 6000,
+        "birthDate": "1990-04",
+        "startMonth": "2026-08",
+        "initialBalances": {
+            "oa": 90000,
+            "sa": 70000,
+            "ma": 50000,
+            "ra": 0,
+        },
+        "endAge": 65,
+        "citizenship": "citizen",
+        "retirementTransfer": {
+            "amount": 200,
+            "timing": "monthly",
+        },
+    },
 )
+response.raise_for_status()
+projection = response.json()
 
-for r in result["results"]:
-    print(f"{r['name']}: ${r['finalValue']:,.2f} (+{r['growthPercentage']:.1f}%)")
+for row in projection["yearlyBalances"]:
+    print(row["year"], row["balances"], row["policy"]["status"])
+
+assert projection["cpfLifeEstimate"] is None
+print(projection["cpfLifeReference"]["rows"])
 ```
 
----
+The returned salary and future-policy assumptions are part of the response. CPF LIFE rows are exact CPF Board references, not personalised estimates.
 
-## React Hook
+## Official quarterly interest observations
 
-```tsx
-import { useState, useCallback } from "react";
+```typescript
+const response = await fetch(
+  "https://simplycpf.com/api/cpf/interest-rates/trend",
+);
+const observations = await response.json();
 
-interface CpfResult {
-  contribution: {
-    employee: number;
-    employer: number;
-    totalContribution: number;
-  };
-  distribution: {
-    OA: number;
-    SA: number;
-    MA: number;
-  };
-  afterCpfContribution: number;
-}
-
-export function useCpfCalculator() {
-  const [result, setResult] = useState<CpfResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const calculate = useCallback(async (income: number, age?: number) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        "https://simplycpf.com/api/cpf/calculate",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ income, age }),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error);
-      }
-
-      const data = await response.json();
-      setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return { result, loading, error, calculate };
+for (const observation of observations) {
+  console.log(
+    observation.quarter,
+    observation.oaRate,
+    observation.saRate,
+    observation.maRate,
+    observation.raRate,
+    observation.sourceUrl,
+  );
 }
 ```
+
+This endpoint contains official quarterly declarations. It does not expose a reconstructed monthly SGS series.
+
+## Editable investment assumptions
+
+```python
+response = requests.post(
+    "https://simplycpf.com/api/cpf/investment-comparison",
+    json={
+        "principal": 100000,
+        "years": 20,
+        "scenarios": [
+            {"name": "CPF OA floor preset", "rate": 2.5},
+            {"name": "User investment assumption", "rate": 6.0},
+        ],
+    },
+)
+response.raise_for_status()
+print(response.json()["results"])
+```
+
+The CPF floor preset is an official policy input. The 6% non-CPF return is a user assumption, not a CPF Board fact or market forecast.

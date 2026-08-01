@@ -1,45 +1,48 @@
 ---
 title: Changelog
-description: Recent updates to the SimplyCPF API
+description: SimplyCPF API compatibility and policy-data changes
 ---
 
-Track the latest changes and updates to the API.
+## 2.0.0 — 1 August 2026
 
-## December 2024
+### Official policy catalogue
 
-### New Endpoints
+- Added source, effective-period, verification, and `official | assumed` metadata per dataset.
+- Added complete sourced contribution schedules for 2023–2027, default SPR Year 1/2 G/G schedules, allocation rates, OW/AW rules, published BHS through 2026, and retirement sums through 2027.
+- Public reference endpoints now return `404` for unsupported policy years instead of silently clamping or extrapolating.
+- Policy responses now use 24-hour edge caching with stale revalidation instead of year-long immutable caching.
 
-- Added 9 new API endpoints for comprehensive CPF data access
-- **Calculation endpoints**: `/calculate`, `/calculate/batch`, `/projection`
-- **Age group endpoints**: `/age-groups`, `/age-group/find`, `/age/from-birthdate`
-- **Interest rate endpoints**: `/interest-rates`, `/interest-rates/smra`, `/interest-rates/trend`
-- **Investment endpoint**: `/investment-comparison`
+### Contribution calculation
 
-### Features
+- Added `contributionMonth`, `ordinaryWages`, optional `additionalWages` with required annual ceiling context, `citizenship`, and either `age` or `birthMonth`.
+- Implemented the official S$50/S$500/S$750 wage bands, month-after-birthday transition, integer-cent calculation, contribution rounding, employee-share truncation, and employer-as-remainder rules.
+- Responses now identify the wage band, effective schedule, post-55 RA routing branches, warnings, and provenance.
+- Age bands use inclusive `maxAgeInclusive` bounds. RA is returned explicitly after the 2025 SA closure.
 
-- URL state management with nuqs for shareable calculator links
-- Interactive CPF income ceiling timeline visualisation
-- Multi-year contribution projections
+### Projection and CPF LIFE
 
-## September 2024
+- Replaced annual shortcuts with a monthly ledger and required `startMonth` plus starting OA, SA, MA, and RA balances for new clients.
+- Added per-year policy status and explicit fixed-salary, floor-interest, retirement-routing, and frozen-future-policy assumptions.
+- Replaced OA-to-SA-only transfers with age-aware `retirementTransfer`.
+- Removed SimplyCPF's personalised CPF LIFE estimate. `cpfLifeReference` now contains CPF Board's exact 2026 male Standard Plan rows; deprecated `cpfLifeEstimate` is always `null`.
 
-### Updates
+### Interest rates
 
-- Updated CPF rates for 2024
-- Income ceiling increased to $6,800 (effective January 2024)
+- Removed the unsourced monthly SGS series.
+- `/interest-rates` and `/interest-rates/trend` now expose official quarterly CPF declarations from 2023 Q1 through 2026 Q3 with first-party source URLs.
+- Renamed the SMRA input to `averageSgsYield` to make the official 12-month-average methodology explicit.
 
-## 2023
+### Compatibility window
 
-### Initial Release
+Accepted for one release cycle, with migration warnings:
 
-- Core CPF contribution calculator
-- Age-based contribution and distribution rates
-- Income ceiling tracking (September 2023 increase to $6,300)
+- `income` → `ordinaryWages`
+- `date` → `contributionMonth`
+- `oaToSaTransfer` → `retirementTransfer`
+- `sgsYield` → `averageSgsYield`
 
----
+Additional Wages without annual OW/prior-AW context now return `422`.
 
-## Upcoming
+## 1.x
 
-- OpenAPI specification
-- SDK packages for popular languages
-- Webhook notifications for rate changes
+The original API exposed contribution, projection, age, ceiling, interest, and investment endpoints. It used annual projection shortcuts, ambiguous age bounds, a synthetic monthly SGS series, and a SimplyCPF CPF LIFE estimate. Those behaviours are superseded by v2.

@@ -22,7 +22,7 @@ export const ORGANIZATION_ID = `${BASE_URL}/#organization`;
 
 export const title = "SimplyCPF";
 export const description =
-  "Calculate, project, and plan your CPF with free tools for contributions, retirement balances, CPF LIFE, and scenario modelling.";
+  "Calculate source-backed CPF contributions, project balances with explicit assumptions, and review official CPF reference data.";
 
 /**
  * Default Open Graph image, for pages that declare their own `openGraph` block.

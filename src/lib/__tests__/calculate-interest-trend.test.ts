@@ -1,151 +1,128 @@
-import type { MonthlyYield } from "@/types";
+import { describe, expect, it } from "vitest";
+import {
+  type OfficialQuarterlyCpfRate,
+  QUARTERLY_CPF_RATES,
+} from "@/constants/cpf-interest-rates";
 import {
   calculateInterestTrend,
   calculateSmraRate,
   isFloorRateApplied,
-} from "../calculate-interest-trend";
+} from "@/lib/calculate-interest-trend";
 
 describe("calculateSmraRate", () => {
-  it("should return floor rate when pegged rate is below 4%", () => {
-    const result = calculateSmraRate(2.5);
-    expect(result).toBe(4.0);
-  });
-
-  it("should return pegged rate when it exceeds floor rate", () => {
-    const result = calculateSmraRate(3.5);
-    expect(result).toBe(4.5);
-  });
-
-  it("should return floor rate when pegged rate equals floor rate", () => {
-    const result = calculateSmraRate(3.0);
-    expect(result).toBe(4.0);
-  });
-
-  it("should handle edge case with very low yields", () => {
-    const result = calculateSmraRate(0.5);
-    expect(result).toBe(4.0);
-  });
-
-  it("should handle edge case with very high yields", () => {
-    const result = calculateSmraRate(10.0);
-    expect(result).toBe(11.0);
+  it.each([
+    { averageSgsYield: 2.5, expected: 4 },
+    { averageSgsYield: 3, expected: 4 },
+    { averageSgsYield: 3.5, expected: 4.5 },
+  ])("applies the 4% floor to a $averageSgsYield% 12-month average", ({
+    averageSgsYield,
+    expected,
+  }) => {
+    expect(calculateSmraRate(averageSgsYield)).toBe(expected);
   });
 });
 
 describe("isFloorRateApplied", () => {
-  it("should return true when pegged rate is below floor", () => {
-    const result = isFloorRateApplied(2.5);
-    expect(result).toBe(true);
-  });
-
-  it("should return false when pegged rate exceeds floor", () => {
-    const result = isFloorRateApplied(3.5);
-    expect(result).toBe(false);
-  });
-
-  it("should return false when pegged rate equals floor", () => {
-    const result = isFloorRateApplied(3.0);
-    expect(result).toBe(false);
+  it("returns true only when the computed rate is below the floor", () => {
+    expect(isFloorRateApplied(2.5)).toBe(true);
+    expect(isFloorRateApplied(3)).toBe(false);
+    expect(isFloorRateApplied(3.5)).toBe(false);
   });
 });
 
 describe("calculateInterestTrend", () => {
-  it("should calculate trend data correctly with yields above floor", () => {
-    const yields: MonthlyYield[] = [
-      { month: "2024-01", yield: 3.5 },
-      { month: "2024-02", yield: 4.0 },
+  it("matches the CPF Board declarations from 2023 Q1 through 2026 Q3", () => {
+    expect(
+      QUARTERLY_CPF_RATES.map(({ quarter, oa, sa, ma, ra }) => ({
+        quarter,
+        oa,
+        sa,
+        ma,
+        ra,
+      })),
+    ).toEqual([
+      { quarter: "2023 Q1", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2023 Q2", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2023 Q3", oa: 2.5, sa: 4.01, ma: 4.01, ra: 4 },
+      { quarter: "2023 Q4", oa: 2.5, sa: 4.04, ma: 4.04, ra: 4 },
+      { quarter: "2024 Q1", oa: 2.5, sa: 4.08, ma: 4.08, ra: 4.08 },
+      { quarter: "2024 Q2", oa: 2.5, sa: 4.05, ma: 4.05, ra: 4.05 },
+      { quarter: "2024 Q3", oa: 2.5, sa: 4.08, ma: 4.08, ra: 4.08 },
+      { quarter: "2024 Q4", oa: 2.5, sa: 4.14, ma: 4.14, ra: 4.14 },
+      { quarter: "2025 Q1", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2025 Q2", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2025 Q3", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2025 Q4", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2026 Q1", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2026 Q2", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+      { quarter: "2026 Q3", oa: 2.5, sa: 4, ma: 4, ra: 4 },
+    ]);
+  });
+
+  it("returns the official quarterly declarations without synthetic SGS data", () => {
+    const result = calculateInterestTrend();
+
+    expect(result).toHaveLength(15);
+    expect(result.at(-1)).toEqual({
+      quarter: "2026 Q3",
+      effectiveFrom: "2026-07-01",
+      effectiveTo: "2026-09-30",
+      oaRate: 2.5,
+      saRate: 4,
+      maRate: 4,
+      raRate: 4,
+      sourceUrl:
+        "https://www.cpf.gov.sg/member/infohub/news/news-releases/cpf-interest-rates-from-1-july-to-30-september-2026",
+      status: "official",
+      verifiedAt: "2026-08-01",
+    });
+    expect(result.every((row) => !("sgsYield" in row))).toBe(true);
+  });
+
+  it("preserves the declaration and provenance for supplied official rows", () => {
+    const rates: readonly OfficialQuarterlyCpfRate[] = [
+      {
+        quarter: "2026 Q3",
+        effectiveFrom: "2026-07-01",
+        effectiveTo: "2026-09-30",
+        oa: 2.5,
+        sa: 4,
+        ma: 4,
+        ra: 4,
+        sourceUrl:
+          "https://www.cpf.gov.sg/service/article/what-are-the-cpf-interest-rates",
+        status: "official",
+        verifiedAt: "2026-08-01",
+      },
     ];
 
-    const result = calculateInterestTrend(yields);
-
-    expect(result).toEqual([
+    expect(calculateInterestTrend(rates)).toEqual([
       {
-        month: "2024-01",
-        sgsYield: 3.5,
-        peggedRate: 4.5,
-        actualRate: 4.5,
-      },
-      {
-        month: "2024-02",
-        sgsYield: 4.0,
-        peggedRate: 5.0,
-        actualRate: 5.0,
-      },
-    ]);
-  });
-
-  it("should apply floor rate when yields are low", () => {
-    const yields: MonthlyYield[] = [
-      { month: "2024-01", yield: 2.5 },
-      { month: "2024-02", yield: 2.8 },
-    ];
-
-    const result = calculateInterestTrend(yields);
-
-    expect(result).toEqual([
-      {
-        month: "2024-01",
-        sgsYield: 2.5,
-        peggedRate: 3.5,
-        actualRate: 4.0,
-      },
-      {
-        month: "2024-02",
-        sgsYield: 2.8,
-        peggedRate: 3.8,
-        actualRate: 4.0,
+        quarter: "2026 Q3",
+        effectiveFrom: "2026-07-01",
+        effectiveTo: "2026-09-30",
+        oaRate: 2.5,
+        saRate: 4,
+        maRate: 4,
+        raRate: 4,
+        sourceUrl:
+          "https://www.cpf.gov.sg/service/article/what-are-the-cpf-interest-rates",
+        status: "official",
+        verifiedAt: "2026-08-01",
       },
     ]);
   });
 
-  it("should handle mixed scenarios with some yields above and below floor", () => {
-    const yields: MonthlyYield[] = [
-      { month: "2024-01", yield: 2.5 },
-      { month: "2024-02", yield: 3.5 },
-      { month: "2024-03", yield: 2.9 },
-    ];
-
-    const result = calculateInterestTrend(yields);
-
-    expect(result).toEqual([
-      {
-        month: "2024-01",
-        sgsYield: 2.5,
-        peggedRate: 3.5,
-        actualRate: 4.0,
-      },
-      {
-        month: "2024-02",
-        sgsYield: 3.5,
-        peggedRate: 4.5,
-        actualRate: 4.5,
-      },
-      {
-        month: "2024-03",
-        sgsYield: 2.9,
-        peggedRate: 3.9,
-        actualRate: 4.0,
-      },
-    ]);
+  it("supports an empty official observation list", () => {
+    expect(calculateInterestTrend([])).toEqual([]);
   });
 
-  it("should handle empty array", () => {
-    const result = calculateInterestTrend([]);
-    expect(result).toEqual([]);
-  });
-
-  it("should handle single data point", () => {
-    const yields: MonthlyYield[] = [{ month: "2024-01", yield: 3.0 }];
-
-    const result = calculateInterestTrend(yields);
-
-    expect(result).toEqual([
-      {
-        month: "2024-01",
-        sgsYield: 3.0,
-        peggedRate: 4.0,
-        actualRate: 4.0,
-      },
-    ]);
+  it("keeps all declared account rates aligned from 2025 onward", () => {
+    for (const row of QUARTERLY_CPF_RATES.filter(
+      ({ quarter }) => quarter.startsWith("2025") || quarter.startsWith("2026"),
+    )) {
+      expect(row.sa).toBe(row.ma);
+      expect(row.ma).toBe(row.ra);
+    }
   });
 });

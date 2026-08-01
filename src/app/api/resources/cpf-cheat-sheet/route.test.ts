@@ -32,6 +32,9 @@ describe("GET /api/resources/cpf-cheat-sheet", () => {
     expect(response.headers.get("Content-Disposition")).toContain(
       "simplycpf-cpf-cheat-sheet.pdf",
     );
+    expect(response.headers.get("Cache-Control")).toBe(
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+    );
     expect(body.byteLength).toBeGreaterThan(0);
   });
 

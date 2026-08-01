@@ -1,63 +1,49 @@
 ---
 title: API Reference
-description: Complete API documentation for all CPF endpoints
+description: SimplyCPF API v2.0.0 endpoint index
 ---
 
-The SimplyCPF API provides 12 endpoints organised into 5 categories.
+All endpoints are served below `https://simplycpf.com/api/cpf`. Policy responses include per-dataset provenance and use 24-hour edge caching with stale revalidation.
 
-## Base URL
-
-```
-https://simplycpf.com/api/cpf
-```
-
-## Rate Limits
-
-Production CPF API endpoints are limited to **10 requests per 10 seconds per client IP**. Requests above this limit return HTTP `429` with this JSON body:
-
-```json
-{
-  "error": "Rate limit exceeded"
-}
-```
-
-Clients should back off and retry after the current 10-second window.
-
-## Endpoints Overview
-
-### Calculation
+## Calculation
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/calculate` | Calculate CPF contributions for a single income |
-| POST | `/calculate/batch` | Batch calculation for multiple scenarios |
-| POST | `/projection` | Multi-year contribution projection |
+|---|---|---|
+| POST | `/calculate` | Month-aware CPF contribution calculation |
+| POST | `/calculate/batch` | Up to 100 v2 contribution scenarios |
+| POST | `/projection` | Monthly CPF ledger with assumption-labelled annual rows |
 
-### Age Groups
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/age-groups` | List all 8 age groups with rates |
-| GET | `/age-group/find` | Find age group for a specific age |
-| GET | `/age/from-birthdate` | Convert birth date to age |
-
-### Income Ceiling
+## Age groups
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/ceiling` | Get income ceiling for a specific date |
-| GET | `/ceiling/timeline` | Historical ceiling changes |
+|---|---|---|
+| GET | `/age-groups` | Official bands with inclusive upper bounds |
+| GET | `/age-group/find` | Month-aware band lookup |
+| GET | `/age/from-birthdate` | Resolve completed age for a contribution month |
 
-### Interest Rates
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/interest-rates` | All CPF rates and SGS yields |
-| GET | `/interest-rates/smra` | Calculate SMRA rate |
-| GET | `/interest-rates/trend` | Historical rate trends |
-
-### Investment
+## Official policy reference
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/investment-comparison` | Compare investment scenarios |
+|---|---|---|
+| GET | `/ceiling` | Official OW/AW ceiling for a supported month |
+| GET | `/ceiling/timeline` | Published ceiling schedules only |
+| GET | `/bhs` | Published BHS through 2026 |
+| GET | `/retirement-sums` | Published BRS/FRS/ERS through 2027 |
+
+Unsupported public reference years return `404`; values are never extrapolated.
+
+## Interest rates
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/interest-rates` | Official quarterly CPF declarations and methodology |
+| GET | `/interest-rates/smra` | Apply the 12-month-average 10YSGS peg |
+| GET | `/interest-rates/trend` | Official quarterly observations; no synthetic SGS series |
+
+## Assumption-based modelling
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/investment-comparison` | Compare editable caller-supplied returns |
+
+Non-CPF investment rates are user assumptions, not CPF Board facts or market forecasts.

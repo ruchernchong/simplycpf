@@ -1,16 +1,12 @@
 import { Card, Typography } from "@heroui/react";
-import { CPF_LIFE_AUTO_INCLUSION_BALANCE } from "@/constants/cpf-life";
 import {
-  CPF_RETIREMENT_SUMS,
-  getRetirementSumsForYear,
-} from "@/constants/cpf-retirement-sums";
+  CPF_LIFE_AUTO_INCLUSION_BALANCE,
+  CPF_LIFE_LATEST_PAYOUT_AGE,
+  CPF_LIFE_PAYOUT_ELIGIBILITY_AGE,
+} from "@/constants/cpf-life";
 import { formatNumber } from "@/lib/format";
 
-const CpfLifeDefinitionBlock = () => {
-  const currentYear = new Date().getFullYear();
-  const currentSums = getRetirementSumsForYear(currentYear);
-
-  return (
+const CpfLifeDefinitionBlock = () => (
     <section
       aria-labelledby="cpf-life-definition"
       data-content-block="definition"
@@ -27,8 +23,8 @@ const CpfLifeDefinitionBlock = () => {
             you will not outlive your retirement savings.
           </Typography>
           <Typography>
-            When you turn 65, you can start receiving monthly payouts from your
-            CPF LIFE plan. The amount you receive depends on:
+            From age {CPF_LIFE_PAYOUT_ELIGIBILITY_AGE}, you can start receiving
+            monthly payouts. The amount you receive depends on:
           </Typography>
           <ul className="flex flex-col gap-2 text-muted-foreground">
             <li>
@@ -45,26 +41,22 @@ const CpfLifeDefinitionBlock = () => {
             </li>
           </ul>
           <Typography>
-            If you were born in 1958 or later and have at least{" "}
+            If you are a Singapore Citizen or Permanent Resident, were born in
+            1958 or later, and have at least{" "}
             <strong>S${formatNumber(CPF_LIFE_AUTO_INCLUSION_BALANCE)}</strong>{" "}
-            in your Retirement Account when your payouts begin, you are included
-            in CPF LIFE automatically. The Basic Retirement Sum for{" "}
-            {currentYear} is S$
-            {formatNumber(
-              CPF_RETIREMENT_SUMS[currentYear]?.brs ?? currentSums.brs,
-            )}
-            , but that is the amount you set aside for a given payout level, it
-            is not the threshold for joining.
+            in retirement savings when monthly payouts start, you are included
+            automatically. This S$60,000 condition is not a minimum joining
+            balance: eligible members who are not automatically included may
+            still choose to join CPF LIFE.
           </Typography>
           <Typography>
-            You can defer your payouts up to age 70. Each year you defer
-            increases your monthly payout by roughly 7%. If you give no
-            instruction, payouts start automatically at 70 on the Standard Plan.
+            You can defer payouts up to age {CPF_LIFE_LATEST_PAYOUT_AGE}. CPF
+            Board says payouts increase by up to 7% for each year deferred, up
+            to 35% over five years.
           </Typography>
         </Card.Content>
       </Card>
     </section>
-  );
-};
+);
 
 export default CpfLifeDefinitionBlock;

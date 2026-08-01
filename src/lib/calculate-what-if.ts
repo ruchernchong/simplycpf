@@ -2,9 +2,9 @@ import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { formatCurrency } from "@/lib/format";
 import type {
   CitizenshipStatus,
-  OaToSaTransfer,
   ProjectionParams,
   ProjectionResult,
+  RetirementTransfer,
   ScenarioDifference,
   ScenarioResult,
   VoluntaryTopUp,
@@ -15,11 +15,14 @@ export interface SalaryChangeScenarioParams {
   newMonthlyIncome: number;
 }
 
-export interface OaToSaScenarioParams {
+export interface RetirementTransferScenarioParams {
   projection: ProjectionParams;
   transferAmount: number;
-  timing?: OaToSaTransfer["timing"];
+  timing?: RetirementTransfer["timing"];
 }
+
+/** @deprecated Use `RetirementTransferScenarioParams`. */
+export type OaToSaScenarioParams = RetirementTransferScenarioParams;
 
 export interface VoluntaryTopUpScenarioParams {
   projection: ProjectionParams;
@@ -58,9 +61,6 @@ function buildDifference(
       scenario.totalInterestEarned - baseline.totalInterestEarned,
     age65Balance:
       getTotalBalanceAtAge(scenario, 65) - getTotalBalanceAtAge(baseline, 65),
-    cpfLifeMonthlyPayout:
-      scenario.cpfLifeEstimate.standardMonthly -
-      baseline.cpfLifeEstimate.standardMonthly,
   };
 }
 
@@ -78,27 +78,27 @@ function buildSalaryChangeInsights(
   if (incomeDelta >= 0) {
     return [
       `A monthly income increase of ${formatSignedCurrency(incomeDelta, 0)} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} more by age 65.`,
-      `Your Standard CPF LIFE estimate could rise by about ${formatSignedCurrency(difference.cpfLifeMonthlyPayout, 0)} per month.`,
       `Across the full projection horizon, your total CPF contributions could increase by about ${formatSignedCurrency(difference.totalContributions, 0)}.`,
+      `The balance comparison does not estimate a personalised CPF LIFE payout; use CPF Board's Retirement Payout Planner for that.`,
     ];
   }
 
   return [
     `A monthly income reduction of ${formatSignedCurrency(incomeDelta, 0)} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} less by age 65.`,
-    `Your Standard CPF LIFE estimate could fall by about ${formatSignedCurrency(difference.cpfLifeMonthlyPayout, 0)} per month.`,
     `The drop comes from both lower CPF contributions and fewer dollars compounding at CPF interest rates over time.`,
+    `The balance comparison does not estimate a personalised CPF LIFE payout; use CPF Board's Retirement Payout Planner for that.`,
   ];
 }
 
 function buildTransferInsights(
   transferAmount: number,
-  timing: OaToSaTransfer["timing"],
+  timing: RetirementTransfer["timing"],
   difference: ScenarioDifference,
 ): string[] {
   return [
-    `${timing === "yearly" ? "Moving" : "A one-off move of"} ${formatSignedCurrency(transferAmount, 0)} from OA to SA could generate about ${formatSignedCurrency(difference.totalInterestEarned, 0)} more interest across the projection horizon.`,
+    `${timing === "yearly" ? "Moving" : "A one-off move of"} ${formatSignedCurrency(transferAmount, 0)} from OA to the retirement account for your age could generate about ${formatSignedCurrency(difference.totalInterestEarned, 0)} more interest across the projection horizon.`,
     `That transfer pattern could improve your projected CPF balance at age 65 by about ${formatSignedCurrency(difference.age65Balance, 0)}.`,
-    `Your Standard CPF LIFE estimate could change by about ${formatSignedCurrency(difference.cpfLifeMonthlyPayout, 0)} per month.`,
+    `OA transfers are irreversible and are limited by the transferable OA balance and CPF's prevailing retirement-sum rules.`,
   ];
 }
 
@@ -109,8 +109,8 @@ function buildTopUpInsights(
 ): string[] {
   return [
     `An annual ${formatSignedCurrency(amount, 0)} top-up to ${account} could add about ${formatSignedCurrency(difference.age65Balance, 0)} to your projected CPF balance at age 65.`,
-    `You may also qualify for up to S$8,000 of personal tax relief each year, subject to the prevailing CPF top-up rules.`,
-    `Your Standard CPF LIFE estimate could change by about ${formatSignedCurrency(difference.cpfLifeMonthlyPayout, 0)} per month.`,
+    `Cash top-up capacity and tax relief are different limits. Eligible cash top-ups may receive up to S$8,000 of personal relief each year, subject to IRAS conditions and the overall personal-income-tax relief cap.`,
+    `The balance comparison does not estimate a personalised CPF LIFE payout; use CPF Board's Retirement Payout Planner for that.`,
   ];
 }
 
@@ -123,14 +123,14 @@ function buildAgeComparisonInsights(
     return [
       `Starting at age ${scenarioStartAge} instead of age ${baselineStartAge} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} less by age 65.`,
       `The delay reduces both the years of CPF contributions and the time available for compounding.`,
-      `Your Standard CPF LIFE estimate could be about ${formatSignedCurrency(difference.cpfLifeMonthlyPayout, 0)} per month lower.`,
+      `This is a SimplyCPF balance scenario, not a personalised CPF LIFE payout quote.`,
     ];
   }
 
   return [
     `Starting at age ${scenarioStartAge} instead of age ${baselineStartAge} could leave you with about ${formatSignedCurrency(difference.age65Balance, 0)} more by age 65.`,
     `The earlier start gives your CPF balances more years to compound at CPF interest rates.`,
-    `Your Standard CPF LIFE estimate could be about ${formatSignedCurrency(difference.cpfLifeMonthlyPayout, 0)} per month higher.`,
+    `This is a SimplyCPF balance scenario, not a personalised CPF LIFE payout quote.`,
   ];
 }
 
@@ -157,15 +157,15 @@ export function calculateSalaryChangeScenario({
   };
 }
 
-export function calculateOaToSaScenario({
+export function calculateRetirementTransferScenario({
   projection,
   transferAmount,
   timing = "now",
-}: OaToSaScenarioParams): ScenarioResult {
+}: RetirementTransferScenarioParams): ScenarioResult {
   const baseline = calculateCpfProjection(projection);
   const scenario = calculateCpfProjection({
     ...projection,
-    oaToSaTransfer: {
+    retirementTransfer: {
       amount: transferAmount,
       timing,
     },
@@ -178,6 +178,13 @@ export function calculateOaToSaScenario({
     difference,
     insights: buildTransferInsights(transferAmount, timing, difference),
   };
+}
+
+/** @deprecated Use `calculateRetirementTransferScenario`. */
+export function calculateOaToSaScenario(
+  params: OaToSaScenarioParams,
+): ScenarioResult {
+  return calculateRetirementTransferScenario(params);
 }
 
 export function calculateVoluntaryTopUpScenario({
@@ -217,6 +224,7 @@ export function calculateAgeComparisonScenario({
     birthDate: "",
     startAge: baselineStartAge,
     endAge,
+    initialBalances: { oa: 0, sa: 0, ma: 0, ra: 0 },
     citizenship,
   });
   const scenario = calculateCpfProjection({
@@ -224,6 +232,7 @@ export function calculateAgeComparisonScenario({
     birthDate: "",
     startAge: scenarioStartAge,
     endAge,
+    initialBalances: { oa: 0, sa: 0, ma: 0, ra: 0 },
     citizenship,
   });
   const difference = buildDifference(baseline, scenario);

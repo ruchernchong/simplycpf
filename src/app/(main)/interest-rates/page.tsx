@@ -14,7 +14,7 @@ import { BASE_URL, WEBSITE_ID } from "@/config";
 export const metadata: Metadata = {
   title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
   description:
-    "See current CPF interest rates for your Ordinary, Special, and MediSave accounts. Understand the guaranteed floor rates, how SMRA rates are pegged, and view contribution distribution rates across all 8 age brackets.",
+    "See CPF Board's declared quarterly OA and SMRA rates through 2026 Q3, the published floor rates, and the documented 3-month bank-rate and 12-month 10YSGS methodologies.",
   keywords:
     "CPF interest rates, OA interest rate, SA interest rate, MA interest rate, CPF floor rate, CPF pegged rate, SGS yield, CPF distribution rates, CPF contribution distribution by age, Singapore CPF rates, SMRA interest rate",
   alternates: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
     description:
-      "See current CPF interest rates for OA, SA, and MA. Understand guaranteed floor rates, SMRA pegged rates, and view distribution rates by age group.",
+      "See official quarterly CPF interest declarations through 2026 Q3 and understand the published OA and SMRA methodologies.",
     url: `${BASE_URL}/interest-rates`,
     images: [
       {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
     description:
-      "See current CPF interest rates for OA, SA, and MA. Understand guaranteed floor rates, SMRA pegged rates, and view distribution rates by age group.",
+      "See official quarterly CPF interest declarations through 2026 Q3 and understand the published OA and SMRA methodologies.",
     images: [`${BASE_URL}/opengraph-image`],
   },
 };
@@ -52,7 +52,7 @@ export default function InterestRatesPage() {
         "@id": `${BASE_URL}/interest-rates/#webpage`,
         name: "CPF Interest Rates",
         description:
-          "View current CPF interest rates for OA, SA, and MA accounts. Understand floor rates vs pegged rates, see historical trends, and learn contribution distribution rates by age group.",
+          "View CPF Board's quarterly OA and SMRA declarations, floor rates, and published rate-setting methodologies.",
         url: `${BASE_URL}/interest-rates`,
         inLanguage: "en-SG",
         isPartOf: { "@id": WEBSITE_ID },
@@ -78,8 +78,8 @@ export default function InterestRatesPage() {
       {
         "@type": "Dataset",
         name: "CPF Interest Rates Historical Data",
-        description:
-          "Historical and current CPF interest rates for OA, SA, MA, and RA accounts, including floor rates, SMRA pegged rates, and 10-year SGS yield data.",
+      description:
+        "Official quarterly CPF interest declarations for OA, SA, MA, and RA accounts, with source URLs and verification dates. No reconstructed monthly SGS series is included.",
         url: `${BASE_URL}/api/cpf/interest-rates`,
         creator: { "@id": `${BASE_URL}/#organization` },
         isAccessibleForFree: true,
@@ -104,7 +104,7 @@ export default function InterestRatesPage() {
           "SMRA pegged rate",
           "10-year SGS yield",
         ],
-        temporalCoverage: "2023/2026",
+        temporalCoverage: "2024/2026-Q3",
       },
     ],
   };

@@ -1,18 +1,18 @@
 [
   {
     "question": "How much CPF will I have at 65?",
-    "answer": "That depends on your income, age, citizenship status, housing usage, and whether you top up or transfer savings along the way. SimplyCPF projects your balances using CPF floor interest rates and the current contribution rules so you can see a conservative estimate instead of guessing."
+    "answer": "That depends on your starting OA, SA, MA and RA balances, income, age, citizenship status, housing usage, and any top-ups or retirement transfers. SimplyCPF runs a monthly ledger using published CPF policy where available. For unpublished future BHS or retirement sums, it freezes the latest published value and marks the affected years as assumed."
   },
   {
     "question": "What happens to my CPF at age 55?",
-    "answer": "At age 55, SimplyCPF models the transfer from your Special Account and, if needed, your Ordinary Account into your Retirement Account up to the Full Retirement Sum. Any remaining OA balance stays in OA, while SA is treated as closed after the transfer."
+    "answer": "Your Special Account is closed, and SA savings are transferred to your Retirement Account up to the Full Retirement Sum before any remaining SA savings move to OA. If your RA is still below the Full Retirement Sum, OA savings are transferred to RA up to that amount. A property-owner branch may use the Basic Retirement Sum subject to CPF's conditions, so SimplyCPF exposes the routing assumption instead of silently choosing it."
   },
   {
     "question": "How does the extra 1% CPF interest work in the projection?",
-    "answer": "The projection applies the extra 1% interest on the first S$60,000 of combined CPF balances, with the OA portion capped at the first S$20,000. After age 55, the extra interest that would otherwise go to OA is redirected to your Retirement Account instead."
+    "answer": "Below age 55, the projection applies an extra 1% on the first S$60,000 of combined balances, capped at S$20,000 from OA. From age 55, it applies an extra 2% on the first S$30,000 and an extra 1% on the next S$30,000, again capped at S$20,000 from OA. CPF Board's account-priority order is used, and extra interest earned on OA goes to SA below 55 or RA from 55."
   },
   {
-    "question": "Are the CPF LIFE figures official quotes?",
-    "answer": "No. The CPF LIFE figures on SimplyCPF are clearly labelled as estimates. They use a simplified payout factor so you can compare scenarios quickly, but they are not official CPF Board quotes or guarantees."
+    "question": "Does the projection estimate my CPF LIFE payout?",
+    "answer": "No. Personalised CPF LIFE payout calculation remains with CPF Board. SimplyCPF returns the published 2026 Standard Plan reference table as context and links to CPF's Retirement Payout Planner; it does not interpolate a payout from your projected balance."
   }
 ]

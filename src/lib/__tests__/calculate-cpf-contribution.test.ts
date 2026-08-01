@@ -1,239 +1,307 @@
-import { vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-  DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-} from "@/config";
-import type { ComputedResult } from "@/types";
-import { calculateCpfContribution } from "../calculate-cpf-contribution";
+  type ContributionPolicyError,
+  CPF_CONTRIBUTION_SCHEDULES,
+} from "@/policy";
+import {
+  CITIZEN_MAXIMUM_OW_GOLDEN,
+  PR_MAXIMUM_OW_GOLDEN,
+} from "@/policy/__fixtures__/contribution-golden";
+import {
+  calculateCpfContribution,
+  calculateCpfContributionForProjection,
+} from "../calculate-cpf-contribution";
 
-// Mock the config and constants modules
-vi.mock("@/config", () => ({
-  DEFAULT_EMPLOYEE_CONTRIBUTION_RATE: 0.2,
-  DEFAULT_EMPLOYER_CONTRIBUTION_RATE: 0.17,
-  CPF_TYPE: {
-    OA: "OA",
-    SA: "SA",
-    MA: "MA",
-  },
-}));
-
-vi.mock("@/constants", () => ({
-  CPF_INCOME_CEILING: {
-    "2023-01-01": 6000,
-    "2023-09-01": 6300,
-    "2024-01-01": 6800,
-    "2025-01-01": 7400,
-    "2026-01-01": 8000,
-  },
-  CPF_INCOME_CEILING_BEFORE_SEPT_2023: 6000,
-  DEFAULT_CPF_INCOME_CEILING: 6000,
-}));
-
-type TestCase = {
-  effectiveDate: string;
-  income: number;
-  expected: ComputedResult;
-};
-
-const testCases: TestCase[] = [
-  {
-    effectiveDate: "2023-01-01",
-    income: 4000,
-    expected: {
-      contribution: {
-        employee: 800,
-        employer: 680,
-        totalContribution: 1480,
-      },
-      distribution: {
-        OA: 920.12,
-        SA: 239.91,
-        MA: 319.98,
-      },
-      afterCpfContribution: 3200,
-    },
-  },
-  {
-    effectiveDate: "2023-01-01",
-    income: 6000,
-    expected: {
-      contribution: {
-        employee: 1200,
-        employer: 1020,
-        totalContribution: 2220,
-      },
-      distribution: {
-        MA: 479.96,
-        OA: 1380.17,
-        SA: 359.86,
-      },
-      afterCpfContribution: 4800,
-    },
-  },
-  {
-    effectiveDate: "2023-01-01",
-    income: 8000,
-    expected: {
-      contribution: {
-        employee: 1200,
-        employer: 1020,
-        totalContribution: 2220,
-      },
-      distribution: {
-        OA: 1380.17,
-        SA: 359.86,
-        MA: 479.96,
-      },
-      afterCpfContribution: 6800,
-    },
-  },
-  {
-    effectiveDate: "2026-01-01",
-    income: 4000,
-    expected: {
-      contribution: {
-        employee: 800,
-        employer: 680,
-        totalContribution: 1480,
-      },
-      distribution: {
-        OA: 920.12,
-        SA: 239.91,
-        MA: 319.98,
-      },
-      afterCpfContribution: 3200,
-    },
-  },
-  {
-    effectiveDate: "2026-01-01",
-    income: 6000,
-    expected: {
-      contribution: {
-        employee: 1200,
-        employer: 1020,
-        totalContribution: 2220,
-      },
-      distribution: {
-        OA: 1380.17,
-        SA: 359.86,
-        MA: 479.96,
-      },
-      afterCpfContribution: 4800,
-    },
-  },
-  {
-    effectiveDate: "2026-01-01",
-    income: 8000,
-    expected: {
-      contribution: {
-        employee: 1600,
-        employer: 1360,
-        totalContribution: 2960,
-      },
-      distribution: {
-        MA: 639.95,
-        OA: 1840.23,
-        SA: 479.82,
-      },
-      afterCpfContribution: 6400,
-    },
-  },
-  {
-    effectiveDate: "2026-01-01",
-    income: 10000,
-    expected: {
-      contribution: {
-        employee: 1600,
-        employer: 1360,
-        totalContribution: 2960,
-      },
-      distribution: {
-        OA: 1840.23,
-        SA: 479.82,
-        MA: 639.95,
-      },
-      afterCpfContribution: 8400,
-    },
-  },
-];
-
-const testAgeGroup = {
-  description: "55 and below",
-  minAge: 0,
-  maxAge: 35,
-  contributionRate: {
-    employee: DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-    employer: DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-  },
-  distributionRate: { OA: 0.6217, SA: 0.1621, MA: 0.2162 },
-};
-
-describe("calculateCpfContribution", () => {
-  it.each(
-    testCases,
-  )("should return the expected income after CPF contribution in $effectiveDate on a gross income of $income", ({
-    effectiveDate,
-    income,
-    expected,
-  }) => {
-    expect(
-      calculateCpfContribution(income, effectiveDate, {
-        ageGroup: testAgeGroup,
-      }),
-    ).toEqual(expected);
-  });
-
-  it("should return the income after CPF contribution before the ceiling changes", () => {
-    expect(
-      calculateCpfContribution(6000, "2023-01-01", {
-        useCeilingBeforeSep2023: true,
-      }),
-    ).toEqual({
-      contribution: { employee: 1200, employer: 1020, totalContribution: 2220 },
-      distribution: {},
-      afterCpfContribution: 4800,
+describe("calculateCpfContribution official golden vectors", () => {
+  it.each([
+    ...CITIZEN_MAXIMUM_OW_GOLDEN,
+    ...PR_MAXIMUM_OW_GOLDEN,
+  ])("matches $citizenship $ageBand for $contributionMonth", (fixture) => {
+    const result = calculateCpfContribution({
+      contributionMonth: fixture.contributionMonth,
+      ordinaryWages: fixture.ordinaryWages,
+      citizenship: fixture.citizenship,
+      age: fixture.age,
     });
-    expect(
-      calculateCpfContribution(8000, "2023-01-01", {
-        useCeilingBeforeSep2023: true,
-      }),
-    ).toEqual({
-      contribution: { employee: 1200, employer: 1020, totalContribution: 2220 },
-      distribution: {},
-      afterCpfContribution: 6800,
+
+    expect(result.contribution).toEqual({
+      totalContribution: fixture.total,
+      employee: fixture.employee,
+      employer: fixture.employer,
+    });
+    expect(result.age.contributionBand).toBe(fixture.ageBand);
+    expect(fixture.source).toMatch(/^https:\/\/www\.cpf\.gov\.sg\//);
+    expect(result.policy.contribution.status).toBe("official");
+    expect(result.policy.contribution.verifiedAt).toBe("2026-08-01");
+  });
+});
+
+describe("wage bands and statutory rounding", () => {
+  it.each([
+    [50, "no-contribution", 0, 0, 0],
+    [50.01, "employer-only", 9, 0, 9],
+    [500, "employer-only", 85, 0, 85],
+    [500.01, "phased-employee-share", 85, 0, 85],
+    [600, "phased-employee-share", 162, 60, 102],
+    [750, "phased-employee-share", 278, 150, 128],
+    [750.01, "full-rates", 278, 150, 128],
+  ] as const)("$%s uses the %s band", (ordinaryWages, wageBand, total, employee, employer) => {
+    const result = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages,
+      citizenship: "citizen",
+      age: 30,
+    });
+    expect(result.wageBand).toBe(wageBand);
+    expect(result.contribution).toEqual({
+      totalContribution: total,
+      employee,
+      employer,
     });
   });
 
-  it("should return the result correctly for a certain age group", () => {
-    expect(
-      calculateCpfContribution(6000, "2023-01-01", {
-        ageGroup: {
-          description: "Above 70",
-          minAge: 70,
-          contributionRate: { employee: 0.05, employer: 0.075 },
-          distributionRate: { OA: 0.08, SA: 0.08, MA: 0.84 },
-        },
-      }),
-    ).toEqual({
-      contribution: { employee: 300, employer: 450, totalContribution: 750 },
-      distribution: {
-        OA: 60,
-        SA: 60,
-        MA: 630,
-      },
-      afterCpfContribution: 5700,
+  it("rounds total half-up, truncates employee, and makes employer the remainder", () => {
+    const result = calculateCpfContribution({
+      contributionMonth: "2023-09",
+      ordinaryWages: 6300,
+      citizenship: "citizen",
+      age: 61,
+    });
+    expect(result.contribution).toEqual({
+      totalContribution: 1292,
+      employee: 598,
+      employer: 694,
     });
   });
+});
 
-  it("should use default rates when no options are provided", () => {
-    expect(calculateCpfContribution(5000, "2023-01-01")).toEqual({
-      contribution: {
-        employee: 1000,
-        employer: 850,
-        totalContribution: 1850,
-      },
-      distribution: {},
-      afterCpfContribution: 4000,
+describe("age and birthday-month transitions", () => {
+  it.each([
+    [35, "35-and-below"],
+    [45, "above-35-to-45"],
+    [50, "above-45-to-50"],
+    [55, "above-50-to-55"],
+    [60, "above-55-to-60"],
+    [65, "above-60-to-65"],
+    [70, "above-65-to-70"],
+  ] as const)("keeps exact age %s in the inclusive upper band", (age, band) => {
+    const result = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      age,
     });
+    expect(result.age.allocationBand).toBe(band);
+  });
+
+  it("moves allocation and contribution bands in the month after a boundary birthday", () => {
+    const birthdayMonth = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      birthMonth: "1991-01",
+    });
+    const followingMonth = calculateCpfContribution({
+      contributionMonth: "2026-02",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      birthMonth: "1991-01",
+    });
+    expect(birthdayMonth.age.allocationBand).toBe("35-and-below");
+    expect(followingMonth.age.allocationBand).toBe("above-35-to-45");
+
+    const age55Month = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      birthMonth: "1971-01",
+    });
+    const after55Month = calculateCpfContribution({
+      contributionMonth: "2026-02",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      birthMonth: "1971-01",
+    });
+    expect(age55Month.age.contributionBand).toBe("55-and-below");
+    expect(after55Month.age.contributionBand).toBe("above-55-to-60");
+  });
+});
+
+describe("OW/AW ceilings and routing", () => {
+  it("resolves the September 2023 OW ceiling transition by contribution month", () => {
+    const august = calculateCpfContribution({
+      contributionMonth: "2023-08",
+      ordinaryWages: 6300,
+      citizenship: "citizen",
+      age: 30,
+    });
+    const september = calculateCpfContribution({
+      contributionMonth: "2023-09",
+      ordinaryWages: 6300,
+      citizenship: "citizen",
+      age: 30,
+    });
+    expect(august.subjectWages.ordinaryWages).toBe(6000);
+    expect(august.contribution.totalContribution).toBe(2220);
+    expect(september.subjectWages.ordinaryWages).toBe(6300);
+    expect(september.contribution.totalContribution).toBe(2331);
+  });
+
+  it("requires annual context and caps Additional Wages without guessing", () => {
+    expect(() =>
+      calculateCpfContribution({
+        contributionMonth: "2026-01",
+        ordinaryWages: 8000,
+        additionalWages: 10000,
+        citizenship: "citizen",
+        age: 30,
+      }),
+    ).toThrowError(
+      expect.objectContaining<Partial<ContributionPolicyError>>({
+        code: "AW_CONTEXT_REQUIRED",
+      }),
+    );
+
+    const result = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages: 8000,
+      additionalWages: 10000,
+      additionalWageCeilingContext: {
+        annualOrdinaryWagesSubjectToCpf: 96000,
+        priorAdditionalWagesSubjectToCpf: 2000,
+      },
+      citizenship: "citizen",
+      age: 30,
+    });
+    expect(result.subjectWages.additionalWages).toBe(4000);
+    expect(result.contribution).toEqual({
+      totalContribution: 4440,
+      employee: 2400,
+      employer: 2040,
+    });
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "additional-wages-capped" }),
+    );
+  });
+
+  it("allocates MA, then RA, then OA remainder and exposes both FRS branches", () => {
+    const result = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      age: 56,
+    });
+    expect(result.distribution).toEqual({
+      OA: 960.16,
+      RA: 919.9,
+      MA: 839.94,
+    });
+    expect(result.routing).toEqual({
+      selected: "undetermined",
+      rule: "RA until FRS, then OA",
+      branches: {
+        beforeFullRetirementSum: { OA: 960.16, RA: 919.9, MA: 839.94 },
+        afterFullRetirementSum: { OA: 1880.06, RA: 0, MA: 839.94 },
+      },
+    });
+
+    const afterFrs = calculateCpfContribution({
+      contributionMonth: "2026-01",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      age: 56,
+      hasReachedFullRetirementSum: true,
+    });
+    expect(afterFrs.distribution).toEqual({ OA: 1880.06, RA: 0, MA: 839.94 });
+  });
+
+  it("uses SA before the 2025 closure schedule", () => {
+    const result = calculateCpfContribution({
+      contributionMonth: "2024-01",
+      ordinaryWages: 6800,
+      citizenship: "citizen",
+      age: 56,
+    });
+    expect(result.distribution.SA).toBeGreaterThan(0);
+    expect(result.distribution.RA).toBeUndefined();
+  });
+});
+
+describe("policy support and invariants", () => {
+  it("rejects unsupported official years and only freezes for projections", () => {
+    expect(() =>
+      calculateCpfContribution({
+        contributionMonth: "2028-01",
+        ordinaryWages: 8000,
+        citizenship: "citizen",
+        age: 30,
+      }),
+    ).toThrowError(
+      expect.objectContaining<Partial<ContributionPolicyError>>({
+        code: "UNSUPPORTED_POLICY_MONTH",
+      }),
+    );
+
+    const assumed = calculateCpfContributionForProjection({
+      contributionMonth: "2030-06",
+      ordinaryWages: 8000,
+      citizenship: "citizen",
+      age: 61,
+    });
+    expect(assumed.schedule.status).toBe("assumed");
+    expect(assumed.policy.contribution.status).toBe("assumed");
+    expect(assumed.warnings).toContainEqual(
+      expect.objectContaining({ code: "policy-frozen" }),
+    );
+  });
+
+  it("preserves contribution and allocation sums across every official schedule", () => {
+    const citizenships = [
+      "citizen",
+      "spr-year1",
+      "spr-year2",
+      "spr-year3-plus",
+    ] as const;
+    const ages = [30, 35, 40, 45, 48, 50, 55, 56, 60, 61, 65, 66, 70, 71];
+    const wages = [0, 50, 50.01, 500, 500.01, 750, 750.01, 1000, 10000];
+
+    for (const schedule of CPF_CONTRIBUTION_SCHEDULES) {
+      for (const citizenship of citizenships) {
+        for (const age of ages) {
+          for (const ordinaryWages of wages) {
+            const result = calculateCpfContribution({
+              contributionMonth: schedule.effectiveFrom.slice(0, 7),
+              ordinaryWages,
+              citizenship,
+              age,
+              hasReachedFullRetirementSum: false,
+            });
+            expect(
+              result.contribution.employee + result.contribution.employer,
+            ).toBe(result.contribution.totalContribution);
+            const allocated = Object.values(result.distribution).reduce(
+              (sum, value) => sum + value,
+              0,
+            );
+            expect(Math.round(allocated * 100)).toBe(
+              result.contribution.totalContribution * 100,
+            );
+            if (age < 55) expect(result.distribution.RA).toBeUndefined();
+          }
+        }
+      }
+    }
+  });
+
+  it("retains the deprecated positional signature for one compatibility cycle", () => {
+    const result = calculateCpfContribution(8000, "2026-01-01", { age: 30 });
+    expect(result.contribution).toEqual({
+      totalContribution: 2960,
+      employee: 1600,
+      employer: 1360,
+    });
+    expect(result.warnings).toContainEqual(
+      expect.objectContaining({ code: "legacy-input" }),
+    );
   });
 });

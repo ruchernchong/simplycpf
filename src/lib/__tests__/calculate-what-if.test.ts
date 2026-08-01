@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateAgeComparisonScenario,
-  calculateOaToSaScenario,
+  calculateRetirementTransferScenario,
   calculateSalaryChangeScenario,
   calculateVoluntaryTopUpScenario,
 } from "@/lib/calculate-what-if";
@@ -12,6 +12,7 @@ const baseProjection: ProjectionParams = {
   birthDate: "01/1995",
   startAge: 30,
   endAge: 65,
+  initialBalances: { oa: 10000, sa: 5000, ma: 5000, ra: 0 },
   citizenship: "citizen",
 };
 
@@ -26,8 +27,8 @@ describe("calculateSalaryChangeScenario", () => {
       result.baseline.totalContributed,
     );
     expect(result.difference.age65Balance).toBeGreaterThan(0);
-    expect(result.difference.cpfLifeMonthlyPayout).toBeGreaterThan(0);
     expect(result.insights).toHaveLength(3);
+    expect(result.insights.join(" ")).not.toMatch(/estimate could rise/i);
   });
 
   it("should show lower outcomes when income falls", () => {
@@ -41,9 +42,9 @@ describe("calculateSalaryChangeScenario", () => {
   });
 });
 
-describe("calculateOaToSaScenario", () => {
-  it("should improve interest and projected balances after an OA to SA transfer", () => {
-    const result = calculateOaToSaScenario({
+describe("calculateRetirementTransferScenario", () => {
+  it("should improve interest and projected balances after a retirement transfer", () => {
+    const result = calculateRetirementTransferScenario({
       projection: baseProjection,
       transferAmount: 10000,
       timing: "now",
@@ -81,7 +82,6 @@ describe("calculateAgeComparisonScenario", () => {
 
     expect(result.difference.totalContributions).toBeLessThan(0);
     expect(result.difference.age65Balance).toBeLessThan(0);
-    expect(result.difference.cpfLifeMonthlyPayout).toBeLessThan(0);
     expect(result.insights[0]).toContain("less by age 65");
   });
 

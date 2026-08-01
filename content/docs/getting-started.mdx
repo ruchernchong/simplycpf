@@ -1,106 +1,87 @@
 ---
 title: Getting Started
-description: Learn how to use the SimplyCPF API
+description: Make a source-backed SimplyCPF API v2 request
 ---
 
-This guide will help you get started with the SimplyCPF API.
+## Contribution request
 
-## Prerequisites
-
-No authentication is required. All endpoints are publicly accessible.
-
-## Making Your First Request
-
-### Using curl
-
-```bash
-curl https://simplycpf.com/api/cpf/age-groups
-```
-
-### Using JavaScript/TypeScript
+New clients send the contribution month, Ordinary Wages, citizenship, and either completed age or birth month. Birth month is preferred because CPF's next age rate applies only from the month after the relevant birthday.
 
 ```typescript
-const response = await fetch(
-  "https://simplycpf.com/api/cpf/calculate",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ income: 5000, age: 30 }),
-  }
-);
+const response = await fetch("https://simplycpf.com/api/cpf/calculate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    contributionMonth: "2026-08",
+    ordinaryWages: 5000,
+    citizenship: "citizen",
+    birthMonth: "1996-04",
+  }),
+});
 
-const data = await response.json();
-console.log(data);
+if (!response.ok) {
+  throw new Error((await response.json()).error);
+}
+
+const result = await response.json();
+console.log(result.contribution, result.schedule, result.policy);
 ```
 
-### Using Python
+The response retains `contribution`, `distribution`, and `afterCpfContribution`, and adds the applicable wage band, effective schedule, RA routing branches, warnings, and dataset provenance.
 
-```python
-import requests
+## Additional Wages
 
-response = requests.post(
-    "https://simplycpf.com/api/cpf/calculate",
-    json={"income": 5000, "age": 30}
-)
-
-data = response.json()
-print(data)
-```
-
-## Response Format
-
-All successful responses return JSON with the following structure:
+CPF's annual AW ceiling depends on annual OW already subject to CPF and AW already subject to CPF. Supply both values whenever `additionalWages` is positive:
 
 ```json
 {
-  "contribution": {
-    "employee": 1000,
-    "employer": 850,
-    "totalContribution": 1850
+  "contributionMonth": "2026-12",
+  "ordinaryWages": 8000,
+  "additionalWages": 20000,
+  "additionalWageCeilingContext": {
+    "annualOrdinaryWagesSubjectToCpf": 96000,
+    "priorAdditionalWagesSubjectToCpf": 0
   },
-  "distribution": {
-    "OA": 1085.5,
-    "SA": 277.5,
-    "MA": 487
+  "citizenship": "citizen",
+  "age": 40
+}
+```
+
+Omitting that context returns HTTP `422`; the service does not infer annual wages.
+
+## Projection request
+
+```json
+{
+  "monthlyIncome": 6000,
+  "birthDate": "1990-04",
+  "startMonth": "2026-08",
+  "initialBalances": {
+    "oa": 90000,
+    "sa": 70000,
+    "ma": 50000,
+    "ra": 0
   },
-  "afterCpfContribution": 4000
+  "endAge": 65,
+  "citizenship": "citizen"
 }
 ```
 
-## Error Handling
+The projection ledger is monthly. It holds fixed monthly OW and the last published future policy constant unless the caller supplies different context, and labels affected rows `assumed`. The `retirementTransfer` field routes OA to SA below 55 and RA from 55.
 
-When an error occurs, the API returns an appropriate HTTP status code with an error message:
+## Errors
 
-```json
-{
-  "error": "Income must be a non-negative number"
-}
-```
+| Status | Meaning |
+|---|---|
+| `400` | Malformed syntax or primitive value |
+| `404` | No sourced official policy for the requested public reference month/year |
+| `422` | Well-formed request lacks required context, such as AW ceiling context |
+| `429` | Rate limit exceeded |
 
-### Common Status Codes
+Deprecated for one compatibility cycle: `income` → `ordinaryWages`, `date` → `contributionMonth`, `oaToSaTransfer` → `retirementTransfer`, and `sgsYield` → `averageSgsYield`. Deprecation warnings are returned in successful responses.
 
-| Status | Description |
-|--------|-------------|
-| 200 | Success |
-| 400 | Bad Request - Invalid parameters |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 404 | Not Found - Endpoint does not exist |
-| 500 | Internal Server Error |
+## Next steps
 
-## Rate Limits
-
-Production CPF API endpoints are limited to **10 requests per 10 seconds per client IP**. If you exceed the limit, the API returns HTTP `429`:
-
-```json
-{
-  "error": "Rate limit exceeded"
-}
-```
-
-Back off and retry after the current 10-second window before sending more requests.
-
-## Next Steps
-
-- Explore the [API Reference](/developer/api) for detailed endpoint documentation
-- Check out [Examples](/developer/examples) for common use cases
-- View the [Changelog](/developer/changelog) for recent updates
+- Explore the [API reference](/developer/api)
+- Copy complete [examples](/developer/examples)
+- Review the [v2 migration changelog](/developer/changelog)

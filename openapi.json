@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "SimplyCPF API",
-    "version": "1.0.0",
-    "description": "API for calculating CPF (Central Provident Fund) contributions following Singapore's 2023 Budget changes to income ceilings.",
+    "version": "2.0.0",
+    "description": "Source-backed CPF calculation and reference API. Official policy data is identified with per-dataset provenance. Long-range projections and investment comparisons contain explicitly labelled SimplyCPF assumptions. SimplyCPF is independent and is not affiliated with CPF Board, IRAS, MOM, or any government agency.",
     "contact": {
       "name": "SimplyCPF",
       "url": "https://simplycpf.com"
@@ -22,23 +22,23 @@
   "tags": [
     {
       "name": "Calculation",
-      "description": "Calculate CPF contributions and projections"
+      "description": "CPF contribution calculations and assumption-labelled monthly projections"
+    },
+    {
+      "name": "Policy",
+      "description": "Official CPF policy reference datasets with provenance"
     },
     {
       "name": "Age Groups",
-      "description": "Age group information and lookups"
-    },
-    {
-      "name": "Income Ceiling",
-      "description": "CPF income ceiling data"
+      "description": "Month-aware CPF age-band lookups with inclusive upper bounds"
     },
     {
       "name": "Interest Rates",
-      "description": "CPF interest rates and SGS yields"
+      "description": "Official quarterly CPF declarations and published rate methodology"
     },
     {
       "name": "Investment",
-      "description": "Investment comparison tools"
+      "description": "SimplyCPF modelling tools using caller-supplied non-CPF assumptions"
     }
   ],
   "paths": {
@@ -46,48 +46,48 @@
       "post": {
         "operationId": "calculateCpf",
         "summary": "Calculate CPF contributions",
-        "description": "Calculate CPF contributions for a single income amount.",
+        "description": "Calculates a contribution month using integer cents and the sourced 2023–2027 schedule. The CPF wage bands, OW/AW ceilings, birthday-month transition, default SPR G/G schedule, official rounding order, account allocation order, and post-55 routing are represented explicitly. `income` and `date` are deprecated aliases retained for one compatibility cycle.",
         "tags": ["Calculation"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CalculateRequest"
+                "$ref": "#/components/schemas/ContributionInput"
               },
               "example": {
-                "income": 5000,
-                "age": 30
+                "contributionMonth": "2026-08",
+                "ordinaryWages": 5000,
+                "citizenship": "citizen",
+                "birthMonth": "1996-04"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Successful calculation",
+            "description": "Successful source-backed calculation",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/PolicyCache"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ComputedResult"
-                },
-                "example": {
-                  "contribution": {
-                    "totalContribution": 1850,
-                    "employer": 850,
-                    "employee": 1000
-                  },
-                  "distribution": {
-                    "OA": 1085.5,
-                    "SA": 277.5,
-                    "MA": 487
-                  },
-                  "afterCpfContribution": 4000
+                  "$ref": "#/components/schemas/ContributionResult"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
+          },
+          "422": {
+            "description": "Semantically incomplete input, including AW without annual OW and prior-AW context",
             "content": {
               "application/json": {
                 "schema": {
@@ -106,20 +106,41 @@
       "post": {
         "operationId": "calculateCpfBatch",
         "summary": "Batch calculate CPF contributions",
-        "description": "Calculate CPF contributions for multiple income scenarios (up to 100).",
+        "description": "Calculates up to 100 contribution scenarios with the same v2 input and provenance contract as `/calculate`.",
         "tags": ["Calculation"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BatchCalculateRequest"
+                "type": "object",
+                "properties": {
+                  "scenarios": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "$ref": "#/components/schemas/ContributionInput"
+                    }
+                  }
+                },
+                "required": ["scenarios"],
+                "additionalProperties": false
               },
               "example": {
                 "scenarios": [
-                  { "income": 4000 },
-                  { "income": 6000 },
-                  { "income": 8000 }
+                  {
+                    "contributionMonth": "2026-08",
+                    "ordinaryWages": 4000,
+                    "citizenship": "citizen",
+                    "age": 30
+                  },
+                  {
+                    "contributionMonth": "2027-01",
+                    "ordinaryWages": 8000,
+                    "citizenship": "spr-year2",
+                    "age": 58
+                  }
                 ]
               }
             }
@@ -127,27 +148,26 @@
         },
         "responses": {
           "200": {
-            "description": "Successful batch calculation",
+            "description": "Results in request order",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ComputedResult"
+                    "$ref": "#/components/schemas/ContributionResult"
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -158,44 +178,48 @@
     "/projection": {
       "post": {
         "operationId": "calculateProjection",
-        "summary": "Generate CPF projection",
-        "description": "Generate multi-year CPF contribution projection with cumulative totals.",
+        "summary": "Generate a monthly-ledger CPF projection",
+        "description": "Projects OA, SA, MA, and RA month by month. Starting balances are required for new clients. A legacy request that omits them may start at zero only when the response carries an explicit warning. Salary and the last published post-2027 policies are held constant by default and every affected annual row is marked `assumed`. The response provides CPF Board's exact 2026 Standard Plan reference rows; it does not calculate a personalised CPF LIFE payout.",
         "tags": ["Calculation"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProjectionRequest"
+                "$ref": "#/components/schemas/ProjectionInput"
               },
               "example": {
-                "income": 5000,
-                "age": 30,
-                "years": 5
+                "monthlyIncome": 6000,
+                "birthDate": "1990-04",
+                "startMonth": "2026-08",
+                "initialBalances": {
+                  "oa": 90000,
+                  "sa": 70000,
+                  "ma": 50000,
+                  "ra": 0
+                },
+                "endAge": 65,
+                "citizenship": "citizen"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Successful projection",
+            "description": "Projection with annual snapshots, assumptions, warnings, and row-level policy status",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectionResponse"
+                  "$ref": "#/components/schemas/ProjectionResult"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -206,22 +230,69 @@
     "/age-groups": {
       "get": {
         "operationId": "getAgeGroups",
-        "summary": "List all age groups",
-        "description": "Get all 8 CPF age groups with their contribution and distribution rates.",
-        "tags": ["Age Groups"],
+        "summary": "List official age bands",
+        "description": "Returns sourced age bands with `maxAgeInclusive`. From 2025, members aged 55 and above have RA rather than SA. Rates still depend on contribution month and citizenship; use `/calculate` for an exact result.",
+        "tags": ["Age Groups", "Policy"],
+        "parameters": [
+          {
+            "name": "contributionMonth",
+            "in": "query",
+            "required": false,
+            "description": "Official policy month in YYYY-MM format. Defaults to the current supported month.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          },
+          {
+            "name": "citizenship",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Citizenship"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of age groups",
+            "description": "Official age bands and policy provenance",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AgeGroup"
-                  }
+                  "type": "object",
+                  "properties": {
+                    "contributionMonth": {
+                      "type": "string"
+                    },
+                    "citizenship": {
+                      "$ref": "#/components/schemas/Citizenship"
+                    },
+                    "schedule": {
+                      "$ref": "#/components/schemas/ScheduleSummary"
+                    },
+                    "ageGroups": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AgeGroup"
+                      }
+                    },
+                    "policy": {
+                      "$ref": "#/components/schemas/AgePolicyMetadata"
+                    }
+                  },
+                  "required": [
+                    "contributionMonth",
+                    "citizenship",
+                    "schedule",
+                    "ageGroups",
+                    "policy"
+                  ]
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -232,44 +303,59 @@
     "/age-group/find": {
       "get": {
         "operationId": "findAgeGroup",
-        "summary": "Find age group for age",
-        "description": "Find the applicable CPF age group for a specific age.",
+        "summary": "Find the official age band",
+        "description": "Finds a month-aware age band. A completed age remains in an inclusive upper band and moves to the next rate only from the month after the relevant birthday.",
         "tags": ["Age Groups"],
         "parameters": [
           {
             "name": "age",
             "in": "query",
-            "required": true,
-            "description": "Age to look up (non-negative number)",
+            "required": false,
+            "description": "Completed age. Supply this or `birthMonth`.",
             "schema": {
               "type": "number",
               "minimum": 0
+            }
+          },
+          {
+            "name": "birthMonth",
+            "in": "query",
+            "required": false,
+            "description": "Birth month in YYYY-MM format; preferred for exact birthday-month treatment.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          },
+          {
+            "name": "contributionMonth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Age group found",
+            "description": "Matching band",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgeGroup"
+                  "$ref": "#/components/schemas/AgeGroupLookupResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/BadRequest"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           }
         }
       }
@@ -277,45 +363,65 @@
     "/age/from-birthdate": {
       "get": {
         "operationId": "getAgeFromBirthdate",
-        "summary": "Convert birth date to age",
-        "description": "Calculate age from a birth date in MM/YYYY format.",
+        "summary": "Resolve completed age for a contribution month",
+        "description": "Resolves completed age and whether the new CPF age band applies in the requested contribution month.",
         "tags": ["Age Groups"],
         "parameters": [
           {
-            "name": "birthDate",
+            "name": "birthMonth",
             "in": "query",
             "required": true,
-            "description": "Birth date in MM/YYYY format",
             "schema": {
               "type": "string",
-              "pattern": "^\\d{2}/\\d{4}$"
-            },
-            "example": "06/1990"
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          },
+          {
+            "name": "contributionMonth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Age calculated",
+            "description": "Resolved age context",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgeFromBirthdateResponse"
+                  "type": "object",
+                  "properties": {
+                    "birthMonth": {
+                      "type": "string"
+                    },
+                    "contributionMonth": {
+                      "type": "string"
+                    },
+                    "completedAge": {
+                      "type": "integer"
+                    },
+                    "nextBandApplies": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "birthMonth",
+                    "contributionMonth",
+                    "completedAge",
+                    "nextBandApplies"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/BadRequest"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           }
         }
       }
@@ -323,35 +429,46 @@
     "/ceiling": {
       "get": {
         "operationId": "getCeiling",
-        "summary": "Get income ceiling",
-        "description": "Get the CPF income ceiling for a specific date.",
-        "tags": ["Income Ceiling"],
+        "summary": "Get an official Ordinary Wage ceiling",
+        "description": "Returns a sourced OW ceiling for a supported contribution month. Unsupported years are not silently clamped.",
+        "tags": ["Policy"],
         "parameters": [
+          {
+            "name": "contributionMonth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          },
           {
             "name": "date",
             "in": "query",
             "required": false,
-            "description": "Date in YYYY-MM-DD format (defaults to today)",
+            "deprecated": true,
+            "description": "Deprecated alias for `contributionMonth`.",
             "schema": {
-              "type": "string",
-              "format": "date"
-            },
-            "example": "2024-01-01"
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Income ceiling for date",
+            "description": "Official OW and annual AW ceilings",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CeilingResponse"
+                  "$ref": "#/components/schemas/WageCeilingResponse"
                 }
               }
             }
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           }
         }
       }
@@ -359,25 +476,125 @@
     "/ceiling/timeline": {
       "get": {
         "operationId": "getCeilingTimeline",
-        "summary": "Get ceiling timeline",
-        "description": "Get the historical timeline of CPF income ceiling changes.",
-        "tags": ["Income Ceiling"],
+        "summary": "List sourced wage-ceiling schedules",
+        "description": "Returns only published OW ceiling schedules; no future extrapolation.",
+        "tags": ["Policy"],
         "responses": {
           "200": {
-            "description": "Timeline of ceiling changes",
+            "description": "Official ceiling schedule",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CeilingTimelineEntry"
-                  }
+                  "type": "object",
+                  "properties": {
+                    "timeline": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WageCeilingResponse"
+                      }
+                    },
+                    "policy": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    }
+                  },
+                  "required": ["timeline", "policy"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bhs": {
+      "get": {
+        "operationId": "getBasicHealthcareSum",
+        "summary": "Get a published Basic Healthcare Sum",
+        "description": "Returns a published BHS cohort/year through 2026. A public reference request for an unpublished year returns 404; only a projection may freeze the last published amount and mark it assumed.",
+        "tags": ["Policy"],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2016,
+              "maximum": 2026
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published BHS amount and provenance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferenceAmountResponse"
                 }
               }
             }
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/retirement-sums": {
+      "get": {
+        "operationId": "getRetirementSums",
+        "summary": "Get published retirement sums",
+        "description": "Returns CPF Board's published BRS, FRS, and ERS for a supported cohort year through 2027. It does not extrapolate.",
+        "tags": ["Policy"],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2023,
+              "maximum": 2027
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published retirement sums and provenance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "year": {
+                      "type": "integer"
+                    },
+                    "brs": {
+                      "type": "number"
+                    },
+                    "frs": {
+                      "type": "number"
+                    },
+                    "ers": {
+                      "type": "number"
+                    },
+                    "policy": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    }
+                  },
+                  "required": ["year", "brs", "frs", "ers", "policy"]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/UnsupportedPolicy"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           }
         }
       }
@@ -385,12 +602,12 @@
     "/interest-rates": {
       "get": {
         "operationId": "getInterestRates",
-        "summary": "Get all interest rates",
-        "description": "Get all CPF quarterly rates and SGS monthly yields.",
-        "tags": ["Interest Rates"],
+        "summary": "List official quarterly CPF interest declarations",
+        "description": "Returns declared quarterly account rates from 2023 Q1 through 2026 Q3 and the documented OA and SMRA methodologies. It intentionally contains no reconstructed monthly SGS series.",
+        "tags": ["Interest Rates", "Policy"],
         "responses": {
           "200": {
-            "description": "Interest rates data",
+            "description": "Official quarterly observations and methodology",
             "content": {
               "application/json": {
                 "schema": {
@@ -408,45 +625,76 @@
     "/interest-rates/smra": {
       "get": {
         "operationId": "calculateSmra",
-        "summary": "Calculate SMRA rate",
-        "description": "Calculate the Special/MediSave/Retirement Account (SMRA) rate based on SGS yield.",
+        "summary": "Apply the published SMRA peg",
+        "description": "Applies the documented 12-month-average 10-year SGS yield plus one percentage point, subject to the current 4% floor. `sgsYield` is a deprecated alias for `averageSgsYield`.",
         "tags": ["Interest Rates"],
         "parameters": [
           {
-            "name": "sgsYield",
+            "name": "averageSgsYield",
             "in": "query",
-            "required": true,
-            "description": "SGS yield percentage (non-negative number)",
+            "required": false,
+            "description": "The 12-month average 10-year SGS yield, as a percentage.",
             "schema": {
               "type": "number",
               "minimum": 0
-            },
-            "example": 2.5
+            }
+          },
+          {
+            "name": "sgsYield",
+            "in": "query",
+            "required": false,
+            "deprecated": true,
+            "description": "Deprecated alias for `averageSgsYield`.",
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "SMRA calculation result",
+            "description": "Peg calculation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SmraResponse"
+                  "type": "object",
+                  "properties": {
+                    "averageSgsYield": {
+                      "type": "number"
+                    },
+                    "peggedRate": {
+                      "type": "number"
+                    },
+                    "floorApplied": {
+                      "type": "boolean"
+                    },
+                    "actualRate": {
+                      "type": "number"
+                    },
+                    "methodology": {
+                      "type": "string"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "averageSgsYield",
+                    "peggedRate",
+                    "floorApplied",
+                    "actualRate",
+                    "methodology",
+                    "warnings"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/components/responses/BadRequest"
           }
         }
       }
@@ -454,25 +702,22 @@
     "/interest-rates/trend": {
       "get": {
         "operationId": "getInterestRateTrend",
-        "summary": "Get interest rate trends",
-        "description": "Get historical interest rate trend data.",
+        "summary": "Get official quarterly CPF observations",
+        "description": "Returns the same official quarterly declarations in chronological order. This v2 endpoint replaces the synthetic monthly SGS-derived trend.",
         "tags": ["Interest Rates"],
         "responses": {
           "200": {
-            "description": "Interest rate trend data",
+            "description": "Official quarterly observations",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/InterestRateTrendData"
+                    "$ref": "#/components/schemas/QuarterlyInterestObservation"
                   }
                 }
               }
             }
-          },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
           }
         }
       }
@@ -480,67 +725,150 @@
     "/investment-comparison": {
       "post": {
         "operationId": "compareInvestments",
-        "summary": "Compare investment scenarios",
-        "description": "Compare multiple investment scenarios with different interest rates.",
+        "summary": "Compare caller-supplied investment assumptions",
+        "description": "A SimplyCPF modelling tool. CPF floor-rate presets are official policy inputs; non-CPF returns are editable caller assumptions and are not CPF Board facts or forecasts.",
         "tags": ["Investment"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/InvestmentComparisonRequest"
-              },
-              "example": {
-                "principal": 100000,
-                "years": 10,
-                "scenarios": [
-                  { "name": "CPF OA", "rate": 2.5 },
-                  { "name": "CPF SA", "rate": 4.0 },
-                  { "name": "Market", "rate": 7.0 }
-                ]
+                "type": "object",
+                "properties": {
+                  "principal": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "years": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "scenarios": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "rate": {
+                          "type": "number",
+                          "description": "Caller assumption unless explicitly identified as an official CPF floor preset."
+                        }
+                      },
+                      "required": ["name", "rate"]
+                    }
+                  }
+                },
+                "required": ["principal", "years", "scenarios"]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Investment comparison results",
+            "description": "Assumption-labelled comparison results",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InvestmentComparisonResponse"
+                  "type": "object",
+                  "properties": {
+                    "input": {
+                      "type": "object"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "rate": {
+                            "type": "number",
+                            "description": "Caller-supplied assumption unless explicitly named as an official CPF floor preset."
+                          },
+                          "finalValue": {
+                            "type": "number"
+                          },
+                          "totalGrowth": {
+                            "type": "number"
+                          },
+                          "growthPercentage": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "rate",
+                          "finalValue",
+                          "totalGrowth",
+                          "growthPercentage"
+                        ]
+                      }
+                    }
+                  },
+                  "required": ["input", "results"]
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
+            "$ref": "#/components/responses/BadRequest"
           }
         }
       }
     }
   },
   "components": {
+    "headers": {
+      "PolicyCache": {
+        "description": "Policy responses use browser caching for one hour and edge caching for 24 hours with 24-hour stale revalidation; they are not immutable.",
+        "schema": {
+          "type": "string",
+          "example": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
+        }
+      }
+    },
     "responses": {
-      "RateLimited": {
-        "description": "Rate limit exceeded. Production CPF API endpoints allow 10 requests per 10 seconds per client IP.",
+      "BadRequest": {
+        "description": "Malformed request",
         "content": {
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
-            },
-            "example": {
-              "error": "Rate limit exceeded"
+            }
+          }
+        }
+      },
+      "UnprocessableEntity": {
+        "description": "Well-formed request that lacks required policy context or violates a semantic constraint",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnsupportedPolicy": {
+        "description": "No official policy is published for the requested month or year; the public reference API does not fabricate a value",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
             }
           }
         }
@@ -551,297 +879,842 @@
         "type": "object",
         "properties": {
           "error": {
-            "type": "string",
-            "description": "Error message"
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "details": {
+            "type": ["object", "null"]
           }
         },
         "required": ["error"]
       },
-      "CalculateRequest": {
+      "Citizenship": {
+        "type": "string",
+        "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
+        "description": "SPR Year 1 and Year 2 use CPF Board's default Graduated/Graduated schedule. Approved alternative SPR arrangements are outside scope."
+      },
+      "AdditionalWageCeilingContext": {
         "type": "object",
         "properties": {
-          "income": {
+          "annualOrdinaryWagesSubjectToCpf": {
             "type": "number",
             "minimum": 0,
-            "description": "Monthly gross income (non-negative)"
+            "description": "Ordinary Wages subject to CPF across the calendar year."
           },
-          "date": {
+          "priorAdditionalWagesSubjectToCpf": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Additional Wages already made subject to CPF earlier in the calendar year."
+          }
+        },
+        "required": [
+          "annualOrdinaryWagesSubjectToCpf",
+          "priorAdditionalWagesSubjectToCpf"
+        ],
+        "additionalProperties": false
+      },
+      "ContributionInput": {
+        "type": "object",
+        "properties": {
+          "contributionMonth": {
             "type": "string",
-            "format": "date",
-            "description": "Date in YYYY-MM-DD format (defaults to today)"
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+            "description": "Contribution month used to resolve the effective CPF schedule."
+          },
+          "ordinaryWages": {
+            "type": "number",
+            "minimum": 0
+          },
+          "additionalWages": {
+            "type": "number",
+            "minimum": 0
+          },
+          "additionalWageCeilingContext": {
+            "$ref": "#/components/schemas/AdditionalWageCeilingContext"
+          },
+          "citizenship": {
+            "$ref": "#/components/schemas/Citizenship"
           },
           "age": {
             "type": "number",
             "minimum": 0,
-            "description": "Age for age-group lookup"
+            "description": "Completed age. Mutually exclusive with `birthMonth`."
+          },
+          "birthMonth": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+            "description": "Birth month; preferred for the official month-after-birthday transition."
+          },
+          "hasReachedFullRetirementSum": {
+            "type": "boolean",
+            "description": "Optional account context for choosing the 55+ RA-until-FRS or OA-after-FRS branch. Both branches are returned when omitted."
+          },
+          "income": {
+            "type": "number",
+            "minimum": 0,
+            "deprecated": true,
+            "description": "Deprecated alias for `ordinaryWages`."
+          },
+          "date": {
+            "type": "string",
+            "deprecated": true,
+            "description": "Deprecated alias for `contributionMonth`."
           }
         },
-        "required": ["income"]
+        "required": ["citizenship"],
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "required": ["contributionMonth"]
+              },
+              {
+                "required": ["date"]
+              }
+            ]
+          },
+          {
+            "anyOf": [
+              {
+                "required": ["ordinaryWages"]
+              },
+              {
+                "required": ["income"]
+              }
+            ]
+          },
+          {
+            "oneOf": [
+              {
+                "required": ["age"]
+              },
+              {
+                "required": ["birthMonth"]
+              }
+            ]
+          }
+        ],
+        "additionalProperties": false
       },
-      "BatchCalculateRequest": {
+      "MoneyDistribution": {
         "type": "object",
         "properties": {
-          "scenarios": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 100,
-            "items": {
-              "$ref": "#/components/schemas/CalculateRequest"
-            },
-            "description": "Array of calculation scenarios (1-100)"
+          "OA": {
+            "type": "number"
+          },
+          "SA": {
+            "type": "number",
+            "description": "Omitted after the 2025 SA closure for members aged 55 and above."
+          },
+          "RA": {
+            "type": "number",
+            "description": "Returned explicitly from age 55 after the SA closure."
+          },
+          "MA": {
+            "type": "number"
           }
         },
-        "required": ["scenarios"]
+        "required": ["OA", "MA"]
+      },
+      "PolicySource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "agency": {
+            "type": "string",
+            "enum": ["CPF Board", "IRAS", "MOM"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": ["id", "agency", "title", "url"]
+      },
+      "PolicyMetadata": {
+        "type": "object",
+        "description": "Per-dataset provenance. A frozen future projection uses `assumed`, identifies the official base year/version, and explains the freeze in notes.",
+        "properties": {
+          "dataset": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["official", "assumed"]
+          },
+          "effectiveFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "effectiveTo": {
+            "type": "string",
+            "format": "date"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "basedOnYear": {
+            "type": "integer"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PolicySource"
+            }
+          },
+          "scope": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["dataset", "status", "effectiveFrom", "verifiedAt"]
       },
       "ContributionResult": {
         "type": "object",
         "properties": {
-          "totalContribution": {
-            "type": "number",
-            "description": "Total CPF contribution (employee + employer)"
-          },
-          "employer": {
-            "type": "number",
-            "description": "Employer's CPF contribution"
-          },
-          "employee": {
-            "type": "number",
-            "description": "Employee's CPF contribution"
-          }
-        },
-        "required": ["totalContribution", "employer", "employee"]
-      },
-      "DistributionResult": {
-        "type": "object",
-        "properties": {
-          "OA": {
-            "type": "number",
-            "description": "Ordinary Account allocation"
-          },
-          "SA": {
-            "type": "number",
-            "description": "Special Account allocation"
-          },
-          "MA": {
-            "type": "number",
-            "description": "MediSave Account allocation"
-          }
-        },
-        "required": ["OA", "SA", "MA"]
-      },
-      "ComputedResult": {
-        "type": "object",
-        "properties": {
           "contribution": {
-            "$ref": "#/components/schemas/ContributionResult"
-          },
-          "distribution": {
-            "$ref": "#/components/schemas/DistributionResult"
-          },
-          "afterCpfContribution": {
-            "type": "number",
-            "description": "Take-home pay after CPF deduction"
-          }
-        },
-        "required": ["contribution", "distribution", "afterCpfContribution"]
-      },
-      "ProjectionRequest": {
-        "type": "object",
-        "properties": {
-          "income": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Monthly income (non-negative)"
-          },
-          "age": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Starting age"
-          },
-          "years": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
-            "description": "Number of years to project (1-50)"
-          }
-        },
-        "required": ["income", "age", "years"]
-      },
-      "YearlyProjection": {
-        "type": "object",
-        "properties": {
-          "year": {
-            "type": "integer",
-            "description": "Calendar year"
-          },
-          "age": {
-            "type": "integer",
-            "description": "Age during this year"
-          },
-          "ageGroup": {
-            "type": "string",
-            "description": "Age group description"
-          },
-          "contribution": {
-            "$ref": "#/components/schemas/ContributionResult"
-          },
-          "cumulative": {
-            "$ref": "#/components/schemas/ContributionResult"
-          }
-        },
-        "required": ["year", "age", "ageGroup", "contribution", "cumulative"]
-      },
-      "ProjectionResponse": {
-        "type": "object",
-        "properties": {
-          "input": {
             "type": "object",
             "properties": {
-              "income": {
+              "employee": {
                 "type": "number"
               },
-              "age": {
+              "employer": {
                 "type": "number"
               },
-              "years": {
+              "totalContribution": {
                 "type": "number"
               }
             },
-            "required": ["income", "age", "years"]
+            "required": ["employee", "employer", "totalContribution"]
           },
-          "projections": {
+          "distribution": {
+            "$ref": "#/components/schemas/MoneyDistribution"
+          },
+          "afterCpfContribution": {
+            "type": "number"
+          },
+          "wageBand": {
+            "type": "string",
+            "enum": [
+              "no-contribution",
+              "employer-only",
+              "phased-employee-share",
+              "full-rates"
+            ]
+          },
+          "subjectWages": {
+            "type": "object",
+            "properties": {
+              "ordinaryWages": {
+                "type": "number"
+              },
+              "additionalWages": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              }
+            },
+            "required": ["ordinaryWages", "additionalWages", "total"]
+          },
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "effectiveFrom": {
+                "type": "string"
+              },
+              "effectiveTo": {
+                "type": "string"
+              },
+              "citizenship": {
+                "$ref": "#/components/schemas/Citizenship"
+              },
+              "employeeRate": {
+                "type": "number"
+              },
+              "employerRate": {
+                "type": "number"
+              },
+              "ordinaryWageCeiling": {
+                "type": "number"
+              },
+              "additionalWageCeiling": {
+                "type": "number"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["official", "assumed"]
+              }
+            },
+            "required": [
+              "id",
+              "effectiveFrom",
+              "effectiveTo",
+              "citizenship",
+              "employeeRate",
+              "employerRate",
+              "ordinaryWageCeiling",
+              "additionalWageCeiling",
+              "status"
+            ]
+          },
+          "routing": {
+            "type": "object",
+            "description": "For members 55+, exposes both official allocation branches unless FRS context selects one.",
+            "properties": {
+              "selected": {
+                "type": "string",
+                "enum": ["RA", "OA", "undetermined"]
+              },
+              "rule": {
+                "const": "RA until FRS, then OA"
+              },
+              "branches": {
+                "type": "object"
+              }
+            },
+            "required": ["selected", "rule", "branches"]
+          },
+          "warnings": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/YearlyProjection"
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": ["code", "message"]
+            }
+          },
+          "policy": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PolicyMetadata"
             }
           }
         },
-        "required": ["input", "projections"]
+        "required": [
+          "contribution",
+          "distribution",
+          "afterCpfContribution",
+          "wageBand",
+          "subjectWages",
+          "schedule",
+          "warnings",
+          "policy"
+        ]
       },
-      "ContributionRate": {
+      "AccountBalances": {
         "type": "object",
         "properties": {
-          "employee": {
+          "oa": {
             "type": "number",
-            "description": "Employee contribution rate (decimal)"
+            "minimum": 0
           },
-          "employer": {
+          "sa": {
             "type": "number",
-            "description": "Employer contribution rate (decimal)"
+            "minimum": 0
+          },
+          "ma": {
+            "type": "number",
+            "minimum": 0
+          },
+          "ra": {
+            "type": "number",
+            "minimum": 0
           }
         },
-        "required": ["employee", "employer"]
+        "required": ["oa", "sa", "ma", "ra"],
+        "additionalProperties": false
+      },
+      "ProjectionInput": {
+        "type": "object",
+        "properties": {
+          "monthlyIncome": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Fixed monthly Ordinary Wages. No salary growth or bonus is inferred."
+          },
+          "birthDate": {
+            "type": "string",
+            "description": "Birth month in YYYY-MM format."
+          },
+          "startMonth": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+          },
+          "initialBalances": {
+            "$ref": "#/components/schemas/AccountBalances"
+          },
+          "endAge": {
+            "type": "integer",
+            "minimum": 18,
+            "maximum": 100
+          },
+          "citizenship": {
+            "$ref": "#/components/schemas/Citizenship"
+          },
+          "voluntaryTopUp": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "account": {
+                "type": "string",
+                "enum": ["retirement", "MA", "SA", "RA"]
+              },
+              "frequency": {
+                "type": "string",
+                "enum": ["monthly", "yearly"]
+              }
+            },
+            "required": ["amount", "account", "frequency"]
+          },
+          "retirementTransfer": {
+            "type": "object",
+            "description": "Age-aware OA transfer routed to SA below 55 or RA from 55.",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "timing": {
+                "type": "string",
+                "enum": ["now", "monthly", "yearly"]
+              }
+            },
+            "required": ["amount", "timing"]
+          },
+          "oaToSaTransfer": {
+            "deprecated": true,
+            "description": "Deprecated alias for `retirementTransfer`; it is age-aware despite the legacy name.",
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "timing": {
+                "type": "string",
+                "enum": ["now", "yearly"]
+              }
+            },
+            "required": ["amount", "timing"]
+          },
+          "retirementRouting": {
+            "type": "string",
+            "enum": [
+              "full-retirement-sum",
+              "basic-retirement-sum-with-property"
+            ]
+          }
+        },
+        "required": [
+          "monthlyIncome",
+          "birthDate",
+          "startMonth",
+          "initialBalances",
+          "citizenship"
+        ],
+        "additionalProperties": false
+      },
+      "ProjectionResult": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/ProjectionInput"
+          },
+          "yearlyBalances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "year": {
+                  "type": "integer"
+                },
+                "month": {
+                  "type": "string"
+                },
+                "age": {
+                  "type": "integer"
+                },
+                "balances": {
+                  "$ref": "#/components/schemas/AccountBalances"
+                },
+                "policy": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["official", "assumed"]
+                    },
+                    "contribution": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "bhs": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "retirementSums": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    },
+                    "interest": {
+                      "$ref": "#/components/schemas/PolicyMetadata"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "contribution",
+                    "bhs",
+                    "retirementSums",
+                    "interest"
+                  ]
+                }
+              },
+              "required": ["year", "month", "age", "balances", "policy"]
+            }
+          },
+          "cpfLifeReference": {
+            "$ref": "#/components/schemas/CpfLifeReference"
+          },
+          "cpfLifeEstimate": {
+            "type": "null",
+            "deprecated": true,
+            "description": "Always null. Personalised payout estimation was removed; use CPF Board's estimator."
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": ["code", "message"]
+            }
+          },
+          "assumptions": {
+            "type": "object",
+            "description": "SimplyCPF projection assumptions, not CPF Board facts."
+          }
+        },
+        "required": [
+          "input",
+          "yearlyBalances",
+          "cpfLifeReference",
+          "cpfLifeEstimate",
+          "warnings",
+          "assumptions"
+        ]
+      },
+      "CpfLifeReference": {
+        "type": "object",
+        "description": "Exact CPF Board 2026 reference rows for a male member on the Standard Plan. Values are not interpolated.",
+        "properties": {
+          "referenceYear": {
+            "const": 2026
+          },
+          "plan": {
+            "const": "Standard"
+          },
+          "profile": {
+            "const": "male"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "raAt55": {
+                  "type": "number"
+                },
+                "raAt65": {
+                  "type": "number"
+                },
+                "monthlyPayoutAt65": {
+                  "type": "number"
+                },
+                "monthlyPayoutAt70": {
+                  "type": "number"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "raAt55",
+                "raAt65",
+                "monthlyPayoutAt65",
+                "monthlyPayoutAt70"
+              ]
+            }
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "personalisedEstimatorUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "referenceYear",
+          "plan",
+          "profile",
+          "rows",
+          "sourceUrl",
+          "personalisedEstimatorUrl",
+          "verifiedAt",
+          "note"
+        ]
       },
       "AgeGroup": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "description": {
+            "type": "string"
+          },
+          "minAgeExclusive": {
+            "type": "number"
+          },
+          "maxAgeInclusive": {
+            "type": "number",
+            "description": "Inclusive upper age bound; omitted only for the final open-ended band."
+          },
+          "retirementAccount": {
             "type": "string",
-            "description": "Age group description (e.g., '35 and below')"
-          },
-          "minAge": {
-            "type": "integer",
-            "description": "Minimum age (inclusive)"
-          },
-          "maxAge": {
-            "type": "integer",
-            "description": "Maximum age (exclusive, omitted for highest group)"
+            "enum": ["SA", "RA"]
           },
           "contributionRate": {
-            "$ref": "#/components/schemas/ContributionRate"
+            "type": "object"
           },
-          "distributionRate": {
-            "$ref": "#/components/schemas/DistributionResult"
+          "allocationRate": {
+            "$ref": "#/components/schemas/AllocationRate"
           }
         },
         "required": [
+          "id",
           "description",
-          "minAge",
+          "retirementAccount",
           "contributionRate",
-          "distributionRate"
+          "allocationRate"
         ]
       },
-      "AgeFromBirthdateResponse": {
+      "AllocationRate": {
         "type": "object",
         "properties": {
-          "birthDate": {
-            "type": "string",
-            "description": "Input birth date"
+          "OA": {
+            "type": "number"
           },
-          "age": {
-            "type": "integer",
-            "description": "Calculated age"
-          }
-        },
-        "required": ["birthDate", "age"]
-      },
-      "CeilingResponse": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "description": "Date used for lookup"
-          },
-          "ceiling": {
+          "SA": {
             "type": "number",
-            "description": "CPF income ceiling amount"
+            "description": "Present below 55, and for applicable pre-closure schedules."
+          },
+          "RA": {
+            "type": "number",
+            "description": "Present for members aged 55 and above after the 2025 SA closure."
+          },
+          "MA": {
+            "type": "number"
           }
         },
-        "required": ["date", "ceiling"]
+        "required": ["OA", "MA"]
       },
-      "CeilingTimelineEntry": {
+      "ScheduleSummary": {
         "type": "object",
         "properties": {
-          "date": {
-            "type": "string",
-            "description": "Effective date"
+          "id": {
+            "type": "string"
           },
-          "ceiling": {
-            "type": "number",
-            "description": "CPF income ceiling amount"
+          "effectiveFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "effectiveTo": {
+            "type": "string",
+            "format": "date"
           }
         },
-        "required": ["date", "ceiling"]
+        "required": ["id", "effectiveFrom", "effectiveTo"]
       },
-      "QuarterlyRate": {
+      "AgePolicyMetadata": {
+        "type": "object",
+        "properties": {
+          "contribution": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          },
+          "allocation": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          }
+        },
+        "required": ["contribution", "allocation"]
+      },
+      "AgeGroupLookupResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AgeGroup"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "contributionMonth": {
+                "type": "string"
+              },
+              "citizenship": {
+                "$ref": "#/components/schemas/Citizenship"
+              },
+              "schedule": {
+                "$ref": "#/components/schemas/ScheduleSummary"
+              },
+              "policy": {
+                "$ref": "#/components/schemas/AgePolicyMetadata"
+              }
+            },
+            "required": [
+              "contributionMonth",
+              "citizenship",
+              "schedule",
+              "policy"
+            ]
+          }
+        ]
+      },
+      "WageCeilingResponse": {
+        "type": "object",
+        "properties": {
+          "effectiveFrom": {
+            "type": "string",
+            "format": "date"
+          },
+          "effectiveTo": {
+            "type": "string",
+            "format": "date"
+          },
+          "ordinaryWageCeiling": {
+            "type": "number"
+          },
+          "additionalWageCeiling": {
+            "type": "number",
+            "description": "Annual ceiling before subtracting annual OW subject to CPF and prior AW subject to CPF."
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          }
+        },
+        "required": [
+          "effectiveFrom",
+          "effectiveTo",
+          "ordinaryWageCeiling",
+          "additionalWageCeiling",
+          "policy"
+        ]
+      },
+      "ReferenceAmountResponse": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "value": {
+            "type": "number"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyMetadata"
+          }
+        },
+        "required": ["year", "value", "policy"]
+      },
+      "QuarterlyInterestObservation": {
         "type": "object",
         "properties": {
           "quarter": {
+            "type": "string"
+          },
+          "effectiveFrom": {
             "type": "string",
-            "description": "Quarter identifier (e.g., '2024Q1')"
+            "format": "date"
           },
-          "oa": {
-            "type": "number",
-            "description": "Ordinary Account interest rate"
+          "effectiveTo": {
+            "type": "string",
+            "format": "date"
           },
-          "sa": {
-            "type": "number",
-            "description": "Special Account interest rate"
+          "oaRate": {
+            "type": "number"
           },
-          "ma": {
-            "type": "number",
-            "description": "MediSave Account interest rate"
+          "saRate": {
+            "type": "number"
           },
-          "ra": {
-            "type": "number",
-            "description": "Retirement Account interest rate"
+          "maRate": {
+            "type": "number"
+          },
+          "raRate": {
+            "type": "number"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "status": {
+            "const": "official"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date"
           }
         },
-        "required": ["quarter", "oa", "sa", "ma", "ra"]
-      },
-      "MonthlyYield": {
-        "type": "object",
-        "properties": {
-          "month": {
-            "type": "string",
-            "description": "Month identifier"
-          },
-          "yield": {
-            "type": "number",
-            "description": "SGS yield percentage"
-          }
-        },
-        "required": ["month", "yield"]
+        "required": [
+          "quarter",
+          "effectiveFrom",
+          "effectiveTo",
+          "oaRate",
+          "saRate",
+          "maRate",
+          "raRate",
+          "sourceUrl",
+          "status",
+          "verifiedAt"
+        ]
       },
       "InterestRatesResponse": {
         "type": "object",
@@ -849,157 +1722,37 @@
           "quarterlyRates": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/QuarterlyRate"
+              "$ref": "#/components/schemas/QuarterlyInterestObservation"
             }
           },
-          "sgsYields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MonthlyYield"
-            }
-          }
-        },
-        "required": ["quarterlyRates", "sgsYields"]
-      },
-      "SmraResponse": {
-        "type": "object",
-        "properties": {
-          "sgsYield": {
-            "type": "number",
-            "description": "Input SGS yield"
-          },
-          "peggedRate": {
-            "type": "number",
-            "description": "Pegged rate (SGS yield + markup)"
-          },
-          "floorApplied": {
-            "type": "boolean",
-            "description": "Whether floor rate was applied"
-          },
-          "actualRate": {
-            "type": "number",
-            "description": "Actual SMRA rate"
-          }
-        },
-        "required": ["sgsYield", "peggedRate", "floorApplied", "actualRate"]
-      },
-      "InterestRateTrendData": {
-        "type": "object",
-        "properties": {
-          "month": {
-            "type": "string",
-            "description": "Month identifier"
-          },
-          "sgsYield": {
-            "type": "number",
-            "description": "SGS yield for the month"
-          },
-          "peggedRate": {
-            "type": "number",
-            "description": "Calculated pegged rate"
-          },
-          "actualRate": {
-            "type": "number",
-            "description": "Actual applied rate"
-          }
-        },
-        "required": ["month", "sgsYield", "peggedRate", "actualRate"]
-      },
-      "InvestmentScenario": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Scenario name"
-          },
-          "rate": {
-            "type": "number",
-            "description": "Annual interest rate percentage"
-          }
-        },
-        "required": ["name", "rate"]
-      },
-      "InvestmentComparisonRequest": {
-        "type": "object",
-        "properties": {
-          "principal": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Initial principal amount"
-          },
-          "years": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
-            "description": "Investment duration in years (1-50)"
-          },
-          "scenarios": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 10,
-            "items": {
-              "$ref": "#/components/schemas/InvestmentScenario"
-            },
-            "description": "Investment scenarios to compare (1-10)"
-          }
-        },
-        "required": ["principal", "years", "scenarios"]
-      },
-      "InvestmentScenarioResult": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Scenario name"
-          },
-          "rate": {
-            "type": "number",
-            "description": "Annual interest rate used"
-          },
-          "finalValue": {
-            "type": "number",
-            "description": "Final investment value"
-          },
-          "totalGrowth": {
-            "type": "number",
-            "description": "Total growth amount"
-          },
-          "growthPercentage": {
-            "type": "number",
-            "description": "Growth as percentage of principal"
-          }
-        },
-        "required": [
-          "name",
-          "rate",
-          "finalValue",
-          "totalGrowth",
-          "growthPercentage"
-        ]
-      },
-      "InvestmentComparisonResponse": {
-        "type": "object",
-        "properties": {
-          "input": {
+          "methodology": {
             "type": "object",
             "properties": {
-              "principal": {
-                "type": "number"
+              "OA": {
+                "type": "object"
               },
-              "years": {
-                "type": "number"
+              "SMRA": {
+                "type": "object"
+              },
+              "sourceUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "status": {
+                "const": "official"
+              },
+              "verifiedAt": {
+                "type": "string",
+                "format": "date"
               }
             },
-            "required": ["principal", "years"]
+            "required": ["OA", "SMRA", "sourceUrl", "status", "verifiedAt"]
           },
-          "results": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InvestmentScenarioResult"
-            }
+          "metadata": {
+            "$ref": "#/components/schemas/PolicyMetadata"
           }
         },
-        "required": ["input", "results"]
+        "required": ["quarterlyRates", "methodology", "metadata"]
       }
     }
   }

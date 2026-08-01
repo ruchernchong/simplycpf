@@ -1,7 +1,7 @@
 [
   {
     "question": "How are CPF contributions calculated in Singapore?",
-    "answer": "CPF contributions are calculated based on your monthly gross income and age group. There are 8 age brackets, each with different employee and employer contribution rates. Your income is subject to CPF contributions up to the current income ceiling, which rose in stages from $6,000 to $8,000 between September 2023 and January 2026 following Budget 2023. SimplyCPF handles all these variables automatically. Just enter your income and birth date to get your exact contribution amounts."
+    "answer": "CPF contributions depend on the contribution month, citizenship or PR year, age band, and total wages subject to CPF. Ordinary Wages use the prevailing monthly OW ceiling, while Additional Wages also need annual OW and prior-AW context. CPF applies separate rules for wages above $50 to $500, above $500 to $750, and above $750, rounds total contributions to the nearest dollar, drops cents from the employee share, and treats the employer share as the remainder. SimplyCPF applies these published rules within its stated private-sector employee scope."
   },
   {
     "question": "What are the CPF contribution rates by age group?",
@@ -13,7 +13,7 @@
   },
   {
     "question": "What is the difference between OA, SA, and MA in CPF?",
-    "answer": "CPF contributions are distributed across three accounts: the Ordinary Account (OA) for housing, insurance, investment, and education; the Special Account (SA) for retirement and retirement-related investments; and the MediSave Account (MA) for healthcare and medical insurance. The distribution varies by age: younger workers have more allocated to OA, while older workers see more going to SA and MA. The OA earns 2.5% p.a. (floor rate), while SA and MA earn a minimum of 4% p.a. with the potential to earn more when market rates are higher."
+    "answer": "Before age 55, CPF contributions are distributed across the Ordinary Account (OA), Special Account (SA), and MediSave Account (MA). From age 55, the SA is closed and the retirement allocation goes to the Retirement Account (RA), subject to the published FRS-routing rule. OA supports approved housing, insurance, investment, and education uses; SA/RA support retirement; and MA supports approved healthcare and insurance uses. OA has a legislated 2.5% floor, while SA, MA, and RA use the declared SMRA rate, currently subject to a 4% floor through 2026."
   },
   {
     "question": "Does SimplyCPF collect any of my data?",
@@ -25,11 +25,11 @@
   },
   {
     "question": "How are CPF interest rates determined?",
-    "answer": "CPF interest rates vary by account type. The Ordinary Account (OA) has a fixed floor rate of 2.5% per annum. The Special, MediSave, and Retirement Accounts (SMRA) have their rates pegged to the 12-month average yield of 10-year Singapore Government Securities (SGS) plus 1%, with a minimum floor rate of 4% per annum. You always receive the higher of the pegged rate or the floor rate."
+    "answer": "CPF Board reviews account interest rates quarterly. The OA rate is based on the three-month average of major local banks' interest rates, subject to the legislated 2.5% floor. The Special, MediSave, and Retirement Account rate is based on the 12-month average yield of 10-year Singapore Government Securities plus 1 percentage point, subject to the current 4% floor through 2026. SimplyCPF publishes the declared quarterly account rates rather than reconstructing a monthly SGS series."
   },
   {
     "question": "What is the difference between floor rate and pegged rate?",
-    "answer": "The floor rate is the minimum guaranteed interest rate your CPF accounts will earn regardless of market conditions. For SMRA accounts, the pegged rate is calculated as the 12-month average of 10-year SGS yield plus 1%. When the pegged rate falls below the floor rate (4%), you receive the floor rate instead. This ensures your CPF savings continue to grow even during periods of low interest rates."
+    "answer": "A floor is the minimum rate applied under the relevant rule. For SMRA, CPF Board compares the 12-month average 10-year SGS yield plus 1 percentage point with the current 4% floor and declares the quarterly rate. OA has a separate three-month local-bank-rate formula and a legislated 2.5% floor."
   },
   {
     "question": "Why does my SMRA earn more than 4% sometimes?",
@@ -37,7 +37,7 @@
   },
   {
     "question": "How does the 10-year Singapore Government Securities (SGS) yield affect my CPF?",
-    "answer": "The 10-year SGS yield directly affects the interest rate for your Special, MediSave, and Retirement Accounts (SMRA). The SMRA interest rate is pegged to the 12-month average of the 10-year SGS yield plus 1%. When SGS yields are high, your SMRA earns more. When SGS yields are low and the calculated rate falls below 4%, the floor rate of 4% applies to protect your savings. This pegging mechanism ensures your CPF interest rates reflect market conditions while maintaining a safety net."
+    "answer": "The SMRA benchmark uses a 12-month average of the 10-year SGS yield, not a single day's or month's yield. CPF Board adds 1 percentage point, compares the result with the current floor, and publishes the account rate for each quarter."
   },
   {
     "question": "Is SimplyCPF affiliated with the CPF Board?",
@@ -45,6 +45,6 @@
   },
   {
     "question": "I am a developer and I wish to contribute changes. How may I do so?",
-    "answer": "SimplyCPF is an open-source project released under the MIT licence. All contributions are welcome. Feel free to clone or fork the repository on GitHub and create a pull request. The project also provides a Developer API with 12 endpoints for programmatic access to CPF calculations. Visit the developer documentation for details."
+    "answer": "SimplyCPF is an open-source project released under the MIT licence. All contributions are welcome. Feel free to clone or fork the repository on GitHub and create a pull request. The project also provides 14 CPF API endpoints for calculations and dated reference data. Visit the developer documentation for the current contract and compatibility notes."
   }
 ]

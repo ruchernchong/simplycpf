@@ -1,203 +1,283 @@
-import {
-  DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-  DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-} from "@/config";
-import {
-  CPF_INCOME_CEILING,
-  CPF_INCOME_CEILING_BEFORE_SEPT_2023,
-} from "@/constants";
 import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
 import {
-  CPF_DATA_AS_OF_LABEL,
-  CPF_DATA_AS_OF_YEAR,
-} from "@/constants/cpf-data-as-of";
-import {
-  CPF_ACCOUNT_INTEREST_MAP,
   CPF_INTEREST_FLOOR_RATES,
+  CPF_INTEREST_RATE_METHODOLOGY,
   PEGGED_RATE_MARKUP,
   QUARTERLY_CPF_RATES,
 } from "@/constants/cpf-interest-rates";
 import {
+  CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
 } from "@/constants/cpf-interest-tiers";
+import { CPF_LIFE_2026_REFERENCE } from "@/constants/cpf-life";
 import { CPF_RETIREMENT_SUMS } from "@/constants/cpf-retirement-sums";
-import { ageGroups } from "@/data";
+import { CACHE_HEADERS } from "@/lib/cache-headers";
 import {
-  permanentResidentYear1Rates,
-  permanentResidentYear2Rates,
-} from "@/data/permanent-resident-rates";
-import { formatNumber } from "@/lib/format";
+  CPF_CONTRIBUTION_SCHEDULES,
+  CPF_POLICY_VERIFIED_AT,
+  POLICY_METADATA,
+  SPR_YEAR_1_CONTRIBUTION_RATES,
+  SPR_YEAR_2_CONTRIBUTION_RATES,
+} from "@/policy";
 
-export const revalidate = false;
+export const revalidate = 86400;
 
-const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
+function formatMoney(value: number): string {
+  return `S$${new Intl.NumberFormat("en-SG").format(value)}`;
+}
 
-const contributionRows = ageGroups
-  .map((g) => {
-    const emp = g.contributionRate.employee;
-    const empR = g.contributionRate.employer;
-    return `| ${g.description} | ${fmtPct(emp)} | ${fmtPct(empR)} | ${fmtPct(emp + empR)} |`;
-  })
-  .join("\n");
+function formatBasisPoints(value: number): string {
+  return `${(value / 100).toFixed(2).replace(/\.00$/, "")}%`;
+}
 
-const distributionRows = ageGroups
-  .map((g) => {
-    return `| ${g.description} | ${fmtPct(g.distributionRate.OA)} | ${fmtPct(g.distributionRate.SA)} | ${fmtPct(g.distributionRate.MA)} |`;
-  })
-  .join("\n");
+function formatRate(value: number): string {
+  return `${value.toFixed(2).replace(/\.00$/, "")}%`;
+}
 
-const ceilingRows = Object.entries(CPF_INCOME_CEILING)
-  .map(([date, ceiling]) => `| ${date} | S$${formatNumber(ceiling)} |`)
-  .join("\n");
+function formatAgeBand(band: {
+  minAgeExclusive?: number;
+  maxAgeInclusive?: number;
+}): string {
+  if (band.minAgeExclusive === undefined) {
+    return `${band.maxAgeInclusive} and below`;
+  }
+  if (band.maxAgeInclusive === undefined) {
+    return `Above ${band.minAgeExclusive}`;
+  }
+  return `Above ${band.minAgeExclusive} to ${band.maxAgeInclusive} (upper bound inclusive)`;
+}
 
-const quarterlyRows = QUARTERLY_CPF_RATES.map(
-  (q) => `| ${q.quarter} | ${q.oa}% | ${q.sa}% | ${q.ma}% | ${q.ra}% |`,
-).join("\n");
+function contributionScheduleSections(): string {
+  return CPF_CONTRIBUTION_SCHEDULES.map((schedule) => {
+    const rows = schedule.citizenRates
+      .map(
+        (band) =>
+          `| ${formatAgeBand(band)} | ${formatBasisPoints(band.employeeBasisPoints)} | ${formatBasisPoints(band.employerBasisPoints)} | ${formatBasisPoints(band.employeeBasisPoints + band.employerBasisPoints)} |`,
+      )
+      .join("\n");
 
-const prYear1Rows = permanentResidentYear1Rates
-  .map(
-    (g) =>
-      `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
-  )
-  .join("\n");
+    return `### ${schedule.id}
 
-const prYear2Rows = permanentResidentYear2Rates
-  .map(
-    (g) =>
-      `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
-  )
-  .join("\n");
+- Effective: ${schedule.effectiveFrom} to ${schedule.effectiveTo}
+- Ordinary Wage ceiling: ${formatMoney(schedule.ordinaryWageCeiling)} per month
+- Annual Additional Wage ceiling before annual OW and prior AW deductions: ${formatMoney(schedule.additionalWageCeiling)}
+- Status: official
 
-const retirementSumRows = Object.entries(CPF_RETIREMENT_SUMS)
-  .map(
-    ([year, sums]) =>
-      `| ${year} | S$${formatNumber(sums.brs)} | S$${formatNumber(sums.frs)} | S$${formatNumber(sums.ers)} |`,
-  )
-  .join("\n");
+| Completed age band | Employee | Employer | Total |
+|---|---:|---:|---:|
+${rows}`;
+  }).join("\n\n");
+}
 
-const bhsRows = Object.entries(CPF_BASIC_HEALTHCARE_SUM)
-  .map(([year, bhs]) => `| ${year} | S$${formatNumber(bhs)} |`)
-  .join("\n");
+function allocationScheduleSections(): string {
+  return CPF_CONTRIBUTION_SCHEDULES.map((schedule) => {
+    const rows = schedule.allocationRates
+      .map(
+        (band) =>
+          `| ${formatAgeBand(band)} | ${formatBasisPoints(band.oaBasisPoints)} | ${formatBasisPoints(band.retirementBasisPoints)} | ${formatBasisPoints(band.maBasisPoints)} |`,
+      )
+      .join("\n");
 
-const cpfRatesMd = `# CPF Rates: Machine-Readable Reference
+    return `### ${schedule.id}
 
-> Source: SimplyCPF (https://simplycpf.com): All rates sourced from CPF Board publications.
+| Completed age band | OA | Retirement allocation | MA |
+|---|---:|---:|---:|
+${rows}`;
+  }).join("\n\n");
+}
 
-## Definition: CPF
+function prRateRows(rates: typeof SPR_YEAR_1_CONTRIBUTION_RATES): string {
+  return rates
+    .map(
+      (band) =>
+        `| ${formatAgeBand(band)} | ${formatBasisPoints(band.employeeBasisPoints)} | ${formatBasisPoints(band.employerBasisPoints)} | ${formatBasisPoints(band.employeeBasisPoints + band.employerBasisPoints)} |`,
+    )
+    .join("\n");
+}
 
-CPF (Central Provident Fund) is Singapore's mandatory social security savings scheme. Every Singapore Citizen and Permanent Resident who is employed must contribute a portion of their salary to CPF, with their employer also contributing. Contributions are distributed across three accounts: Ordinary Account (OA), Special Account (SA), and MediSave Account (MA). The rates vary by age group, and income above the CPF income ceiling is not subject to contributions.
+function interestRows(): string {
+  return QUARTERLY_CPF_RATES.map(
+    (rate) =>
+      `| ${rate.quarter} | ${rate.effectiveFrom} | ${rate.effectiveTo} | ${formatRate(rate.oa)} | ${formatRate(rate.sa)} | ${formatRate(rate.ma)} | ${formatRate(rate.ra)} | [CPF Board](${rate.sourceUrl}) |`,
+  ).join("\n");
+}
 
-## Definition: CPF Income Ceiling
+function retirementSumRows(): string {
+  return Object.entries(CPF_RETIREMENT_SUMS)
+    .map(
+      ([year, sums]) =>
+        `| ${year} | ${formatMoney(sums.brs)} | ${formatMoney(sums.frs)} | ${formatMoney(sums.ers)} | official |`,
+    )
+    .join("\n");
+}
 
-The CPF income ceiling is the maximum amount of monthly salary subject to CPF contributions. Any income above this ceiling is not subject to CPF. Following Budget 2023, the ceiling rose in stages from S$6,000 to S$8,000, reaching S$8,000 on 1 January 2026.
+function bhsRows(): string {
+  return Object.entries(CPF_BASIC_HEALTHCARE_SUM)
+    .map(([year, amount]) => `| ${year} | ${formatMoney(amount)} | official |`)
+    .join("\n");
+}
 
----
+function cpfLifeRows(): string {
+  return CPF_LIFE_2026_REFERENCE.rows
+    .map(
+      (row) =>
+        `| ${formatMoney(row.raAt55)} | ${formatMoney(row.raAt65)} | ${formatMoney(row.monthlyPayoutAt65)} | ${formatMoney(row.monthlyPayoutAt70)} | ${row.label ?? "—"} |`,
+    )
+    .join("\n");
+}
 
-## Contribution Rates by Age Group
+function provenanceRows(): string {
+  return Object.values(POLICY_METADATA)
+    .map((metadata) => {
+      const sources = metadata.sources
+        .map((source) => `[${source.agency}: ${source.title}](${source.url})`)
+        .join("; ");
+      return `| ${metadata.dataset} | ${metadata.status} | ${metadata.effectiveFrom} | ${metadata.verifiedAt} | ${sources} |`;
+    })
+    .join("\n");
+}
 
-| Age Group | Employee Rate | Employer Rate | Total Rate |
-|-----------|--------------|--------------|-----------|
-${contributionRows}
+const cpfRatesMarkdown = `# CPF policy reference
 
-## Distribution Rates by Age Group
+> SimplyCPF API contract v2.0.0. Each dataset below carries its own effective period, status, official source, and verification date. SimplyCPF is independent and not affiliated with CPF Board, IRAS, MOM, or any government agency.
 
-| Age Group | OA Rate | SA Rate | MA Rate |
-|-----------|---------|---------|---------|
-${distributionRows}
+## Scope
 
-## Income Ceiling Timeline
+Contribution data covers private-sector and non-pensionable employees who are Singapore Citizens or Permanent Residents using CPF Board's default Graduated/Graduated rates. Platform workers, self-employed persons, pensionable employees, and approved alternative PR contribution arrangements are out of scope.
 
-| Effective Date | Monthly Ceiling |
-|---------------|----------------|
-| Pre-September 2023 | S$${formatNumber(CPF_INCOME_CEILING_BEFORE_SEPT_2023)} |
-${ceilingRows}
+## Status vocabulary
 
-## Interest Rates
+- **official**: a value or rule published by the responsible government agency.
+- **assumed**: a SimplyCPF modelling choice. Public reference endpoints never extrapolate an official value. A projection may hold the last published policy constant, but marks every affected year **assumed**.
 
-### Floor Rates
+## Official contribution schedules: Singapore Citizens and SPR Year 3+
 
-| Account | Floor Rate |
-|---------|-----------|
-| ${CPF_ACCOUNT_INTEREST_MAP.OA} | ${CPF_INTEREST_FLOOR_RATES.OA}% p.a. |
-| ${CPF_ACCOUNT_INTEREST_MAP.SMRA} | ${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a. (minimum guaranteed) |
+Rates below apply to monthly total wages above S$750. The completed-age upper bound is inclusive. A member moves to the next contribution rate from the first day of the month after turning 55, 60, 65, or 70.
 
-### Pegged Rate Formula (SMRA)
+${contributionScheduleSections()}
 
-SMRA interest rate = max(10-year SGS 12-month average yield + ${PEGGED_RATE_MARKUP}%, ${CPF_INTEREST_FLOOR_RATES.SMRA}%)
+## Default Graduated/Graduated PR schedules
 
-### Quarterly Interest Rates
+The Year 1 and Year 2 G/G rates below have been unchanged since 1 January 2016. Year 1 begins on the PR conversion date. Year 2 begins on the first day of the month after the first anniversary, and Year 3 begins on the first day of the month after the second anniversary.
 
-| Quarter | OA | SA | MA | RA |
-|---------|----|----|----|----|
-${quarterlyRows}
+### SPR Year 1
 
-### Extra Interest Tiers
+| Completed age band | Employee | Employer | Total |
+|---|---:|---:|---:|
+${prRateRows(SPR_YEAR_1_CONTRIBUTION_RATES)}
 
-- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${formatNumber(CPF_EXTRA_INTEREST_CAP)} combined
-- OA portion eligible for the extra interest is capped at the first S$${formatNumber(CPF_OA_EXTRA_INTEREST_CAP)}
+### SPR Year 2
 
-## PR Graduated Rates
+| Completed age band | Employee | Employer | Total |
+|---|---:|---:|---:|
+${prRateRows(SPR_YEAR_2_CONTRIBUTION_RATES)}
 
-### 1st Year PR Rates
+## Wage bands, ceilings, and rounding
 
-| Age Group | Employee Rate | Employer Rate |
-|-----------|--------------|--------------|
-${prYear1Rows}
+- Total wages of S$50 or less: no CPF contribution.
+- Above S$50 to S$500: employer share applies; employee share is zero.
+- Above S$500 to S$750: employee share is phased in under CPF Board's tables; employer share applies.
+- Above S$750: full rates in the schedule tables apply.
+- Ordinary Wages are capped by the schedule's monthly OW ceiling.
+- The remaining AW ceiling is max(0, S$102,000 − annual OW subject to CPF − prior AW subject to CPF). An AW calculation without this annual context is rejected with HTTP 422.
+- Total contribution is rounded to the nearest dollar, with 50 cents rounded upwards. Cents in the employee share are discarded. Employer share is the rounded total minus employee share.
 
-### 2nd Year PR Rates
+## Official allocation schedules
 
-| Age Group | Employee Rate | Employer Rate |
-|-----------|--------------|--------------|
-${prYear2Rows}
+Allocation rates are proportions of total CPF contribution, not of wages. The engine allocates MA first, retirement savings second, and OA as the exact remainder so no cent disappears. Before 2025 the retirement allocation is SA. Following the 2025 SA closure, members aged 55 and above receive that allocation in RA until FRS; after FRS it is routed to OA. If account context is absent, the contribution API returns both official branches.
 
-## Retirement Sums
+${allocationScheduleSections()}
 
-| Year | BRS | FRS | ERS |
-|------|-----|-----|-----|
-${retirementSumRows}
+## Published retirement sums
 
-## Basic Healthcare Sum (BHS)
+Public reference values stop at the last published cohort. Projections hold the 2027 amounts constant in later years and mark them assumed; they do not extrapolate.
 
-| Year | BHS |
-|------|-----|
-${bhsRows}
+| Year member turns 55 | BRS | FRS | ERS | Status |
+|---|---:|---:|---:|---|
+${retirementSumRows()}
 
-## CPF Contribution Formula
+Source: [CPF Board — What is the CPF retirement sum?](https://www.cpf.gov.sg/member/infohub/educational-resources/what-is-the-cpf-retirement-sum). Verified 2026-08-01.
 
-1. Determine the applicable income ceiling C based on the year
-2. Calculate capped income: min(monthly_income, C)
-3. Employee contribution = employee_rate × capped_income
-4. Employer contribution = employer_rate × capped_income
-5. Total contribution = employee + employer contributions
-6. OA amount = total_contribution × OA_distribution_rate
-7. SA amount = total_contribution × SA_distribution_rate
-8. MA amount = total_contribution × MA_distribution_rate
-9. Take-home pay = monthly_income - employee_contribution
+## Published Basic Healthcare Sum
 
-## Key Statistics (${CPF_DATA_AS_OF_YEAR})
+The BHS is fixed for a member when they turn 65. CPF Board publishes S$49,800 for members born in 1951 or earlier. Public reference values stop at 2026; later projection years hold the member's applicable last published amount constant and mark it assumed.
 
-- **Default total contribution rate (age ≤ 55):** ${fmtPct(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE)} (20% employee + 17% employer)
-- **Current income ceiling:** S$${formatNumber(CPF_INCOME_CEILING["2026-01-01"])} (from 1 January 2026, the final step of the Budget 2023 increase)
-- **OA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.OA}% p.a.
-- **SMRA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.
-- **Extra interest tier:** ${CPF_EXTRA_INTEREST_RATE * 100}% on first S$${formatNumber(CPF_EXTRA_INTEREST_CAP)} (OA capped at S$${formatNumber(CPF_OA_EXTRA_INTEREST_CAP)})
-- **Age brackets:** 8 (0-35, 36-45, 46-50, 51-55, 56-60, 61-65, 66-70, 70+)
-- **Ceiling increase (2023-2026):** 33.3% (S$6,000 → S$8,000)
+| Cohort/year | BHS | Status |
+|---|---:|---|
+${bhsRows()}
 
----
+Source: [CPF Board — What is the Basic Healthcare Sum?](https://www.cpf.gov.sg/service/article/what-is-the-basic-healthcare-sum). Verified 2026-08-01.
 
-*Data sourced from CPF Board publications, effective ${CPF_DATA_AS_OF_LABEL}. This document is intended for machine consumption by AI agents and search engines. Visit https://simplycpf.com for the interactive calculator.*
+## Official quarterly CPF interest declarations
 
-*SimplyCPF is independent and not affiliated with the CPF Board. Figures are estimates based on published rates and are not financial advice.*
+There is no synthetic monthly SGS series. OA is reviewed quarterly using the three-month average of major local banks' interest rates, subject to the ${formatRate(CPF_INTEREST_FLOOR_RATES.OA)} legislated floor. SMRA is reviewed quarterly using the 12-month average 10-year SGS yield plus ${formatRate(PEGGED_RATE_MARKUP)}, subject to the current ${formatRate(CPF_INTEREST_FLOOR_RATES.SMRA)} floor through 2026.
+
+| Quarter | Effective from | Effective to | OA | SA | MA | RA | Official declaration |
+|---|---|---|---:|---:|---:|---:|---|
+${interestRows()}
+
+Methodology source: [CPF Board — How are CPF interest rates determined?](${CPF_INTEREST_RATE_METHODOLOGY.sourceUrl}). Verified ${CPF_INTEREST_RATE_METHODOLOGY.verifiedAt}.
+
+### Extra interest
+
+- Members below 55 receive an extra ${formatRate(CPF_EXTRA_INTEREST_RATE * 100)} on the first ${formatMoney(CPF_EXTRA_INTEREST_CAP)} of combined balances; at most ${formatMoney(CPF_OA_EXTRA_INTEREST_CAP)} can come from OA.
+- Members 55 and above receive an additional ${formatRate(CPF_EXTRA_INTEREST_RATE * 100)} on the first ${formatMoney(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}, plus ${formatRate(CPF_EXTRA_INTEREST_RATE * 100)} on the next ${formatMoney(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}; at most ${formatMoney(CPF_OA_EXTRA_INTEREST_CAP)} can come from OA.
+- CPF Board prioritises retirement savings (RA or SA), then OA up to its cap, then MA when determining eligible combined balances. Extra interest earned on OA is credited to SA below 55 or RA from 55.
+
+Source: [CPF Board — How much extra interest can I earn?](https://www.cpf.gov.sg/service/article/how-much-extra-interest-can-i-earn-on-my-cpf-savings). Verified 2026-08-01.
+
+## CPF LIFE 2026 reference rows
+
+These are CPF Board's exact reference figures for a male member on the Standard Plan. SimplyCPF does not interpolate them or calculate a personalised payout. Use [CPF Board's planner](${CPF_LIFE_2026_REFERENCE.personalisedEstimatorUrl}) for a personalised estimate. S$60,000 is an automatic-inclusion condition for certain cohorts, not a minimum joining balance or payout threshold.
+
+| RA at 55 | RA at 65 | Monthly payout from 65 | Monthly payout from 70 | Reference label |
+|---:|---:|---:|---:|---|
+${cpfLifeRows()}
+
+Source: [CPF Board — How much CPF payouts can I get every month?](${CPF_LIFE_2026_REFERENCE.sourceUrl}). Verified ${CPF_LIFE_2026_REFERENCE.verifiedAt}.
+
+## Projection contract and SimplyCPF assumptions
+
+- New requests supply \`startMonth\` and starting OA, SA, MA, and RA balances. A legacy request may default balances to zero only with an explicit warning.
+- The ledger applies contributions and interest monthly, then credits interest annually. It handles birthday transitions, the 2025 SA closure, age-65 BHS freezing, MA overflow, and FRS routing.
+- Salary is fixed monthly Ordinary Wages unless the caller supplies AW context. No salary growth or bonus is inferred.
+- Published post-2027 contribution rules, post-2026 BHS, and post-2027 retirement sums are held constant and labelled assumed.
+- \`retirementTransfer\` routes to SA below 55 and RA from 55. \`oaToSaTransfer\` is a deprecated alias for one compatibility cycle.
+- Actual top-up capacity is distinct from IRAS's S$8,000 self and S$8,000 family tax-relief caps.
+- \`cpfLifeReference\` returns the table above. Deprecated \`cpfLifeEstimate\` is always null with a migration warning.
+
+## API v2 compatibility and errors
+
+- Contribution input: \`contributionMonth\`, \`ordinaryWages\`, optional \`additionalWages\` with AW context, \`citizenship\`, and either completed \`age\` or \`birthMonth\`.
+- Deprecated for one compatibility cycle: \`income\` → \`ordinaryWages\`; \`date\` → \`contributionMonth\`; \`oaToSaTransfer\` → \`retirementTransfer\`; \`sgsYield\` → \`averageSgsYield\`.
+- Unsupported official policy months or years return 404. Missing AW context and other semantically incomplete requests return 422. No public reference API silently clamps or fabricates a value.
+- Policy responses use \`public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400\`; policy data is never cached as year-long immutable content.
+
+## Per-dataset provenance
+
+| Dataset | Status | Effective from | Verified | First-party sources |
+|---|---|---|---|---|
+${provenanceRows()}
+
+Catalogue verification date: ${CPF_POLICY_VERIFIED_AT}. This is not a global effective date; each dataset and schedule above carries its own effective period.
+
+## Adjacent official facts
+
+- IRAS CPF Cash Top-up Relief is capped at up to S$8,000 for self and S$8,000 for family members, subject to IRAS conditions and the overall personal relief cap. This is not the actual CPF top-up capacity. [IRAS source](https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions/tax-reliefs/central-provident-fund-%28cpf%29-cash-top-up-relief).
+- From 1 July 2026, the statutory retirement age is 64 and re-employment age is 69, subject to MOM's cohort rules. [MOM source](https://www.mom.gov.sg/employment-practices/re-employment).
+
+## Disclaimer
+
+Official values link to their responsible first-party agency. Readiness scoring, CPF Check, long-range projection choices, housing-sale scenarios, and non-CPF investment returns are SimplyCPF tools or user assumptions, not CPF Board facts. Figures are not financial advice.
 `;
 
 export async function GET(): Promise<Response> {
-  return new Response(cpfRatesMd, {
+  return new Response(cpfRatesMarkdown, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
-      "Cache-Control": "public, max-age=86400",
+      ...CACHE_HEADERS.policy,
     },
   });
 }

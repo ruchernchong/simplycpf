@@ -9,33 +9,33 @@ import { BASE_URL, WEBSITE_ID } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
 
 export const metadata: Metadata = {
-  title: "CPF LIFE Estimator: Estimate Your Monthly Payout",
+  title: "CPF LIFE 2026 Reference: Published Standard Plan Payouts",
   description:
-    "Estimate your CPF LIFE monthly payout using your Retirement Account balance. Compare the Standard, Escalating, Basic, and defer-to-70 scenarios without logging in.",
+    "Review CPF Board's published 2026 CPF LIFE Standard Plan reference rows, understand the three plan shapes, and open CPF's personalised Retirement Payout Planner.",
   keywords:
-    "CPF LIFE estimator, CPF LIFE payout calculator, how much CPF LIFE will I get, CPF LIFE Standard plan, CPF LIFE Escalating plan",
+    "CPF LIFE reference, CPF LIFE payout table 2026, CPF LIFE Standard plan, CPF LIFE Escalating plan, CPF Retirement Payout Planner",
   alternates: {
     canonical: "/cpf-life",
   },
   openGraph: {
-    title: "CPF LIFE Estimator: Estimate Your Monthly Payout",
+    title: "CPF LIFE 2026 Reference: Published Standard Plan Payouts",
     description:
-      "Estimate your CPF LIFE monthly payout and compare the different plan types without logging in.",
+      "Review CPF Board's published Standard Plan payout reference and learn how the three CPF LIFE plans differ.",
     url: `${BASE_URL}/cpf-life`,
     images: [
       {
         url: `${BASE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: "CPF LIFE Estimator, SimplyCPF",
+        alt: "CPF LIFE 2026 reference, SimplyCPF",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CPF LIFE Estimator: Estimate Your Monthly Payout",
+    title: "CPF LIFE 2026 Reference: Published Standard Plan Payouts",
     description:
-      "Estimate your CPF LIFE monthly payout and compare the different plan types without logging in.",
+      "Review CPF Board's published Standard Plan payout reference and learn how the three CPF LIFE plans differ.",
     images: [`${BASE_URL}/opengraph-image`],
   },
 };
@@ -46,14 +46,14 @@ const schema: Graph = {
     {
       "@type": "WebPage",
       "@id": `${BASE_URL}/cpf-life/#webpage`,
-      name: "CPF LIFE Estimator",
+      name: "CPF LIFE 2026 Reference",
       description:
-        "Estimate CPF LIFE monthly payouts using your Retirement Account balance and compare the Standard, Escalating, Basic, and defer-to-70 scenarios.",
+        "CPF Board's published 2026 Standard Plan payout reference rows with factual descriptions of the Standard, Escalating, and Basic plans.",
       url: `${BASE_URL}/cpf-life`,
       inLanguage: "en-SG",
       isPartOf: { "@id": WEBSITE_ID },
       keywords:
-        "CPF LIFE estimator, CPF LIFE payout calculator, Standard plan, Escalating plan, Basic plan",
+        "CPF LIFE reference, CPF LIFE payout table 2026, Standard plan, Escalating plan, Basic plan",
       speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1"] },
     },
     {
@@ -78,15 +78,15 @@ const schema: Graph = {
     },
     {
       "@type": "SoftwareApplication",
-      name: "SimplyCPF CPF LIFE Estimator",
+      name: "SimplyCPF CPF LIFE Reference",
       url: `${BASE_URL}/cpf-life`,
       applicationCategory: "FinanceApplication",
       operatingSystem: "Web",
       offers: { "@type": "Offer", price: "0", priceCurrency: "SGD" },
       featureList: [
-        "Estimate CPF LIFE monthly payouts",
-        "Compare Standard, Escalating, and Basic plans",
-        "Estimate the effect of deferring payouts to age 70",
+        "Show CPF Board's published 2026 Standard Plan reference rows",
+        "Explain Standard, Escalating, and Basic plan characteristics",
+        "Link to CPF's personalised Retirement Payout Planner",
       ],
     },
   ],
@@ -99,8 +99,8 @@ export default function CpfLifePage() {
       <div className="flex flex-col gap-8">
         <PageHeader
           eyebrow="CPF LIFE"
-          title="One balance, three payout shapes"
-          lede="The plans differ in shape, not in generosity: the same Retirement Account buys a flat payout, a rising one that starts lower, or a lower one that can fall further. We show all three side by side and rank none of them."
+          title="Published reference rows, not a personalised quote"
+          lede="CPF Board publishes Standard Plan reference payouts for members turning 55 in 2026. Use them to understand the scale, then use CPF's Retirement Payout Planner for a personalised estimate. The other plan types are described by their official characteristics, not invented ratios."
         />
         <CpfLifeContent />
         <CpfLifeDefinitionBlock />

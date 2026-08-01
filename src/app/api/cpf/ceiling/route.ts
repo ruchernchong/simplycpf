@@ -1,49 +1,55 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { CPF_INCOME_CEILING, DEFAULT_CPF_INCOME_CEILING } from "@/constants";
 import { CACHE_HEADERS } from "@/lib/cache-headers";
+import { ContributionPolicyError, resolveContributionSchedule } from "@/policy";
 
 export const GET = async (request: NextRequest): Promise<NextResponse> => {
   const searchParams = request.nextUrl.searchParams;
-  let date = searchParams.get("date");
-
-  if (!date) {
-    const today = new Date();
-    date = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
-  }
-
-  const sortedDates = Object.keys(CPF_INCOME_CEILING)
-    .map((dateString) => {
-      const dateObj = new Date(dateString);
-      return `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1).toString().padStart(2, "0")}-${dateObj.getDate().toString().padStart(2, "0")}`;
-    })
-    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-  if (date <= "2023-01-01") {
+  const contributionMonth =
+    searchParams.get("contributionMonth") ?? searchParams.get("date");
+  if (!contributionMonth) {
     return NextResponse.json(
-      { date, ceiling: 6000 },
-      { status: 200, headers: CACHE_HEADERS.static },
+      {
+        error: "contributionMonth is required.",
+        code: "INVALID_INPUT",
+      },
+      { status: 422 },
     );
   }
 
-  if (date >= "2026-01-01") {
+  try {
+    const { schedule } = resolveContributionSchedule(contributionMonth);
+    const warnings = searchParams.has("date")
+      ? [
+          {
+            code: "legacy-input",
+            message:
+              "date is a deprecated alias; use contributionMonth instead.",
+          },
+        ]
+      : [];
     return NextResponse.json(
-      { date, ceiling: 8000 },
-      { status: 200, headers: CACHE_HEADERS.static },
+      {
+        contributionMonth: contributionMonth.slice(0, 7),
+        effectiveFrom: schedule.effectiveFrom,
+        effectiveTo: schedule.effectiveTo,
+        ordinaryWageCeiling: schedule.ordinaryWageCeiling,
+        additionalWageCeiling: schedule.additionalWageCeiling,
+        warnings,
+        policy: schedule.wageCeilingMetadata,
+      },
+      { status: 200, headers: CACHE_HEADERS.policy },
     );
-  }
-
-  let ceiling: number = DEFAULT_CPF_INCOME_CEILING;
-
-  for (const keyDate of sortedDates) {
-    if (new Date(keyDate) <= new Date(date)) {
-      ceiling = CPF_INCOME_CEILING[keyDate];
-    } else {
-      break;
+  } catch (error) {
+    if (error instanceof ContributionPolicyError) {
+      const status = error.code === "UNSUPPORTED_POLICY_MONTH" ? 404 : 422;
+      return NextResponse.json(
+        { error: error.message, code: error.code },
+        { status },
+      );
     }
+    return NextResponse.json(
+      { error: "Unable to load the CPF wage ceiling." },
+      { status: 500 },
+    );
   }
-
-  return NextResponse.json(
-    { date, ceiling },
-    { status: 200, headers: CACHE_HEADERS.static },
-  );
 };

@@ -1,9 +1,13 @@
-import { Card, Table, Typography } from "@heroui/react";
-import { QUARTERLY_CPF_RATES } from "@/constants/cpf-interest-rates";
+import { Card, Link, Table, Typography } from "@heroui/react";
+import {
+  CPF_INTEREST_RATE_METHODOLOGY,
+  QUARTERLY_CPF_RATES,
+} from "@/constants/cpf-interest-rates";
 
 const LATEST_QUARTERS = 6;
 
 const rows = QUARTERLY_CPF_RATES.slice(-LATEST_QUARTERS);
+const latestRow = rows.at(-1);
 
 /** Rates as declared by the CPF Board each quarter, newest last. */
 export function QuarterlyRatesTable() {
@@ -11,7 +15,9 @@ export function QuarterlyRatesTable() {
     <Card>
       <Card.Header>
         <Card.Title>Declared quarterly rates</Card.Title>
-        <Card.Description>Per year</Card.Description>
+        <Card.Description>
+          Official CPF Board declarations, per annum
+        </Card.Description>
       </Card.Header>
       <Card.Content>
         <Table variant="secondary">
@@ -40,10 +46,23 @@ export function QuarterlyRatesTable() {
         </Table>
       </Card.Content>
       <Card.Footer>
-        <Typography color="muted" type="body-sm">
-          SMRA rates have sat at the 4.00% floor since 2025 Q1. Rates are
-          declared each quarter.
-        </Typography>
+        <div className="flex flex-col gap-2">
+          <Typography color="muted" type="body-sm">
+            No monthly SGS values are inferred.{" "}
+            {CPF_INTEREST_RATE_METHODOLOGY.SMRA.description} Data verified 1
+            August 2026.
+          </Typography>
+          {latestRow && (
+            <Link
+              href={latestRow.sourceUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              CPF Board source for {latestRow.quarter}
+              <Link.Icon aria-hidden="true" />
+            </Link>
+          )}
+        </div>
       </Card.Footer>
     </Card>
   );

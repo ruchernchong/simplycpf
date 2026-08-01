@@ -9,7 +9,7 @@ import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
 const PAGE_URL = `${BASE_URL}/accrued-interest`;
 const title = "CPF accrued interest on your home, explained";
 const description =
-  "OA money used for a home keeps a running 2.5% tab. See how much accrued interest builds up and how much returns to CPF when you sell.";
+  "Illustrate accrued interest on one OA housing withdrawal, then apply the CPF refund limit using your sale price and outstanding housing loan.";
 
 export const metadata: Metadata = {
   title,
@@ -70,7 +70,7 @@ const schema: Graph = {
       featureList: [
         "Illustrate accrued interest on OA used for a home",
         "See the cumulative interest year by year",
-        "See how much of a sale returns to CPF before any cash",
+        "Apply the market-value and net-sale-proceeds refund limitation",
       ],
     },
   ],
@@ -83,7 +83,7 @@ export default function AccruedInterestPage() {
       <PageHeader
         eyebrow="Home & OA"
         title="Accrued interest, without the forum arguments"
-        lede="OA money you put into a home keeps a running 2.5% tab: the interest it would have earned had it stayed. When you sell, the principal plus that accrued interest returns to your CPF before you see any cash. It is a refund to yourself, not a penalty, but it changes what a sale actually pays out."
+        lede="OA money used for a home must generally be refunded with the interest it would have earned. If a property is sold at market value and sale proceeds are insufficient, CPF Board limits the refund to the selling price less the outstanding housing loan. This tool models one lump-sum withdrawal only."
       />
       <Suspense>
         <AccruedInterestContent />

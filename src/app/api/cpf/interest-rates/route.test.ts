@@ -1,13 +1,20 @@
 import { GET } from "./route";
 
 describe("GET /api/cpf/interest-rates", () => {
-  it("should return quarterly rates and SGS yields", async () => {
+  it("returns official quarterly declarations and methodology", async () => {
     const response = await GET();
     const data = await response.json();
 
     expect(response.status).toBe(200);
     expect(data).toHaveProperty("quarterlyRates");
-    expect(data).toHaveProperty("sgsYields");
+    expect(data).toHaveProperty("methodology");
+    expect(data).toHaveProperty("metadata");
+    expect(data).not.toHaveProperty("sgsYields");
+    expect(data.metadata).toEqual({
+      status: "official",
+      verifiedAt: "2026-08-01",
+      latestPublishedQuarter: "2026 Q3",
+    });
   });
 
   it("should return quarterly rates with correct structure", async () => {
@@ -23,21 +30,31 @@ describe("GET /api/cpf/interest-rates", () => {
       expect(rate).toHaveProperty("sa");
       expect(rate).toHaveProperty("ma");
       expect(rate).toHaveProperty("ra");
+      expect(rate).toHaveProperty("effectiveFrom");
+      expect(rate).toHaveProperty("effectiveTo");
+      expect(rate).toHaveProperty("sourceUrl");
+      expect(rate.status).toBe("official");
+      expect(rate.verifiedAt).toBe("2026-08-01");
     }
   });
 
-  it("should return SGS yields with correct structure", async () => {
+  it("includes the latest published 2026 Q3 declaration", async () => {
     const response = await GET();
     const data = await response.json();
+    const latest = data.quarterlyRates.at(-1);
 
-    expect(Array.isArray(data.sgsYields)).toBe(true);
-    expect(data.sgsYields.length).toBeGreaterThan(0);
+    expect(latest.quarter).toBe("2026 Q3");
+    expect(latest.oa).toBe(2.5);
+    expect(latest.sa).toBe(4);
+    expect(latest.ma).toBe(4);
+    expect(latest.ra).toBe(4);
+  });
 
-    for (const yieldData of data.sgsYields) {
-      expect(yieldData).toHaveProperty("month");
-      expect(yieldData).toHaveProperty("yield");
-      expect(typeof yieldData.month).toBe("string");
-      expect(typeof yieldData.yield).toBe("number");
-    }
+  it("uses a revalidating policy-data cache", async () => {
+    const response = await GET();
+
+    expect(response.headers.get("cache-control")).toBe(
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+    );
   });
 });

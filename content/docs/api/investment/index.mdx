@@ -1,50 +1,24 @@
 ---
 title: Investment Comparison
-description: Compare investment scenarios with compound interest calculations
+description: Compare editable caller-supplied return assumptions
 ---
 
-## POST /investment-comparison
+## POST `/investment-comparison`
 
-Compare investment scenarios with compound interest calculations.
-
-### Request Body
+This endpoint compounds caller-supplied annual rates. It does not forecast markets and its non-CPF returns are not CPF Board facts.
 
 ```typescript
-{
-  principal: number;              // Required - Initial investment amount
-  years: number;                  // Required - Investment period (1-50 years)
+interface InvestmentComparisonInput {
+  principal: number;
+  years: number;
   scenarios: Array<{
-    name: string;                 // Required - Scenario name
-    rate: number;                 // Required - Annual interest rate (%)
-  }>;
-}
-```
-
-### Constraints
-
-- Maximum 50 years
-- Maximum 10 scenarios per request
-- Arrays cannot be empty
-
-### Response
-
-```typescript
-{
-  input: {
-    principal: number;
-    years: number;
-  };
-  results: Array<{
     name: string;
     rate: number;
-    finalValue: number;           // A = P(1 + r)^t
-    totalGrowth: number;          // Final value - principal
-    growthPercentage: number;     // (Growth / Principal) * 100
   }>;
 }
 ```
 
-### Example
+Official CPF OA and SMRA floor rates may be used as clearly named presets. Every other rate should be labelled as a user assumption.
 
 ```bash
 curl -X POST https://simplycpf.com/api/cpf/investment-comparison \
@@ -53,53 +27,10 @@ curl -X POST https://simplycpf.com/api/cpf/investment-comparison \
     "principal": 100000,
     "years": 20,
     "scenarios": [
-      { "name": "CPF OA", "rate": 2.5 },
-      { "name": "CPF SA", "rate": 4.0 },
-      { "name": "Stock Market", "rate": 7.0 }
+      { "name": "CPF OA floor preset", "rate": 2.5 },
+      { "name": "User investment assumption", "rate": 6.0 }
     ]
   }'
 ```
 
-```json
-{
-  "input": {
-    "principal": 100000,
-    "years": 20
-  },
-  "results": [
-    {
-      "name": "CPF OA",
-      "rate": 2.5,
-      "finalValue": 163861.64,
-      "totalGrowth": 63861.64,
-      "growthPercentage": 63.86
-    },
-    {
-      "name": "CPF SA",
-      "rate": 4.0,
-      "finalValue": 219112.31,
-      "totalGrowth": 119112.31,
-      "growthPercentage": 119.11
-    },
-    {
-      "name": "Stock Market",
-      "rate": 7.0,
-      "finalValue": 386968.45,
-      "totalGrowth": 286968.45,
-      "growthPercentage": 286.97
-    }
-  ]
-}
-```
-
-### Errors
-
-| Status | Error |
-|--------|-------|
-| 400 | Validation errors, exceeds limits |
-
-## Use Cases
-
-- Compare CPF vs external investment returns
-- Model different interest rate scenarios
-- Calculate long-term retirement projections
+The response returns each scenario's final value, total growth, and growth percentage. It is a mathematical illustration, not financial advice.

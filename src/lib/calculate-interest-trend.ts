@@ -1,42 +1,52 @@
 import {
   CPF_INTEREST_FLOOR_RATES,
+  type OfficialQuarterlyCpfRate,
   PEGGED_RATE_MARKUP,
+  QUARTERLY_CPF_RATES,
 } from "@/constants/cpf-interest-rates";
-import type { InterestRateTrendData, MonthlyYield } from "@/types";
+
+export interface OfficialInterestRateObservation {
+  quarter: string;
+  effectiveFrom: string;
+  effectiveTo: string;
+  oaRate: number;
+  saRate: number;
+  maRate: number;
+  raRate: number;
+  sourceUrl: string;
+  status: "official";
+  verifiedAt: "2026-08-01";
+}
 
 /**
- * Calculate SMRA interest rate based on 10Y SGS yield
- * Returns the higher of: (10Y SGS + 1%) or floor rate (4%)
+ * Apply CPF Board's SMRA formula to the published 12-month average 10YSGS
+ * yield. The caller supplies the average, not an individual monthly yield.
  */
-export const calculateSmraRate = (sgsYield: number): number => {
-  const peggedRate = sgsYield + PEGGED_RATE_MARKUP;
-  return Math.max(peggedRate, CPF_INTEREST_FLOOR_RATES.SMRA);
-};
+export function calculateSmraRate(averageSgsYield: number): number {
+  return Math.max(
+    averageSgsYield + PEGGED_RATE_MARKUP,
+    CPF_INTEREST_FLOOR_RATES.SMRA,
+  );
+}
 
-/**
- * Check if floor rate is being applied
- */
-export const isFloorRateApplied = (sgsYield: number): boolean => {
-  const peggedRate = sgsYield + PEGGED_RATE_MARKUP;
-  return peggedRate < CPF_INTEREST_FLOOR_RATES.SMRA;
-};
+export function isFloorRateApplied(averageSgsYield: number): boolean {
+  return averageSgsYield + PEGGED_RATE_MARKUP < CPF_INTEREST_FLOOR_RATES.SMRA;
+}
 
-/**
- * Calculate interest rate trend data from monthly SGS yields
- * Computes pegged rate and actual rate (considering floor rate)
- */
-export const calculateInterestTrend = (
-  yields: MonthlyYield[],
-): InterestRateTrendData[] => {
-  return yields.map((item) => {
-    const peggedRate = item.yield + PEGGED_RATE_MARKUP;
-    const actualRate = Math.max(peggedRate, CPF_INTEREST_FLOOR_RATES.SMRA);
-
-    return {
-      month: item.month,
-      sgsYield: item.yield,
-      peggedRate,
-      actualRate,
-    };
-  });
-};
+/** Return CPF Board's official quarterly declarations without interpolation. */
+export function calculateInterestTrend(
+  rates: readonly OfficialQuarterlyCpfRate[] = QUARTERLY_CPF_RATES,
+): OfficialInterestRateObservation[] {
+  return rates.map((rate) => ({
+    quarter: rate.quarter,
+    effectiveFrom: rate.effectiveFrom,
+    effectiveTo: rate.effectiveTo,
+    oaRate: rate.oa,
+    saRate: rate.sa,
+    maRate: rate.ma,
+    raRate: rate.ra,
+    sourceUrl: rate.sourceUrl,
+    status: rate.status,
+    verifiedAt: rate.verifiedAt,
+  }));
+}

@@ -8,16 +8,16 @@ import faqProjectionData from "@/data/faq-projection.json";
 export const metadata: Metadata = {
   title: "CPF Career Projection FAQ",
   description:
-    "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+    "Find answers about monthly CPF balance projections, age milestones, policy assumptions, interest calculations, and CPF LIFE references.",
   keywords:
-    "CPF projection FAQ, CPF balance projection, age 55 CPF, age 65 CPF, CPF interest calculation, CPF LIFE estimate",
+    "CPF projection FAQ, CPF balance projection, age 55 CPF, age 65 CPF, CPF interest calculation, CPF LIFE reference",
   alternates: {
     canonical: "/faq/projection",
   },
   openGraph: {
     title: "CPF Career Projection FAQ",
     description:
-      "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+      "Find answers about monthly CPF balance projections, age milestones, policy assumptions, interest calculations, and CPF LIFE references.",
     url: `${BASE_URL}/faq/projection`,
     images: [OG_IMAGE],
   },
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CPF Career Projection FAQ",
     description:
-      "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+      "Find answers about monthly CPF balance projections, age milestones, policy assumptions, interest calculations, and CPF LIFE references.",
     images: [OG_IMAGE.url],
   },
 };
@@ -39,7 +39,7 @@ const ProjectionFAQ = () => {
         "@id": `${BASE_URL}/faq/projection/#webpage`,
         name: "CPF Career Projection FAQ",
         description:
-          "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+          "Find answers about monthly CPF balance projections, age milestones, policy assumptions, interest calculations, and CPF LIFE references.",
         url: `${BASE_URL}/faq/projection`,
         inLanguage: "en-SG",
         isPartOf: { "@id": WEBSITE_ID },
@@ -91,8 +91,8 @@ const ProjectionFAQ = () => {
           <Card.Header>
             <Card.Title>CPF Career Projection</Card.Title>
             <Card.Description>
-              Questions about long-term balance projections, milestones, and CPF
-              LIFE estimates
+              Questions about monthly balance projections, milestones, policy
+              assumptions, and CPF LIFE references
             </Card.Description>
           </Card.Header>
           <Card.Content>

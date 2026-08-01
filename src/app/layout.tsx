@@ -95,7 +95,7 @@ const schema: Graph = {
       name: "SimplyCPF",
       url: BASE_URL,
       description:
-        "Calculate contributions, project retirement balances, compare CPF LIFE payouts, and test CPF scenarios for Singapore.",
+        "Calculate contributions, project retirement balances with explicit assumptions, review CPF LIFE reference rows, and test CPF scenarios for Singapore.",
       applicationCategory: "FinanceApplication",
       operatingSystem: "All",
       offers: {

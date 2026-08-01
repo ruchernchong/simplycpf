@@ -29,10 +29,10 @@ const CpfRetirementSumsBlock = () => {
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
           <Typography>
-            The <strong>Retirement Sums</strong> determine how much you need in
-            your CPF Retirement Account (RA) for different levels of CPF LIFE
-            payouts. These amounts increase yearly to keep pace with inflation
-            and longer life expectancy.
+            The <strong>Retirement Sums</strong> are reference amounts used when
+            setting aside savings in your Retirement Account (RA). The amount
+            set aside affects retirement payouts, but none of these sums is a
+            minimum balance for receiving a payout.
           </Typography>
 
           <div className="grid gap-4 md:grid-cols-3">
@@ -44,7 +44,8 @@ const CpfRetirementSumsBlock = () => {
                 S${formatNumber(sums.brs)}
               </Typography>
               <Typography className="mt-1" color="muted" type="body-xs">
-                Minimum for CPF LIFE. Provides basic monthly payouts for life.
+                A reference sum for members who meet CPF&apos;s property-related
+                conditions; not a CPF LIFE joining minimum.
               </Typography>
             </div>
             <div className="rounded-lg border border-border bg-muted/50 p-4">
@@ -55,8 +56,8 @@ const CpfRetirementSumsBlock = () => {
                 S${formatNumber(sums.frs)}
               </Typography>
               <Typography className="mt-1" color="muted" type="body-xs">
-                {frsMultiple}× BRS. Higher monthly payouts for a more
-                comfortable retirement.
+                {frsMultiple}× BRS. The default amount set aside in RA at age
+                55 when sufficient savings are available.
               </Typography>
             </div>
             <div className="rounded-lg border border-border bg-muted/50 p-4">
@@ -67,8 +68,8 @@ const CpfRetirementSumsBlock = () => {
                 S${formatNumber(sums.ers)}
               </Typography>
               <Typography className="mt-1" color="muted" type="body-xs">
-                {ersMultiple}× BRS. Maximum monthly payouts for enhanced
-                retirement income.
+                {ersMultiple}× BRS. The prevailing maximum to which eligible
+                members can top up RA for higher retirement payouts.
               </Typography>
             </div>
           </div>
@@ -95,8 +96,9 @@ const CpfRetirementSumsBlock = () => {
           )}
 
           <Typography color="muted" type="body-sm">
-            Tip: You can withdraw the amount above your FRS at age 55, or
-            transfer it to RA for higher CPF LIFE payouts later.
+            Withdrawal at 55 depends on the amount set aside, property-related
+            conditions and other CPF withdrawal rules. Amounts left in CPF
+            continue earning the applicable interest.
           </Typography>
         </Card.Content>
       </Card>

@@ -6,25 +6,25 @@ import WhatIfContent from "@/components/what-if/what-if-content";
 import { BASE_URL, WEBSITE_ID } from "@/config";
 
 export const metadata: Metadata = {
-  title: "CPF What-If Simulator: Compare Salary, Top-Ups and OA to SA Moves",
+  title: "CPF What-If Simulator: Salary, Top-Ups and Retirement Transfers",
   description:
-    "Run CPF what-if scenarios in seconds. Compare salary changes, OA to SA transfers, annual top-ups, and the cost of delaying your CPF journey.",
+    "Compare SimplyCPF balance scenarios for salary changes, age-aware retirement transfers, annual top-ups, and delayed contributions.",
   keywords:
-    "CPF what-if calculator, CPF salary increase calculator, OA to SA transfer calculator, CPF top-up calculator, CPF delay comparison",
+    "CPF what-if calculator, CPF salary increase calculator, CPF retirement transfer calculator, CPF top-up calculator, CPF delay comparison",
   alternates: {
     canonical: "/what-if",
   },
   openGraph: {
     title: "CPF What-If Simulator: Compare CPF Scenarios",
     description:
-      "Compare CPF scenarios like salary increases, annual top-ups, OA to SA transfers, and delayed starts.",
+      "Compare balance scenarios such as salary increases, annual top-ups, age-aware retirement transfers, and delayed starts.",
     url: `${BASE_URL}/what-if`,
   },
   twitter: {
     card: "summary_large_image",
     title: "CPF What-If Simulator: Compare CPF Scenarios",
     description:
-      "Compare CPF scenarios like salary increases, annual top-ups, OA to SA transfers, and delayed starts.",
+      "Compare balance scenarios such as salary increases, annual top-ups, age-aware retirement transfers, and delayed starts.",
   },
 };
 
@@ -36,12 +36,12 @@ const schema: Graph = {
       "@id": `${BASE_URL}/what-if/#webpage`,
       name: "CPF What-If Simulator",
       description:
-        "Compare CPF scenarios like salary changes, annual top-ups, OA to SA transfers, and delayed starts using the SimplyCPF projection engine.",
+        "Compare SimplyCPF balance scenarios such as salary changes, annual top-ups, age-aware retirement transfers, and delayed starts.",
       url: `${BASE_URL}/what-if`,
       inLanguage: "en-SG",
       isPartOf: { "@id": WEBSITE_ID },
       keywords:
-        "CPF what-if calculator, OA to SA transfer, CPF top-up calculator, CPF salary change",
+        "CPF what-if calculator, CPF retirement transfer, CPF top-up calculator, CPF salary change",
       speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1"] },
     },
     {
@@ -66,7 +66,7 @@ const schema: Graph = {
           "@type": "HowToStep",
           position: 1,
           name: "Choose a scenario",
-          text: "Pick salary change, OA to SA transfer, top-up, or age comparison.",
+          text: "Pick salary change, age-aware retirement transfer, top-up, or age comparison.",
         },
         {
           "@type": "HowToStep",
@@ -78,7 +78,7 @@ const schema: Graph = {
           "@type": "HowToStep",
           position: 3,
           name: "Review the side-by-side outcome",
-          text: "Compare the baseline and scenario balances, CPF LIFE estimates, and key differences at age 65.",
+          text: "Compare the baseline and scenario balances, contributions, interest, and key differences at age 65.",
         },
       ],
     },
@@ -91,7 +91,7 @@ const schema: Graph = {
       offers: { "@type": "Offer", price: "0", priceCurrency: "SGD" },
       featureList: [
         "Compare salary change scenarios",
-        "Model OA to SA transfers",
+        "Model age-aware retirement transfers",
         "Estimate top-up impact",
         "Compare the cost of delaying CPF contributions",
       ],

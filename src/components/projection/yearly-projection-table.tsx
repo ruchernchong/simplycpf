@@ -28,8 +28,9 @@ export default function YearlyProjectionTable({
             <Table.ScrollContainer>
               <Table.Content aria-label="Year by year CPF projection">
                 <Table.Header>
-                  <Table.Column isRowHeader>Year</Table.Column>
+                  <Table.Column isRowHeader>Through</Table.Column>
                   <Table.Column>Age</Table.Column>
+                  <Table.Column>Policy</Table.Column>
                   <Table.Column>Age group</Table.Column>
                   <Table.Column className="text-right">Employee</Table.Column>
                   <Table.Column className="text-right">Employer</Table.Column>
@@ -42,8 +43,13 @@ export default function YearlyProjectionTable({
                 <Table.Body>
                   {yearlyBalances.map((row) => (
                     <Table.Row key={row.year} id={row.year}>
-                      <Table.Cell>{row.year}</Table.Cell>
+                      <Table.Cell>{row.month}</Table.Cell>
                       <Table.Cell>{row.age}</Table.Cell>
+                      <Table.Cell>
+                        {row.policy.status === "official"
+                          ? "Official"
+                          : "Assumed · frozen"}
+                      </Table.Cell>
                       <Table.Cell>{row.ageGroup}</Table.Cell>
                       <Table.Cell className="text-right">
                         {formatCurrency(row.contributions.employee, 0)}

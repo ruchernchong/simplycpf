@@ -1,139 +1,55 @@
 ---
 title: Age Groups
-description: Retrieve CPF contribution and distribution rates by age bracket
+description: Resolve official CPF bands with inclusive upper bounds
 ---
 
-Endpoints for accessing age group information and rates.
+CPF contribution bands use inclusive upper ages: 55 and below, above 55 to 60, above 60 to 65, above 65 to 70, and above 70. Allocation bands also split at 35, 45, and 50. API v2 exposes `maxAgeInclusive` instead of an ambiguous exclusive maximum.
 
-## GET /age-groups
+The next contribution rate applies from the first day of the month after the member turns 55, 60, 65, or 70. Supply `birthMonth` plus `contributionMonth` when exact transition treatment matters.
 
-Retrieve all available CPF age groups with contribution and distribution rates.
+## GET `/age-groups`
 
-### Response
+Returns a schedule's contribution and allocation bands with policy provenance. Rates also depend on citizenship and contribution month; use `/calculate` for an exact contribution.
 
 ```typescript
-type AgeGroupsResponse = Array<{
-  description: string;           // e.g., "35 and below"
-  minAge: number;
-  maxAge?: number;
-  contributionRate: {
-    employee: number;            // Percentage as decimal
-    employer: number;
+interface AgeGroupsResponse {
+  contributionMonth: string;
+  citizenship: "citizen" | "spr-year1" | "spr-year2" | "spr-year3-plus";
+  schedule: { id: string; effectiveFrom: string; effectiveTo: string };
+  ageGroups: Array<{
+    id: string;
+    description: string;
+    minAgeExclusive?: number;
+    maxAgeInclusive?: number;
+    retirementAccount: "SA" | "RA";
+    contributionRate: { employee: number; employer: number };
+    allocationRate: { OA: number; SA?: number; RA?: number; MA: number };
+  }>;
+  policy: {
+    contribution: PolicyMetadata;
+    allocation: PolicyMetadata;
   };
-  distributionRate: {
-    OA: number;                  // Ordinary Account %
-    SA: number;                  // Special Account %
-    MA: number;                  // MediSave Account %
-  };
-}>
-```
-
-### Example
-
-```bash
-curl https://simplycpf.com/api/cpf/age-groups
-```
-
-```json
-[
-  {
-    "description": "35 and below",
-    "minAge": 0,
-    "maxAge": 35,
-    "contributionRate": {
-      "employee": 0.2,
-      "employer": 0.17
-    },
-    "distributionRate": {
-      "OA": 0.6217,
-      "SA": 0.1621,
-      "MA": 0.2162
-    }
-  }
-]
-```
-
----
-
-## GET /age-group/find
-
-Find the applicable age group for a specific age.
-
-### Query Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `age` | integer | Yes | Age in years (non-negative) |
-
-### Response
-
-Returns a single `AgeGroup` object.
-
-### Example
-
-```bash
-curl "https://simplycpf.com/api/cpf/age-group/find?age=45"
-```
-
-```json
-{
-  "description": "Above 35 to 45",
-  "minAge": 36,
-  "maxAge": 45,
-  "contributionRate": {
-    "employee": 0.2,
-    "employer": 0.17
-  },
-  "distributionRate": {
-    "OA": 0.5677,
-    "SA": 0.1891,
-    "MA": 0.2432
-  }
 }
 ```
 
-### Errors
-
-| Status | Error |
-|--------|-------|
-| 400 | Missing or invalid age parameter |
-
----
-
-## GET /age/from-birthdate
-
-Convert a birth date to current age.
-
-### Query Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `birthDate` | string | Yes | Date in MM/YYYY format (e.g., "03/1990") |
-
-### Response
-
-```typescript
-interface AgeFromBirthdateResponse {
-  birthDate: string;    // Input birth date
-  age: number;          // Calculated current age
-}
-```
-
-### Example
+Following the 2025 SA closure, responses identify `RA` explicitly for members aged 55 and above, including exact age 55. They do not describe that allocation as SA.
 
 ```bash
-curl "https://simplycpf.com/api/cpf/age/from-birthdate?birthDate=03/1990"
+curl "https://simplycpf.com/api/cpf/age-groups?contributionMonth=2026-08&citizenship=citizen"
 ```
 
-```json
-{
-  "birthDate": "03/1990",
-  "age": 34
-}
+## GET `/age-group/find`
+
+Supply either completed `age` or `birthMonth`, plus `contributionMonth`. The response flattens the matching group fields and adds `contributionMonth`, `citizenship`, `schedule`, and the same contribution/allocation policy metadata:
+
+```bash
+curl "https://simplycpf.com/api/cpf/age-group/find?birthMonth=1971-08&contributionMonth=2026-08"
 ```
 
-### Errors
+If both age inputs are supplied, or neither is supplied, the API returns `422`. An unsupported schedule month returns `404`.
 
-| Status | Error |
-|--------|-------|
-| 400 | Invalid format, future date, or parse errors |
+## GET `/age/from-birthdate`
+
+Resolves completed age for a contribution month and indicates whether the month-after-birthday transition has taken effect.
+
+Source: [CPF Board — Which rate applies when an employee enters the next age group?](https://www.cpf.gov.sg/service/article/which-cpf-contribution-rate-should-be-applied-when-my-employee-enters-the-next-age-group).

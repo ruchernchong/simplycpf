@@ -1,90 +1,70 @@
 import {
-  DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-  DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-} from "@/config";
+  type AllocationRateBand,
+  type ContributionCitizenship,
+  type ContributionRateBand,
+  getContributionRatesForCitizenship,
+  resolveContributionSchedule,
+} from "@/policy";
 import type { AgeGroup } from "@/types";
 
 /**
- * Contribution and allocation rates for Singapore Citizens and PRs from the
- * 3rd year onwards, on monthly wages above $750. Effective 1 January 2026.
- *
- * Contribution rates: CPF Contribution Rate Table from 1 January 2026 (Table 1)
- * https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFcontributionratesfrom1Jan2026.pdf
- *
- * Allocation rates: CPF Allocation Rates from 1 January 2026
- * https://www.cpf.gov.sg/content/dam/web/employer/employer-obligations/documents/CPFAllocationRatesfromJanuary2026.pdf
- *
- * For ages 55 and above the `SA` key carries the Retirement Account share;
- * the Special Account no longer receives contributions after its closure.
- * Per CPF, those contributions go to the RA up to the Full Retirement Sum, and
- * are channelled to the Ordinary Account once the FRS has been set aside.
+ * Compatibility adapter for screens that still consume `AgeGroup[]`.
+ * The authoritative rates remain in `src/policy/contributions.ts`.
  */
-export const ageGroups: AgeGroup[] = [
-  {
-    description: "35 and below",
-    minAge: 0,
-    maxAge: 35,
-    contributionRate: {
-      employee: DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-      employer: DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-    },
-    distributionRate: { OA: 0.6217, SA: 0.1621, MA: 0.2162 },
-  },
-  {
-    description: "Above 35 to 45",
-    minAge: 35,
-    maxAge: 45,
-    contributionRate: {
-      employee: DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-      employer: DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-    },
-    distributionRate: { OA: 0.5677, SA: 0.1891, MA: 0.2432 },
-  },
-  {
-    description: "Above 45 to 50",
-    minAge: 45,
-    maxAge: 50,
-    contributionRate: {
-      employee: DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-      employer: DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-    },
-    distributionRate: { OA: 0.5136, SA: 0.2162, MA: 0.2702 },
-  },
-  {
-    description: "Above 50 to 55",
-    minAge: 50,
-    maxAge: 55,
-    contributionRate: {
-      employee: DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
-      employer: DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
-    },
-    distributionRate: { OA: 0.4055, SA: 0.3108, MA: 0.2837 },
-  },
-  {
-    description: "Above 55 to 60",
-    minAge: 55,
-    maxAge: 60,
-    contributionRate: { employee: 0.18, employer: 0.16 },
-    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
-  },
-  {
-    description: "Above 60 to 65",
-    minAge: 60,
-    maxAge: 65,
-    contributionRate: { employee: 0.125, employer: 0.125 },
-    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
-  },
-  {
-    description: "Above 65 to 70",
-    minAge: 65,
-    maxAge: 70,
-    contributionRate: { employee: 0.075, employer: 0.09 },
-    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
-  },
-  {
-    description: "Above 70",
-    minAge: 70,
-    contributionRate: { employee: 0.05, employer: 0.075 },
-    distributionRate: { OA: 0.08, SA: 0.08, MA: 0.84 },
-  },
-];
+export function getAgeGroupsForMonth(
+  contributionMonth: string,
+  citizenship: ContributionCitizenship = "citizen",
+): AgeGroup[] {
+  const schedule = resolveContributionSchedule(contributionMonth).schedule;
+  const contributionRates = getContributionRatesForCitizenship(
+    schedule,
+    citizenship,
+  );
+
+  return schedule.allocationRates.map((allocation) => {
+    const contribution = findContributionBand(contributionRates, allocation);
+    const retirementAccount =
+      contributionMonth >= "2025-01" && (allocation.minAgeExclusive ?? 0) >= 55
+        ? "RA"
+        : "SA";
+
+    return {
+      description: allocation.description,
+      minAge: allocation.minAgeExclusive ?? 0,
+      ...(allocation.maxAgeInclusive === undefined
+        ? {}
+        : { maxAge: allocation.maxAgeInclusive }),
+      contributionRate: {
+        employee: contribution.employeeBasisPoints / 10000,
+        employer: contribution.employerBasisPoints / 10000,
+      },
+      distributionRate: {
+        OA: allocation.oaBasisPoints / 10000,
+        [retirementAccount]: allocation.retirementBasisPoints / 10000,
+        MA: allocation.maBasisPoints / 10000,
+      },
+    };
+  });
+}
+
+/** Current (2026) rates; retained for existing UI and selector imports. */
+export const ageGroups: AgeGroup[] = getAgeGroupsForMonth("2026-01", "citizen");
+
+function findContributionBand(
+  contributionRates: readonly ContributionRateBand[],
+  allocation: AllocationRateBand,
+): ContributionRateBand {
+  const contributionAgeBand =
+    allocation.maxAgeInclusive !== undefined && allocation.maxAgeInclusive <= 55
+      ? "55-and-below"
+      : allocation.id;
+  const match = contributionRates.find(
+    (candidate) => candidate.id === contributionAgeBand,
+  );
+  if (!match) {
+    throw new Error(
+      `No contribution rate matches allocation band ${allocation.id}.`,
+    );
+  }
+  return match;
+}

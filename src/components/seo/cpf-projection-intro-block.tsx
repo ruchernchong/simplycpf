@@ -25,7 +25,8 @@ const CpfProjectionIntroBlock = () => (
           </li>
           <li>
             <strong>Account distribution</strong>, How contributions flow into
-            Ordinary Account (OA), Special Account (SA), and MediSave (MA)
+            Ordinary Account (OA), Special Account (SA) or Retirement Account
+            (RA), and MediSave Account (MA)
           </li>
           <li>
             <strong>Base interest rates</strong>, OA at 2.5%, SA/MA/RA at 4% per
@@ -38,19 +39,18 @@ const CpfProjectionIntroBlock = () => (
           </li>
           <li>
             <strong>Key milestones</strong>, Age 55 (SA closure, RA creation),
-            age 65 (BHS freeze, CPF LIFE eligibility)
+            age 65 (cohort BHS freeze and payout eligibility age)
           </li>
         </ul>
         <Typography>
-          The projection also estimates your potential{" "}
-          <strong>CPF LIFE monthly payout</strong> based on your projected RA
-          balance at age 65. This is an estimate, actual payouts depend on the
-          CPF LIFE plan you choose and prevailing annuity factors when you join.
+          The projection does not calculate a personalised CPF LIFE payout. It
+          shows CPF Board&apos;s published 2026 Standard Plan reference rows as
+          context and links to CPF&apos;s Retirement Payout Planner.
         </Typography>
         <Typography color="muted" type="body-sm">
-          Important: This is a projection, not a guarantee. Actual rates, income
-          changes, housing withdrawals, and voluntary top-ups will affect your
-          final balances.
+          Important: This is a SimplyCPF scenario, not a forecast or guarantee.
+          Published policy is used where available; later BHS and retirement
+          sums are frozen at the latest published value and marked assumed.
         </Typography>
       </Card.Content>
     </Card>

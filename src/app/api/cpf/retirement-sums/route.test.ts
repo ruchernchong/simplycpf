@@ -15,6 +15,9 @@ describe("GET /api/cpf/retirement-sums", () => {
       frs: 220400,
       ers: 440800,
     });
+    expect(data.latestPublishedYear).toBe(2027);
+    expect(data.metadata.status).toBe("official");
+    expect(data.metadata.verifiedAt).toBe("2026-08-01");
   });
 
   it("should return a single year when year query is provided", async () => {
@@ -31,10 +34,16 @@ describe("GET /api/cpf/retirement-sums", () => {
       brs: 110200,
       frs: 220400,
       ers: 440800,
+      status: "official",
+      metadata: expect.objectContaining({
+        dataset: "cpf-retirement-sums",
+        status: "official",
+        version: "2026",
+      }),
     });
   });
 
-  it("should return 400 for invalid years", async () => {
+  it("returns 422 for malformed years", async () => {
     const response = await GET(
       new Request(
         "https://simplycpf.localhost/api/cpf/retirement-sums?year=abc",
@@ -42,7 +51,33 @@ describe("GET /api/cpf/retirement-sums", () => {
     );
     const data = await response.json();
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(422);
     expect(data.error).toBe("year must be a valid year");
+  });
+
+  it.each([2022, 2028, 2035])(
+    "returns 404 instead of fabricating retirement sums for %s",
+    async (year) => {
+      const response = await GET(
+        new Request(
+          `https://simplycpf.localhost/api/cpf/retirement-sums?year=${year}`,
+        ),
+      );
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data.error).toContain(String(year));
+      expect(data.supportedYears).toContain(2027);
+    },
+  );
+
+  it("uses the revalidating policy cache", async () => {
+    const response = await GET(
+      new Request("https://simplycpf.localhost/api/cpf/retirement-sums"),
+    );
+
+    expect(response.headers.get("cache-control")).toBe(
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+    );
   });
 });

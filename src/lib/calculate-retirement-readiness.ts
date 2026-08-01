@@ -100,7 +100,7 @@ function buildReadinessPresentation({
 
   const primaryActionLabel =
     interestArea === "cpf-life"
-      ? "Open the CPF LIFE estimator"
+      ? "Open the CPF LIFE reference"
       : interestArea === "pr-rates"
         ? "Check PR rates on the calculator"
         : bucket === "high"
@@ -125,7 +125,7 @@ function buildReadinessPresentation({
 
   const summary =
     interestArea === "cpf-life"
-      ? "Your answers suggest the biggest gap is translating CPF balances into a realistic monthly retirement payout."
+      ? "Your answers suggest the biggest gap is understanding how CPF balances, plans and payout start age relate to retirement income."
       : interestArea === "pr-rates"
         ? "Your answers suggest the biggest gap is making sure your PR contribution assumptions are correct before you project forward."
         : bucket === "high"
@@ -135,9 +135,9 @@ function buildReadinessPresentation({
   const nextSteps =
     interestArea === "cpf-life"
       ? [
-          "Estimate your CPF LIFE payout range using your current or target Retirement Account balance.",
-          "Compare the Standard, Escalating, and Basic plans before treating one payout number as fixed.",
-          "Use the projection calculator after that to see how close you are to the payout range you want.",
+          "Review CPF Board's published 2026 Standard Plan reference rows without treating them as a personalised quote.",
+          "Compare the characteristics of the Standard, Escalating, and Basic plans.",
+          "Use CPF Board's Retirement Payout Planner for a personalised estimate.",
         ]
       : interestArea === "pr-rates"
         ? [
@@ -147,7 +147,7 @@ function buildReadinessPresentation({
           ]
         : bucket === "high"
           ? [
-              "Run a what-if scenario for salary changes, top-ups, or OA to SA transfers.",
+              "Run a what-if scenario for salary changes, top-ups, or age-aware retirement transfers.",
               "Use the projection calculator as your baseline reference before comparing changes.",
               "Keep the CPF cheat sheet close so the latest rates and retirement sums stay easy to review.",
             ]

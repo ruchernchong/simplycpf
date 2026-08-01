@@ -78,9 +78,9 @@ export default function RetirementReadinessPage() {
             data-readiness-intro
           >
             This 5-question score is meant to surface the next CPF planning gap
-            worth fixing. It is not a guarantee of retirement adequacy. It is a
-            faster way to decide whether you should use the projection tool, the
-            CPF LIFE estimator, or the calculator next.
+            worth fixing. It is a SimplyCPF editorial rubric, not a CPF Board
+            assessment or a guarantee of retirement adequacy. Use it to choose
+            between the projection, CPF LIFE reference, and contribution tools.
           </Typography>
         </div>
         <ReadinessScoreForm />

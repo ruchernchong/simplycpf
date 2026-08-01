@@ -1,44 +1,47 @@
 ---
 title: Developer Portal
-description: Build applications with the SimplyCPF API
+description: Build with SimplyCPF's source-backed API v2
 ---
 
-Welcome to the SimplyCPF Developer Portal. This documentation provides everything you need to integrate CPF contribution calculations into your applications.
+SimplyCPF API v2.0.0 exposes source-backed CPF contribution calculations, official reference datasets, and assumption-labelled projections. Every policy-backed response includes provenance and an `official | assumed` status. SimplyCPF is independent and is not affiliated with CPF Board or any government agency.
 
-## Getting Started
+## Base URL
 
-The CPF API provides programmatic access to Singapore CPF contribution calculations, age group rates, income ceiling data, and interest rate information.
-
-### Base URL
-
-All API endpoints are available at:
-
-```
+```text
 https://simplycpf.com/api/cpf
 ```
 
-### Quick Example
+No authentication is required. Production endpoints are rate limited to 10 requests per 10 seconds per client IP.
 
-Calculate CPF contributions for a monthly income:
+## Quick example
 
 ```bash
 curl -X POST https://simplycpf.com/api/cpf/calculate \
   -H "Content-Type: application/json" \
-  -d '{"income": 5000}'
+  -d '{
+    "contributionMonth": "2026-08",
+    "ordinaryWages": 5000,
+    "citizenship": "citizen",
+    "birthMonth": "1996-04"
+  }'
 ```
 
-## API Categories
+The calculation resolves the effective monthly schedule, CPF wage band, age transition, OW ceiling, official rounding order, account allocation, and post-55 RA routing. Additional Wages require annual OW and prior-AW context; the API returns `422` instead of guessing.
 
-- **[Calculation](/developer/api/calculation)** - Calculate CPF contributions, batch processing, and multi-year projections
-- **[Age Groups](/developer/api/age-groups)** - Retrieve contribution and distribution rates by age bracket
-- **[Income Ceiling](/developer/api/ceiling)** - Get current and historical CPF income ceiling values
-- **[Interest Rates](/developer/api/interest-rates)** - Access CPF interest rates and SGS yield data
-- **[Investment](/developer/api/investment)** - Compare investment scenarios with compound interest
+## API categories
 
-## Features
+- **[Calculation](/developer/api/calculation)** — month-aware contributions, batch processing, and monthly-ledger projections
+- **[Age groups](/developer/api/age-groups)** — inclusive upper age bounds and explicit RA after the SA closure
+- **[Policy reference](/developer/api/policy)** — sourced ceilings, BHS, and retirement sums without silent extrapolation
+- **[Interest rates](/developer/api/interest-rates)** — official quarterly declarations and published peg methodology
+- **[Investment](/developer/api/investment)** — caller-supplied comparison assumptions, not CPF Board forecasts
 
-- **No Authentication Required** - All endpoints are publicly accessible
-- **Rate Limited** - Production CPF API endpoints allow 10 requests per 10 seconds per client IP
-- **JSON Responses** - All endpoints return JSON data
-- **Comprehensive Validation** - Clear error messages for invalid requests
-- **Up-to-date Data** - Reflects the latest CPF rates and ceiling changes
+## Correctness contract
+
+- Official contribution schedules are supported from January 2023 through December 2027.
+- Public reference endpoints return `404` for unsupported policy years; they do not clamp or fabricate values.
+- Projection rows after the last publication freeze that policy and mark it `assumed`.
+- CPF LIFE output is CPF Board's exact 2026 Standard Plan reference table. SimplyCPF does not calculate personalised payouts; deprecated `cpfLifeEstimate` is `null`.
+- Policy responses use 24-hour edge caching with stale revalidation and are not marked immutable.
+
+Read the [machine-readable CPF policy reference](/cpf-rates.md) for first-party sources and per-dataset verification metadata.

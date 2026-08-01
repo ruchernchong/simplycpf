@@ -1,5 +1,8 @@
 import { Card, cn, Typography } from "@heroui/react";
-import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
+import {
+  CPF_INTEREST_FLOOR_RATES,
+  CPF_INTEREST_RATE_METHODOLOGY,
+} from "@/constants/cpf-interest-rates";
 import {
   CPF_ADDITIONAL_SENIOR_INTEREST_CAP,
   CPF_EXTRA_INTEREST_CAP,
@@ -29,7 +32,7 @@ const tiles: Tile[] = [
   {
     label: "SA · MA · RA",
     value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
-    note: "Floor rate. Otherwise pegged to the 10-year SGS yield plus 1%.",
+    note: CPF_INTEREST_RATE_METHODOLOGY.SMRA.description,
   },
   {
     label: "Extra, under 55",
