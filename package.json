@@ -97,7 +97,7 @@
     "jsdom": "27.2.0",
     "lint-staged": "16.2.7",
     "portless": "0.10.1",
-    "postcss": "8.5.12",
+    "postcss": "8.5.18",
     "schema-dts": "1.1.5",
     "semantic-release": "24.2.9",
     "shadcn": "3.5.0",
