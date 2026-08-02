@@ -1,4 +1,5 @@
 import type { AgeGroup } from "@/types";
+import { seniorDistributionRates } from "./senior-distribution-rates";
 
 /**
  * Graduated (G/G) contribution rates for Permanent Residents in their 1st and
@@ -17,7 +18,8 @@ import type { AgeGroup } from "@/types";
  * contribute at full employer / full employee (F/F) rates, who use the
  * citizen table instead.
  */
-const baseYear1Rates: AgeGroup[] = [
+
+export const permanentResidentYear1Rates: AgeGroup[] = [
   {
     description: "35 and below",
     minAge: 0,
@@ -44,38 +46,36 @@ const baseYear1Rates: AgeGroup[] = [
     minAge: 50,
     maxAge: 55,
     contributionRate: { employee: 0.05, employer: 0.04 },
-    distributionRate: { OA: 0.4055, SA: 0.3108, MA: 0.2837 },
+    distributionRate: seniorDistributionRates["Above 50 to 55"],
   },
   {
     description: "Above 55 to 60",
     minAge: 55,
     maxAge: 60,
     contributionRate: { employee: 0.05, employer: 0.04 },
-    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
+    distributionRate: seniorDistributionRates["Above 55 to 60"],
   },
   {
     description: "Above 60 to 65",
     minAge: 60,
     maxAge: 65,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
+    distributionRate: seniorDistributionRates["Above 60 to 65"],
   },
   {
     description: "Above 65 to 70",
     minAge: 65,
     maxAge: 70,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
+    distributionRate: seniorDistributionRates["Above 65 to 70"],
   },
   {
     description: "Above 70",
     minAge: 70,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.08, SA: 0.08, MA: 0.84 },
+    distributionRate: seniorDistributionRates["Above 70"],
   },
 ];
-
-export const permanentResidentYear1Rates = [...baseYear1Rates];
 
 export const permanentResidentYear2Rates: AgeGroup[] = [
   {
@@ -104,33 +104,33 @@ export const permanentResidentYear2Rates: AgeGroup[] = [
     minAge: 50,
     maxAge: 55,
     contributionRate: { employee: 0.15, employer: 0.09 },
-    distributionRate: { OA: 0.4055, SA: 0.3108, MA: 0.2837 },
+    distributionRate: seniorDistributionRates["Above 50 to 55"],
   },
   {
     description: "Above 55 to 60",
     minAge: 55,
     maxAge: 60,
     contributionRate: { employee: 0.125, employer: 0.06 },
-    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
+    distributionRate: seniorDistributionRates["Above 55 to 60"],
   },
   {
     description: "Above 60 to 65",
     minAge: 60,
     maxAge: 65,
     contributionRate: { employee: 0.075, employer: 0.035 },
-    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
+    distributionRate: seniorDistributionRates["Above 60 to 65"],
   },
   {
     description: "Above 65 to 70",
     minAge: 65,
     maxAge: 70,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
+    distributionRate: seniorDistributionRates["Above 65 to 70"],
   },
   {
     description: "Above 70",
     minAge: 70,
     contributionRate: { employee: 0.05, employer: 0.035 },
-    distributionRate: { OA: 0.08, SA: 0.08, MA: 0.84 },
+    distributionRate: seniorDistributionRates["Above 70"],
   },
 ];

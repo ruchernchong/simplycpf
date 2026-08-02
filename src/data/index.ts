@@ -3,6 +3,7 @@ import {
   DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
 } from "@/config";
 import type { AgeGroup } from "@/types";
+import { seniorDistributionRates } from "./senior-distribution-rates";
 
 /**
  * Contribution and allocation rates for Singapore Citizens and PRs from the
@@ -58,33 +59,33 @@ export const ageGroups: AgeGroup[] = [
       employee: DEFAULT_EMPLOYEE_CONTRIBUTION_RATE,
       employer: DEFAULT_EMPLOYER_CONTRIBUTION_RATE,
     },
-    distributionRate: { OA: 0.4055, SA: 0.3108, MA: 0.2837 },
+    distributionRate: seniorDistributionRates["Above 50 to 55"],
   },
   {
     description: "Above 55 to 60",
     minAge: 55,
     maxAge: 60,
     contributionRate: { employee: 0.18, employer: 0.16 },
-    distributionRate: { OA: 0.353, SA: 0.3382, MA: 0.3088 },
+    distributionRate: seniorDistributionRates["Above 55 to 60"],
   },
   {
     description: "Above 60 to 65",
     minAge: 60,
     maxAge: 65,
     contributionRate: { employee: 0.125, employer: 0.125 },
-    distributionRate: { OA: 0.14, SA: 0.44, MA: 0.42 },
+    distributionRate: seniorDistributionRates["Above 60 to 65"],
   },
   {
     description: "Above 65 to 70",
     minAge: 65,
     maxAge: 70,
     contributionRate: { employee: 0.075, employer: 0.09 },
-    distributionRate: { OA: 0.0607, SA: 0.303, MA: 0.6363 },
+    distributionRate: seniorDistributionRates["Above 65 to 70"],
   },
   {
     description: "Above 70",
     minAge: 70,
     contributionRate: { employee: 0.05, employer: 0.075 },
-    distributionRate: { OA: 0.08, SA: 0.08, MA: 0.84 },
+    distributionRate: seniorDistributionRates["Above 70"],
   },
 ];
