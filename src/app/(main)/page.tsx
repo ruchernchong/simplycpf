@@ -11,7 +11,7 @@ import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatPercentage } from "@/lib/format";
 
 export const metadata: Metadata = {
   // `absolute` opts out of the root title template, which would otherwise
@@ -44,12 +44,12 @@ export default function HomePage() {
   const statBandItems = [
     {
       label: "OA interest",
-      value: `${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`,
+      value: formatPercentage(CPF_INTEREST_FLOOR_RATES.OA / 100),
       note: "Floor rate",
     },
     {
       label: "SA · MA · RA",
-      value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
+      value: formatPercentage(CPF_INTEREST_FLOOR_RATES.SMRA / 100),
       note: "Plus 1% on first $60k",
     },
     {

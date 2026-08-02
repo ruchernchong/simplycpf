@@ -1,12 +1,11 @@
 import { Card } from "@heroui/react";
 import Link from "next/link";
+import { formatPercentage } from "@/lib/format";
 import type { AgeGroup } from "@/types";
 
 interface CpfAgeSpecificBlockProps {
   ageGroup: AgeGroup;
 }
-
-const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
 const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
   const employeeRate = ageGroup.contributionRate.employee;
@@ -43,7 +42,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
                 Employee Rate
               </p>
               <p className="font-bold font-mono text-2xl text-foreground">
-                {fmtPct(employeeRate)}
+                {formatPercentage(employeeRate, { decimalPlaces: 1 })}
               </p>
             </div>
             <div className="rounded-lg bg-muted p-4">
@@ -51,13 +50,13 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
                 Employer Rate
               </p>
               <p className="font-bold font-mono text-2xl text-foreground">
-                {fmtPct(employerRate)}
+                {formatPercentage(employerRate, { decimalPlaces: 1 })}
               </p>
             </div>
             <div className="rounded-lg bg-accent/10 p-4">
               <p className="mb-1 text-accent-foreground text-sm">Total Rate</p>
               <p className="font-bold font-mono text-2xl text-accent">
-                {fmtPct(totalRate)}
+                {formatPercentage(totalRate, { decimalPlaces: 1 })}
               </p>
             </div>
           </div>
@@ -70,7 +69,9 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">OA</span>
                 <span className="font-medium font-mono">
-                  {fmtPct(ageGroup.distributionRate.OA)}
+                  {formatPercentage(ageGroup.distributionRate.OA, {
+                    decimalPlaces: 1,
+                  })}
                 </span>
                 <span className="text-muted-foreground text-xs">
                   of contributions
@@ -79,7 +80,9 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">SA</span>
                 <span className="font-medium font-mono">
-                  {fmtPct(ageGroup.distributionRate.SA)}
+                  {formatPercentage(ageGroup.distributionRate.SA, {
+                    decimalPlaces: 1,
+                  })}
                 </span>
                 <span className="text-muted-foreground text-xs">
                   of contributions
@@ -88,7 +91,9 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">MA</span>
                 <span className="font-medium font-mono">
-                  {fmtPct(ageGroup.distributionRate.MA)}
+                  {formatPercentage(ageGroup.distributionRate.MA, {
+                    decimalPlaces: 1,
+                  })}
                 </span>
                 <span className="text-muted-foreground text-xs">
                   of contributions

@@ -1,10 +1,7 @@
 import { Card, Table } from "@heroui/react";
 import { CPF_TOTAL_CONTRIBUTION_RATES_2027 } from "@/constants/cpf-contribution-rates-2027";
 import { ageGroups } from "@/data";
-
-function pct(rate: number) {
-  return `${(rate * 100).toFixed(1)}%`;
-}
+import { formatPercentage } from "@/lib/format";
 
 const rows = ageGroups.map((group) => {
   const { employee, employer } = group.contributionRate;
@@ -12,10 +9,12 @@ const rows = ageGroups.map((group) => {
 
   return {
     band: group.description,
-    employee: pct(employee),
-    employer: pct(employer),
-    total: pct(employee + employer),
-    total2027: rate2027 ? `${rate2027.toFixed(1)}%` : "no change",
+    employee: formatPercentage(employee, { decimalPlaces: 1 }),
+    employer: formatPercentage(employer, { decimalPlaces: 1 }),
+    total: formatPercentage(employee + employer, { decimalPlaces: 1 }),
+    total2027: rate2027
+      ? formatPercentage(rate2027 / 100, { decimalPlaces: 1 })
+      : "no change",
   };
 });
 

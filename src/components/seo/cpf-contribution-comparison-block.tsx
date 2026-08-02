@@ -1,7 +1,6 @@
 import { Card } from "@heroui/react";
 import { ageGroups } from "@/data";
-
-const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
+import { formatPercentage } from "@/lib/format";
 
 const CpfContributionComparisonBlock = () => (
   <section
@@ -33,13 +32,13 @@ const CpfContributionComparisonBlock = () => (
                   <tr key={g.description} className="border-b last:border-0">
                     <td className="py-4 pr-4 font-medium">{g.description}</td>
                     <td className="py-4 pr-4 text-right font-mono">
-                      {fmtPct(emp)}
+                      {formatPercentage(emp, { decimalPlaces: 1 })}
                     </td>
                     <td className="py-4 pr-4 text-right font-mono">
-                      {fmtPct(empR)}
+                      {formatPercentage(empR, { decimalPlaces: 1 })}
                     </td>
                     <td className="py-4 text-right font-mono font-semibold">
-                      {fmtPct(emp + empR)}
+                      {formatPercentage(emp + empR, { decimalPlaces: 1 })}
                     </td>
                   </tr>
                 );

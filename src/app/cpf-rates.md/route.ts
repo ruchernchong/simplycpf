@@ -29,23 +29,21 @@ import {
   permanentResidentYear1Rates,
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatPercentage } from "@/lib/format";
 
 export const revalidate = false;
-
-const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
 const contributionRows = ageGroups
   .map((g) => {
     const emp = g.contributionRate.employee;
     const empR = g.contributionRate.employer;
-    return `| ${g.description} | ${fmtPct(emp)} | ${fmtPct(empR)} | ${fmtPct(emp + empR)} |`;
+    return `| ${g.description} | ${formatPercentage(emp, { decimalPlaces: 1 })} | ${formatPercentage(empR, { decimalPlaces: 1 })} | ${formatPercentage(emp + empR, { decimalPlaces: 1 })} |`;
   })
   .join("\n");
 
 const distributionRows = ageGroups
   .map((g) => {
-    return `| ${g.description} | ${fmtPct(g.distributionRate.OA)} | ${fmtPct(g.distributionRate.SA)} | ${fmtPct(g.distributionRate.MA)} |`;
+    return `| ${g.description} | ${formatPercentage(g.distributionRate.OA, { decimalPlaces: 1 })} | ${formatPercentage(g.distributionRate.SA, { decimalPlaces: 1 })} | ${formatPercentage(g.distributionRate.MA, { decimalPlaces: 1 })} |`;
   })
   .join("\n");
 
@@ -60,14 +58,14 @@ const quarterlyRows = QUARTERLY_CPF_RATES.map(
 const prYear1Rows = permanentResidentYear1Rates
   .map(
     (g) =>
-      `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
+      `| ${g.description} | ${formatPercentage(g.contributionRate.employee, { decimalPlaces: 1 })} | ${formatPercentage(g.contributionRate.employer, { decimalPlaces: 1 })} |`,
   )
   .join("\n");
 
 const prYear2Rows = permanentResidentYear2Rates
   .map(
     (g) =>
-      `| ${g.description} | ${fmtPct(g.contributionRate.employee)} | ${fmtPct(g.contributionRate.employer)} |`,
+      `| ${g.description} | ${formatPercentage(g.contributionRate.employee, { decimalPlaces: 1 })} | ${formatPercentage(g.contributionRate.employer, { decimalPlaces: 1 })} |`,
   )
   .join("\n");
 
@@ -179,7 +177,7 @@ ${bhsRows}
 
 ## Key Statistics (${CPF_DATA_AS_OF_YEAR})
 
-- **Default total contribution rate (age ≤ 55):** ${fmtPct(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE)} (20% employee + 17% employer)
+- **Default total contribution rate (age ≤ 55):** ${formatPercentage(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE, { decimalPlaces: 1 })} (20% employee + 17% employer)
 - **Current income ceiling:** S$${formatNumber(getCeilingForYear(CPF_DATA_AS_OF_YEAR))} (from 1 January 2026, the final step of the Budget 2023 increase)
 - **OA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.OA}% p.a.
 - **SMRA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.

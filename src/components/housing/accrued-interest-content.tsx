@@ -14,7 +14,7 @@ import type { Key } from "react";
 import { Cell } from "recharts";
 import { SplitBar } from "@/components/shared/split-bar";
 import { calculateAccruedInterest } from "@/lib/calculate-accrued-interest";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatPercentage } from "@/lib/format";
 
 const AMOUNT_OPTIONS = [150_000, 250_000, 400_000] as const;
 const YEAR_OPTIONS = [5, 10, 20] as const;
@@ -131,8 +131,9 @@ export function AccruedInterestContent() {
               {formatCurrency(result.accruedInterest, 0)} of accrued interest
               builds up alongside it. On sale,{" "}
               {formatCurrency(result.totalOwed, 0)} goes back into your CPF
-              before any cash reaches you, that is {uplift.toFixed(1)}% more
-              than you took out.
+              before any cash reaches you, that is{" "}
+              {formatPercentage(uplift / 100, { decimalPlaces: 1 })} more than
+              you took out.
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
               <Card variant="tertiary">

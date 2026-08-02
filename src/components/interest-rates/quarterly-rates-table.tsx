@@ -1,5 +1,6 @@
 import { Card, Table } from "@heroui/react";
 import { QUARTERLY_CPF_RATES } from "@/constants/cpf-interest-rates";
+import { formatPercentage } from "@/lib/format";
 
 const LATEST_QUARTERS = 6;
 
@@ -31,10 +32,10 @@ export function QuarterlyRatesTable() {
                   <Table.Row key={row.quarter} id={row.quarter}>
                     <Table.Cell>{row.quarter}</Table.Cell>
                     <Table.Cell className="text-right">
-                      {row.oa.toFixed(2)}%
+                      {formatPercentage(row.oa / 100)}
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      {row.sa.toFixed(2)}%
+                      {formatPercentage(row.sa / 100)}
                     </Table.Cell>
                   </Table.Row>
                 ))}
