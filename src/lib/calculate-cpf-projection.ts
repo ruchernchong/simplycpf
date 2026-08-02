@@ -7,6 +7,7 @@ import {
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
 } from "@/constants/cpf-interest-tiers";
+import { CPF_LIFE_AUTO_INCLUSION_BALANCE } from "@/constants/cpf-life";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { ageGroups } from "@/data";
 import {
@@ -25,12 +26,15 @@ import type {
   YearlyBalance,
 } from "@/types";
 
-const CPF_LIFE_PAYOUT_FACTOR = 0.008;
+// Anchored to the CPF Board's published example: the 2025 ERS of $426,000 set
+// aside at 55 corresponds to payouts of about $3,300/month from 65. The RA
+// grows at the 4% floor for the 10 years in between, so the factor applies to
+// the balance at payout start. https://www.cpf.gov.sg/member/infohub/news/media-news/why-it-pays-to-plan-for-retirement-income-of-up-to-3300-from-your-cpf
+const CPF_LIFE_PAYOUT_FACTOR = 3300 / (426_000 * 1.04 ** 10);
 const CPF_LIFE_ESCALATING_START_RATIO = 0.8;
 const CPF_LIFE_BASIC_RATIO = 0.9;
 const CPF_LIFE_DEFER_ANNUAL_INCREASE = 0.07;
 const CPF_LIFE_MAX_DEFER_YEARS = 5;
-const CPF_LIFE_MIN_RETIREMENT_SAVINGS = 60_000;
 const TAX_RELIEF_SELF = 8_000;
 
 function getAgeGroupsForCitizenship(citizenship: CitizenshipStatus) {
@@ -197,7 +201,7 @@ export function estimateCpfLife(
   raBalance: number,
   currentAge = 65,
 ): CpfLifeEstimate {
-  if (raBalance < CPF_LIFE_MIN_RETIREMENT_SAVINGS) {
+  if (raBalance < CPF_LIFE_AUTO_INCLUSION_BALANCE) {
     return {
       standardMonthly: 0,
       escalatingStartMonthly: 0,
