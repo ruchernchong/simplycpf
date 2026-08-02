@@ -5,6 +5,7 @@ import {
 import {
   CPF_INCOME_CEILING,
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
+  getCeilingForYear,
 } from "@/constants";
 import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
 import {
@@ -179,7 +180,7 @@ ${bhsRows}
 ## Key Statistics (${CPF_DATA_AS_OF_YEAR})
 
 - **Default total contribution rate (age ≤ 55):** ${fmtPct(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE)} (20% employee + 17% employer)
-- **Current income ceiling:** S$${formatNumber(CPF_INCOME_CEILING["2026-01-01"])} (from 1 January 2026, the final step of the Budget 2023 increase)
+- **Current income ceiling:** S$${formatNumber(getCeilingForYear(CPF_DATA_AS_OF_YEAR))} (from 1 January 2026, the final step of the Budget 2023 increase)
 - **OA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.OA}% p.a.
 - **SMRA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.
 - **Extra interest tier:** ${CPF_EXTRA_INTEREST_RATE * 100}% on first S$${formatNumber(CPF_EXTRA_INTEREST_CAP)} (OA capped at S$${formatNumber(CPF_OA_EXTRA_INTEREST_CAP)})
