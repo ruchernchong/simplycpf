@@ -10,6 +10,7 @@ dist
 *.local
 
 # Cache
+.pnpm-store/
 *.tsbuildinfo
 .swc/
 .turbo
