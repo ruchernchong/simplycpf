@@ -11,7 +11,6 @@ import {
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
-import { PageHeader } from "@/components/shared/section-header";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
@@ -23,12 +22,6 @@ import {
   selectProjectionInputs,
 } from "@/stores/selectors";
 import type { ProjectionResult } from "@/types";
-
-const PAGE_HEADER = {
-  eyebrow: "At 55",
-  title: "Your Special Account closes. Here is where the money goes.",
-  lede: "The CPF Board closed the Special Accounts of about 1.4 million members aged 55 and above on 19 January 2025. If you turn 55 after that date, it happens on your birthday. Nothing is taken away, it moves, and the two destinations behave differently.",
-} as const;
 
 const MONO_LABEL = "font-mono text-[10px] uppercase tracking-[0.12em]";
 
@@ -432,7 +425,20 @@ export default function At55Content(): ReactNode {
 
   return (
     <div className="flex flex-col gap-12">
-      <PageHeader {...PAGE_HEADER} />
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          At 55
+        </span>
+        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          Your Special Account closes. Here is where the money goes.
+        </h1>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          The CPF Board closed the Special Accounts of about 1.4 million members
+          aged 55 and above on 19 January 2025. If you turn 55 after that date,
+          it happens on your birthday. Nothing is taken away, it moves, and the
+          two destinations behave differently.
+        </p>
+      </header>
 
       {!mounted && <Skeleton className="h-96 w-full rounded-lg" />}
 

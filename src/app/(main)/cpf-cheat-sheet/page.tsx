@@ -4,7 +4,6 @@ import type { Graph } from "schema-dts";
 import { CheatSheetCard } from "@/components/cheat-sheet/cheat-sheet-card";
 import { PrintButton } from "@/components/cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
-import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/cpf-cheat-sheet`;
@@ -81,11 +80,14 @@ export default function CpfCheatSheetPage() {
       <style href="cheat-sheet-print" precedence="medium">
         {PRINT_STYLES}
       </style>
-      <PageHeader
-        eyebrow="Cheat sheet"
-        title="One page, on the fridge, done"
-        lede="Every reference number for 2026 on a single printable sheet. No inputs, no personalisation, just the figures you keep having to look up."
-        actions={
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          Cheat sheet
+        </span>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="text-balance font-semibold text-4xl tracking-tight">
+            One page, on the fridge, done
+          </h1>
           <div className="flex flex-wrap gap-2">
             <PrintButton />
             <a
@@ -95,8 +97,13 @@ export default function CpfCheatSheetPage() {
               Download PDF
             </a>
           </div>
-        }
-      />
+        </div>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          Every reference number for 2026 on a single printable sheet. No
+          inputs, no personalisation, just the figures you keep having to look
+          up.
+        </p>
+      </header>
       <CheatSheetCard />
     </>
   );

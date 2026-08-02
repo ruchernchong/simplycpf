@@ -8,7 +8,6 @@ import CpfContributionComparisonBlock from "@/components/seo/cpf-contribution-co
 import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-comparison-block";
 import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import { StructuredData } from "@/components/seo/structured-data";
-import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 
 export const metadata: Metadata = {
@@ -98,11 +97,19 @@ export default function InterestRatesPage() {
   return (
     <>
       <StructuredData data={schema} />
-      <PageHeader
-        eyebrow="Rates"
-        title="Every rate that decides your numbers"
-        lede="Two floor rates, one peg, one bonus tier, and a contribution table that changes with your age. This page is the source of every figure elsewhere in SimplyCPF."
-      />
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          Rates
+        </span>
+        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          Every rate that decides your numbers
+        </h1>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          Two floor rates, one peg, one bonus tier, and a contribution table
+          that changes with your age. This page is the source of every figure
+          elsewhere in SimplyCPF.
+        </p>
+      </header>
       <RateTiles />
       <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
         <ContributionRatesTable />

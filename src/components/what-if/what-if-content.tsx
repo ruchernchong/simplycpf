@@ -12,7 +12,6 @@ import {
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import type { Key } from "react-aria-components";
-import { PageHeader } from "@/components/shared/section-header";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { estimateCpfLife } from "@/lib/calculate-cpf-projection";
 import {
@@ -314,11 +313,18 @@ export default function WhatIfContent() {
 
   return (
     <div className="flex flex-col gap-12">
-      <PageHeader
-        eyebrow="Compare"
-        title="Two sets of assumptions, side by side"
-        lede="Change one thing and see what the arithmetic does. This tool states differences; it does not suggest which column you should prefer."
-      />
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          Compare
+        </span>
+        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          Two sets of assumptions, side by side
+        </h1>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          Change one thing and see what the arithmetic does. This tool states
+          differences; it does not suggest which column you should prefer.
+        </p>
+      </header>
 
       <Card>
         <Card.Header>

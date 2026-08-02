@@ -88,7 +88,7 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 ### UI Components
 - Public product screens use HeroUI v3 OSS (`@heroui/react`) and HeroUI Pro (`@heroui-pro/react`) with no provider; theme tokens live in `src/app/globals.css` using the HeroUI default variable names with SimplyCPF brand values (warm paper/ink/forest, OKLCH)
 - Appearance comes from HeroUI props and theme tokens; `className` on component roots is for composition only (layout, sizing, gaps), never hardcoded colours
-- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `PageHeader`/`Eyebrow`, `StatBand`, `Wordmark`
+- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `Eyebrow`, `StatBand`, `Wordmark`. Page headings are written inline in each screen (mono eyebrow, `h1`, optional lede), not wrapped in a shared component
 - Product-facing icons use Lucide; `cn` is imported from `@heroui/react`
 - Use named function declarations for components and exported functions, not arrow-function constants
 - React Aria formatting is pinned to `en-SG` via `I18nProvider` in `src/app/providers.tsx`

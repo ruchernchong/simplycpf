@@ -3,13 +3,6 @@
 import { Card, Checkbox, cn, Link, Separator, Surface } from "@heroui/react";
 import { ArrowRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
-import { PageHeader } from "@/components/shared/section-header";
-
-const PAGE_HEADER = {
-  eyebrow: "Check",
-  title: "Five things worth knowing. Which do you already?",
-  lede: "Not a score, and no right answer. Tick what you already know and we will point you at the screen that explains each of the rest. Nothing is recorded and no email is asked for.",
-} as const;
 
 interface CheckItem {
   id: string;
@@ -121,7 +114,19 @@ export default function CpfCheckContent(): ReactNode {
 
   return (
     <div className="flex flex-col gap-12">
-      <PageHeader {...PAGE_HEADER} />
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          Check
+        </span>
+        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          Five things worth knowing. Which do you already?
+        </h1>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          Not a score, and no right answer. Tick what you already know and we
+          will point you at the screen that explains each of the rest. Nothing
+          is recorded and no email is asked for.
+        </p>
+      </header>
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-4">

@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import type { Graph } from "schema-dts";
 import { AccruedInterestContent } from "@/components/housing/accrued-interest-content";
 import { StructuredData } from "@/components/seo/structured-data";
-import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/accrued-interest`;
@@ -72,11 +71,21 @@ export default function AccruedInterestPage() {
   return (
     <>
       <StructuredData data={schema} />
-      <PageHeader
-        eyebrow="Home & OA"
-        title="Accrued interest, without the forum arguments"
-        lede="OA money you put into a home keeps a running 2.5% tab: the interest it would have earned had it stayed. When you sell, the principal plus that accrued interest returns to your CPF before you see any cash. It is a refund to yourself, not a penalty, but it changes what a sale actually pays out."
-      />
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          Home &amp; OA
+        </span>
+        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          Accrued interest, without the forum arguments
+        </h1>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          OA money you put into a home keeps a running 2.5% tab: the interest it
+          would have earned had it stayed. When you sell, the principal plus
+          that accrued interest returns to your CPF before you see any cash. It
+          is a refund to yourself, not a penalty, but it changes what a sale
+          actually pays out.
+        </p>
+      </header>
       <Suspense>
         <AccruedInterestContent />
       </Suspense>
