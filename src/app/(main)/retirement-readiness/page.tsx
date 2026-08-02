@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import ReadinessScoreForm from "@/components/lead-magnets/readiness-score-form";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/retirement-readiness`;
 const PAGE_TITLE = "Retirement Readiness Score";
@@ -17,16 +17,10 @@ export const metadata: Metadata = {
     canonical: "/retirement-readiness",
   },
   openGraph: {
+    ...OG_BASE,
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
     url: PAGE_URL,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    images: [OG_IMAGE.url],
   },
 };
 

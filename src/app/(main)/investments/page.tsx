@@ -6,7 +6,7 @@ import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { CPFInvestmentComparison } from "@/components/investments/cpf-investment-comparison";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -19,25 +19,11 @@ export const metadata: Metadata = {
     canonical: "/investments",
   },
   openGraph: {
-    title: "CPF vs Other Investments: Compare Your CPF Returns Side by Side",
+    ...OG_BASE,
     description:
       "Compare CPF account growth against Singapore bonds, STI ETF, and other investments. Adjust time horizons and see side-by-side returns.",
     url: `${BASE_URL}/investments`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF vs Other Investments, SimplyCPF",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF vs Other Investments: Compare Your CPF Returns Side by Side",
-    description:
-      "Compare CPF account growth against Singapore bonds, STI ETF, and other investments. Adjust time horizons and see side-by-side returns.",
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [{ ...OG_IMAGE, alt: "CPF vs Other Investments, SimplyCPF" }],
   },
 };
 

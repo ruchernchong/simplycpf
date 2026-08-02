@@ -2,7 +2,7 @@ import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqCalculatorData from "@/data/faq-calculator.json";
 
 export const metadata: Metadata = {
@@ -15,18 +15,8 @@ export const metadata: Metadata = {
     canonical: "/faq/contribution-rates",
   },
   openGraph: {
-    title: "CPF Contribution Rates FAQ",
-    description:
-      "Find answers to questions about CPF contribution calculations, income ceilings, age-based rates, and how contributions are distributed.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq/contribution-rates`,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF Contribution Rates FAQ",
-    description:
-      "Find answers to questions about CPF contribution calculations, income ceilings, age-based rates, and how contributions are distributed.",
-    images: [OG_IMAGE.url],
   },
 };
 

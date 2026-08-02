@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import WhatIfContent from "@/components/what-if/what-if-content";
-import { BASE_URL, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE_WITHOUT_IMAGE, WEBSITE_ID } from "@/config";
 
 export const metadata: Metadata = {
   title: "CPF What-If Simulator: Compare Salary, Top-Ups and OA to SA Moves",
@@ -15,16 +15,18 @@ export const metadata: Metadata = {
     canonical: "/what-if",
   },
   openGraph: {
+    ...OG_BASE_WITHOUT_IMAGE,
     title: "CPF What-If Simulator: Compare CPF Scenarios",
     description:
       "Compare CPF scenarios like salary increases, annual top-ups, OA to SA transfers, and delayed starts.",
     url: `${BASE_URL}/what-if`,
   },
+  /*
+   * Replaces the layout's twitter block so its pinned site image does not win
+   * over the opengraph-image.tsx this route generates for itself.
+   */
   twitter: {
     card: "summary_large_image",
-    title: "CPF What-If Simulator: Compare CPF Scenarios",
-    description:
-      "Compare CPF scenarios like salary increases, annual top-ups, OA to SA transfers, and delayed starts.",
   },
 };
 

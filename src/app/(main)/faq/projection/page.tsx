@@ -2,7 +2,7 @@ import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqProjectionData from "@/data/faq-projection.json";
 
 export const metadata: Metadata = {
@@ -15,18 +15,8 @@ export const metadata: Metadata = {
     canonical: "/faq/projection",
   },
   openGraph: {
-    title: "CPF Career Projection FAQ",
-    description:
-      "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq/projection`,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF Career Projection FAQ",
-    description:
-      "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
-    images: [OG_IMAGE.url],
   },
 };
 

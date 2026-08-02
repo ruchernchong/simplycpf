@@ -9,7 +9,7 @@ import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-co
 import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
-import { BASE_URL, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 
 export const metadata: Metadata = {
   title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
@@ -21,25 +21,11 @@ export const metadata: Metadata = {
     canonical: "/interest-rates",
   },
   openGraph: {
-    title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
+    ...OG_BASE,
     description:
       "See current CPF interest rates for OA, SA, and MA. Understand guaranteed floor rates, SMRA pegged rates, and view distribution rates by age group.",
     url: `${BASE_URL}/interest-rates`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF Interest Rates, SimplyCPF",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF Interest Rates: How Much Does Your OA, SA & MA Earn?",
-    description:
-      "See current CPF interest rates for OA, SA, and MA. Understand guaranteed floor rates, SMRA pegged rates, and view distribution rates by age group.",
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [{ ...OG_IMAGE, alt: "CPF Interest Rates, SimplyCPF" }],
   },
 };
 

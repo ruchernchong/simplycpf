@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import At55Content from "@/components/at-55/at-55-content";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/cpf-at-55`;
 const PAGE_TITLE = "What happens to your CPF at 55";
@@ -18,16 +18,8 @@ export const metadata: Metadata = {
     canonical: "/cpf-at-55",
   },
   openGraph: {
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
+    ...OG_BASE,
     url: PAGE_URL,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    images: [OG_IMAGE.url],
   },
 };
 

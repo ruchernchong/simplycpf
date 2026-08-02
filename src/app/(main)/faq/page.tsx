@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqData from "@/data/faq.json";
 import faqCalculatorData from "@/data/faq-calculator.json";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
@@ -19,18 +19,8 @@ export const metadata: Metadata = {
     canonical: "/faq",
   },
   openGraph: {
-    title: "CPF FAQ: Common Questions Answered",
-    description:
-      "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq`,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF FAQ: Common Questions Answered",
-    description:
-      "Find answers to frequently asked questions about CPF contributions, career projections, CPF LIFE, and retirement planning in Singapore.",
-    images: [OG_IMAGE.url],
   },
 };
 

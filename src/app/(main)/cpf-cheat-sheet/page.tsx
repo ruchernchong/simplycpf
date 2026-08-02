@@ -5,7 +5,7 @@ import { CheatSheetCard } from "@/components/cheat-sheet/cheat-sheet-card";
 import { PrintButton } from "@/components/cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/cpf-cheat-sheet`;
 const PAGE_TITLE = "CPF Cheat Sheet";
@@ -20,16 +20,10 @@ export const metadata: Metadata = {
     canonical: "/cpf-cheat-sheet",
   },
   openGraph: {
+    ...OG_BASE,
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
     url: PAGE_URL,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
-    images: [OG_IMAGE.url],
   },
 };
 

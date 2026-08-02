@@ -5,7 +5,7 @@ import CpfLifeDefinitionBlock from "@/components/seo/cpf-life-definition-block";
 import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
-import { BASE_URL, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
 
 export const metadata: Metadata = {
@@ -18,25 +18,11 @@ export const metadata: Metadata = {
     canonical: "/cpf-life",
   },
   openGraph: {
-    title: "CPF LIFE Estimator: Estimate Your Monthly Payout",
+    ...OG_BASE,
     description:
       "Estimate your CPF LIFE monthly payout and compare the different plan types without logging in.",
     url: `${BASE_URL}/cpf-life`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF LIFE Estimator, SimplyCPF",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF LIFE Estimator: Estimate Your Monthly Payout",
-    description:
-      "Estimate your CPF LIFE monthly payout and compare the different plan types without logging in.",
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [{ ...OG_IMAGE, alt: "CPF LIFE Estimator, SimplyCPF" }],
   },
 };
 

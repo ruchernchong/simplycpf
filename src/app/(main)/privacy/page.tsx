@@ -2,7 +2,7 @@ import { Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PRIVACY_DESCRIPTION =
   "SimplyCPF works without signing up. No account, no email, no backend database. Only anonymous usage analytics and a theme preference cookie.";
@@ -16,16 +16,8 @@ export const metadata: Metadata = {
     canonical: "/privacy",
   },
   openGraph: {
-    title: "Privacy",
-    description: PRIVACY_DESCRIPTION,
+    ...OG_BASE,
     url: PAGE_URL,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Privacy",
-    description: PRIVACY_DESCRIPTION,
-    images: [OG_IMAGE.url],
   },
 };
 

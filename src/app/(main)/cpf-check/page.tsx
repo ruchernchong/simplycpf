@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import CpfCheckContent from "@/components/check/cpf-check-content";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/cpf-check`;
 
@@ -16,18 +16,10 @@ export const metadata: Metadata = {
     canonical: "/cpf-check",
   },
   openGraph: {
-    title: "Five things worth knowing about CPF",
+    ...OG_BASE,
     description:
       "Tick what you already know about CPF and we will point you at the screen that explains each of the rest.",
     url: PAGE_URL,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Five things worth knowing about CPF",
-    description:
-      "Tick what you already know about CPF and we will point you at the screen that explains each of the rest.",
-    images: [OG_IMAGE.url],
   },
 };
 

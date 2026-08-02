@@ -4,7 +4,7 @@ import type { Graph } from "schema-dts";
 import { AccruedInterestContent } from "@/components/housing/accrued-interest-content";
 import { StructuredData } from "@/components/seo/structured-data";
 import { PageHeader } from "@/components/shared/section-header";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/accrued-interest`;
 const title = "CPF accrued interest on your home, explained";
@@ -20,16 +20,8 @@ export const metadata: Metadata = {
     canonical: "/accrued-interest",
   },
   openGraph: {
-    title,
-    description,
+    ...OG_BASE,
     url: PAGE_URL,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: [OG_IMAGE.url],
   },
 };
 

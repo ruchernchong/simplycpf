@@ -7,7 +7,7 @@ import CpfDefinitionBlock from "@/components/seo/cpf-definition-block";
 import CpfStatisticBlock from "@/components/seo/cpf-statistic-block";
 import { StructuredData } from "@/components/seo/structured-data";
 import { StatBand } from "@/components/shared/stat-band";
-import { BASE_URL, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
@@ -27,25 +27,15 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
+    ...OG_BASE,
     title: "SimplyCPF: Free CPF Contribution Calculator for Singapore",
-    description:
-      "Free CPF calculator and planning tools for Singapore. Calculate CPF contributions, project balances to retirement, compare CPF LIFE payouts, and keep a CPF cheat sheet close by.",
     url: BASE_URL,
     images: [
       {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
+        ...OG_IMAGE,
         alt: "SimplyCPF: Free CPF Contribution Calculator for Singapore",
       },
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "SimplyCPF: Free CPF Contribution Calculator for Singapore",
-    description:
-      "Free CPF calculator and planning tools for Singapore. Calculate CPF contributions, project balances to retirement, compare CPF LIFE payouts, and keep a CPF cheat sheet close by.",
-    images: [`${BASE_URL}/opengraph-image`],
   },
 };
 

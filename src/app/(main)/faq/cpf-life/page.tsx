@@ -2,7 +2,7 @@ import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
 
 export const metadata: Metadata = {
@@ -15,18 +15,8 @@ export const metadata: Metadata = {
     canonical: "/faq/cpf-life",
   },
   openGraph: {
-    title: "CPF LIFE FAQ: Monthly Payouts & Plans",
-    description:
-      "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq/cpf-life`,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF LIFE FAQ: Monthly Payouts & Plans",
-    description:
-      "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
-    images: [OG_IMAGE.url],
   },
 };
 

@@ -2,7 +2,7 @@ import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, OG_IMAGE, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqData from "@/data/faq.json";
 
 export const metadata: Metadata = {
@@ -15,18 +15,8 @@ export const metadata: Metadata = {
     canonical: "/faq/general",
   },
   openGraph: {
-    title: "General CPF FAQ",
-    description:
-      "Find answers to general CPF questions about interest rates, account types, data privacy, and how SimplyCPF works.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq/general`,
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "General CPF FAQ",
-    description:
-      "Find answers to general CPF questions about interest rates, account types, data privacy, and how SimplyCPF works.",
-    images: [OG_IMAGE.url],
   },
 };
 

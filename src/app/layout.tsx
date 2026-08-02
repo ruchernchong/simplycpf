@@ -10,6 +10,8 @@ import { StructuredData } from "@/components/seo/structured-data";
 import {
   BASE_URL,
   description,
+  OG_BASE,
+  OG_IMAGE,
   ORGANIZATION_ID,
   title,
   WEBSITE_ID,
@@ -45,27 +47,20 @@ export const metadata: Metadata = {
       url: "https://ruchern.dev",
     },
   ],
+  /*
+   * No title or description here, deliberately. Next.js fills both in from the
+   * resolved page title and description whenever the openGraph block leaves
+   * them unset, so every page gets its own og:title without restating it. Set
+   * them here and each page has to override them, which is what had all twenty
+   * pages copying the same block.
+   */
   openGraph: {
-    type: "website",
-    locale: "en_SG",
-    siteName: title,
+    ...OG_BASE,
     url: BASE_URL,
-    title,
-    description,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "SimplyCPF. Your CPF, simplified.",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    title,
-    description,
-    images: [`${BASE_URL}/opengraph-image`],
+    images: [OG_IMAGE.url],
   },
 };
 

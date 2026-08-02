@@ -40,6 +40,33 @@ export const OG_IMAGE = {
   alt: "SimplyCPF. Your CPF, simplified.",
 } as const;
 
+/**
+ * The Open Graph fields every page shares, for spreading into a page's own
+ * `openGraph` block alongside its `url`.
+ *
+ * Deliberately carries no `title` or `description`. Next.js fills those in from
+ * the page's own `title` and `description` when the openGraph block leaves them
+ * unset, so a page states each string once instead of three times. Setting them
+ * here would defeat that, because the fallback only applies when the field is
+ * absent.
+ */
+export const OG_BASE = {
+  type: "website" as const,
+  locale: "en_SG",
+  siteName: title,
+  images: [OG_IMAGE],
+};
+
+/**
+ * As OG_BASE, for pages that ship their own `opengraph-image.tsx`. Omitting
+ * `images` lets the file convention supply its content-hashed URL.
+ */
+export const OG_BASE_WITHOUT_IMAGE = {
+  type: "website" as const,
+  locale: "en_SG",
+  siteName: title,
+};
+
 export const CPF_TYPE = {
   OA: "OA",
   SA: "SA",

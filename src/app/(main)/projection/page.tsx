@@ -7,7 +7,7 @@ import CpfProjectionIntroBlock from "@/components/seo/cpf-projection-intro-block
 import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import CpfTopUpLimitsBlock from "@/components/seo/cpf-top-up-limits-block";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL, WEBSITE_ID } from "@/config";
+import { BASE_URL, OG_BASE_WITHOUT_IMAGE, WEBSITE_ID } from "@/config";
 import faqProjectionData from "@/data/faq-projection.json";
 
 export const metadata: Metadata = {
@@ -20,16 +20,17 @@ export const metadata: Metadata = {
     canonical: "/projection",
   },
   openGraph: {
-    title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
+    ...OG_BASE_WITHOUT_IMAGE,
     description:
       "Project your CPF balances with conservative floor rates, milestone snapshots, and CPF LIFE payout estimates.",
     url: `${BASE_URL}/projection`,
   },
+  /*
+   * Replaces the layout's twitter block so its pinned site image does not win
+   * over the opengraph-image.tsx this route generates for itself.
+   */
   twitter: {
     card: "summary_large_image",
-    title: "CPF Projection Calculator: Project Your CPF to Age 55, 65 and 70",
-    description:
-      "Project your CPF balances with conservative floor rates, milestone snapshots, and CPF LIFE payout estimates.",
   },
 };
 
