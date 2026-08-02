@@ -17,7 +17,7 @@ import type { AgeGroup } from "@/types";
  * contribute at full employer / full employee (F/F) rates, who use the
  * citizen table instead.
  */
-export const permanentResidentYear1Rates: AgeGroup[] = [
+const baseYear1Rates: AgeGroup[] = [
   {
     description: "35 and below",
     minAge: 0,
@@ -74,6 +74,8 @@ export const permanentResidentYear1Rates: AgeGroup[] = [
     distributionRate: { OA: 0.08, SA: 0.08, MA: 0.84 },
   },
 ];
+
+export const permanentResidentYear1Rates = [...baseYear1Rates];
 
 export const permanentResidentYear2Rates: AgeGroup[] = [
   {
