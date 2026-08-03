@@ -1,39 +1,12 @@
+import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BASE_URL } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
-import {
-  buildBreadcrumbList,
-  buildFAQPage,
-  buildGraph,
-  buildPageSchema,
-} from "@/lib/build-schema";
 
 export const metadata: Metadata = {
-  title: "CPF LIFE FAQ — Monthly Payouts & Plans",
+  title: "CPF LIFE FAQ: Monthly Payouts & Plans",
   description:
     "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
   keywords:
@@ -42,106 +15,96 @@ export const metadata: Metadata = {
     canonical: "/faq/cpf-life",
   },
   openGraph: {
-    title: "CPF LIFE FAQ — Monthly Payouts & Plans",
-    description:
-      "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq/cpf-life`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF LIFE FAQ — Monthly Payouts & Plans",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF LIFE FAQ — Monthly Payouts & Plans",
-    description:
-      "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
-    images: [`${BASE_URL}/opengraph-image`],
   },
 };
 
 const CpfLifeFAQ = () => {
-  const schema: Graph = buildGraph([
-    buildPageSchema({
-      name: "CPF LIFE FAQ — Monthly Payouts & Plans",
-      description:
-        "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
-      url: `${BASE_URL}/faq/cpf-life`,
-      speakableSelectors: ["h1", "[data-content-block='faq']"],
-    }),
-    buildBreadcrumbList([
-      { name: "Home", url: BASE_URL },
-      { name: "FAQ", url: `${BASE_URL}/faq` },
-      { name: "CPF LIFE", url: `${BASE_URL}/faq/cpf-life` },
-    ]),
-    buildFAQPage(faqCpfLifeData),
-  ]);
+  const schema: Graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/faq/cpf-life/#webpage`,
+        name: "CPF LIFE FAQ: Monthly Payouts & Plans",
+        description:
+          "Find answers to questions about CPF LIFE monthly payouts, plan types (Standard, Escalating, Basic), deferment options, and retirement sums.",
+        url: `${BASE_URL}/faq/cpf-life`,
+        inLanguage: "en-SG",
+        isPartOf: { "@id": WEBSITE_ID },
+        speakable: {
+          "@type": "SpeakableSpecification",
+          cssSelector: ["h1", "[data-content-block='faq']"],
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "FAQ",
+            item: `${BASE_URL}/faq`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "CPF LIFE",
+            item: `${BASE_URL}/faq/cpf-life`,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqCpfLifeData.map(({ question, answer }) => ({
+          "@type": "Question" as const,
+          name: question,
+          acceptedAnswer: { "@type": "Answer" as const, text: answer },
+        })),
+      },
+    ],
+  };
 
   return (
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-6 p-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/faq" />}>FAQ</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>CPF LIFE</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Breadcrumbs>
+          <Breadcrumbs.Item href="/">Home</Breadcrumbs.Item>
+          <Breadcrumbs.Item href="/faq">FAQ</Breadcrumbs.Item>
+          <Breadcrumbs.Item>CPF LIFE</Breadcrumbs.Item>
+        </Breadcrumbs>
 
-        <Card
-          data-content-block="faq"
-          itemScope
-          itemProp="mainEntity"
-          itemType="https://schema.org/FAQPage"
-        >
-          <CardHeader>
-            <CardTitle>CPF LIFE</CardTitle>
-            <CardDescription>
+        <Card data-content-block="faq">
+          <Card.Header>
+            <Card.Title>CPF LIFE</Card.Title>
+            <Card.Description>
               Questions about monthly payouts, plan types, deferment options,
               and retirement sums
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Accordion className="w-full">
+            </Card.Description>
+          </Card.Header>
+          <Card.Content>
+            <Accordion className="w-full" variant="surface">
               {faqCpfLifeData.map(({ question, answer }) => {
                 const index = `${question}-${answer}`;
                 return (
-                  <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
-                    itemScope
-                    itemProp="mainEntity"
-                    itemType="https://schema.org/Question"
-                  >
-                    <AccordionTrigger className="text-left">
-                      <span itemProp="name">{question}</span>
-                    </AccordionTrigger>
-                    <AccordionContent
-                      className="text-muted-foreground"
-                      itemScope
-                      itemProp="acceptedAnswer"
-                      itemType="https://schema.org/Answer"
-                    >
-                      <span itemProp="text">{answer}</span>
-                    </AccordionContent>
-                  </AccordionItem>
+                  <Accordion.Item key={index} id={`item-${index}`}>
+                    <Accordion.Heading>
+                      <Accordion.Trigger className="text-left">
+                        {question}
+                        <Accordion.Indicator />
+                      </Accordion.Trigger>
+                    </Accordion.Heading>
+                    <Accordion.Panel>
+                      <Accordion.Body>{answer}</Accordion.Body>
+                    </Accordion.Panel>
+                  </Accordion.Item>
                 );
               })}
             </Accordion>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
     </>

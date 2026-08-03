@@ -8,14 +8,11 @@ import {
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
 } from "@/constants/cpf-interest-tiers";
+import { formatCurrency, formatPercentage } from "@/lib/format";
 import { getCpfCheatSheetData } from "@/lib/get-cpf-cheat-sheet-data";
 
 const BHS_YEARS_SHOWN = 5;
-const extraRate = CPF_EXTRA_INTEREST_RATE * 100;
-
-function money(value: number) {
-  return `$${value.toLocaleString("en-SG")}`;
-}
+const extraRate = CPF_EXTRA_INTEREST_RATE;
 
 function stripPercent(value: string) {
   return value.replace("%", "");
@@ -88,33 +85,33 @@ export function CheatSheetCard() {
             <Block title="Ceilings">
               <SheetRow
                 label="Monthly ordinary wage"
-                value={money(monthlyCeiling)}
+                value={formatCurrency(monthlyCeiling, 0)}
               />
               <SheetRow
                 label="Annual salary ceiling"
-                value={money(CPF_ADDITIONAL_WAGE_CEILING)}
+                value={formatCurrency(CPF_ADDITIONAL_WAGE_CEILING, 0)}
               />
               <SheetRow
                 label="Additional wage ceiling"
-                value={`${money(CPF_ADDITIONAL_WAGE_CEILING)} − OW`}
+                value={`${formatCurrency(CPF_ADDITIONAL_WAGE_CEILING, 0)} - OW`}
               />
             </Block>
             <Block title="Interest">
               <SheetRow
                 label="OA floor"
-                value={`${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`}
+                value={formatPercentage(CPF_INTEREST_FLOOR_RATES.OA / 100)}
               />
               <SheetRow
                 label="SA · MA · RA floor"
-                value={`${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`}
+                value={formatPercentage(CPF_INTEREST_FLOOR_RATES.SMRA / 100)}
               />
               <SheetRow
-                label={`Extra, first ${money(CPF_EXTRA_INTEREST_CAP)}`}
-                value={`+${extraRate.toFixed(2)}%`}
+                label={`Extra, first ${formatCurrency(CPF_EXTRA_INTEREST_CAP, 0)}`}
+                value={`+${formatPercentage(extraRate)}`}
               />
               <SheetRow
-                label={`Extra at 55+, first ${money(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}`}
-                value={`+${(extraRate * 2).toFixed(2)}%`}
+                label={`Extra at 55+, first ${formatCurrency(CPF_ADDITIONAL_SENIOR_INTEREST_CAP, 0)}`}
+                value={`+${formatPercentage(extraRate * 2)}`}
               />
             </Block>
             <Block title="Key ages">
@@ -211,7 +208,7 @@ export function CheatSheetCard() {
         <p className="max-w-[76ch] text-muted leading-relaxed">
           Figures as published by the CPF Board; employee share stated first.
           Retirement sums apply to the cohort turning 55 in that year and stay
-          fixed for life. Independent tool — estimates only, not financial
+          fixed for life. Independent tool, estimates only, not financial
           advice.
         </p>
         <span className="font-mono text-muted">simplycpf.com</span>

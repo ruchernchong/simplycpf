@@ -1,36 +1,9 @@
+import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BASE_URL } from "@/config";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqProjectionData from "@/data/faq-projection.json";
-import {
-  buildBreadcrumbList,
-  buildFAQPage,
-  buildGraph,
-  buildPageSchema,
-} from "@/lib/build-schema";
 
 export const metadata: Metadata = {
   title: "CPF Career Projection FAQ",
@@ -42,106 +15,96 @@ export const metadata: Metadata = {
     canonical: "/faq/projection",
   },
   openGraph: {
-    title: "CPF Career Projection FAQ",
-    description:
-      "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+    ...OG_BASE,
     url: `${BASE_URL}/faq/projection`,
-    images: [
-      {
-        url: `${BASE_URL}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "CPF Career Projection FAQ",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CPF Career Projection FAQ",
-    description:
-      "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
-    images: [`${BASE_URL}/opengraph-image`],
   },
 };
 
 const ProjectionFAQ = () => {
-  const schema: Graph = buildGraph([
-    buildPageSchema({
-      name: "CPF Career Projection FAQ",
-      description:
-        "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
-      url: `${BASE_URL}/faq/projection`,
-      speakableSelectors: ["h1", "[data-content-block='faq']"],
-    }),
-    buildBreadcrumbList([
-      { name: "Home", url: BASE_URL },
-      { name: "FAQ", url: `${BASE_URL}/faq` },
-      { name: "Projection", url: `${BASE_URL}/faq/projection` },
-    ]),
-    buildFAQPage(faqProjectionData),
-  ]);
+  const schema: Graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/faq/projection/#webpage`,
+        name: "CPF Career Projection FAQ",
+        description:
+          "Find answers to questions about long-term CPF balance projections, age milestones, interest calculations, and CPF LIFE estimates.",
+        url: `${BASE_URL}/faq/projection`,
+        inLanguage: "en-SG",
+        isPartOf: { "@id": WEBSITE_ID },
+        speakable: {
+          "@type": "SpeakableSpecification",
+          cssSelector: ["h1", "[data-content-block='faq']"],
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "FAQ",
+            item: `${BASE_URL}/faq`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Projection",
+            item: `${BASE_URL}/faq/projection`,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqProjectionData.map(({ question, answer }) => ({
+          "@type": "Question" as const,
+          name: question,
+          acceptedAnswer: { "@type": "Answer" as const, text: answer },
+        })),
+      },
+    ],
+  };
 
   return (
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-6 p-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/faq" />}>FAQ</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Projection</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Breadcrumbs>
+          <Breadcrumbs.Item href="/">Home</Breadcrumbs.Item>
+          <Breadcrumbs.Item href="/faq">FAQ</Breadcrumbs.Item>
+          <Breadcrumbs.Item>Projection</Breadcrumbs.Item>
+        </Breadcrumbs>
 
-        <Card
-          data-content-block="faq"
-          itemScope
-          itemProp="mainEntity"
-          itemType="https://schema.org/FAQPage"
-        >
-          <CardHeader>
-            <CardTitle>CPF Career Projection</CardTitle>
-            <CardDescription>
+        <Card data-content-block="faq">
+          <Card.Header>
+            <Card.Title>CPF Career Projection</Card.Title>
+            <Card.Description>
               Questions about long-term balance projections, milestones, and CPF
               LIFE estimates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Accordion className="w-full">
+            </Card.Description>
+          </Card.Header>
+          <Card.Content>
+            <Accordion className="w-full" variant="surface">
               {faqProjectionData.map(({ question, answer }) => {
                 const index = `${question}-${answer}`;
                 return (
-                  <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
-                    itemScope
-                    itemProp="mainEntity"
-                    itemType="https://schema.org/Question"
-                  >
-                    <AccordionTrigger className="text-left">
-                      <span itemProp="name">{question}</span>
-                    </AccordionTrigger>
-                    <AccordionContent
-                      className="text-muted-foreground"
-                      itemScope
-                      itemProp="acceptedAnswer"
-                      itemType="https://schema.org/Answer"
-                    >
-                      <span itemProp="text">{answer}</span>
-                    </AccordionContent>
-                  </AccordionItem>
+                  <Accordion.Item key={index} id={`item-${index}`}>
+                    <Accordion.Heading>
+                      <Accordion.Trigger className="text-left">
+                        {question}
+                        <Accordion.Indicator />
+                      </Accordion.Trigger>
+                    </Accordion.Heading>
+                    <Accordion.Panel>
+                      <Accordion.Body>{answer}</Accordion.Body>
+                    </Accordion.Panel>
+                  </Accordion.Item>
                 );
               })}
             </Accordion>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
     </>

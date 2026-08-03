@@ -1,4 +1,4 @@
-import * as matchers from "@testing-library/jest-dom/matchers";
+import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { vi } from "vitest";
 
@@ -25,8 +25,6 @@ Object.defineProperty(window, "localStorage", {
   },
   writable: true,
 });
-
-expect.extend(matchers);
 
 afterEach(() => {
   cleanup();

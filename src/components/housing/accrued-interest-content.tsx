@@ -4,6 +4,7 @@ import {
   Card,
   Chip,
   Label,
+  NumberField,
   Separator,
   ToggleButton,
   ToggleButtonGroup,
@@ -14,18 +15,28 @@ import type { Key } from "react";
 import { Cell } from "recharts";
 import { SplitBar } from "@/components/shared/split-bar";
 import { calculateAccruedInterest } from "@/lib/calculate-accrued-interest";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatPercentage } from "@/lib/format";
 
 const AMOUNT_OPTIONS = [150_000, 250_000, 400_000] as const;
 const YEAR_OPTIONS = [5, 10, 20] as const;
+
+const MIN_AMOUNT = 1_000;
+const MAX_AMOUNT = 2_000_000;
+const MIN_YEARS = 1;
+const MAX_YEARS = 40;
 
 const searchParams = {
   amount: parseAsInteger.withDefault(250_000),
   years: parseAsInteger.withDefault(10),
 };
 
+function clamp(value: number, min: number, max: number): number {
+  if (Number.isNaN(value)) return min;
+  return Math.min(Math.max(Math.round(value), min), max);
+}
+
 const NOT_MODELLED = [
-  "Monthly instalments paid from OA after the down payment — each one adds to the tab.",
+  "Monthly instalments paid from OA after the down payment, each one adds to the tab.",
   "Property appreciation, agent fees, stamp duty, or outstanding loan.",
   "Valuation and withdrawal limits, which cap how much OA you may use.",
   "The rules that apply after 55, when a retirement sum must be set aside.",
@@ -41,10 +52,16 @@ export function AccruedInterestContent() {
     history: "replace",
   });
 
-  const hAmount = AMOUNT_OPTIONS.some((option) => option === amount)
-    ? amount
-    : 250_000;
-  const hYears = YEAR_OPTIONS.some((option) => option === years) ? years : 10;
+  /*
+   * The three chips are shortcuts, not the whole range: any amount within
+   * the bounds is valid, so a value that matches no chip leaves the group
+   * with nothing selected rather than being snapped back to a preset.
+   */
+  const hAmount = clamp(amount, MIN_AMOUNT, MAX_AMOUNT);
+  const hYears = clamp(years, MIN_YEARS, MAX_YEARS);
+
+  const amountPreset = AMOUNT_OPTIONS.find((option) => option === hAmount);
+  const yearsPreset = YEAR_OPTIONS.find((option) => option === hYears);
 
   const result = calculateAccruedInterest(hAmount, hYears);
   const uplift = (result.accruedInterest / result.principal) * 100;
@@ -63,13 +80,29 @@ export function AccruedInterestContent() {
           </Card.Title>
         </Card.Header>
         <Card.Content className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
+          <NumberField
+            className="flex flex-col gap-2"
+            formatOptions={{
+              style: "currency",
+              currency: "SGD",
+              currencyDisplay: "narrowSymbol",
+              maximumFractionDigits: 0,
+            }}
+            maxValue={MAX_AMOUNT}
+            minValue={MIN_AMOUNT}
+            onChange={(value) =>
+              setQuery({ amount: clamp(value, MIN_AMOUNT, MAX_AMOUNT) })
+            }
+            value={hAmount}
+          >
             <Label>OA used for the property</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
             <ToggleButtonGroup
-              aria-label="OA used for the property"
-              disallowEmptySelection
+              aria-label="Common amounts"
               fullWidth
-              selectedKeys={[String(hAmount)]}
+              selectedKeys={amountPreset ? [String(amountPreset)] : []}
               selectionMode="single"
               size="sm"
               onSelectionChange={(keys) => {
@@ -83,15 +116,25 @@ export function AccruedInterestContent() {
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
-          </div>
+          </NumberField>
 
-          <div className="flex flex-col gap-2">
+          <NumberField
+            className="flex flex-col gap-2"
+            maxValue={MAX_YEARS}
+            minValue={MIN_YEARS}
+            onChange={(value) =>
+              setQuery({ years: clamp(value, MIN_YEARS, MAX_YEARS) })
+            }
+            value={hYears}
+          >
             <Label>Years held before selling</Label>
+            <NumberField.Group className="w-full grid-cols-1">
+              <NumberField.Input className="w-full" />
+            </NumberField.Group>
             <ToggleButtonGroup
-              aria-label="Years held before selling"
-              disallowEmptySelection
+              aria-label="Common holding periods"
               fullWidth
-              selectedKeys={[String(hYears)]}
+              selectedKeys={yearsPreset ? [String(yearsPreset)] : []}
               selectionMode="single"
               size="sm"
               onSelectionChange={(keys) => {
@@ -105,12 +148,12 @@ export function AccruedInterestContent() {
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
-          </div>
+          </NumberField>
 
           <Card variant="tertiary">
             <Card.Content className="text-[12.5px] leading-relaxed">
-              Accrued interest compounds at <strong>2.50%</strong> a year — the
-              OA floor rate — on the amount withdrawn, from the month it is
+              Accrued interest compounds at <strong>2.50%</strong> a year, the
+              OA floor rate, on the amount withdrawn, from the month it is
               withdrawn.
             </Card.Content>
           </Card>
@@ -131,8 +174,9 @@ export function AccruedInterestContent() {
               {formatCurrency(result.accruedInterest, 0)} of accrued interest
               builds up alongside it. On sale,{" "}
               {formatCurrency(result.totalOwed, 0)} goes back into your CPF
-              before any cash reaches you — that is {uplift.toFixed(1)}% more
-              than you took out.
+              before any cash reaches you, that is{" "}
+              {formatPercentage(uplift / 100, { decimalPlaces: 1 })} more than
+              you took out.
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
               <Card variant="tertiary">

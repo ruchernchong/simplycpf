@@ -6,12 +6,9 @@ import {
   CPF_EXTRA_INTEREST_RATE,
   CPF_OA_EXTRA_INTEREST_CAP,
 } from "@/constants/cpf-interest-tiers";
+import { formatCurrency, formatPercentage } from "@/lib/format";
 
-function thousands(value: number) {
-  return `$${value.toLocaleString("en-SG")}`;
-}
-
-const extraRate = CPF_EXTRA_INTEREST_RATE * 100;
+const extraRate = CPF_EXTRA_INTEREST_RATE;
 
 interface Tile {
   label: string;
@@ -23,24 +20,24 @@ interface Tile {
 const tiles: Tile[] = [
   {
     label: "Ordinary Account",
-    value: `${CPF_INTEREST_FLOOR_RATES.OA.toFixed(2)}%`,
+    value: formatPercentage(CPF_INTEREST_FLOOR_RATES.OA / 100),
     note: "A legislated floor rate, applied per year on the balance.",
   },
   {
     label: "SA · MA · RA",
-    value: `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(2)}%`,
+    value: formatPercentage(CPF_INTEREST_FLOOR_RATES.SMRA / 100),
     note: "Floor rate. Otherwise pegged to the 10-year SGS yield plus 1%.",
   },
   {
     label: "Extra, under 55",
-    value: `+${extraRate.toFixed(2)}%`,
-    note: `On the first ${thousands(CPF_EXTRA_INTEREST_CAP)} combined, of which at most ${thousands(CPF_OA_EXTRA_INTEREST_CAP)} from OA.`,
+    value: `+${formatPercentage(extraRate)}`,
+    note: `On the first ${formatCurrency(CPF_EXTRA_INTEREST_CAP, 0)} combined, of which at most ${formatCurrency(CPF_OA_EXTRA_INTEREST_CAP, 0)} from OA.`,
     accent: true,
   },
   {
     label: "Extra, 55 and over",
-    value: `+${(extraRate * 2).toFixed(2)}%`,
-    note: `On the first ${thousands(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}, then +${extraRate.toFixed(0)}% on the next ${thousands(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}.`,
+    value: `+${formatPercentage(extraRate * 2)}`,
+    note: `On the first ${formatCurrency(CPF_ADDITIONAL_SENIOR_INTEREST_CAP, 0)}, then +${formatPercentage(extraRate, { decimalPlaces: 0 })} on the next ${formatCurrency(CPF_ADDITIONAL_SENIOR_INTEREST_CAP, 0)}.`,
     accent: true,
   },
 ];

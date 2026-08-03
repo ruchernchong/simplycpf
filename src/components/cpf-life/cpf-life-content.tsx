@@ -6,6 +6,7 @@ import {
   cn,
   Label,
   Link,
+  NumberField,
   Separator,
   ToggleButton,
   ToggleButtonGroup,
@@ -27,6 +28,9 @@ const ESCALATION_RATE = 0.02;
 const RA_OPTIONS = [200_000, 400_000, 600_000] as const;
 const DEFAULT_RA = 400_000;
 const PROJECTION_KEY = "projection";
+const CUSTOM_KEY = "custom";
+const MIN_RA = 0;
+const MAX_RA = 2_000_000;
 
 function firstKey(keys: Set<Key>): string | undefined {
   const [key] = [...keys];
@@ -61,6 +65,7 @@ function MiniBars({ values, max, color }: MiniBarsProps) {
 export function CpfLifeContent() {
   const [mounted, setMounted] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [customRa, setCustomRa] = useState(DEFAULT_RA);
 
   useEffect(() => setMounted(true), []);
 
@@ -89,8 +94,14 @@ export function CpfLifeContent() {
     selectedKey ??
     (hasProjection && projectedRa65 > 0 ? PROJECTION_KEY : String(DEFAULT_RA));
 
-  const raBalance =
-    activeKey === PROJECTION_KEY ? projectedRa65 : Number(activeKey);
+  let raBalance: number;
+  if (activeKey === PROJECTION_KEY) {
+    raBalance = projectedRa65;
+  } else if (activeKey === CUSTOM_KEY) {
+    raBalance = customRa;
+  } else {
+    raBalance = Number(activeKey);
+  }
 
   const estimate = estimateCpfLife(raBalance, 65);
   const standard = estimate.standardMonthly;
@@ -199,6 +210,28 @@ export function CpfLifeContent() {
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
+              <NumberField
+                aria-label="Your own Retirement Account balance at 65"
+                className="w-44"
+                formatOptions={{
+                  style: "currency",
+                  currency: "SGD",
+                  currencyDisplay: "narrowSymbol",
+                  maximumFractionDigits: 0,
+                }}
+                maxValue={MAX_RA}
+                minValue={MIN_RA}
+                onChange={(value) => {
+                  const next = Number.isNaN(value) ? MIN_RA : value;
+                  setCustomRa(Math.min(Math.max(next, MIN_RA), MAX_RA));
+                  setSelectedKey(CUSTOM_KEY);
+                }}
+                value={raBalance}
+              >
+                <NumberField.Group className="w-full grid-cols-1">
+                  <NumberField.Input className="w-full" />
+                </NumberField.Group>
+              </NumberField>
             </div>
             <Chip size="sm" variant="soft">
               Payouts estimated from published CPF anchor figures

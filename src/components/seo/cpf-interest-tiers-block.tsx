@@ -4,7 +4,7 @@ import {
   CPF_EXTRA_INTEREST_CAP,
   CPF_EXTRA_INTEREST_RATE,
 } from "@/constants/cpf-interest-tiers";
-import { formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format";
 
 const CpfInterestTiersBlock = () => (
   <section aria-labelledby="cpf-interest-tiers" data-content-block="definition">
@@ -25,38 +25,45 @@ const CpfInterestTiersBlock = () => (
           <div className="rounded-lg border border-border bg-muted/50 p-4">
             <p className="mb-2 font-semibold text-sm">Under Age 55</p>
             <p className="font-bold text-2xl text-foreground">
-              +{CPF_EXTRA_INTEREST_RATE * 100}%
+              +{formatPercentage(CPF_EXTRA_INTEREST_RATE, { decimalPlaces: 0 })}
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
               On the first S${formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined
               OA + SA + MA balances
             </p>
             <p className="mt-2 text-muted-foreground text-xs">
-              Max extra interest: S$
-              {(CPF_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE).toFixed(0)}{" "}
+              Max extra interest:{" "}
+              {formatCurrency(
+                CPF_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE,
+                0,
+              )}{" "}
               per year
             </p>
           </div>
           <div className="rounded-lg border border-border bg-muted/50 p-4">
             <p className="mb-2 font-semibold text-sm">Age 55 and Above</p>
             <p className="font-bold text-2xl text-foreground">
-              +{CPF_EXTRA_INTEREST_RATE * 100}% +{" "}
-              {CPF_EXTRA_INTEREST_RATE * 100}%
+              +{formatPercentage(CPF_EXTRA_INTEREST_RATE, { decimalPlaces: 0 })}{" "}
+              + {CPF_EXTRA_INTEREST_RATE * 100}%
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              Base tier: +{CPF_EXTRA_INTEREST_RATE * 100}% on first S$
+              Base tier: +
+              {formatPercentage(CPF_EXTRA_INTEREST_RATE, { decimalPlaces: 0 })}{" "}
+              on first S$
               {formatNumber(CPF_EXTRA_INTEREST_CAP)} of combined balances
               <br />
-              Senior tier: Additional +{CPF_EXTRA_INTEREST_RATE * 100}% on first
-              S${formatNumber(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)} of combined
-              balances
+              Senior tier: Additional +
+              {formatPercentage(CPF_EXTRA_INTEREST_RATE, { decimalPlaces: 0 })}{" "}
+              on first S${formatNumber(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)} of
+              combined balances
             </p>
             <p className="mt-2 text-muted-foreground text-xs">
-              Max extra interest: S$
-              {(
+              Max extra interest:{" "}
+              {formatCurrency(
                 CPF_EXTRA_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE +
-                CPF_ADDITIONAL_SENIOR_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE
-              ).toFixed(0)}{" "}
+                  CPF_ADDITIONAL_SENIOR_INTEREST_CAP * CPF_EXTRA_INTEREST_RATE,
+                0,
+              )}{" "}
               per year
             </p>
           </div>
@@ -71,8 +78,9 @@ const CpfInterestTiersBlock = () => (
 
         <p className="text-muted-foreground text-sm">
           <strong>Example:</strong> A 30-year-old with S$50,000 across OA + SA +
-          MA earns an extra S${(50000 * 0.01).toFixed(0)} per year (S$
-          {((50000 * 0.01) / 12).toFixed(0)} per month) on top of base rates.
+          MA earns an extra {formatCurrency(50000 * 0.01, 0)} per year (
+          {formatCurrency((50000 * 0.01) / 12, 0)} per month) on top of base
+          rates.
         </p>
       </Card.Content>
     </Card>

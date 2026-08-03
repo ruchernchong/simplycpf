@@ -10,7 +10,7 @@ interface WordmarkProps {
 /**
  * SimplyCPF wordmark: the name with an ink rule beneath it, broken by one
  * forest segment. The rule is the line drawn under a figure that has been
- * checked — never render the wordmark without it.
+ * checked, never render the wordmark without it.
  */
 export function Wordmark({
   size = "md",

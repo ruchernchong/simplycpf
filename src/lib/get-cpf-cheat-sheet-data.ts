@@ -16,7 +16,7 @@ import {
   permanentResidentYear1Rates,
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatPercentage } from "@/lib/format";
 
 export interface CheatSheetSection {
   title: string;
@@ -37,7 +37,6 @@ export interface CheatSheetData {
   sections: CheatSheetSection[];
 }
 
-const formatPct = (value: number) => `${(value * 100).toFixed(1)}%`;
 const formatCurrency = (value: number) => `S$${formatNumber(value)}`;
 
 export function getCpfCheatSheetData(): CheatSheetData {
@@ -60,10 +59,15 @@ export function getCpfCheatSheetData(): CheatSheetData {
         columns: ["Age Group", "Employee", "Employer", "Total"],
         rows: ageGroups.map((group) => [
           group.description,
-          formatPct(group.contributionRate.employee),
-          formatPct(group.contributionRate.employer),
-          formatPct(
+          formatPercentage(group.contributionRate.employee, {
+            decimalPlaces: 1,
+          }),
+          formatPercentage(group.contributionRate.employer, {
+            decimalPlaces: 1,
+          }),
+          formatPercentage(
             group.contributionRate.employee + group.contributionRate.employer,
+            { decimalPlaces: 1 },
           ),
         ]),
       },
@@ -74,9 +78,9 @@ export function getCpfCheatSheetData(): CheatSheetData {
         columns: ["Age Group", "OA", "SA", "MA"],
         rows: ageGroups.map((group) => [
           group.description,
-          formatPct(group.distributionRate.OA),
-          formatPct(group.distributionRate.SA),
-          formatPct(group.distributionRate.MA),
+          formatPercentage(group.distributionRate.OA, { decimalPlaces: 1 }),
+          formatPercentage(group.distributionRate.SA, { decimalPlaces: 1 }),
+          formatPercentage(group.distributionRate.MA, { decimalPlaces: 1 }),
         ]),
       },
       {
@@ -102,8 +106,12 @@ export function getCpfCheatSheetData(): CheatSheetData {
         columns: ["Age Group", "Employee", "Employer"],
         rows: permanentResidentYear1Rates.map((group) => [
           group.description,
-          formatPct(group.contributionRate.employee),
-          formatPct(group.contributionRate.employer),
+          formatPercentage(group.contributionRate.employee, {
+            decimalPlaces: 1,
+          }),
+          formatPercentage(group.contributionRate.employer, {
+            decimalPlaces: 1,
+          }),
         ]),
       },
       {
@@ -113,8 +121,12 @@ export function getCpfCheatSheetData(): CheatSheetData {
         columns: ["Age Group", "Employee", "Employer"],
         rows: permanentResidentYear2Rates.map((group) => [
           group.description,
-          formatPct(group.contributionRate.employee),
-          formatPct(group.contributionRate.employer),
+          formatPercentage(group.contributionRate.employee, {
+            decimalPlaces: 1,
+          }),
+          formatPercentage(group.contributionRate.employer, {
+            decimalPlaces: 1,
+          }),
         ]),
       },
       {
@@ -123,14 +135,17 @@ export function getCpfCheatSheetData(): CheatSheetData {
           "Use the floor rates for conservative planning, then layer the extra interest tiers on top.",
         columns: ["Rule", "Value"],
         rows: [
-          ["OA floor rate", `${CPF_INTEREST_FLOOR_RATES.OA.toFixed(1)}% p.a.`],
+          [
+            "OA floor rate",
+            `${formatPercentage(CPF_INTEREST_FLOOR_RATES.OA / 100, { decimalPlaces: 1 })} p.a.`,
+          ],
           [
             "SA / MA / RA floor rate",
-            `${CPF_INTEREST_FLOOR_RATES.SMRA.toFixed(1)}% p.a.`,
+            `${formatPercentage(CPF_INTEREST_FLOOR_RATES.SMRA / 100, { decimalPlaces: 1 })} p.a.`,
           ],
           [
             "Extra interest on first combined balances",
-            `${(CPF_EXTRA_INTEREST_RATE * 100).toFixed(0)}% on first ${formatCurrency(CPF_EXTRA_INTEREST_CAP)}`,
+            `${formatPercentage(CPF_EXTRA_INTEREST_RATE, { decimalPlaces: 0 })} on first ${formatCurrency(CPF_EXTRA_INTEREST_CAP)}`,
           ],
           [
             "OA portion eligible for extra interest",
@@ -138,7 +153,7 @@ export function getCpfCheatSheetData(): CheatSheetData {
           ],
           [
             "Additional interest for members aged 55+",
-            `${(CPF_EXTRA_INTEREST_RATE * 100).toFixed(0)}% on first ${formatCurrency(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}`,
+            `${formatPercentage(CPF_EXTRA_INTEREST_RATE, { decimalPlaces: 0 })} on first ${formatCurrency(CPF_ADDITIONAL_SENIOR_INTEREST_CAP)}`,
           ],
         ],
       },

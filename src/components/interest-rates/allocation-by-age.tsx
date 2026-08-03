@@ -1,10 +1,7 @@
 import { Card } from "@heroui/react";
 import { SplitBar } from "@/components/shared/split-bar";
 import { ageGroups } from "@/data";
-
-function share(rate: number) {
-  return (rate * 100).toFixed(1);
-}
+import { formatNumber, formatPercentage } from "@/lib/format";
 
 /** One proportional bar per age band showing the OA / SA / MA split. */
 export function AllocationByAge() {
@@ -36,10 +33,13 @@ export function AllocationByAge() {
                     { label: "SA", value: SA, color: "chart-2" },
                     { label: "MA", value: MA, color: "chart-3" },
                   ]}
-                  formatValue={(value) => `${share(value)}%`}
+                  formatValue={(value) =>
+                    formatPercentage(value, { decimalPlaces: 1 })
+                  }
                 />
                 <span className="w-[112px] shrink-0 text-right font-mono text-[11.5px] text-muted">
-                  {share(OA)} / {share(SA)} / {share(MA)}
+                  {formatNumber(OA * 100, 1)} / {formatNumber(SA * 100, 1)} /{" "}
+                  {formatNumber(MA * 100, 1)}
                 </span>
               </li>
             );

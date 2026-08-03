@@ -2,35 +2,58 @@ import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import ReadinessScoreForm from "@/components/lead-magnets/readiness-score-form";
 import { StructuredData } from "@/components/seo/structured-data";
-import { BASE_URL } from "@/config";
-import {
-  buildGraph,
-  buildPageSchema,
-  pageBreadcrumb,
-} from "@/lib/build-schema";
+import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
+
+const PAGE_URL = `${BASE_URL}/retirement-readiness`;
+const PAGE_TITLE = "Retirement Readiness Score";
+const PAGE_DESCRIPTION =
+  "Answer 5 quick questions to estimate how prepared your CPF planning is and which SimplyCPF tool to use next.";
 
 export const metadata: Metadata = {
-  title: "Retirement Readiness Score | See What Your CPF Plan Is Missing",
+  title: "Retirement Readiness Score: See What Your CPF Plan Is Missing",
   description:
     "Answer 5 quick questions to see where your CPF planning is clear, weak, or missing, then get the next tool to use inside SimplyCPF.",
   alternates: {
     canonical: "/retirement-readiness",
   },
+  openGraph: {
+    ...OG_BASE,
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+  },
 };
 
-const schema: Graph = buildGraph([
-  buildPageSchema({
-    name: "Retirement Readiness Score",
-    description:
-      "Answer 5 quick questions to estimate how prepared your CPF planning is and which SimplyCPF tool to use next.",
-    url: `${BASE_URL}/retirement-readiness`,
-    speakableSelectors: ["h1", "[data-readiness-intro]"],
-  }),
-  pageBreadcrumb(
-    "Retirement Readiness Score",
-    `${BASE_URL}/retirement-readiness`,
-  ),
-]);
+const schema: Graph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${PAGE_URL}/#webpage`,
+      name: "Retirement Readiness Score",
+      description: PAGE_DESCRIPTION,
+      url: PAGE_URL,
+      inLanguage: "en-SG",
+      isPartOf: { "@id": WEBSITE_ID },
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-readiness-intro]"],
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Retirement Readiness Score",
+          item: PAGE_URL,
+        },
+      ],
+    },
+  ],
+};
 
 export default function RetirementReadinessPage() {
   return (

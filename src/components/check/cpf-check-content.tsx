@@ -3,13 +3,6 @@
 import { Card, Checkbox, cn, Link, Separator, Surface } from "@heroui/react";
 import { ArrowRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
-import { PageHeader } from "@/components/shared/section-header";
-
-const PAGE_HEADER = {
-  eyebrow: "Check",
-  title: "Five things worth knowing. Which do you already?",
-  lede: "Not a score, and no right answer. Tick what you already know and we will point you at the screen that explains each of the rest. Nothing is recorded and no email is asked for.",
-} as const;
 
 interface CheckItem {
   id: string;
@@ -24,7 +17,7 @@ const CHECK_ITEMS: CheckItem[] = [
     id: "at-55",
     title: "I know what happens to my accounts on my 55th birthday",
     body: "A Retirement Account is created, the Special Account closes, and savings move in a set order.",
-    href: "/at-55",
+    href: "/cpf-at-55",
     linkLabel: "What happens at 55",
   },
   {
@@ -32,14 +25,14 @@ const CHECK_ITEMS: CheckItem[] = [
     title: "I know OA used for my home keeps accruing interest",
     body: "The principal plus accrued interest returns to CPF when the property is sold.",
     href: "/accrued-interest",
-    linkLabel: "Home & OA — accrued interest",
+    linkLabel: "Home & OA, accrued interest",
   },
   {
     id: "cpf-life",
     title: "I can tell the three CPF LIFE plans apart",
     body: "Standard stays flat, Escalating rises 2% a year from a lower start, Basic can step down.",
     href: "/cpf-life",
-    linkLabel: "CPF LIFE — the three plans",
+    linkLabel: "CPF LIFE, the three plans",
   },
   {
     id: "three-ages",
@@ -53,7 +46,7 @@ const CHECK_ITEMS: CheckItem[] = [
     title: "I know how much of my monthly CPF comes from my employer",
     body: "The employer share is paid on top of your salary, not deducted from it.",
     href: "/calculator",
-    linkLabel: "This month — your employer's share",
+    linkLabel: "This month, your employer's share",
   },
 ];
 
@@ -121,7 +114,19 @@ export default function CpfCheckContent(): ReactNode {
 
   return (
     <div className="flex flex-col gap-12">
-      <PageHeader {...PAGE_HEADER} />
+      <header className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
+          Check
+        </span>
+        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          Five things worth knowing. Which do you already?
+        </h1>
+        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          Not a score, and no right answer. Tick what you already know and we
+          will point you at the screen that explains each of the rest. Nothing
+          is recorded and no email is asked for.
+        </p>
+      </header>
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-4">
@@ -142,7 +147,7 @@ export default function CpfCheckContent(): ReactNode {
             </span>
             <p className="text-base leading-relaxed">
               {allTicked
-                ? "All five ticked. Nothing left to point you at — the screens are still there if you want the numbers for your own salary."
+                ? "All five ticked. Nothing left to point you at, the screens are still there if you want the numbers for your own salary."
                 : `You have ticked ${tickedIds.length} of five. Here is where each of the others is explained, in your own numbers.`}
             </p>
             {untickedItems.length > 0 && (
@@ -157,8 +162,8 @@ export default function CpfCheckContent(): ReactNode {
             <div className="flex flex-col gap-4">
               <Separator variant="secondary" />
               <p className="text-[12px] text-muted leading-relaxed">
-                We do not assess your readiness or suggest what to do — this
-                only shows which explanation you have not read yet.
+                We do not assess your readiness or suggest what to do, this only
+                shows which explanation you have not read yet.
               </p>
             </div>
           </Card.Content>

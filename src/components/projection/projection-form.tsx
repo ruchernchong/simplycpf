@@ -61,10 +61,6 @@ const transferTimingOptions: {
   { label: "Repeat yearly", value: "yearly" },
 ];
 
-function _parseNumericInput(value: string): number {
-  return Number.parseFloat(value) || 0;
-}
-
 function isCitizenshipStatus(value: string | null): value is CitizenshipStatus {
   return citizenshipOptions.some((option) => option.value === value);
 }

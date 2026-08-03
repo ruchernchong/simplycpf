@@ -26,18 +26,16 @@ import {
   permanentResidentYear1Rates,
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatPercentage } from "@/lib/format";
 
 export const revalidate = false;
-
-const formatPct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
 const contributionRatesSection = ageGroups
   .map((g) => {
     const emp = g.contributionRate.employee;
     const empR = g.contributionRate.employer;
     const total = emp + empR;
-    return `| ${g.description} | ${formatPct(emp)} | ${formatPct(empR)} | ${formatPct(total)} |`;
+    return `| ${g.description} | ${formatPercentage(emp, { decimalPlaces: 1 })} | ${formatPercentage(empR, { decimalPlaces: 1 })} | ${formatPercentage(total, { decimalPlaces: 1 })} |`;
   })
   .join("\n");
 
@@ -46,7 +44,7 @@ const distributionRatesSection = ageGroups
     const oa = g.distributionRate.OA;
     const sa = g.distributionRate.SA;
     const ma = g.distributionRate.MA;
-    return `| ${g.description} | ${formatPct(oa)} | ${formatPct(sa)} | ${formatPct(ma)} |`;
+    return `| ${g.description} | ${formatPercentage(oa, { decimalPlaces: 1 })} | ${formatPercentage(sa, { decimalPlaces: 1 })} | ${formatPercentage(ma, { decimalPlaces: 1 })} |`;
   })
   .join("\n");
 
@@ -57,14 +55,14 @@ const ceilingEntries = Object.entries(CPF_INCOME_CEILING)
 const prYear1Section = permanentResidentYear1Rates
   .map(
     (g) =>
-      `| ${g.description} | ${formatPct(g.contributionRate.employee)} | ${formatPct(g.contributionRate.employer)} |`,
+      `| ${g.description} | ${formatPercentage(g.contributionRate.employee, { decimalPlaces: 1 })} | ${formatPercentage(g.contributionRate.employer, { decimalPlaces: 1 })} |`,
   )
   .join("\n");
 
 const prYear2Section = permanentResidentYear2Rates
   .map(
     (g) =>
-      `| ${g.description} | ${formatPct(g.contributionRate.employee)} | ${formatPct(g.contributionRate.employer)} |`,
+      `| ${g.description} | ${formatPercentage(g.contributionRate.employee, { decimalPlaces: 1 })} | ${formatPercentage(g.contributionRate.employer, { decimalPlaces: 1 })} |`,
   )
   .join("\n");
 
@@ -95,7 +93,7 @@ CPF (Central Provident Fund) is Singapore's mandatory savings scheme for Citizen
 |-----------|----------|----------|-------|
 ${contributionRatesSection}
 
-- Employees aged 55 and below: ${formatPct(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE)} employee + ${formatPct(DEFAULT_EMPLOYER_CONTRIBUTION_RATE)} employer = ${formatPct(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE)} total
+- Employees aged 55 and below: ${formatPercentage(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE, { decimalPlaces: 1 })} employee + ${formatPercentage(DEFAULT_EMPLOYER_CONTRIBUTION_RATE, { decimalPlaces: 1 })} employer = ${formatPercentage(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE, { decimalPlaces: 1 })} total
 - Contribution rates decrease for older age groups
 - All rates are sourced from CPF Board publications
 
