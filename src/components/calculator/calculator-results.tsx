@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, cn } from "@heroui/react";
+import { Card, cn, Typography } from "@heroui/react";
 import { KPI } from "@heroui-pro/react";
 import { formatCurrency } from "@/lib/format";
 import { AssumptionsCard } from "./assumptions-card";
@@ -60,16 +60,18 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
           </span>
         </Card.Header>
         <Card.Content className="gap-4">
-          <p className="max-w-[64ch] text-pretty text-[19px] leading-relaxed">
-            {isAboveCeiling
-              ? `Your salary is above the ${formatCurrency(figures.ceiling, 0)} ceiling, so contributions stop there. You keep ${formatCurrency(figures.takeHome)}, your employer adds ${formatCurrency(figures.employer)} on top, and ${formatCurrency(figures.total)} lands in your CPF accounts.`
-              : `You keep ${formatCurrency(figures.takeHome)} of ${formatCurrency(figures.gross)}. ${formatCurrency(figures.employee)} came out of your pay and your employer added ${formatCurrency(figures.employer)} on top of it, so ${formatCurrency(figures.total)} goes into your accounts.`}
-          </p>
+          <div className="max-w-[64ch]">
+            <Typography>
+              {isAboveCeiling
+                ? `Your salary is above the ${formatCurrency(figures.ceiling, 0)} ceiling, so contributions stop there. You keep ${formatCurrency(figures.takeHome)}, your employer adds ${formatCurrency(figures.employer)} on top, and ${formatCurrency(figures.total)} lands in your CPF accounts.`
+                : `You keep ${formatCurrency(figures.takeHome)} of ${formatCurrency(figures.gross)}. ${formatCurrency(figures.employee)} came out of your pay and your employer added ${formatCurrency(figures.employer)} on top of it, so ${formatCurrency(figures.total)} goes into your accounts.`}
+            </Typography>
+          </div>
           {figures.isIllustrative && (
-            <p className="text-muted text-xs">
+            <Typography color="muted" type="body-xs">
               Illustrative figures for {formatCurrency(ILLUSTRATIVE_INCOME, 0)}{" "}
               a month at {ILLUSTRATIVE_AGE}, enter your own numbers on the left.
-            </p>
+            </Typography>
           )}
         </Card.Content>
       </Card>

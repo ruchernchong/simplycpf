@@ -1,9 +1,10 @@
-import { buttonVariants } from "@heroui/react";
+import { buttonVariants, Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { CheatSheetCard } from "@/components/cpf-cheat-sheet/cheat-sheet-card";
 import { PrintButton } from "@/components/cpf-cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Eyebrow } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/cpf-cheat-sheet`;
@@ -81,13 +82,9 @@ export default function CpfCheatSheetPage() {
         {PRINT_STYLES}
       </style>
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Cheat sheet
-        </span>
+        <Eyebrow color="muted">Cheat sheet</Eyebrow>
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h1 className="text-balance font-semibold text-4xl tracking-tight">
-            One page, on the fridge, done
-          </h1>
+          <Typography type="h1">One page, on the fridge, done</Typography>
           <div className="flex flex-wrap gap-2">
             <PrintButton />
             <a
@@ -98,11 +95,13 @@ export default function CpfCheatSheetPage() {
             </a>
           </div>
         </div>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
-          Every reference number for 2026 on a single printable sheet. No
-          inputs, no personalisation, just the figures you keep having to look
-          up.
-        </p>
+        <div className="max-w-[76ch]">
+          <Typography color="muted">
+            Every reference number for 2026 on a single printable sheet. No
+            inputs, no personalisation, just the figures you keep having to look
+            up.
+          </Typography>
+        </div>
       </header>
       <CheatSheetCard />
     </>

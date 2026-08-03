@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import type { Route } from "next";
 import Link from "next/link";
 
@@ -43,12 +43,12 @@ export function HomeConfusions() {
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <h2 className="font-semibold text-base tracking-tight">
+        <Typography type="h2">
           The four things people actually get wrong
-        </h2>
-        <span className="text-muted text-xs">
+        </Typography>
+        <Typography color="muted" type="body-xs">
           Each one is a screen, not an article
-        </span>
+        </Typography>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {confusions.map((confusion) => (
@@ -58,7 +58,7 @@ export function HomeConfusions() {
                 <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
                   {confusion.eyebrow}
                 </span>
-                <Card.Title className="text-balance font-semibold text-[15px]">
+                <Card.Title className="font-semibold text-[15px]">
                   {confusion.title}
                 </Card.Title>
                 <Card.Description className="text-[13px] text-muted leading-relaxed">

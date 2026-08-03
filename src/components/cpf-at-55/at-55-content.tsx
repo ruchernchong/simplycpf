@@ -8,9 +8,11 @@ import {
   Separator,
   Skeleton,
   Surface,
+  Typography,
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
+import { Eyebrow } from "@/components/shared/section-header";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
@@ -117,9 +119,11 @@ function AccountRow({
         </span>
       </div>
       {body && (
-        <p className="max-w-[52ch] text-muted text-sm leading-relaxed">
-          {body}
-        </p>
+        <div className="max-w-[52ch]">
+          <Typography color="muted" type="body-sm">
+            {body}
+          </Typography>
+        </div>
       )}
     </Surface>
   );
@@ -379,9 +383,11 @@ function PromptCard({
         </Card.Title>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
-        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
-          {children}
-        </p>
+        <div className="max-w-[64ch]">
+          <Typography color="muted" type="body-sm">
+            {children}
+          </Typography>
+        </div>
         <Link href="/">Go to the home page</Link>
       </Card.Content>
     </Card>
@@ -426,18 +432,18 @@ export default function At55Content(): ReactNode {
   return (
     <div className="flex flex-col gap-12">
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          At 55
-        </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+        <Eyebrow color="muted">At 55</Eyebrow>
+        <Typography type="h1">
           Your Special Account closes. Here is where the money goes.
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
-          The CPF Board closed the Special Accounts of about 1.4 million members
-          aged 55 and above on 19 January 2025. If you turn 55 after that date,
-          it happens on your birthday. Nothing is taken away, it moves, and the
-          two destinations behave differently.
-        </p>
+        </Typography>
+        <div className="max-w-[76ch]">
+          <Typography color="muted">
+            The CPF Board closed the Special Accounts of about 1.4 million
+            members aged 55 and above on 19 January 2025. If you turn 55 after
+            that date, it happens on your birthday. Nothing is taken away, it
+            moves, and the two destinations behave differently.
+          </Typography>
+        </div>
       </header>
 
       {!mounted && <Skeleton className="h-96 w-full rounded-lg" />}

@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
@@ -52,15 +52,13 @@ export default function PrivacyPage() {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            Privacy
-          </h1>
-          <p data-privacy-summary className="mx-auto max-w-3xl text-muted">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-center">
+          <Typography type="h1">Privacy</Typography>
+          <Typography color="muted" data-privacy-summary>
             SimplyCPF works without sign-up. There is no account to create, no
             email address to hand over, and no backend database holding your
             calculator inputs.
-          </p>
+          </Typography>
         </div>
 
         <Card>

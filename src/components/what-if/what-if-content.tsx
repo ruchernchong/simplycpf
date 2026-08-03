@@ -10,6 +10,7 @@ import {
   Skeleton,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { EmptyState } from "@heroui-pro/react";
 import {
@@ -20,6 +21,7 @@ import {
 } from "nuqs";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import type { Key } from "react-aria-components";
+import { Eyebrow } from "@/components/shared/section-header";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { estimateCpfLife } from "@/lib/calculate-cpf-projection";
 import {
@@ -281,17 +283,21 @@ function AssumptionsCard() {
               <span className={`${MONO_LABEL} text-muted`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
-                {assumption}
-              </p>
+              <div className="max-w-[64ch]">
+                <Typography color="muted" type="body-sm">
+                  {assumption}
+                </Typography>
+              </div>
             </div>
           ))}
         </div>
         <Separator />
-        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
-          A projection is a calculation about assumptions, not a forecast about
-          you. Estimates only, not financial advice.
-        </p>
+        <div className="max-w-[64ch]">
+          <Typography color="muted" type="body-sm">
+            A projection is a calculation about assumptions, not a forecast
+            about you. Estimates only, not financial advice.
+          </Typography>
+        </div>
       </Card.Content>
     </Card>
   );
@@ -408,16 +414,14 @@ export default function WhatIfContent() {
   return (
     <div className="flex flex-col gap-12">
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Compare
-        </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
-          Two sets of assumptions, side by side
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
-          Change one thing and see what the arithmetic does. This tool states
-          differences; it does not suggest which column you should prefer.
-        </p>
+        <Eyebrow color="muted">Compare</Eyebrow>
+        <Typography type="h1">Two sets of assumptions, side by side</Typography>
+        <div className="max-w-[76ch]">
+          <Typography color="muted">
+            Change one thing and see what the arithmetic does. This tool states
+            differences; it does not suggest which column you should prefer.
+          </Typography>
+        </div>
       </header>
 
       <Card>
@@ -464,9 +468,11 @@ export default function WhatIfContent() {
               <NumberField.Input className="w-full" />
             </NumberField.Group>
           </NumberField>
-          <p className="max-w-[64ch] text-[13px] text-muted leading-relaxed">
-            {mounted ? descriptions[scenario] : null}
-          </p>
+          <div className="max-w-[64ch]">
+            <Typography color="muted" type="body-xs">
+              {mounted ? descriptions[scenario] : null}
+            </Typography>
+          </div>
         </Card.Content>
       </Card>
 

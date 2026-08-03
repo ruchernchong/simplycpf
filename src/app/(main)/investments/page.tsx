@@ -1,4 +1,4 @@
-import { buttonVariants, cn } from "@heroui/react";
+import { buttonVariants, cn, Typography } from "@heroui/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
@@ -65,24 +65,24 @@ const InvestmentsPage = () => {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
+        <div className="mx-auto flex max-w-2xl flex-col gap-4 text-center">
+          <Typography type="h1">
             Is Keeping Money in CPF Your Best Move?
-          </h1>
-          <p className="mx-auto max-w-2xl text-muted">
+          </Typography>
+          <Typography color="muted">
             CPF accounts offer guaranteed returns backed by the Singapore
             Government, but they are not your only option. Compare CPF growth
             against Singapore Government bonds, the STI ETF, or global equity
             ETFs. Adjust the initial amount and investment period to see how
             each strategy performs side by side, so you can decide what best
             fits your retirement timeline.
-          </p>
+          </Typography>
         </div>
         <CPFInvestmentComparison />
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Typography weight="medium">
             Haven&apos;t calculated your CPF contributions yet?
-          </p>
+          </Typography>
           <Link
             href="/calculator"
             className={cn(buttonVariants({ size: "lg" }), "gap-2")}

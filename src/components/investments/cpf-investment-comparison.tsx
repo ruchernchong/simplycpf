@@ -10,6 +10,7 @@ import {
   Table,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { LineChart } from "@heroui-pro/react";
 import posthog from "posthog-js";
@@ -261,7 +262,7 @@ export function CPFInvestmentComparison() {
             aria-label="Investment growth comparison chart showing projected returns over time for selected scenarios"
             className="flex flex-col gap-4"
           >
-            <h3 className="font-semibold text-lg">Growth Over Time</h3>
+            <Typography type="h3">Growth Over Time</Typography>
             <LineChart data={chartData} height={400}>
               <LineChart.Grid strokeDasharray="3 3" />
               <LineChart.XAxis

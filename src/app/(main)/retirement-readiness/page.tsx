@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import ReadinessScoreForm from "@/components/retirement-readiness/readiness-score-form";
@@ -60,16 +61,14 @@ export default function RetirementReadinessPage() {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            How Ready Is Your CPF Plan?
-          </h1>
-          <p data-readiness-intro className="mx-auto max-w-3xl text-muted">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-center">
+          <Typography type="h1">How Ready Is Your CPF Plan?</Typography>
+          <Typography color="muted" data-readiness-intro>
             This 5-question score is meant to surface the next CPF planning gap
             worth fixing. It is not a guarantee of retirement adequacy. It is a
             faster way to decide whether you should use the projection tool, the
             CPF LIFE estimator, or the calculator next.
-          </p>
+          </Typography>
         </div>
         <ReadinessScoreForm />
       </div>

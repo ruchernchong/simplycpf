@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import type { Graph } from "schema-dts";
@@ -6,6 +7,7 @@ import CalculatorContent from "@/components/calculator/calculator-content";
 import CpfAgeSpecificBlock from "@/components/seo/cpf-age-specific-block";
 import IncomeCeilingDefinitionBlock from "@/components/seo/income-ceiling-definition-block";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Eyebrow } from "@/components/shared/section-header";
 import { BASE_URL, WEBSITE_ID } from "@/config";
 import faqCalculatorData from "@/data/faq-calculator.json";
 import { findAgeGroup } from "@/lib/find-age-group";
@@ -195,13 +197,11 @@ async function CalculatorPage({
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
-          <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-            This month
-          </span>
+          <Eyebrow color="muted">This month</Eyebrow>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <h1 className="text-balance font-semibold text-4xl tracking-tight">
+            <Typography type="h1">
               Where this month&apos;s money went
-            </h1>
+            </Typography>
             <CalculatorActions />
           </div>
         </header>

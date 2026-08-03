@@ -1,4 +1,4 @@
-import { Card, Chip, Separator } from "@heroui/react";
+import { Card, Chip, Separator, Typography } from "@heroui/react";
 import { Fragment } from "react";
 
 const ages: { figure: string; note?: string; label: string; body: string }[] = [
@@ -53,9 +53,9 @@ export function HomeThreeAges() {
                 )}
               </span>
               <span className="font-semibold text-sm">{age.label}</span>
-              <span className="text-[13px] text-muted leading-relaxed">
+              <Typography color="muted" type="body-sm">
                 {age.body}
-              </span>
+              </Typography>
             </div>
           </Fragment>
         ))}
