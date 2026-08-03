@@ -5,8 +5,13 @@ import {
 import {
   CPF_INCOME_CEILING,
   CPF_INCOME_CEILING_BEFORE_SEPT_2023,
+  getCeilingForYear,
 } from "@/constants";
 import { CPF_BASIC_HEALTHCARE_SUM } from "@/constants/cpf-bhs";
+import {
+  CPF_DATA_AS_OF_LABEL,
+  CPF_DATA_AS_OF_YEAR,
+} from "@/constants/cpf-data-as-of";
 import {
   CPF_ACCOUNT_INTEREST_MAP,
   CPF_INTEREST_FLOOR_RATES,
@@ -24,6 +29,7 @@ import {
   permanentResidentYear1Rates,
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
+import { formatNumber } from "@/lib/format";
 
 export const revalidate = false;
 
@@ -44,7 +50,7 @@ const distributionRows = ageGroups
   .join("\n");
 
 const ceilingRows = Object.entries(CPF_INCOME_CEILING)
-  .map(([date, ceiling]) => `| ${date} | S$${ceiling.toLocaleString()} |`)
+  .map(([date, ceiling]) => `| ${date} | S$${formatNumber(ceiling)} |`)
   .join("\n");
 
 const quarterlyRows = QUARTERLY_CPF_RATES.map(
@@ -68,17 +74,17 @@ const prYear2Rows = permanentResidentYear2Rates
 const retirementSumRows = Object.entries(CPF_RETIREMENT_SUMS)
   .map(
     ([year, sums]) =>
-      `| ${year} | S$${sums.brs.toLocaleString()} | S$${sums.frs.toLocaleString()} | S$${sums.ers.toLocaleString()} |`,
+      `| ${year} | S$${formatNumber(sums.brs)} | S$${formatNumber(sums.frs)} | S$${formatNumber(sums.ers)} |`,
   )
   .join("\n");
 
 const bhsRows = Object.entries(CPF_BASIC_HEALTHCARE_SUM)
-  .map(([year, bhs]) => `| ${year} | S$${bhs.toLocaleString()} |`)
+  .map(([year, bhs]) => `| ${year} | S$${formatNumber(bhs)} |`)
   .join("\n");
 
-const cpfRatesMd = `# CPF Rates — Machine-Readable Reference
+const cpfRatesMd = `# CPF Rates: Machine-Readable Reference
 
-> Source: SimplyCPF (https://simplycpf.com) — All rates sourced from CPF Board publications.
+> Source: SimplyCPF (https://simplycpf.com): All rates sourced from CPF Board publications.
 
 ## Definition: CPF
 
@@ -86,7 +92,7 @@ CPF (Central Provident Fund) is Singapore's mandatory social security savings sc
 
 ## Definition: CPF Income Ceiling
 
-The CPF income ceiling is the maximum amount of monthly salary subject to CPF contributions. Any income above this ceiling is not subject to CPF. Following Budget 2023, the ceiling is rising progressively from S$6,000 to S$8,000 by 2026.
+The CPF income ceiling is the maximum amount of monthly salary subject to CPF contributions. Any income above this ceiling is not subject to CPF. Following Budget 2023, the ceiling rose in stages from S$6,000 to S$8,000, reaching S$8,000 on 1 January 2026.
 
 ---
 
@@ -106,7 +112,7 @@ ${distributionRows}
 
 | Effective Date | Monthly Ceiling |
 |---------------|----------------|
-| Pre-September 2023 | S$${CPF_INCOME_CEILING_BEFORE_SEPT_2023.toLocaleString()} |
+| Pre-September 2023 | S$${formatNumber(CPF_INCOME_CEILING_BEFORE_SEPT_2023)} |
 ${ceilingRows}
 
 ## Interest Rates
@@ -130,8 +136,8 @@ ${quarterlyRows}
 
 ### Extra Interest Tiers
 
-- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${CPF_EXTRA_INTEREST_CAP.toLocaleString()} combined
-- OA portion eligible for the extra interest is capped at the first S$${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()}
+- Extra interest rate: ${CPF_EXTRA_INTEREST_RATE * 100}% on the first S$${formatNumber(CPF_EXTRA_INTEREST_CAP)} combined
+- OA portion eligible for the extra interest is capped at the first S$${formatNumber(CPF_OA_EXTRA_INTEREST_CAP)}
 
 ## PR Graduated Rates
 
@@ -169,22 +175,23 @@ ${bhsRows}
 6. OA amount = total_contribution × OA_distribution_rate
 7. SA amount = total_contribution × SA_distribution_rate
 8. MA amount = total_contribution × MA_distribution_rate
-9. Take-home pay = monthly_income − employee_contribution
+9. Take-home pay = monthly_income - employee_contribution
 
-## Key Statistics (2025)
+## Key Statistics (${CPF_DATA_AS_OF_YEAR})
 
 - **Default total contribution rate (age ≤ 55):** ${fmtPct(DEFAULT_EMPLOYEE_CONTRIBUTION_RATE + DEFAULT_EMPLOYER_CONTRIBUTION_RATE)} (20% employee + 17% employer)
-- **Current income ceiling (2025):** S$${CPF_INCOME_CEILING["2025-01-01"].toLocaleString()}
-- **Final income ceiling (2026):** S$${CPF_INCOME_CEILING["2026-01-01"].toLocaleString()}
+- **Current income ceiling:** S$${formatNumber(getCeilingForYear(CPF_DATA_AS_OF_YEAR))} (from 1 January 2026, the final step of the Budget 2023 increase)
 - **OA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.OA}% p.a.
 - **SMRA floor interest rate:** ${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.
-- **Extra interest tier:** ${CPF_EXTRA_INTEREST_RATE * 100}% on first S$${CPF_EXTRA_INTEREST_CAP.toLocaleString()} (OA capped at S$${CPF_OA_EXTRA_INTEREST_CAP.toLocaleString()})
-- **Age brackets:** 8 (0–35, 36–45, 46–50, 51–55, 56–60, 61–65, 66–70, 70+)
-- **Ceiling increase (2023–2026):** 33.3% (S$6,000 → S$8,000)
+- **Extra interest tier:** ${CPF_EXTRA_INTEREST_RATE * 100}% on first S$${formatNumber(CPF_EXTRA_INTEREST_CAP)} (OA capped at S$${formatNumber(CPF_OA_EXTRA_INTEREST_CAP)})
+- **Age brackets:** 8 (0-35, 36-45, 46-50, 51-55, 56-60, 61-65, 66-70, 70+)
+- **Ceiling increase (2023-2026):** 33.3% (S$6,000 → S$8,000)
 
 ---
 
-*Data sourced from CPF Board publications. Last updated: 2025. This document is intended for machine consumption by AI agents and search engines. Visit https://simplycpf.com for the interactive calculator.*
+*Data sourced from CPF Board publications, effective ${CPF_DATA_AS_OF_LABEL}. This document is intended for machine consumption by AI agents and search engines. Visit https://simplycpf.com for the interactive calculator.*
+
+*SimplyCPF is independent and not affiliated with the CPF Board. Figures are estimates based on published rates and are not financial advice.*
 `;
 
 export async function GET(): Promise<Response> {

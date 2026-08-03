@@ -16,6 +16,7 @@ import {
   permanentResidentYear1Rates,
   permanentResidentYear2Rates,
 } from "@/data/permanent-resident-rates";
+import { formatNumber } from "@/lib/format";
 
 export interface CheatSheetSection {
   title: string;
@@ -31,7 +32,7 @@ export interface CheatSheetData {
 }
 
 const formatPct = (value: number) => `${(value * 100).toFixed(1)}%`;
-const formatCurrency = (value: number) => `S$${value.toLocaleString()}`;
+const formatCurrency = (value: number) => `S$${formatNumber(value)}`;
 
 export function getCpfCheatSheetData(): CheatSheetData {
   return {
