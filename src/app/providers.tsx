@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@teispace/next-themes";
 import type { PropsWithChildren } from "react";
 import { I18nProvider } from "react-aria-components";
 import { CpfStoreProvider } from "@/providers/cpf-store-provider";
