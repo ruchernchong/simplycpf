@@ -1,5 +1,3 @@
-"use client";
-
 import { Card, Typography } from "@heroui/react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -45,12 +43,7 @@ export function HomeConfusions() {
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <Typography
-          type="h6"
-          render={({ children, ...domProps }) => (
-            <h2 {...domProps}>{children}</h2>
-          )}
-        >
+        <Typography type="h2">
           The four things people actually get wrong
         </Typography>
         <Typography color="muted" type="body-xs">
