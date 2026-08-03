@@ -8,36 +8,32 @@ import {
   View,
 } from "@react-pdf/renderer";
 import type { PdfData } from "@/components/pdf/download-pdf";
+import { BRAND } from "@/lib/brand";
 
-const TEAL = "#0d9488";
-const SLATE_600 = "#475569";
-const SLATE_400 = "#94a3b8";
-const SLATE_100 = "#f1f5f9";
-
-const PIE_COLOURS = ["#0d9488", "#14b8a6", "#5eead4"];
+const CHART_COLOURS = [BRAND.chart1, BRAND.chart2, BRAND.chart3];
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontFamily: "Helvetica",
     fontSize: 10,
-    color: "#1e293b",
+    color: BRAND.ink,
   },
   header: {
     marginBottom: 24,
     borderBottomWidth: 2,
-    borderBottomColor: TEAL,
+    borderBottomColor: BRAND.forest,
     paddingBottom: 12,
   },
   title: {
     fontSize: 20,
     fontFamily: "Helvetica-Bold",
-    color: TEAL,
+    color: BRAND.forest,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 10,
-    color: SLATE_400,
+    color: BRAND.textSubtle,
   },
   section: {
     marginBottom: 20,
@@ -46,24 +42,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Helvetica-Bold",
     marginBottom: 10,
-    color: "#1e293b",
+    color: BRAND.ink,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 6,
     borderBottomWidth: 1,
-    borderBottomColor: SLATE_100,
+    borderBottomColor: BRAND.bone,
   },
   rowLabel: {
-    color: SLATE_600,
+    color: BRAND.textSecondary,
   },
   rowValue: {
     fontFamily: "Helvetica-Bold",
   },
   rowValueAccent: {
     fontFamily: "Helvetica-Bold",
-    color: TEAL,
+    color: BRAND.forest,
   },
   comparisonGrid: {
     flexDirection: "row",
@@ -72,13 +68,13 @@ const styles = StyleSheet.create({
   },
   comparisonCard: {
     flex: 1,
-    backgroundColor: SLATE_100,
+    backgroundColor: BRAND.bone,
     padding: 10,
     borderRadius: 4,
   },
   comparisonLabel: {
     fontSize: 9,
-    color: SLATE_600,
+    color: BRAND.textSecondary,
     marginBottom: 4,
   },
   comparisonValue: {
@@ -86,10 +82,10 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
   },
   positive: {
-    color: "#059669",
+    color: BRAND.forest,
   },
   negative: {
-    color: "#d97706",
+    color: BRAND.clay,
   },
   distributionRow: {
     flexDirection: "row",
@@ -108,7 +104,7 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     fontSize: 8,
-    color: SLATE_400,
+    color: BRAND.textSubtle,
     textAlign: "center",
   },
   ceilingTimeline: {
@@ -117,7 +113,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
     padding: 8,
-    backgroundColor: SLATE_100,
+    backgroundColor: BRAND.bone,
     borderRadius: 4,
   },
   ceilingValue: {
@@ -126,7 +122,7 @@ const styles = StyleSheet.create({
   },
   ceilingLabel: {
     fontSize: 8,
-    color: SLATE_600,
+    color: BRAND.textSecondary,
   },
 });
 
@@ -187,7 +183,7 @@ function PieChart({ data, size = 100 }: PieChartProps) {
 
     paths.push({
       d,
-      fill: PIE_COLOURS[index % PIE_COLOURS.length],
+      fill: CHART_COLOURS[index % CHART_COLOURS.length],
     });
 
     startAngle = endAngle;
@@ -280,9 +276,9 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
                 </Text>
                 <Text style={styles.ceilingLabel}>Pre-Sept 2023</Text>
               </View>
-              <Text style={{ color: SLATE_400 }}>→</Text>
+              <Text style={{ color: BRAND.textSubtle }}>→</Text>
               <View>
-                <Text style={[styles.ceilingValue, { color: TEAL }]}>
+                <Text style={[styles.ceilingValue, { color: BRAND.forest }]}>
                   {formatCurrency(data.ceilingComparison.currentCeiling, 0)}
                 </Text>
                 <Text style={styles.ceilingLabel}>Current</Text>
@@ -310,8 +306,8 @@ export function CpfResultsPdf({ data }: CpfResultsPdfProps) {
                   style={[
                     styles.comparisonValue,
                     data.ceilingComparison.cpfImpact >= 0
-                      ? { color: TEAL }
-                      : { color: SLATE_400 },
+                      ? { color: BRAND.forest }
+                      : { color: BRAND.textSubtle },
                   ]}
                 >
                   {formatDifference(data.ceilingComparison.cpfImpact)}

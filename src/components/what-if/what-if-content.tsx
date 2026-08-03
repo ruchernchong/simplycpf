@@ -11,6 +11,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@heroui/react";
+import { EmptyState } from "@heroui-pro/react";
 import {
   parseAsInteger,
   parseAsStringLiteral,
@@ -246,20 +247,20 @@ function ColumnCard({ title, tag, rows, isScenario }: ColumnCardProps) {
   );
 }
 
-function EmptyState() {
+function ComparisonEmptyState() {
   return (
-    <Card>
-      <Card.Header>
-        <Card.Title>Enter your salary and date of birth</Card.Title>
-        <Card.Description>
+    <EmptyState>
+      <EmptyState.Header>
+        <EmptyState.Title>Enter your salary and date of birth</EmptyState.Title>
+        <EmptyState.Description>
           The comparison runs on your own numbers. Add them on the home page and
           this screen fills in.
-        </Card.Description>
-      </Card.Header>
-      <Card.Content>
+        </EmptyState.Description>
+      </EmptyState.Header>
+      <EmptyState.Content>
         <Link href="/">Go to the home page</Link>
-      </Card.Content>
-    </Card>
+      </EmptyState.Content>
+    </EmptyState>
   );
 }
 
@@ -472,7 +473,7 @@ export default function WhatIfContent() {
       {!mounted ? (
         <ComparisonSkeleton />
       ) : result === null ? (
-        <EmptyState />
+        <ComparisonEmptyState />
       ) : (
         <div className="grid gap-8 md:grid-cols-2">
           <ColumnCard

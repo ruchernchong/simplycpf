@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Card } from "@heroui/react";
+import { Button, Card, Skeleton } from "@heroui/react";
+import { KPI, KPIGroup } from "@heroui-pro/react";
 import dynamic from "next/dynamic";
 import {
   parseAsInteger,
@@ -12,7 +13,6 @@ import { useState, useTransition } from "react";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
 import { formatDateInput, isValidDateFormat } from "@/lib/date-utils";
-import { formatCurrency } from "@/lib/format";
 import type { ProjectionParams } from "@/types";
 import CpfLifeEstimate from "./cpf-life-estimate";
 import MilestoneCards from "./milestone-cards";
@@ -27,7 +27,7 @@ const BalanceGrowthChart = dynamic(() => import("./balance-growth-chart"), {
         <Card.Title>Balance Growth Over Time</Card.Title>
       </Card.Header>
       <Card.Content>
-        <div className="h-[360px] animate-pulse rounded-lg bg-zinc-200" />
+        <Skeleton className="h-[360px] w-full rounded-lg" />
       </Card.Content>
     </Card>
   ),
@@ -195,34 +195,61 @@ export default function ProjectionContent() {
                 {linkCopied ? "Link copied" : "Copy share link"}
               </Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card>
-                <Card.Header>
-                  <Card.Description>
+            <KPIGroup className="w-full md:grid md:grid-cols-3 md:gap-4">
+              <KPI className="gap-2">
+                <KPI.Header>
+                  <KPI.Title className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
                     Projected CPF at age {finalBalance.age}
-                  </Card.Description>
-                  <Card.Title className="text-2xl">
-                    {formatCurrency(getTotalBalance(finalBalance.balances), 0)}
-                  </Card.Title>
-                </Card.Header>
-              </Card>
-              <Card>
-                <Card.Header>
-                  <Card.Description>Total contributions</Card.Description>
-                  <Card.Title className="text-2xl">
-                    {formatCurrency(result.totalContributed, 0)}
-                  </Card.Title>
-                </Card.Header>
-              </Card>
-              <Card>
-                <Card.Header>
-                  <Card.Description>Total interest earned</Card.Description>
-                  <Card.Title className="text-2xl">
-                    {formatCurrency(result.totalInterestEarned, 0)}
-                  </Card.Title>
-                </Card.Header>
-              </Card>
-            </div>
+                  </KPI.Title>
+                </KPI.Header>
+                <KPI.Content>
+                  <KPI.Value
+                    className="font-semibold text-[26px] tracking-tight"
+                    currency="SGD"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    style="currency"
+                    value={getTotalBalance(finalBalance.balances)}
+                  />
+                </KPI.Content>
+              </KPI>
+              <KPIGroup.Separator className="md:hidden" />
+              <KPI className="gap-2">
+                <KPI.Header>
+                  <KPI.Title className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+                    Total contributions
+                  </KPI.Title>
+                </KPI.Header>
+                <KPI.Content>
+                  <KPI.Value
+                    className="font-semibold text-[26px] tracking-tight"
+                    currency="SGD"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    style="currency"
+                    value={result.totalContributed}
+                  />
+                </KPI.Content>
+              </KPI>
+              <KPIGroup.Separator className="md:hidden" />
+              <KPI className="gap-2">
+                <KPI.Header>
+                  <KPI.Title className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
+                    Total interest earned
+                  </KPI.Title>
+                </KPI.Header>
+                <KPI.Content>
+                  <KPI.Value
+                    className="font-semibold text-[26px] tracking-tight"
+                    currency="SGD"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    style="currency"
+                    value={result.totalInterestEarned}
+                  />
+                </KPI.Content>
+              </KPI>
+            </KPIGroup>
 
             <BalanceGrowthChart yearlyBalances={result.yearlyBalances} />
             <MilestoneCards result={result} />
