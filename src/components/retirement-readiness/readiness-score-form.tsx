@@ -10,138 +10,136 @@ import {
 } from "@/lib/calculate-retirement-readiness";
 import { cn } from "@/lib/utils";
 
+type AnswerKey = keyof ReadinessAnswers;
+
+function option<TValue extends string>(
+  value: TValue,
+  label: string,
+  description: string,
+) {
+  return { value, label, description } as const;
+}
+
 const questions = [
   {
-    key: "citizenshipStatus",
+    key: "citizenshipStatus" satisfies AnswerKey,
     label: "Which option best matches your CPF status today?",
     options: [
-      {
-        value: "citizen",
-        label: "Singapore Citizen",
-        description: "I use the standard citizen CPF rates today.",
-      },
-      {
-        value: "spr-new",
-        label: "PR in Year 1 or 2",
-        description:
-          "My CPF uses graduated PR rates or I am still in transition.",
-      },
-      {
-        value: "spr-established",
-        label: "PR on full rates",
-        description: "I am a PR already paying the full CPF rates.",
-      },
-      {
-        value: "not-sure",
-        label: "Not sure",
-        description: "I am not fully sure which CPF rate table applies to me.",
-      },
+      option(
+        "citizen",
+        "Singapore Citizen",
+        "I use the standard citizen CPF rates today.",
+      ),
+      option(
+        "spr-new",
+        "PR in Year 1 or 2",
+        "My CPF uses graduated PR rates or I am still in transition.",
+      ),
+      option(
+        "spr-established",
+        "PR on full rates",
+        "I am a PR already paying the full CPF rates.",
+      ),
+      option(
+        "not-sure",
+        "Not sure",
+        "I am not fully sure which CPF rate table applies to me.",
+      ),
     ],
   },
   {
-    key: "housingUsage",
+    key: "housingUsage" satisfies AnswerKey,
     label: "How much of your OA do you expect housing to use up?",
     options: [
-      {
-        value: "none",
-        label: "Little or none",
-        description:
-          "Most of my OA is likely to remain available for planning.",
-      },
-      {
-        value: "some",
-        label: "Some OA usage",
-        description:
-          "Housing affects my OA, but not to the point where I ignore the rest.",
-      },
-      {
-        value: "heavy",
-        label: "A large share",
-        description: "Housing is likely to consume a large part of my OA.",
-      },
-      {
-        value: "not-sure",
-        label: "Not sure",
-        description:
-          "I do not really know how housing changes my CPF trajectory.",
-      },
+      option(
+        "none",
+        "Little or none",
+        "Most of my OA is likely to remain available for planning.",
+      ),
+      option(
+        "some",
+        "Some OA usage",
+        "Housing affects my OA, but not to the point where I ignore the rest.",
+      ),
+      option(
+        "heavy",
+        "A large share",
+        "Housing is likely to consume a large part of my OA.",
+      ),
+      option(
+        "not-sure",
+        "Not sure",
+        "I do not really know how housing changes my CPF trajectory.",
+      ),
     ],
   },
   {
-    key: "planningHabit",
+    key: "planningHabit" satisfies AnswerKey,
     label: "How often do you project or review your CPF balances?",
     options: [
-      {
-        value: "never",
-        label: "Never",
-        description: "I have not modelled my CPF balances before.",
-      },
-      {
-        value: "once",
-        label: "Once or twice",
-        description: "I have checked it before, but not as a habit.",
-      },
-      {
-        value: "yearly",
-        label: "At least yearly",
-        description: "I review CPF as part of a regular financial check-in.",
-      },
-      {
-        value: "ongoing",
-        label: "Ongoing",
-        description:
-          "I actively compare CPF decisions and update my assumptions.",
-      },
+      option("never", "Never", "I have not modelled my CPF balances before."),
+      option(
+        "once",
+        "Once or twice",
+        "I have checked it before, but not as a habit.",
+      ),
+      option(
+        "yearly",
+        "At least yearly",
+        "I review CPF as part of a regular financial check-in.",
+      ),
+      option(
+        "ongoing",
+        "Ongoing",
+        "I actively compare CPF decisions and update my assumptions.",
+      ),
     ],
   },
   {
-    key: "topUpHabit",
+    key: "topUpHabit" satisfies AnswerKey,
     label: "How do you currently treat top-ups or OA to SA transfers?",
     options: [
-      {
-        value: "never",
-        label: "I do not do them",
-        description: "I have not explored top-ups or transfers seriously.",
-      },
-      {
-        value: "considering",
-        label: "I am considering them",
-        description: "I know they matter, but I have not acted yet.",
-      },
-      {
-        value: "sometimes",
-        label: "Occasionally",
-        description: "I do them selectively when the numbers look attractive.",
-      },
-      {
-        value: "consistent",
-        label: "Consistently",
-        description:
-          "I already use top-ups or transfers as part of my CPF strategy.",
-      },
+      option(
+        "never",
+        "I do not do them",
+        "I have not explored top-ups or transfers seriously.",
+      ),
+      option(
+        "considering",
+        "I am considering them",
+        "I know they matter, but I have not acted yet.",
+      ),
+      option(
+        "sometimes",
+        "Occasionally",
+        "I do them selectively when the numbers look attractive.",
+      ),
+      option(
+        "consistent",
+        "Consistently",
+        "I already use top-ups or transfers as part of my CPF strategy.",
+      ),
     ],
   },
   {
-    key: "cpfLifeConfidence",
+    key: "cpfLifeConfidence" satisfies AnswerKey,
     label: "How clear are you about your future CPF LIFE payout range?",
     options: [
-      {
-        value: "low",
-        label: "Not clear",
-        description: "I do not know roughly what payout range I should expect.",
-      },
-      {
-        value: "medium",
-        label: "Somewhat clear",
-        description:
-          "I have a rough idea, but I have not compared plans carefully.",
-      },
-      {
-        value: "high",
-        label: "Clear enough",
-        description:
-          "I understand the rough payout ranges and main plan differences.",
-      },
+      option(
+        "low",
+        "Not clear",
+        "I do not know roughly what payout range I should expect.",
+      ),
+      option(
+        "medium",
+        "Somewhat clear",
+        "I have a rough idea, but I have not compared plans carefully.",
+      ),
+      option(
+        "high",
+        "Clear enough",
+        "I understand the rough payout ranges and main plan differences.",
+      ),
     ],
   },
 ] as const;
@@ -178,12 +176,12 @@ export default function ReadinessScoreForm() {
               {question.label}
             </legend>
             <div className="grid gap-4 md:grid-cols-2">
-              {question.options.map((option) => {
-                const isSelected = answers[question.key] === option.value;
+              {question.options.map((choice) => {
+                const isSelected = answers[question.key] === choice.value;
 
                 return (
                   <label
-                    key={option.value}
+                    key={choice.value}
                     className={cn(
                       "flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors",
                       isSelected
@@ -194,21 +192,21 @@ export default function ReadinessScoreForm() {
                     <input
                       type="radio"
                       name={question.key}
-                      value={option.value}
+                      value={choice.value}
                       checked={isSelected}
                       onChange={() =>
                         setAnswers((current) => ({
                           ...current,
-                          [question.key]: option.value,
+                          [question.key]: choice.value,
                         }))
                       }
                       className="sr-only"
                     />
                     <span className="font-medium text-foreground">
-                      {option.label}
+                      {choice.label}
                     </span>
                     <span className="text-muted text-sm">
-                      {option.description}
+                      {choice.description}
                     </span>
                   </label>
                 );
