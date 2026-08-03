@@ -7,10 +7,6 @@
       "headers": {
         "x-heroui-personal-token": "{env:HEROUI_PERSONAL_TOKEN}"
       }
-    },
-    "shadcn": {
-      "type": "local",
-      "command": ["bunx", "shadcn@latest", "mcp"]
     }
   }
 }

@@ -23,7 +23,7 @@ A Next.js 16.3 Preview application that calculates CPF (Central Provident Fund) 
 - **Language**: Use English (Singapore) spelling across documentation and copy
 - **Formatting**: Biome for formatting with 2-space indentation and double quotes
 - **Imports**: Organised via Biome, absolute imports with `@/` prefix
-- **Tailwind Classes**: Automatically sorted using Biome's `useSortedClasses` rule with `cn`, `clsx`, `cva`, and `tw` functions
+- **Tailwind Classes**: Automatically sorted using Biome's `useSortedClasses` rule with `cn`, `clsx`, and `tw` functions
 - **TypeScript**: Full type coverage, avoid `any` and `as` casts
 - **State Management**: Zustand store for global state
 - **Component Structure**: Functional components with explicit return types

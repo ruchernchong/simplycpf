@@ -1,4 +1,4 @@
-import { Accordion, buttonVariants, Card } from "@heroui/react";
+import { Accordion, buttonVariants, Card, cn } from "@heroui/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
@@ -7,7 +7,6 @@ import type { Graph } from "schema-dts";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 import faqData from "@/data/faq.json";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "About SimplyCPF: Free Singapore CPF Contribution Calculator",
