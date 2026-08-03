@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import type { Graph } from "schema-dts";
@@ -199,9 +200,9 @@ async function CalculatorPage({
             This month
           </span>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <h1 className="text-balance font-semibold text-4xl tracking-tight">
+            <Typography type="h1" className="text-balance">
               Where this month&apos;s money went
-            </h1>
+            </Typography>
             <CalculatorActions />
           </div>
         </header>

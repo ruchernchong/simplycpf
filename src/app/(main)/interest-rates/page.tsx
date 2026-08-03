@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import { AllocationByAge } from "@/components/interest-rates/allocation-by-age";
@@ -101,14 +102,17 @@ export default function InterestRatesPage() {
         <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
           Rates
         </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+        <Typography type="h1" className="text-balance">
           Every rate that decides your numbers
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+        </Typography>
+        <Typography
+          color="muted"
+          className="max-w-[76ch] text-pretty leading-relaxed"
+        >
           Two floor rates, one peg, one bonus tier, and a contribution table
           that changes with your age. This page is the source of every figure
           elsewhere in SimplyCPF.
-        </p>
+        </Typography>
       </header>
       <RateTiles />
       <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">

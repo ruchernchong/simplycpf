@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
 import CpfLifeContent from "@/components/cpf-life/cpf-life-content";
@@ -86,15 +87,18 @@ export default function CpfLifePage() {
           <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
             CPF LIFE
           </span>
-          <h1 className="text-balance font-semibold text-4xl tracking-tight">
+          <Typography type="h1" className="text-balance">
             One balance, three payout shapes
-          </h1>
-          <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+          </Typography>
+          <Typography
+            color="muted"
+            className="max-w-[76ch] text-pretty leading-relaxed"
+          >
             The plans differ in shape, not in generosity: the same Retirement
             Account buys a flat payout, a rising one that starts lower, or a
             lower one that can fall further. We show all three side by side and
             rank none of them.
-          </p>
+          </Typography>
         </header>
         <CpfLifeContent />
         <CpfLifeDefinitionBlock />

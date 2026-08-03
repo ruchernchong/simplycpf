@@ -1,6 +1,14 @@
 "use client";
 
-import { Card, Checkbox, cn, Link, Separator, Surface } from "@heroui/react";
+import {
+  Card,
+  Checkbox,
+  cn,
+  Link,
+  Separator,
+  Surface,
+  Typography,
+} from "@heroui/react";
 import { ArrowRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
@@ -118,14 +126,17 @@ export default function CpfCheckContent(): ReactNode {
         <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
           Check
         </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+        <Typography type="h1" className="text-balance">
           Five things worth knowing. Which do you already?
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+        </Typography>
+        <Typography
+          color="muted"
+          className="max-w-[76ch] text-pretty leading-relaxed"
+        >
           Not a score, and no right answer. Tick what you already know and we
           will point you at the screen that explains each of the rest. Nothing
           is recorded and no email is asked for.
-        </p>
+        </Typography>
       </header>
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_340px]">
@@ -145,11 +156,11 @@ export default function CpfCheckContent(): ReactNode {
             <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
               Where to read the rest
             </span>
-            <p className="text-base leading-relaxed">
+            <Typography className="leading-relaxed">
               {allTicked
                 ? "All five ticked. Nothing left to point you at, the screens are still there if you want the numbers for your own salary."
                 : `You have ticked ${tickedIds.length} of five. Here is where each of the others is explained, in your own numbers.`}
-            </p>
+            </Typography>
             {untickedItems.length > 0 && (
               <ul className="flex flex-col gap-2">
                 {untickedItems.map((item) => (
@@ -161,10 +172,14 @@ export default function CpfCheckContent(): ReactNode {
             )}
             <div className="flex flex-col gap-4">
               <Separator variant="secondary" />
-              <p className="text-[12px] text-muted leading-relaxed">
+              <Typography
+                color="muted"
+                type="body-xs"
+                className="leading-relaxed"
+              >
                 We do not assess your readiness or suggest what to do, this only
                 shows which explanation you have not read yet.
-              </p>
+              </Typography>
             </div>
           </Card.Content>
         </Card>

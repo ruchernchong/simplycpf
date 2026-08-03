@@ -8,6 +8,7 @@ import {
   Separator,
   Skeleton,
   Surface,
+  Typography,
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
@@ -117,9 +118,13 @@ function AccountRow({
         </span>
       </div>
       {body && (
-        <p className="max-w-[52ch] text-muted text-sm leading-relaxed">
+        <Typography
+          color="muted"
+          type="body-sm"
+          className="max-w-[52ch] leading-relaxed"
+        >
           {body}
-        </p>
+        </Typography>
       )}
     </Surface>
   );
@@ -379,9 +384,13 @@ function PromptCard({
         </Card.Title>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
-        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+        <Typography
+          color="muted"
+          type="body-sm"
+          className="max-w-[64ch] leading-relaxed"
+        >
           {children}
-        </p>
+        </Typography>
         <Link href="/">Go to the home page</Link>
       </Card.Content>
     </Card>
@@ -429,15 +438,18 @@ export default function At55Content(): ReactNode {
         <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
           At 55
         </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+        <Typography type="h1" className="text-balance">
           Your Special Account closes. Here is where the money goes.
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+        </Typography>
+        <Typography
+          color="muted"
+          className="max-w-[76ch] text-pretty leading-relaxed"
+        >
           The CPF Board closed the Special Accounts of about 1.4 million members
           aged 55 and above on 19 January 2025. If you turn 55 after that date,
           it happens on your birthday. Nothing is taken away, it moves, and the
           two destinations behave differently.
-        </p>
+        </Typography>
       </header>
 
       {!mounted && <Skeleton className="h-96 w-full rounded-lg" />}

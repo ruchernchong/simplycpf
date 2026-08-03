@@ -10,6 +10,7 @@ import {
   Separator,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { BarChart } from "@heroui-pro/react";
 import { type Key, useEffect, useMemo, useState } from "react";
@@ -250,19 +251,19 @@ export function CpfLifeContent() {
           </div>
 
           {!hasProjection && (
-            <p className="text-muted text-xs">
+            <Typography color="muted" type="body-xs">
               Enter salary and DOB on the <Link href="/">home page</Link> to use
               your own projection.
-            </p>
+            </Typography>
           )}
 
-          <p className="max-w-[64ch] text-[19px] leading-relaxed">
+          <Typography className="max-w-[64ch] text-[19px] leading-relaxed">
             A Retirement Account of {monthly(raBalance)} at 65 supports roughly{" "}
             {monthly(standard)} a month on the Standard plan,{" "}
             {monthly(escalating)} rising 2% a year on Escalating, or{" "}
             {monthly(basic)} on Basic. Over twenty years the Escalating payout
             reaches {monthly(escalating85)}.
-          </p>
+          </Typography>
         </Card.Content>
       </Card>
 
@@ -353,10 +354,10 @@ export function CpfLifeContent() {
               ))}
             </ol>
             <Separator />
-            <p className="text-muted text-xs">
+            <Typography color="muted" type="body-xs">
               Indicative only. Use CPF's own payout estimator for figures tied
               to your record. SimplyCPF does not recommend a plan.
-            </p>
+            </Typography>
           </Card.Content>
         </Card>
       </div>

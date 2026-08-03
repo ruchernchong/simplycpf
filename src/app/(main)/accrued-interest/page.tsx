@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import type { Graph } from "schema-dts";
@@ -75,16 +76,19 @@ export default function AccruedInterestPage() {
         <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
           Home &amp; OA
         </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
+        <Typography type="h1" className="text-balance">
           Accrued interest, without the forum arguments
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
+        </Typography>
+        <Typography
+          color="muted"
+          className="max-w-[76ch] text-pretty leading-relaxed"
+        >
           OA money you put into a home keeps a running 2.5% tab: the interest it
           would have earned had it stayed. When you sell, the principal plus
           that accrued interest returns to your CPF before you see any cash. It
           is a refund to yourself, not a penalty, but it changes what a sale
           actually pays out.
-        </p>
+        </Typography>
       </header>
       <Suspense>
         <AccruedInterestContent />
