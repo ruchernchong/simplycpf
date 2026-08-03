@@ -31,6 +31,8 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
+        env:
+          HEROUI_AUTH_TOKEN: ${{ secrets.HEROUI_AUTH_TOKEN }}
         run: pnpm install --frozen-lockfile
 
       - name: Release
