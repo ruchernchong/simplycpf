@@ -18,7 +18,6 @@ const nextConfig: NextConfig = {
   experimental: {
     mcpServer: true,
     strictRouteTypes: true,
-    turbopackFileSystemCacheForBuild: true,
     typedEnv: true,
   },
   async rewrites() {

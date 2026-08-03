@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # SimplyCPF - Development Guide
 
-A Next.js 16.2 application that calculates CPF (Central Provident Fund) contributions and helps users plan CPF outcomes following Singapore's 2023 Budget changes to income ceilings.
+A Next.js 16.3 Preview application that calculates CPF (Central Provident Fund) contributions and helps users plan CPF outcomes following Singapore's 2023 Budget changes to income ceilings.
 
 ## Build and Test Commands
 - `pnpm dev` - Start development server via Portless at `https://simplycpf.localhost`
@@ -108,13 +108,14 @@ Documentation site powered by Fumadocs at `/developer`:
 
 ### Next.js Configuration
 Key `next.config.ts` settings:
-- **Turbopack**: Default bundler (stable since Next.js 16), filesystem cache enabled for builds
+- **Turbopack**: Default bundler (stable since Next.js 16); production build filesystem cache is on by default in 16.3
 - **React Compiler**: Enabled via `reactCompiler: true` with `babel-plugin-react-compiler`
 - **Typed Routes**: `typedRoutes: true` generates `RouteContext` type for route params
 - **Typed Env**: `experimental.typedEnv` provides type-safe `process.env` access
 - **MCP Server**: `experimental.mcpServer` enables the Next.js Model Context Protocol server
 - **Strict Route Types**: `experimental.strictRouteTypes` type-checks App Router page props
 - **Logging**: `logging.browserToTerminal` forwards browser errors to terminal; `logging.serverFunctions` logs server action execution in dev
+- **Cache Components / Instant Navigations**: Do **not** enable `cacheComponents` or `partialPrefetching`. The app is static-first (most product pages prerendered; tools are client-side Zustand/nuqs calculators; APIs use HTTP `Cache-Control`). Cache Components targets mixed static/server-dynamic pages; Partial Prefetching may regress static-heavy sites. Revisit only when all of these hold: real server-driven UI in pages, route `loading.tsx`/Suspense shells for key navigations, documented static-heavy Partial Prefetching support, and a measured `cacheComponents`-only trial before any `partialPrefetching` opt-in.
 
 ### API Routes
 RESTful API endpoints under `/api/cpf/` provide programmatic access to CPF calculations:

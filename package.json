@@ -53,7 +53,7 @@
     "maplibre-gl": "6.0.0",
     "marked": "18.0.7",
     "motion": "12.23.26",
-    "next": "^16.2.11",
+    "next": "16.3.0-preview.10",
     "next-themes": "0.4.6",
     "nuqs": "2.8.9",
     "posthog-js": "1.367.0",
