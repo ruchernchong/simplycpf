@@ -1,8 +1,9 @@
 "use client";
 
-import { Segment } from "@heroui-pro/react";
+import { Button, cn, Link } from "@heroui/react";
+import { Segment, Sheet } from "@heroui-pro/react";
+import { Menu } from "lucide-react";
 import type { Route } from "next";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "@/components/layout/theme-toggle";
@@ -34,6 +35,8 @@ const referenceNavItems: NavItem[] = [
   { href: "/cpf-cheat-sheet" as Route, label: "Cheat sheet" },
   { href: "/cpf-check" as Route, label: "Check" },
 ];
+
+const allNavItems = [...questionNavItems, ...referenceNavItems];
 
 function NavSegment({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
@@ -77,6 +80,62 @@ function InputSummary() {
   );
 }
 
+function MobileNav() {
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="lg:hidden">
+      <Sheet isOpen={isOpen} onOpenChange={setIsOpen} placement="right">
+        <Sheet.Trigger>
+          <Button
+            aria-label="Open menu"
+            isIconOnly
+            size="sm"
+            variant="secondary"
+          >
+            <Menu aria-hidden className="size-4" />
+          </Button>
+        </Sheet.Trigger>
+        <Sheet.Backdrop>
+          <Sheet.Content className="w-full max-w-xs">
+            <Sheet.Dialog>
+              <Sheet.Header className="flex items-center justify-between gap-4">
+                <Sheet.Heading>Menu</Sheet.Heading>
+                <Sheet.CloseTrigger />
+              </Sheet.Header>
+              <Sheet.Body>
+                <nav aria-label="Main, compact" className="flex flex-col gap-2">
+                  {allNavItems.map((item) => {
+                    const isActive = pathname === item.href;
+
+                    return (
+                      <Link
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "rounded-lg px-4 py-2 text-sm no-underline",
+                          isActive
+                            ? "bg-accent/10 font-medium text-accent"
+                            : "text-muted",
+                        )}
+                        href={item.href}
+                        key={item.href}
+                        onPress={() => setIsOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </Sheet.Body>
+            </Sheet.Dialog>
+          </Sheet.Content>
+        </Sheet.Backdrop>
+      </Sheet>
+    </div>
+  );
+}
+
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-border border-b bg-background">
@@ -98,36 +157,9 @@ export function Header() {
         <div className="flex items-center gap-4">
           <InputSummary />
           <ThemeToggle />
+          <MobileNav />
         </div>
       </div>
-
-      <nav
-        aria-label="Main, compact"
-        className="flex gap-4 overflow-x-auto px-4 pb-2 lg:hidden"
-      >
-        {[...questionNavItems, ...referenceNavItems].map((item) => (
-          <MobileNavLink key={item.href} item={item} />
-        ))}
-      </nav>
     </header>
-  );
-}
-
-function MobileNavLink({ item }: { item: NavItem }) {
-  const pathname = usePathname();
-  const isActive = pathname === item.href;
-
-  return (
-    <Link
-      href={item.href}
-      aria-current={isActive ? "page" : undefined}
-      className={
-        isActive
-          ? "whitespace-nowrap font-medium text-foreground text-sm"
-          : "whitespace-nowrap text-muted text-sm"
-      }
-    >
-      {item.label}
-    </Link>
   );
 }

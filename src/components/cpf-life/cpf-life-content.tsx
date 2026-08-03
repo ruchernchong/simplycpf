@@ -11,6 +11,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@heroui/react";
+import { BarChart } from "@heroui-pro/react";
 import { type Key, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 import { useCpfStore } from "@/hooks/use-cpf-store";
@@ -41,24 +42,31 @@ function monthly(value: number): string {
   return formatCurrency(value, 0);
 }
 
-interface MiniBarsProps {
+interface PlanBarsProps {
   values: number[];
   max: number;
-  color: string;
+  fill: string;
+  label: string;
 }
 
-function MiniBars({ values, max, color }: MiniBarsProps) {
+function PlanBars({ values, max, fill, label }: PlanBarsProps) {
+  const data = [
+    { age: "65", payout: values[0] ?? 0 },
+    { age: "75", payout: values[1] ?? 0 },
+    { age: "85", payout: values[2] ?? 0 },
+  ];
+
   return (
-    <div aria-hidden className="flex h-16 items-end gap-2">
-      {values.map((value, index) => (
-        <div
-          className={cn("flex-1 rounded-t-sm", color)}
-          // biome-ignore lint/suspicious/noArrayIndexKey: bars are positional (65/75/85)
-          key={index}
-          style={{ height: `${Math.max(8, (value / max) * 64)}px` }}
-        />
-      ))}
-    </div>
+    <BarChart
+      aria-label={`${label} payout at ages 65, 75, and 85`}
+      data={data}
+      height={64}
+      margin={{ bottom: 0, left: 0, right: 0, top: 0 }}
+    >
+      <BarChart.XAxis dataKey="age" hide />
+      <BarChart.YAxis domain={[0, max]} hide />
+      <BarChart.Bar dataKey="payout" fill={fill} radius={[4, 4, 0, 0]} />
+    </BarChart>
   );
 }
 
@@ -121,6 +129,7 @@ export function CpfLifeContent() {
     {
       name: "Standard",
       swatch: "bg-chart-1",
+      fill: "var(--chart-1)",
       value: standard,
       suffix: "/month, flat",
       bars: [standard, standard, standard],
@@ -130,6 +139,7 @@ export function CpfLifeContent() {
     {
       name: "Escalating",
       swatch: "bg-chart-2",
+      fill: "var(--chart-2)",
       value: escalating,
       suffix: "/month, +2% a year",
       bars: [escalating, escalating75, escalating85],
@@ -143,6 +153,7 @@ export function CpfLifeContent() {
     {
       name: "Basic",
       swatch: "bg-chart-3",
+      fill: "var(--chart-3)",
       value: basic,
       suffix: "/month, can fall",
       bars: [basic, basic, basic85],
@@ -274,7 +285,12 @@ export function CpfLifeContent() {
                 </span>
                 <span className="text-muted text-xs">{plan.suffix}</span>
               </p>
-              <MiniBars color={plan.swatch} max={maxBar} values={plan.bars} />
+              <PlanBars
+                fill={plan.fill}
+                label={plan.name}
+                max={maxBar}
+                values={plan.bars}
+              />
               <div className="flex items-baseline justify-between gap-2 font-mono text-[10.5px] text-muted">
                 {plan.ages.map((age) => (
                   <span key={age}>{age}</span>

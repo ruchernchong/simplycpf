@@ -1,4 +1,5 @@
-import { Card } from "@heroui/react";
+import { Card, Surface } from "@heroui/react";
+import { KPI } from "@heroui-pro/react";
 import { formatCurrency } from "@/lib/format";
 import type { ProjectionResult } from "@/types";
 
@@ -46,25 +47,42 @@ export default function CpfLifeEstimate({ result }: CpfLifeEstimateProps) {
         {result.cpfLifeEstimate.standardMonthly > 0 ? (
           <div className="grid gap-4 lg:grid-cols-2">
             {payoutOptions.map((option) => (
-              <div
-                key={option.label}
-                className="rounded-lg border border-border bg-surface-tertiary/30 p-4"
-              >
-                <p className="font-medium text-foreground text-sm">
-                  {option.label}
-                </p>
-                <p className="pb-2 font-semibold text-2xl text-foreground">
-                  {formatCurrency(option.value, 0)}
-                  <span className="pl-2 font-normal text-muted text-sm">
-                    per month
-                  </span>
-                </p>
-                <p className="text-muted text-sm">{option.description}</p>
-              </div>
+              <KPI className="gap-2" key={option.label}>
+                <KPI.Header>
+                  <KPI.Title className="font-medium text-foreground text-sm">
+                    {option.label}
+                  </KPI.Title>
+                </KPI.Header>
+                <KPI.Content>
+                  <KPI.Value
+                    className="font-semibold text-2xl text-foreground"
+                    currency="SGD"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    style="currency"
+                    value={option.value}
+                  >
+                    {(formatted) => (
+                      <span className="flex items-baseline gap-2">
+                        <span>{formatted}</span>
+                        <span className="font-normal text-muted text-sm">
+                          per month
+                        </span>
+                      </span>
+                    )}
+                  </KPI.Value>
+                </KPI.Content>
+                <KPI.Footer className="text-muted text-sm">
+                  {option.description}
+                </KPI.Footer>
+              </KPI>
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-border bg-surface-tertiary/30 p-4">
+          <Surface
+            className="flex flex-col gap-2 rounded-lg p-4"
+            variant="tertiary"
+          >
             <p className="font-medium text-foreground text-sm">
               Your projected RA balance is still below the S$60,000 threshold
               used for the current CPF LIFE estimate.
@@ -73,7 +91,7 @@ export default function CpfLifeEstimate({ result }: CpfLifeEstimateProps) {
               Try extending the projection horizon, increasing income, or adding
               a top-up to see how the estimate changes.
             </p>
-          </div>
+          </Surface>
         )}
       </Card.Content>
     </Card>

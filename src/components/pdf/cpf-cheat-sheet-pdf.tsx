@@ -1,15 +1,9 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { BRAND } from "@/lib/brand";
 import {
   type CheatSheetSection,
   getCpfCheatSheetData,
 } from "@/lib/get-cpf-cheat-sheet-data";
-
-const TEAL = "#0f766e";
-const SLATE_900 = "#0f172a";
-const SLATE_700 = "#334155";
-const SLATE_500 = "#64748b";
-const SLATE_100 = "#e2e8f0";
-const SLATE_50 = "#f8fafc";
 
 const styles = StyleSheet.create({
   page: {
@@ -18,16 +12,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     fontFamily: "Helvetica",
     fontSize: 9,
-    color: SLATE_900,
+    color: BRAND.ink,
   },
   header: {
     borderBottomWidth: 2,
-    borderBottomColor: TEAL,
+    borderBottomColor: BRAND.forest,
     paddingBottom: 12,
     marginBottom: 20,
   },
   overline: {
-    color: TEAL,
+    color: BRAND.forest,
     fontSize: 9,
     textTransform: "uppercase",
     letterSpacing: 1.1,
@@ -39,7 +33,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   subtitle: {
-    color: SLATE_700,
+    color: BRAND.textBody,
     lineHeight: 1.5,
   },
   section: {
@@ -51,47 +45,47 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sectionDescription: {
-    color: SLATE_500,
+    color: BRAND.textSecondary,
     lineHeight: 1.4,
     marginBottom: 8,
   },
   table: {
     borderWidth: 1,
-    borderColor: SLATE_100,
+    borderColor: BRAND.bone,
     borderRadius: 6,
     overflow: "hidden",
   },
   row: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: SLATE_100,
+    borderBottomColor: BRAND.bone,
   },
   headerRow: {
-    backgroundColor: SLATE_50,
+    backgroundColor: BRAND.card,
   },
   cell: {
     flex: 1,
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRightWidth: 1,
-    borderRightColor: SLATE_100,
+    borderRightColor: BRAND.bone,
   },
   lastCell: {
     borderRightWidth: 0,
   },
   headerCellText: {
     fontFamily: "Helvetica-Bold",
-    color: SLATE_700,
+    color: BRAND.textBody,
   },
   bodyCellText: {
-    color: SLATE_900,
+    color: BRAND.ink,
   },
   footer: {
     position: "absolute",
     bottom: 18,
     left: 32,
     right: 32,
-    color: SLATE_500,
+    color: BRAND.textSecondary,
     textAlign: "center",
     fontSize: 8,
   },

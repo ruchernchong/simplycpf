@@ -1,4 +1,4 @@
-import { Accordion, buttonVariants, Card, cn } from "@heroui/react";
+import { Accordion, Alert, buttonVariants, Card, cn } from "@heroui/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
@@ -125,18 +125,17 @@ const About = () => {
           </Card.Content>
         </Card>
 
-        <Card className="border-orange-200 bg-orange-50">
-          <Card.Header>
-            <Card.Title>Important Disclaimer</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <p className="mb-4">
+        <Alert status="warning">
+          <Alert.Indicator />
+          <Alert.Content className="flex flex-col gap-4">
+            <Alert.Title>Important Disclaimer</Alert.Title>
+            <Alert.Description>
               This calculator is an independent tool to help with CPF
               contribution calculations. It is not affiliated with, endorsed by,
               or connected to the Central Provident Fund Board (CPF Board),
               Ministry of Manpower (MOM), or any government agency.
-            </p>
-            <p>
+            </Alert.Description>
+            <p className="text-sm">
               All rates are sourced from CPF Board publications and the
               calculation logic is open for anyone to verify. For official CPF
               matters, always refer to the{" "}
@@ -150,8 +149,8 @@ const About = () => {
               </a>{" "}
               or contact CPF Board directly.
             </p>
-          </Card.Content>
-        </Card>
+          </Alert.Content>
+        </Alert>
 
         <Card data-content-block="faq">
           <Card.Header>

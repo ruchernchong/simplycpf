@@ -4,6 +4,42 @@ import { Header } from "../header";
 
 const push = vi.fn();
 
+vi.mock("@heroui/react", async () => {
+  const actual =
+    await vi.importActual<typeof import("@heroui/react")>("@heroui/react");
+
+  return {
+    ...actual,
+    Button: function ButtonMock({
+      children,
+      ...props
+    }: {
+      children: React.ReactNode;
+      "aria-label"?: string;
+    }) {
+      return (
+        <button type="button" {...props}>
+          {children}
+        </button>
+      );
+    },
+    Link: function LinkMock({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode;
+      href?: string;
+    }) {
+      return (
+        <a href={href} {...props}>
+          {children}
+        </a>
+      );
+    },
+  };
+});
+
 vi.mock("@heroui-pro/react", () => {
   function Segment({ children }: { children: React.ReactNode }) {
     return <div role="radiogroup">{children}</div>;
@@ -15,7 +51,60 @@ vi.mock("@heroui-pro/react", () => {
   }) {
     return <button type="button">{children}</button>;
   };
-  return { Segment };
+
+  function Sheet({ children }: { children: React.ReactNode }) {
+    return <div data-testid="mobile-nav-sheet">{children}</div>;
+  }
+  Sheet.Trigger = function SheetTrigger({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+    return <>{children}</>;
+  };
+  Sheet.Backdrop = function SheetBackdrop({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+    return <div>{children}</div>;
+  };
+  Sheet.Content = function SheetContent({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+    return <div>{children}</div>;
+  };
+  Sheet.Dialog = function SheetDialog({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+    return <div>{children}</div>;
+  };
+  Sheet.Header = function SheetHeader({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+    return <div>{children}</div>;
+  };
+  Sheet.Heading = function SheetHeading({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) {
+    return <h2>{children}</h2>;
+  };
+  Sheet.Body = function SheetBody({ children }: { children: React.ReactNode }) {
+    return <div>{children}</div>;
+  };
+  Sheet.CloseTrigger = function SheetCloseTrigger() {
+    return <button type="button">Close</button>;
+  };
+
+  return { Segment, Sheet };
 });
 
 vi.mock("next/navigation", () => ({
@@ -67,6 +156,13 @@ describe("Header", () => {
     ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
+  });
+
+  it("renders the mobile menu trigger", () => {
+    render(<Header />);
+
+    expect(screen.getByLabelText("Open menu")).toBeTruthy();
+    expect(screen.getByTestId("mobile-nav-sheet")).toBeTruthy();
   });
 
   it("renders the theme toggle", () => {

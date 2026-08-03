@@ -1,5 +1,5 @@
+import { Link } from "@heroui/react";
 import type { Route } from "next";
-import Link from "next/link";
 import { Wordmark } from "@/components/shared/wordmark";
 
 const primaryLinks: { href: Route; label: string }[] = [
@@ -27,11 +27,7 @@ export function Footer() {
           </p>
           <nav aria-label="Footer" className="flex items-center gap-4 text-sm">
             {primaryLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-link hover:text-foreground"
-              >
+              <Link key={link.href} href={link.href}>
                 {link.label}
               </Link>
             ))}
@@ -45,22 +41,22 @@ export function Footer() {
               {moreLinks.map((link) => (
                 <Link
                   key={link.href}
+                  className="text-muted text-xs"
                   href={link.href}
-                  className="text-muted text-xs hover:text-foreground"
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
           </div>
-          <a
+          <Link
+            className="text-muted text-xs"
             href="https://github.com/ruchernchong/simplycpf"
-            target="_blank"
             rel="noopener noreferrer"
-            className="text-muted text-xs hover:text-foreground"
+            target="_blank"
           >
             GitHub · open source
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

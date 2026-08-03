@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, cn } from "@heroui/react";
+import { Alert, Button, Label } from "@heroui/react";
+import { RadioButtonGroup } from "@heroui-pro/react";
 import { useState } from "react";
 import ReadinessScoreResult from "@/components/retirement-readiness/readiness-score-result";
 import { READINESS_QUESTIONS } from "@/data/retirement-readiness-questions";
@@ -37,51 +38,47 @@ export default function ReadinessScoreForm() {
     <div className="flex flex-col gap-6">
       <form className="flex flex-col gap-6" onSubmit={handleCalculate}>
         {READINESS_QUESTIONS.map((question) => (
-          <fieldset key={question.key} className="flex flex-col gap-4">
-            <legend className="font-semibold text-foreground">
+          <RadioButtonGroup
+            key={question.key}
+            className="gap-4 md:grid-cols-2"
+            layout="grid"
+            name={question.key}
+            value={answers[question.key]}
+            onChange={(value) => {
+              setAnswers((current) => ({
+                ...current,
+                [question.key]: value as ReadinessAnswers[typeof question.key],
+              }));
+              setFormError(null);
+            }}
+          >
+            <Label className="col-span-full font-semibold text-foreground">
               {question.label}
-            </legend>
-            <div className="grid gap-4 md:grid-cols-2">
-              {question.options.map((choice) => {
-                const isSelected = answers[question.key] === choice.value;
-
-                return (
-                  <label
-                    key={choice.value}
-                    className={cn(
-                      "flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors",
-                      isSelected
-                        ? "border-accent bg-accent/5"
-                        : "border-border hover:border-accent/40",
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name={question.key}
-                      value={choice.value}
-                      checked={isSelected}
-                      onChange={() =>
-                        setAnswers((current) => ({
-                          ...current,
-                          [question.key]: choice.value,
-                        }))
-                      }
-                      className="sr-only"
-                    />
-                    <span className="font-medium text-foreground">
-                      {choice.label}
-                    </span>
-                    <span className="text-muted text-sm">
-                      {choice.description}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
+            </Label>
+            {question.options.map((choice) => (
+              <RadioButtonGroup.Item key={choice.value} value={choice.value}>
+                <RadioButtonGroup.Indicator />
+                <RadioButtonGroup.ItemContent className="flex flex-col gap-2">
+                  <span className="font-medium text-foreground">
+                    {choice.label}
+                  </span>
+                  <span className="text-muted text-sm">
+                    {choice.description}
+                  </span>
+                </RadioButtonGroup.ItemContent>
+              </RadioButtonGroup.Item>
+            ))}
+          </RadioButtonGroup>
         ))}
 
-        {formError ? <p className="text-danger text-sm">{formError}</p> : null}
+        {formError ? (
+          <Alert status="danger">
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Description>{formError}</Alert.Description>
+            </Alert.Content>
+          </Alert>
+        ) : null}
         <Button type="submit" size="lg">
           Calculate my readiness score
         </Button>

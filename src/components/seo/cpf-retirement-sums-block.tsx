@@ -1,11 +1,12 @@
 import { Card } from "@heroui/react";
+import { KPI } from "@heroui-pro/react";
 import {
   CPF_RETIREMENT_SUMS,
   getRetirementSumsForYear,
 } from "@/constants/cpf-retirement-sums";
 import { formatNumber } from "@/lib/format";
 
-const CpfRetirementSumsBlock = () => {
+function CpfRetirementSumsBlock() {
   const currentYear = new Date().getFullYear();
   const sums = getRetirementSumsForYear(currentYear);
 
@@ -18,6 +19,24 @@ const CpfRetirementSumsBlock = () => {
     .map(Number)
     .filter((y) => y > currentYear)
     .slice(0, 3);
+
+  const tiles = [
+    {
+      label: "Basic Retirement Sum",
+      value: sums.brs,
+      note: "Minimum for CPF LIFE. Provides basic monthly payouts for life.",
+    },
+    {
+      label: "Full Retirement Sum",
+      value: sums.frs,
+      note: `${frsMultiple}× BRS. Higher monthly payouts for a more comfortable retirement.`,
+    },
+    {
+      label: "Enhanced Retirement Sum",
+      value: sums.ers,
+      note: `${ersMultiple}× BRS. Maximum monthly payouts for enhanced retirement income.`,
+    },
+  ];
 
   return (
     <section aria-labelledby="cpf-retirement-sums" data-content-block="dataset">
@@ -36,37 +55,28 @@ const CpfRetirementSumsBlock = () => {
           </p>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
-              <p className="mb-1 font-semibold text-sm">Basic Retirement Sum</p>
-              <p className="font-bold text-2xl text-foreground">
-                S${formatNumber(sums.brs)}
-              </p>
-              <p className="mt-1 text-muted text-xs">
-                Minimum for CPF LIFE. Provides basic monthly payouts for life.
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
-              <p className="mb-1 font-semibold text-sm">Full Retirement Sum</p>
-              <p className="font-bold text-2xl text-foreground">
-                S${formatNumber(sums.frs)}
-              </p>
-              <p className="mt-1 text-muted text-xs">
-                {frsMultiple}× BRS. Higher monthly payouts for a more
-                comfortable retirement.
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
-              <p className="mb-1 font-semibold text-sm">
-                Enhanced Retirement Sum
-              </p>
-              <p className="font-bold text-2xl text-foreground">
-                S${formatNumber(sums.ers)}
-              </p>
-              <p className="mt-1 text-muted text-xs">
-                {ersMultiple}× BRS. Maximum monthly payouts for enhanced
-                retirement income.
-              </p>
-            </div>
+            {tiles.map((tile) => (
+              <KPI className="gap-2" key={tile.label}>
+                <KPI.Header>
+                  <KPI.Title className="font-semibold text-sm">
+                    {tile.label}
+                  </KPI.Title>
+                </KPI.Header>
+                <KPI.Content>
+                  <KPI.Value
+                    className="font-bold text-2xl text-foreground"
+                    currency="SGD"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    style="currency"
+                    value={tile.value}
+                  />
+                </KPI.Content>
+                <KPI.Footer className="text-muted text-xs">
+                  {tile.note}
+                </KPI.Footer>
+              </KPI>
+            ))}
           </div>
 
           {futureYears.length > 0 && (
@@ -96,6 +106,6 @@ const CpfRetirementSumsBlock = () => {
       </Card>
     </section>
   );
-};
+}
 
 export default CpfRetirementSumsBlock;

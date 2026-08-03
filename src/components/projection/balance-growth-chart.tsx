@@ -1,16 +1,8 @@
 "use client";
 
 import { Card } from "@heroui/react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { AreaChart } from "@heroui-pro/react";
+import { Legend } from "recharts";
 import { formatCurrency } from "@/lib/format";
 import type { ProjectionResult } from "@/types";
 
@@ -18,12 +10,12 @@ interface BalanceGrowthChartProps {
   yearlyBalances: ProjectionResult["yearlyBalances"];
 }
 
-const accountColours = {
-  oa: "#2563eb",
-  sa: "#0f766e",
-  ma: "#f59e0b",
-  ra: "#7c3aed",
-} as const;
+const accountSeries = [
+  { key: "oa", name: "OA", color: "var(--chart-1)" },
+  { key: "sa", name: "SA", color: "var(--chart-2)" },
+  { key: "ma", name: "MA", color: "var(--chart-3)" },
+  { key: "ra", name: "RA", color: "var(--chart-4)" },
+] as const;
 
 export default function BalanceGrowthChart({
   yearlyBalances,
@@ -46,50 +38,33 @@ export default function BalanceGrowthChart({
           role="img"
           aria-label="Stacked area chart showing projected CPF balances across OA, SA, MA and RA by age"
         >
-          <ResponsiveContainer width="100%" height={360}>
-            <AreaChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="age" />
-              <YAxis tickFormatter={(value) => formatCurrency(value, 0)} />
-              <Tooltip
-                formatter={(value) => formatCurrency(Number(value), 0)}
-                labelFormatter={(value) => `Age ${value}`}
-              />
-              <Legend />
-              <Area
-                dataKey="oa"
-                name="OA"
+          <AreaChart data={chartData} height={360}>
+            <AreaChart.Grid strokeDasharray="3 3" vertical={false} />
+            <AreaChart.XAxis dataKey="age" />
+            <AreaChart.YAxis
+              tickFormatter={(value) => formatCurrency(value, 0)}
+            />
+            <AreaChart.Tooltip
+              content={
+                <AreaChart.TooltipContent
+                  labelFormatter={(value) => `Age ${value}`}
+                  valueFormatter={(value) => formatCurrency(Number(value), 0)}
+                />
+              }
+            />
+            <Legend />
+            {accountSeries.map((series) => (
+              <AreaChart.Area
+                key={series.key}
+                dataKey={series.key}
+                name={series.name}
                 stackId="cpf"
-                stroke={accountColours.oa}
-                fill={accountColours.oa}
+                stroke={series.color}
+                fill={series.color}
                 fillOpacity={0.7}
               />
-              <Area
-                dataKey="sa"
-                name="SA"
-                stackId="cpf"
-                stroke={accountColours.sa}
-                fill={accountColours.sa}
-                fillOpacity={0.7}
-              />
-              <Area
-                dataKey="ma"
-                name="MA"
-                stackId="cpf"
-                stroke={accountColours.ma}
-                fill={accountColours.ma}
-                fillOpacity={0.7}
-              />
-              <Area
-                dataKey="ra"
-                name="RA"
-                stackId="cpf"
-                stroke={accountColours.ra}
-                fill={accountColours.ra}
-                fillOpacity={0.7}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+            ))}
+          </AreaChart>
         </div>
       </Card.Content>
     </Card>
