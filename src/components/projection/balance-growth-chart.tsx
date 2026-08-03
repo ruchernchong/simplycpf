@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "@heroui/react";
 import {
   Area,
   AreaChart,
@@ -10,7 +11,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/format";
 import type { ProjectionResult } from "@/types";
 
@@ -37,11 +37,11 @@ export default function BalanceGrowthChart({
   }));
 
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Balance Growth Over Time</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card>
+      <Card.Header>
+        <Card.Title>Balance Growth Over Time</Card.Title>
+      </Card.Header>
+      <Card.Content>
         <div
           role="img"
           aria-label="Stacked area chart showing projected CPF balances across OA, SA, MA and RA by age"
@@ -91,7 +91,7 @@ export default function BalanceGrowthChart({
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
+      </Card.Content>
     </Card>
   );
 }

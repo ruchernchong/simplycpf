@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import { ageGroups } from "@/data";
 
 const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
@@ -8,13 +8,13 @@ const CpfDistributionComparisonBlock = () => (
     aria-labelledby="cpf-distribution-comparison"
     data-content-block="comparison"
   >
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle id="cpf-distribution-comparison">
+    <Card>
+      <Card.Header>
+        <Card.Title id="cpf-distribution-comparison">
           CPF Distribution Rates Comparison by Age Group
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </Card.Title>
+      </Card.Header>
+      <Card.Content>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
@@ -47,7 +47,7 @@ const CpfDistributionComparisonBlock = () => (
             </tbody>
           </table>
         </div>
-      </CardContent>
+      </Card.Content>
     </Card>
   </section>
 );

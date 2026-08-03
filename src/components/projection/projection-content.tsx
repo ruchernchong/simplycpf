@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, Card } from "@heroui/react";
 import dynamic from "next/dynamic";
 import {
   parseAsInteger,
@@ -8,14 +9,6 @@ import {
   useQueryStates,
 } from "nuqs";
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
 import { formatCurrency } from "@/lib/format";
@@ -29,13 +22,13 @@ import YearlyProjectionTable from "./yearly-projection-table";
 const BalanceGrowthChart = dynamic(() => import("./balance-growth-chart"), {
   ssr: false,
   loading: () => (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Balance Growth Over Time</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card>
+      <Card.Header>
+        <Card.Title>Balance Growth Over Time</Card.Title>
+      </Card.Header>
+      <Card.Content>
         <div className="h-[360px] animate-pulse rounded-lg bg-zinc-200" />
-      </CardContent>
+      </Card.Content>
     </Card>
   ),
 });
@@ -198,36 +191,36 @@ export default function ProjectionContent() {
         {result && finalBalance ? (
           <>
             <div className="flex justify-end">
-              <Button variant="outline" onClick={handleCopyProjectionLink}>
+              <Button variant="outline" onPress={handleCopyProjectionLink}>
                 {linkCopied ? "Link copied" : "Copy share link"}
               </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardDescription>
+              <Card>
+                <Card.Header>
+                  <Card.Description>
                     Projected CPF at age {finalBalance.age}
-                  </CardDescription>
-                  <CardTitle className="text-2xl">
+                  </Card.Description>
+                  <Card.Title className="text-2xl">
                     {formatCurrency(getTotalBalance(finalBalance.balances), 0)}
-                  </CardTitle>
-                </CardHeader>
+                  </Card.Title>
+                </Card.Header>
               </Card>
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardDescription>Total contributions</CardDescription>
-                  <CardTitle className="text-2xl">
+              <Card>
+                <Card.Header>
+                  <Card.Description>Total contributions</Card.Description>
+                  <Card.Title className="text-2xl">
                     {formatCurrency(result.totalContributed, 0)}
-                  </CardTitle>
-                </CardHeader>
+                  </Card.Title>
+                </Card.Header>
               </Card>
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardDescription>Total interest earned</CardDescription>
-                  <CardTitle className="text-2xl">
+              <Card>
+                <Card.Header>
+                  <Card.Description>Total interest earned</Card.Description>
+                  <Card.Title className="text-2xl">
                     {formatCurrency(result.totalInterestEarned, 0)}
-                  </CardTitle>
-                </CardHeader>
+                  </Card.Title>
+                </Card.Header>
               </Card>
             </div>
 
@@ -237,14 +230,14 @@ export default function ProjectionContent() {
             <YearlyProjectionTable yearlyBalances={result.yearlyBalances} />
           </>
         ) : (
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Your projection will appear here</CardTitle>
-              <CardDescription>
+          <Card>
+            <Card.Header>
+              <Card.Title>Your projection will appear here</Card.Title>
+              <Card.Description>
                 Add your income and birth date to start the projection.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 text-muted-foreground text-sm">
+              </Card.Description>
+            </Card.Header>
+            <Card.Content className="flex flex-col gap-4 text-muted-foreground text-sm">
               <p>
                 The current model uses CPF floor interest rates, your selected
                 citizenship status, and today&apos;s contribution rules.
@@ -260,7 +253,7 @@ export default function ProjectionContent() {
                   {currentAge}.
                 </p>
               ) : null}
-            </CardContent>
+            </Card.Content>
           </Card>
         )}
       </div>

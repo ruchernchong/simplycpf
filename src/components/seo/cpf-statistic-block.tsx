@@ -1,13 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
+import { formatNumber } from "@/lib/format";
 
 const CpfStatisticBlock = () => {
   const currentCeiling = CPF_INCOME_CEILING["2026-01-01"];
   const stats = [
     {
       label: "Current income ceiling (2026)",
-      value: `S$${currentCeiling.toLocaleString()}`,
+      value: `S$${formatNumber(currentCeiling)}`,
       detail: "Final ceiling under 2023 Budget changes",
     },
     {
@@ -24,11 +25,13 @@ const CpfStatisticBlock = () => {
 
   return (
     <section aria-labelledby="cpf-statistics" data-content-block="statistics">
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle id="cpf-statistics">Key CPF Numbers at a Glance</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card>
+        <Card.Header>
+          <Card.Title id="cpf-statistics">
+            Key CPF Numbers at a Glance
+          </Card.Title>
+        </Card.Header>
+        <Card.Content>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {stats.map((stat) => (
               <div
@@ -45,7 +48,7 @@ const CpfStatisticBlock = () => {
               </div>
             ))}
           </div>
-        </CardContent>
+        </Card.Content>
       </Card>
     </section>
   );

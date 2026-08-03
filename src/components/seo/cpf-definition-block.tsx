@@ -1,12 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 
 const CpfDefinitionBlock = () => (
   <section aria-labelledby="cpf-definition" data-content-block="definition">
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle id="cpf-definition">What is CPF?</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+    <Card>
+      <Card.Header>
+        <Card.Title id="cpf-definition">What is CPF?</Card.Title>
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4">
         <p>
           <strong>CPF (Central Provident Fund)</strong> is Singapore{"'"}s
           mandatory social security savings scheme. Every Singapore Citizen and
@@ -22,11 +22,11 @@ const CpfDefinitionBlock = () => (
           insurance.
         </p>
         <p>
-          Contribution rates and distribution vary by age group — there are 8
-          age brackets with different rates. Income above the CPF income ceiling
-          is not subject to CPF contributions.
+          Contribution rates and distribution vary by age group, there are 8 age
+          brackets with different rates. Income above the CPF income ceiling is
+          not subject to CPF contributions.
         </p>
-      </CardContent>
+      </Card.Content>
     </Card>
   </section>
 );

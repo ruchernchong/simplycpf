@@ -1,11 +1,5 @@
+import { Card } from "@heroui/react";
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import type { AgeGroup } from "@/types";
 
 interface CpfAgeSpecificBlockProps {
@@ -30,19 +24,19 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
       aria-labelledby={`age-group-${ageGroup.description.replace(/\s+/g, "-").toLowerCase()}`}
       data-content-block="age-specific"
     >
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle
+      <Card>
+        <Card.Header>
+          <Card.Title
             id={`age-group-${ageGroup.description.replace(/\s+/g, "-").toLowerCase()}`}
           >
             CPF Contribution Rates for {ageGroup.description}
-          </CardTitle>
-          <CardDescription>
+          </Card.Title>
+          <Card.Description>
             Contribution and distribution rates for employees{" "}
             {ageGroup.description.toLowerCase()}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6">
+          </Card.Description>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-6">
           <div className="grid grid-cols-3 gap-4">
             <div className="rounded-lg bg-muted p-4">
               <p className="mb-1 text-muted-foreground text-sm">
@@ -73,7 +67,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               OA/SA/MA Distribution
             </h3>
             <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">OA</span>
                 <span className="font-medium font-mono">
                   {fmtPct(ageGroup.distributionRate.OA)}
@@ -82,7 +76,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
                   of contributions
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">SA</span>
                 <span className="font-medium font-mono">
                   {fmtPct(ageGroup.distributionRate.SA)}
@@ -91,7 +85,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
                   of contributions
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">MA</span>
                 <span className="font-medium font-mono">
                   {fmtPct(ageGroup.distributionRate.MA)}
@@ -118,7 +112,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               View Projection
             </Link>
           </div>
-        </CardContent>
+        </Card.Content>
       </Card>
     </section>
   );

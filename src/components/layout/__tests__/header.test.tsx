@@ -2,50 +2,71 @@ import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { Header } from "../header";
 
-vi.mock("@hugeicons/react", () => ({
-  HugeiconsIcon: ({
-    icon,
-    ...props
+const push = vi.fn();
+
+vi.mock("@heroui-pro/react", () => {
+  function Segment({ children }: { children: React.ReactNode }) {
+    return <div role="radiogroup">{children}</div>;
+  }
+  Segment.Item = function SegmentItem({
+    children,
   }: {
-    icon: unknown;
-    "data-testid"?: string;
-  }) => <div data-testid={props["data-testid"] || "hugeicon"}>Icon</div>,
-}));
+    children: React.ReactNode;
+  }) {
+    return <button type="button">{children}</button>;
+  };
+  return { Segment };
+});
 
-vi.mock("@hugeicons/core-free-icons", () => ({
-  CodeIcon: "CodeIcon",
-  Home01Icon: "Home01Icon",
-  InformationCircleIcon: "InformationCircleIcon",
-}));
-
-vi.mock("@/components/layout/mobile-nav", () => ({
-  default: () => <div data-testid="mobile-nav">MobileNav</div>,
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({ push }),
 }));
 
 vi.mock("@/components/layout/theme-toggle", () => ({
-  default: () => <div data-testid="theme-toggle">ThemeToggle</div>,
+  default: function ThemeToggleMock() {
+    return <div data-testid="theme-toggle">ThemeToggle</div>;
+  },
+}));
+
+vi.mock("@/hooks/use-cpf-store", () => ({
+  useCpfStore: (selector: (state: unknown) => unknown) =>
+    selector({
+      settings: {
+        shouldStoreInput: false,
+        monthlyGrossIncome: 0,
+        birthDate: "",
+        citizenshipStatus: "citizen",
+      },
+      latestIncomeCeilingDate: "2026-01-01",
+    }),
 }));
 
 describe("Header", () => {
-  it("renders the logo with link to homepage", () => {
+  it("renders the wordmark linking to the homepage", () => {
     render(<Header />);
 
-    const logoLink = screen.getByText("SimplyCPF");
-    expect(logoLink).toBeTruthy();
-    expect(logoLink.closest("a")?.getAttribute("href")).toBe("/");
+    const wordmark = screen.getByText("SimplyCPF");
+    expect(wordmark).toBeTruthy();
+    expect(wordmark.closest("a")?.getAttribute("href")).toBe("/");
   });
 
-  it("renders navigation links", () => {
+  it("renders all nine navigation tabs", () => {
     render(<Header />);
 
-    expect(screen.getByText("Home")).toBeTruthy();
-    expect(screen.getByText("About")).toBeTruthy();
-  });
-
-  it("renders the mobile nav", () => {
-    render(<Header />);
-
-    expect(screen.getByTestId("mobile-nav")).toBeTruthy();
+    for (const label of [
+      "Home",
+      "This month",
+      "At 55",
+      "Home & OA",
+      "CPF LIFE",
+      "Compare",
+      "Rates",
+      "Cheat sheet",
+      "Check",
+    ]) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    }
   });
 
   it("renders the theme toggle", () => {
@@ -54,9 +75,10 @@ describe("Header", () => {
     expect(screen.getByTestId("theme-toggle")).toBeTruthy();
   });
 
-  it("renders skip-to-content link", () => {
+  it("renders a skip-to-content link", () => {
     render(<Header />);
 
-    expect(screen.getByText("Skip to content")).toBeTruthy();
+    const skipLink = screen.getByText("Skip to content");
+    expect(skipLink.getAttribute("href")).toBe("#main-content");
   });
 });

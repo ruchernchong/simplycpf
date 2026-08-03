@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@heroui/react";
 import { useState } from "react";
 import ReadinessScoreResult from "@/components/lead-magnets/readiness-score-result";
-import { Button } from "@/components/ui/button";
 import {
   calculateRetirementReadiness,
   type ReadinessAnswers,
@@ -173,11 +173,11 @@ export default function ReadinessScoreForm() {
     <div className="flex flex-col gap-6">
       <form className="flex flex-col gap-6" onSubmit={handleCalculate}>
         {questions.map((question) => (
-          <fieldset key={question.key} className="flex flex-col gap-3">
+          <fieldset key={question.key} className="flex flex-col gap-4">
             <legend className="font-semibold text-foreground">
               {question.label}
             </legend>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {question.options.map((option) => {
                 const isSelected = answers[question.key] === option.value;
 

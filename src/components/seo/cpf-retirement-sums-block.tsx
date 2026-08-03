@@ -1,12 +1,17 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import {
   CPF_RETIREMENT_SUMS,
   getRetirementSumsForYear,
 } from "@/constants/cpf-retirement-sums";
+import { formatNumber } from "@/lib/format";
 
 const CpfRetirementSumsBlock = () => {
   const currentYear = new Date().getFullYear();
   const sums = getRetirementSumsForYear(currentYear);
+
+  // Derived rather than hardcoded: the ERS moved from 3x to 4x the BRS in 2025.
+  const frsMultiple = Math.round(sums.frs / sums.brs);
+  const ersMultiple = Math.round(sums.ers / sums.brs);
 
   // Find next few years with data for projections
   const futureYears = Object.keys(CPF_RETIREMENT_SUMS)
@@ -16,13 +21,13 @@ const CpfRetirementSumsBlock = () => {
 
   return (
     <section aria-labelledby="cpf-retirement-sums" data-content-block="dataset">
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle id="cpf-retirement-sums">
+      <Card>
+        <Card.Header>
+          <Card.Title id="cpf-retirement-sums">
             CPF Retirement Sums ({currentYear})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+          </Card.Title>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-4">
           <p>
             The <strong>Retirement Sums</strong> determine how much you need in
             your CPF Retirement Account (RA) for different levels of CPF LIFE
@@ -34,7 +39,7 @@ const CpfRetirementSumsBlock = () => {
             <div className="rounded-lg border border-border bg-muted/50 p-4">
               <p className="mb-1 font-semibold text-sm">Basic Retirement Sum</p>
               <p className="font-bold text-2xl text-foreground">
-                S${sums.brs.toLocaleString()}
+                S${formatNumber(sums.brs)}
               </p>
               <p className="mt-1 text-muted-foreground text-xs">
                 Minimum for CPF LIFE. Provides basic monthly payouts for life.
@@ -43,11 +48,11 @@ const CpfRetirementSumsBlock = () => {
             <div className="rounded-lg border border-border bg-muted/50 p-4">
               <p className="mb-1 font-semibold text-sm">Full Retirement Sum</p>
               <p className="font-bold text-2xl text-foreground">
-                S${sums.frs.toLocaleString()}
+                S${formatNumber(sums.frs)}
               </p>
               <p className="mt-1 text-muted-foreground text-xs">
-                2× BRS. Higher monthly payouts for a more comfortable
-                retirement.
+                {frsMultiple}× BRS. Higher monthly payouts for a more
+                comfortable retirement.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-muted/50 p-4">
@@ -55,10 +60,11 @@ const CpfRetirementSumsBlock = () => {
                 Enhanced Retirement Sum
               </p>
               <p className="font-bold text-2xl text-foreground">
-                S${sums.ers.toLocaleString()}
+                S${formatNumber(sums.ers)}
               </p>
               <p className="mt-1 text-muted-foreground text-xs">
-                3× BRS. Maximum monthly payouts for enhanced retirement income.
+                {ersMultiple}× BRS. Maximum monthly payouts for enhanced
+                retirement income.
               </p>
             </div>
           </div>
@@ -72,9 +78,9 @@ const CpfRetirementSumsBlock = () => {
                   return (
                     <li key={year}>
                       <strong>{year}:</strong> BRS S$
-                      {yearSums.brs.toLocaleString()}, FRS S$
-                      {yearSums.frs.toLocaleString()}, ERS S$
-                      {yearSums.ers.toLocaleString()}
+                      {formatNumber(yearSums.brs)}, FRS S$
+                      {formatNumber(yearSums.frs)}, ERS S$
+                      {formatNumber(yearSums.ers)}
                     </li>
                   );
                 })}
@@ -86,7 +92,7 @@ const CpfRetirementSumsBlock = () => {
             Tip: You can withdraw the amount above your FRS at age 55, or
             transfer it to RA for higher CPF LIFE payouts later.
           </p>
-        </CardContent>
+        </Card.Content>
       </Card>
     </section>
   );

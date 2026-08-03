@@ -1,15 +1,14 @@
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { Graph } from "schema-dts";
-import CPFInterestRatesSection from "@/components/interest-rates/cpf-interest-rates-section";
-import DistributionRatesTable from "@/components/interest-rates/distribution-rates-table";
+import { AllocationByAge } from "@/components/interest-rates/allocation-by-age";
+import { ContributionRatesTable } from "@/components/interest-rates/contribution-rates-table";
+import { QuarterlyRatesTable } from "@/components/interest-rates/quarterly-rates-table";
+import { RateTiles } from "@/components/interest-rates/rate-tiles";
 import CpfContributionComparisonBlock from "@/components/seo/cpf-contribution-comparison-block";
 import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-comparison-block";
 import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import { StructuredData } from "@/components/seo/structured-data";
-import { buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/section-header";
 import { BASE_URL } from "@/config";
 import {
   buildBreadcrumbList,
@@ -18,7 +17,6 @@ import {
   buildPageSchema,
   buildSpeakable,
 } from "@/lib/build-schema";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "CPF Interest Rates | How Much Does Your OA, SA & MA Earn?",
@@ -52,7 +50,7 @@ export const metadata: Metadata = {
   },
 };
 
-const InterestRatesPage = () => {
+export default function InterestRatesPage() {
   const schema: Graph = buildGraph([
     buildPageSchema({
       name: "CPF Interest Rates",
@@ -98,51 +96,20 @@ const InterestRatesPage = () => {
   return (
     <>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-12">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            How Much Interest Does Your CPF Earn?
-          </h1>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
-            Your CPF savings earn guaranteed interest backed by the Singapore
-            Government. Your OA earns a floor rate of 2.5% per annum, while your
-            SA, MA, and Retirement Account earn interest pegged to the 10-year
-            Singapore Government Securities yield plus 1% — with a guaranteed
-            minimum of 4% per annum. Below are current rates, historical trends,
-            and how your contributions are distributed across accounts for each
-            of the 8 age brackets.
-          </p>
-        </div>
-        <div>
-          <h2 className="mb-6 font-semibold text-2xl">
-            How Your CPF Interest Is Determined
-          </h2>
-          <CPFInterestRatesSection />
-        </div>
-        <div>
-          <h2 className="mb-6 font-semibold text-2xl">
-            Where Your CPF Contributions Go by Age
-          </h2>
-          <DistributionRatesTable />
-        </div>
-        <CpfContributionComparisonBlock />
-        <CpfDistributionComparisonBlock />
-        <CpfInterestTiersBlock />
-        <div className="text-center">
-          <p className="mb-4 font-medium text-foreground text-lg">
-            Want to see how these rates apply to your salary?
-          </p>
-          <Link
-            href="/calculator"
-            className={cn(buttonVariants({ size: "lg" }), "gap-2")}
-          >
-            Calculate My CPF
-            <HugeiconsIcon icon={ArrowRight02Icon} className="size-4" />
-          </Link>
-        </div>
+      <PageHeader
+        eyebrow="Rates"
+        title="Every rate that decides your numbers"
+        lede="Two floor rates, one peg, one bonus tier, and a contribution table that changes with your age. This page is the source of every figure elsewhere in SimplyCPF."
+      />
+      <RateTiles />
+      <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
+        <ContributionRatesTable />
+        <QuarterlyRatesTable />
       </div>
+      <AllocationByAge />
+      <CpfContributionComparisonBlock />
+      <CpfDistributionComparisonBlock />
+      <CpfInterestTiersBlock />
     </>
   );
-};
-
-export default InterestRatesPage;
+}

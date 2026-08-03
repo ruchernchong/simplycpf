@@ -49,7 +49,7 @@ const schema = buildGraph([
     description:
       "Compare CPF scenarios like salary changes, annual top-ups, OA to SA transfers, and delayed starts using the SimplyCPF projection engine.",
     url: `${BASE_URL}/what-if`,
-    speakableSelectors: ["h1", "[data-what-if-intro]"],
+    speakableSelectors: ["h1"],
     keywords:
       "CPF what-if calculator, OA to SA transfer, CPF top-up calculator, CPF salary change",
   }),
@@ -87,28 +87,14 @@ const schema = buildGraph([
 export default function WhatIfPage() {
   return (
     <>
+      <Suspense
+        fallback={
+          <div className="min-h-[480px] rounded-lg bg-surface-secondary" />
+        }
+      >
+        <WhatIfContent />
+      </Suspense>
       <StructuredData data={schema} />
-      <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-            What If You Changed One CPF Decision Today?
-          </h1>
-          <p
-            data-what-if-intro
-            className="mx-auto max-w-3xl text-muted-foreground"
-          >
-            Compare the likely CPF outcome of a salary change, an OA to SA
-            transfer, an annual top-up, or simply starting earlier. The goal is
-            not to guess perfectly. It is to help you see which decision matters
-            most before you commit.
-          </p>
-        </div>
-        <Suspense
-          fallback={<div className="min-h-[480px] rounded-lg bg-muted/30" />}
-        >
-          <WhatIfContent />
-        </Suspense>
-      </div>
     </>
   );
 }

@@ -1,8 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@heroui/react";
+import { CPF_LIFE_AUTO_INCLUSION_BALANCE } from "@/constants/cpf-life";
 import {
   CPF_RETIREMENT_SUMS,
   getRetirementSumsForYear,
 } from "@/constants/cpf-retirement-sums";
+import { formatNumber } from "@/lib/format";
 
 const CpfLifeDefinitionBlock = () => {
   const currentYear = new Date().getFullYear();
@@ -13,11 +15,11 @@ const CpfLifeDefinitionBlock = () => {
       aria-labelledby="cpf-life-definition"
       data-content-block="definition"
     >
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle id="cpf-life-definition">What is CPF LIFE?</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+      <Card>
+        <Card.Header>
+          <Card.Title id="cpf-life-definition">What is CPF LIFE?</Card.Title>
+        </Card.Header>
+        <Card.Content className="flex flex-col gap-4">
           <p>
             <strong>CPF LIFE</strong> (Lifelong Income For the Elderly) is
             Singapore{"'"}s national annuity scheme that provides retirees with
@@ -30,35 +32,36 @@ const CpfLifeDefinitionBlock = () => {
           </p>
           <ul className="flex flex-col gap-2 text-muted-foreground">
             <li>
-              <strong>Your Retirement Account (RA) balance</strong> — built from
+              <strong>Your Retirement Account (RA) balance</strong>, built from
               CPF savings and top-ups
             </li>
             <li>
-              <strong>The CPF LIFE plan you choose</strong> — Standard,
+              <strong>The CPF LIFE plan you choose</strong>, Standard,
               Escalating, or Basic
             </li>
             <li>
-              <strong>When you start payouts</strong> — deferring to age 70
-              gives higher monthly amounts
+              <strong>When you start payouts</strong>, deferring to age 70 gives
+              higher monthly amounts
             </li>
           </ul>
           <p>
-            To join CPF LIFE, you need at least{" "}
-            <strong>
-              S$
-              {(
-                CPF_RETIREMENT_SUMS[currentYear]?.brs || currentSums.brs
-              ).toLocaleString()}
-            </strong>{" "}
-            in your Retirement Account (the Basic Retirement Sum for{" "}
-            {currentYear}).
+            If you were born in 1958 or later and have at least{" "}
+            <strong>S${formatNumber(CPF_LIFE_AUTO_INCLUSION_BALANCE)}</strong>{" "}
+            in your Retirement Account when your payouts begin, you are included
+            in CPF LIFE automatically. The Basic Retirement Sum for{" "}
+            {currentYear} is S$
+            {formatNumber(
+              CPF_RETIREMENT_SUMS[currentYear]?.brs ?? currentSums.brs,
+            )}
+            , but that is the amount you set aside for a given payout level, it
+            is not the threshold for joining.
           </p>
           <p>
             You can defer your payouts up to age 70. Each year you defer
-            increases your monthly payout by about 7% per annum — meaning a 35%
-            increase if you defer from 65 to 70.
+            increases your monthly payout by roughly 7%. If you give no
+            instruction, payouts start automatically at 70 on the Standard Plan.
           </p>
-        </CardContent>
+        </Card.Content>
       </Card>
     </section>
   );
