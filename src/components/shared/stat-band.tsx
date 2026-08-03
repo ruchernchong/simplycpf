@@ -11,12 +11,12 @@ interface StatBandProps {
 }
 
 /**
- * Full-bleed reference strip of headline figures on the band surface:
+ * Full-bleed reference strip of headline figures on the secondary surface:
  * the "numbers are the hero" close to a screen.
  */
 export function StatBand({ items }: StatBandProps): ReactElement {
   return (
-    <section className="border-border border-t bg-band">
+    <section className="border-border border-t bg-surface-secondary">
       <dl className="container mx-auto grid grid-cols-2 gap-8 px-4 py-6 md:grid-cols-5">
         {items.map((item) => (
           <div key={item.label} className="flex flex-col gap-2">

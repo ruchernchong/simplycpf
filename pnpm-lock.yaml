@@ -32,6 +32,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.17
         version: 4.1.17
+      '@teispace/next-themes':
+        specifier: 2.0.4
+        version: 2.0.4(next@16.3.0-preview.10(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@types/node@24.10.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tiptap/core':
         specifier: 3.29.1
         version: 3.29.1(@tiptap/pm@3.29.1)
@@ -107,9 +110,6 @@ importers:
       next:
         specifier: 16.3.0-preview.10
         version: 16.3.0-preview.10(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@types/node@24.10.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      next-themes:
-        specifier: 0.4.6
-        version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       nuqs:
         specifier: 2.8.9
         version: 2.8.9(next@16.3.0-preview.10(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@types/node@24.10.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
@@ -2629,6 +2629,17 @@ packages:
 
   '@tailwindcss/postcss@4.1.17':
     resolution: {integrity: sha512-+nKl9N9mN5uJ+M7dBOOCzINw94MPstNR/GtIhz1fpZysxL/4a+No64jCBD6CPN+bIHWFx3KWuu8XJRrj/572Dw==}
+
+  '@teispace/next-themes@2.0.4':
+    resolution: {integrity: sha512-Vyu1b4oARmGf6/WC83nqyrfX7ZrYWRueY55DakwkXhizgXDgOOIo0lCroNvbLpR+TxN1dquoZ2DnHN2PifsRnQ==}
+    engines: {node: '>=24.0.0'}
+    peerDependencies:
+      next: '>=13.0.0'
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+    peerDependenciesMeta:
+      next:
+        optional: true
 
   '@testing-library/dom@9.3.4':
     resolution: {integrity: sha512-FlS4ZWlp97iiNWig0Muq8p+3rVDjRiYE+YKGbAqXOu9nwJFFOdL00kFpz42M+4huzYi86vAK1sOOfyOG45muIQ==}
@@ -9296,6 +9307,13 @@ snapshots:
       '@tailwindcss/oxide': 4.1.17
       postcss: 8.5.19
       tailwindcss: 4.1.17
+
+  '@teispace/next-themes@2.0.4(next@16.3.0-preview.10(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@types/node@24.10.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+    optionalDependencies:
+      next: 16.3.0-preview.10(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@types/node@24.10.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
 
   '@testing-library/dom@9.3.4':
     dependencies:

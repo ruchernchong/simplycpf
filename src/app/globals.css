@@ -10,23 +10,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Only tokens HeroUI does not already provide belong here. Every --color-*
- * mapping for background, foreground, surface, overlay, muted, default,
- * accent, success, warning, danger, border, separator, link and focus is
- * declared by @heroui/styles (dist/themes/shared/theme.css) and would be
- * duplicated by restating it.
+ * Only tokens HeroUI does not already provide belong here. Chart utilities
+ * need --color-chart-* because Pro sets --chart-* but ships no colour mapping.
  */
 @theme inline {
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-
-  /* Brand text tints HeroUI has no equivalent for. --muted is the brand's
-     Secondary; these are Body (long-form paragraphs) and Muted (eyebrows,
-     footnotes, disclaimers — never body copy). */
-  --color-body: var(--body);
-  --color-subtle: var(--subtle);
-
-  --color-band: var(--band);
 
   /* Pro sets the --chart-* values but ships no --color-chart-* mapping. */
   --color-chart-1: var(--chart-1);
@@ -75,152 +64,202 @@
   }
 }
 
-:root {
-  --radius: 0.5rem;
-
-  /* Surfaces — warm paper */
-  --background: oklch(0.9555 0.014 88.68); /* Bone #F4F0E6 */
-  --foreground: oklch(0.2627 0.0151 124.17); /* Ink #23261E */
-  --surface: oklch(0.9939 0.0082 91.48); /* Card #FFFDF7 */
-  --surface-foreground: var(--foreground);
-  --surface-secondary: oklch(0.9733 0.0111 89.72); /* #F9F6EE */
-  --surface-secondary-foreground: var(--foreground);
-  --surface-tertiary: oklch(0.9437 0.0168 88); /* Fill #F1ECE0 */
-  --surface-tertiary-foreground: var(--foreground);
-  --overlay: oklch(0.9939 0.0082 91.48);
-  --overlay-foreground: var(--foreground);
-  --band: oklch(0.9374 0.0181 89.36); /* #EFEADD — stat band strips */
-
-  /* Text tints — four steps, each with a distinct job.
-     Primary is --foreground; Secondary is --muted. */
-  --body: oklch(0.4829 0.0176 119.47); /* #5D6055 — explanatory paragraphs */
-  --muted: oklch(0.5426 0.0171 119.38); /* #6E7166 — legends, sub-values */
-  --subtle: oklch(0.6348 0.0177 114.58); /* #8A8C80 — eyebrows, footnotes */
-  --scrollbar: oklch(0.8765 0.0226 89.81); /* Rule #DCD6C6 */
-
-  /* Neutral controls */
-  --default: oklch(0.9437 0.0168 88); /* Fill */
-  --default-foreground: oklch(0.3644 0.0176 125.05); /* #3C4036 */
-
-  /* One green — Forest. Green means CPF money or a next step, never decoration. */
-  --accent: oklch(0.4421 0.0705 159.34); /* Forest #2C5F45 */
-  --accent-foreground: oklch(0.9555 0.014 88.68); /* Bone */
-  /* Forest deep — hover and pressed states only. Overrides HeroUI's computed
-     --accent-hover, which would otherwise mix towards the foreground. */
-  --accent-hover: oklch(0.3453 0.0543 161.03); /* #1C4230 */
-
-  /* Form fields. HeroUI's default theme sets --field-border-width to 0, which
-     would leave the hairline below invisible. */
-  --field-background: oklch(0.9733 0.0111 89.72); /* card2 */
-  --field-foreground: var(--foreground);
-  --field-placeholder: var(--subtle);
-  --field-border: oklch(0.2627 0.0151 124.17 / 13%);
-  --field-border-width: 1px;
-
-  /* Status */
-  --success: oklch(0.6381 0.0821 158.54); /* Green mid #5E9B79 */
-  --success-foreground: oklch(0.2627 0.0151 124.17);
-  --warning: oklch(0.5138 0.0829 59.76); /* Clay #8A5B33 */
-  --warning-foreground: oklch(0.9939 0.0082 91.48);
-  --danger: oklch(0.4951 0.1422 31.23); /* #A33A2A */
-  --danger-foreground: oklch(0.9939 0.0082 91.48);
-
-  /* Segmented controls */
-  --segment: oklch(0.9939 0.0082 91.48); /* Card thumb */
-  --segment-foreground: var(--foreground);
-
-  /* Hairlines — ink at low alpha, 1px, never heavier */
-  --border: oklch(0.2627 0.0151 124.17 / 12%);
-  --separator: oklch(0.2627 0.0151 124.17 / 9%);
-
-  --focus: var(--accent);
-  --link: var(--accent);
-  --backdrop: oklch(0.2627 0.0151 124.17 / 40%);
-  --background-inverse: var(--foreground);
-
-  /* Shadows: one 1px seat + a wide soft lift for the hero card */
-  --surface-shadow: 0 1px 2px oklch(0.2627 0.0151 124.17 / 5%);
-  --overlay-shadow:
-    0 1px 2px oklch(0.2627 0.0151 124.17 / 5%),
-    0 18px 40px -22px oklch(0.2627 0.0151 124.17 / 22%);
-  --field-shadow: 0 1px 2px oklch(0.2627 0.0151 124.17 / 5%);
-
-  /* Fixed chart encoding — never rotated:
-     1 OA/Forest · 2 SA-RA/"You" · 3 MA/Employer · 4 Take-home/Ink · 5 Above-ceiling/Clay */
-  --chart-1: oklch(0.4421 0.0705 159.34);
-  --chart-2: oklch(0.6381 0.0821 158.54);
-  --chart-3: oklch(0.7846 0.0545 158.53);
-  --chart-4: oklch(0.2627 0.0151 124.17);
-  --chart-5: oklch(0.5138 0.0829 59.76);
-  /* Unfilled remainder of any bar. */
-  --chart-track: oklch(0.2627 0.0151 124.17 / 8%);
-}
-
-.dark {
-  --background: oklch(0.1885 0.008 118.58); /* #131410 */
-  --foreground: oklch(0.9311 0.0194 90.55); /* #EDE8DA */
-  --surface: oklch(0.235 0.0116 122.3); /* #1D1F19 */
-  --surface-foreground: var(--foreground);
-  --surface-secondary: oklch(0.2557 0.0131 120.29); /* #22241D */
-  --surface-secondary-foreground: var(--foreground);
-  --surface-tertiary: oklch(0.264 0.013 120.26); /* #24261F */
-  --surface-tertiary-foreground: var(--foreground);
-  --overlay: oklch(0.235 0.0116 122.3);
-  --overlay-foreground: var(--foreground);
-  --band: oklch(0.2217 0.0135 120.47); /* #1A1C15 */
-
-  --body: oklch(0.7303 0.0184 110.42); /* #A8A99C */
-  --muted: oklch(0.6906 0.0187 113.99); /* #9B9D90 */
-  --subtle: oklch(0.6481 0.0176 114.57); /* #8E9084 */
-  --scrollbar: oklch(0.3266 0.0176 120.96); /* #33362C */
-
-  --default: oklch(0.264 0.013 120.26);
-  --default-foreground: oklch(0.8667 0.021 91.6); /* #D8D3C4 */
-
-  --accent: oklch(0.7232 0.0953 158.25); /* #6FB88F */
-  --accent-foreground: oklch(0.2036 0.0174 118.14); /* #16180F */
-  --accent-hover: oklch(0.8414 0.0675 158.75); /* #A6D9BB — lifts on dark */
-
-  --field-background: oklch(0.2557 0.0131 120.29);
-  --field-foreground: var(--foreground);
-  --field-placeholder: var(--subtle);
-  --field-border: oklch(0.9311 0.0194 90.55 / 13%);
-  --field-border-width: 1px;
-
-  --success: oklch(0.8414 0.0675 158.75); /* #A6D9BB */
-  --success-foreground: oklch(0.2036 0.0174 118.14);
-  --warning: oklch(0.6838 0.0829 59.76); /* Clay, lightened */
-  --warning-foreground: oklch(0.2036 0.0174 118.14);
-  --danger: oklch(0.6551 0.1422 31.23); /* lightened */
-  --danger-foreground: oklch(0.2036 0.0174 118.14);
-
-  --segment: oklch(0.3266 0.0176 120.96);
-  --segment-foreground: var(--foreground);
-
-  --border: oklch(0.9311 0.0194 90.55 / 12%);
-  --separator: oklch(0.9311 0.0194 90.55 / 9%);
-
-  --focus: var(--accent);
-  --link: var(--accent);
-  --backdrop: oklch(0 0 0 / 60%);
-  --background-inverse: var(--foreground);
-
-  --surface-shadow: 0 1px 2px oklch(0 0 0 / 40%);
-  --overlay-shadow:
-    0 1px 2px oklch(0 0 0 / 40%), 0 18px 40px -22px oklch(0 0 0 / 75%);
-  --field-shadow: 0 0 0 0 transparent;
-
-  /* The ramp must keep reading OA -> SA -> MA as increasing lightness, so
-     chart-3 lifts past chart-2 rather than staying at its light-mode value. */
-  --chart-1: oklch(0.7232 0.0953 158.25); /* #6FB88F */
-  --chart-2: oklch(0.8414 0.0675 158.75); /* #A6D9BB */
-  --chart-3: oklch(0.9027 0.0466 158.6); /* #C6E9D4 */
-  --chart-4: oklch(0.9311 0.0194 90.55); /* ink-inverse */
-  --chart-5: oklch(0.6838 0.0829 59.76); /* clay, lightened */
-  --chart-track: oklch(0.9311 0.0194 90.55 / 10%);
-}
-
 @layer base {
+  /* HeroUI Default Theme */
+  :root {
+    color-scheme: light;
+
+    /* == Common Variables == */
+
+    /* Primitive Colors (Do not change between light and dark) */
+    --white: oklch(100% 0 0);
+    --black: oklch(0% 0 0);
+    --snow: oklch(0.9555 0.014 88.68); /* Bone #F4F0E6 */
+    --eclipse: oklch(0.2627 0.0151 124.17); /* Ink #23261E */
+
+    /* Spacing scale */
+    --spacing: 0.25rem;
+
+    /* Border */
+    --border-width: 1px;
+    --field-border-width: 0px;
+    --disabled-opacity: 0.5;
+
+    /* Ring offset - Used for focus ring */
+    --ring-offset-width: 2px;
+
+    /* Cursor */
+    --cursor-interactive: pointer;
+    --cursor-disabled: not-allowed;
+
+    /* Radius */
+    --radius: 0.5rem;
+    --field-radius: calc(var(--radius) * 1.5);
+
+    /* == Light Theme Variables == */
+
+    /* Base Colors */
+    --background: oklch(0.9555 0.014 88.68); /* Bone #F4F0E6 */
+    --foreground: var(--eclipse);
+
+    /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+    --surface: oklch(0.9939 0.0082 91.48); /* Card #FFFDF7 */
+    --surface-foreground: var(--foreground);
+
+    /* Overlay: Used for floating/overlay components (tooltips, popovers, modals, menus) */
+    --overlay: oklch(0.9939 0.0082 91.48); /* Card #FFFDF7 */
+    --overlay-foreground: var(--foreground);
+
+    --muted: oklch(0.5426 0.0171 119.38); /* #6E7166 — legends, sub-values */
+    --scrollbar: oklch(0.8765 0.0226 89.81); /* Rule #DCD6C6 */
+
+    --default: oklch(0.9437 0.0168 88); /* Fill #F1ECE0 */
+    --default-foreground: var(--eclipse);
+
+    --accent: oklch(0.4421 0.0705 159.34); /* Forest #2C5F45 */
+    --accent-foreground: var(--snow);
+
+    /* Form Field Defaults - Colors */
+    --field-background: oklch(0.9733 0.0111 89.72); /* Card2 #F9F6EE */
+    --field-foreground: var(--eclipse);
+    --field-placeholder: var(--muted);
+    --field-border: transparent; /* no border by default on form fields */
+
+    /* Status Colors */
+    --success: oklch(0.6381 0.0821 158.54); /* Green mid #5E9B79 */
+    --success-foreground: var(--eclipse);
+
+    --warning: oklch(0.5138 0.0829 59.76); /* Clay #8A5B33 */
+    --warning-foreground: var(--snow);
+
+    --danger: oklch(0.4951 0.1422 31.23); /* #A33A2A */
+    --danger-foreground: var(--snow);
+
+    /* Component Colors */
+    --segment: oklch(0.9939 0.0082 91.48); /* Card #FFFDF7 */
+    --segment-foreground: var(--eclipse);
+
+    /* Misc Colors */
+    --border: oklch(0.2627 0.0151 124.17 / 12%);
+    --separator: oklch(0.2627 0.0151 124.17 / 9%);
+    --focus: var(--accent);
+    --link: var(--foreground);
+
+    /* Backdrop */
+    --backdrop: oklch(0.2627 0.0151 124.17 / 40%);
+
+    /* Shadows */
+    --surface-shadow:
+      0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+      0 0 1px 0 rgba(0, 0, 0, 0.06);
+    /* Overlay shadow */
+    --overlay-shadow:
+      0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+    --field-shadow:
+      0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+      0 0 1px 0 rgba(0, 0, 0, 0.06);
+    /* Skeleton Default Global Animation */
+    --skeleton-animation: shimmer; /* shimmer, pulse, none */
+
+    /* Tooltip Default Delays */
+    --tooltip-delay: 1500ms;
+    --tooltip-close-delay: 500ms;
+
+    /* Surfaces HeroUI calculates but we set explicitly */
+    --surface-secondary: oklch(0.9733 0.0111 89.72); /* Card2 #F9F6EE */
+    --surface-secondary-foreground: var(--foreground);
+    --surface-tertiary: oklch(0.9437 0.0168 88); /* Fill #F1ECE0 */
+    --surface-tertiary-foreground: var(--foreground);
+    /* Forest deep — hover and pressed states only. Overrides HeroUI's computed
+       --accent-hover, which would otherwise mix towards the foreground. */
+    --accent-hover: oklch(0.3453 0.0543 161.03); /* #1C4230 */
+
+    /* Fixed chart encoding — never rotated:
+       1 OA/Forest · 2 SA-RA/"You" · 3 MA/Employer · 4 Take-home/Ink · 5 Above-ceiling/Clay */
+    --chart-1: oklch(0.4421 0.0705 159.34);
+    --chart-2: oklch(0.6381 0.0821 158.54);
+    --chart-3: oklch(0.7846 0.0545 158.53);
+    --chart-4: oklch(0.2627 0.0151 124.17);
+    --chart-5: oklch(0.5138 0.0829 59.76);
+    /* Unfilled remainder of any bar. */
+    --chart-track: oklch(0.2627 0.0151 124.17 / 8%);
+  }
+
+  .dark,
+  [data-theme="dark"] {
+    color-scheme: dark;
+    /* == Dark Theme Variables == */
+
+    /* Base Colors */
+    --background: oklch(0.1885 0.008 118.58); /* #131410 */
+    --foreground: var(--snow);
+
+    /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+    --surface: oklch(0.235 0.0116 122.3); /* #1D1F19 */
+    --surface-foreground: var(--foreground);
+
+    /* Overlay: Used for floating/overlay components (tooltips, popovers, modals, menus) - lighter for contrast */
+    --overlay: oklch(0.235 0.0116 122.3); /* #1D1F19 */
+    --overlay-foreground: var(--foreground);
+
+    --muted: oklch(0.6906 0.0187 113.99); /* #9B9D90 */
+    --scrollbar: oklch(0.3266 0.0176 120.96); /* #33362C */
+
+    --default: oklch(0.264 0.013 120.26); /* #24261F */
+    --default-foreground: oklch(0.8667 0.021 91.6); /* #D8D3C4 */
+
+    --accent: oklch(0.7232 0.0953 158.25); /* #6FB88F */
+    --accent-foreground: oklch(0.2036 0.0174 118.14); /* #16180F */
+
+    /* Form Field Defaults - Colors (only the ones that are different from light theme) */
+    --field-background: oklch(0.2557 0.0131 120.29); /* #22241D */
+    --field-foreground: var(--foreground);
+
+    /* Status Colors */
+    --success: oklch(0.8414 0.0675 158.75); /* #A6D9BB */
+    --success-foreground: oklch(0.2036 0.0174 118.14);
+
+    --warning: oklch(0.6838 0.0829 59.76); /* Clay, lightened */
+    --warning-foreground: oklch(0.2036 0.0174 118.14);
+
+    --danger: oklch(0.6551 0.1422 31.23); /* lightened */
+    --danger-foreground: oklch(0.2036 0.0174 118.14);
+
+    /* Component Colors */
+    --segment: oklch(0.3266 0.0176 120.96); /* #33362C */
+    --segment-foreground: var(--foreground);
+
+    /* Misc Colors */
+    --border: oklch(0.9311 0.0194 90.55 / 12%);
+    --separator: oklch(0.9311 0.0194 90.55 / 9%);
+    --focus: var(--accent);
+    --link: var(--foreground);
+
+    /* Backdrop */
+    --backdrop: rgba(0, 0, 0, 0.6);
+
+    /* Shadows */
+    --surface-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+    --overlay-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+    --field-shadow: 0 0 0 0 transparent inset; /* Transparent shadow to allow ring utilities to work */
+
+    /* Surfaces HeroUI calculates but we set explicitly */
+    --surface-secondary: oklch(0.2557 0.0131 120.29); /* #22241D */
+    --surface-secondary-foreground: var(--foreground);
+    --surface-tertiary: oklch(0.264 0.013 120.26); /* #24261F */
+    --surface-tertiary-foreground: var(--foreground);
+    --accent-hover: oklch(0.8414 0.0675 158.75); /* #A6D9BB — lifts on dark */
+
+    /* The ramp must keep reading OA -> SA -> MA as increasing lightness, so
+       chart-3 lifts past chart-2 rather than staying at its light-mode value. */
+    --chart-1: oklch(0.7232 0.0953 158.25); /* #6FB88F */
+    --chart-2: oklch(0.8414 0.0675 158.75); /* #A6D9BB */
+    --chart-3: oklch(0.9027 0.0466 158.6); /* #C6E9D4 */
+    --chart-4: oklch(0.9311 0.0194 90.55); /* ink-inverse */
+    --chart-5: oklch(0.6838 0.0829 59.76); /* clay, lightened */
+    --chart-track: oklch(0.9311 0.0194 90.55 / 10%);
+  }
+
   * {
     @apply border-border outline-focus/50;
   }
