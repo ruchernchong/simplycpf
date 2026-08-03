@@ -26,7 +26,7 @@ export function Footer() {
             published rates and the assumptions you enter — not financial
             advice.
           </p>
-          <nav aria-label="Footer" className="flex items-center gap-5 text-sm">
+          <nav aria-label="Footer" className="flex items-center gap-4 text-sm">
             {primaryLinks.map((link) => (
               <Link
                 key={link.href}
