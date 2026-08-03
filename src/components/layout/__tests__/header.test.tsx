@@ -26,13 +26,16 @@ vi.mock("@heroui/react", async () => {
     Link: function LinkMock({
       children,
       href,
-      ...props
+      className,
+      "aria-current": ariaCurrent,
     }: {
       children: React.ReactNode;
       href?: string;
+      className?: string;
+      "aria-current"?: string;
     }) {
       return (
-        <a href={href} {...props}>
+        <a href={href} className={className} aria-current={ariaCurrent}>
           {children}
         </a>
       );

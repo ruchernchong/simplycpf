@@ -65,13 +65,30 @@ function CpfInterestTiersBlock() {
                 </KPI.Title>
               </KPI.Header>
               <KPI.Content>
-                <span className="font-bold text-2xl text-foreground">
-                  +
-                  {formatPercentage(CPF_EXTRA_INTEREST_RATE, {
-                    decimalPlaces: 0,
-                  })}{" "}
-                  + {CPF_EXTRA_INTEREST_RATE * 100}%
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <KPI.Value
+                    className="font-bold text-2xl text-foreground"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    signDisplay="always"
+                    style="percent"
+                    value={CPF_EXTRA_INTEREST_RATE}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="font-bold text-2xl text-foreground"
+                  >
+                    +
+                  </span>
+                  <KPI.Value
+                    className="font-bold text-2xl text-foreground"
+                    locale="en-SG"
+                    maximumFractionDigits={0}
+                    signDisplay="always"
+                    style="percent"
+                    value={CPF_EXTRA_INTEREST_RATE}
+                  />
+                </div>
               </KPI.Content>
               <KPI.Footer className="flex flex-col gap-2 text-muted text-sm">
                 <span>
