@@ -1,25 +1,33 @@
 import { Card } from "@heroui/react";
+import { KPI } from "@heroui-pro/react";
 import { CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
-import { formatNumber } from "@/lib/format";
 
-const CpfStatisticBlock = () => {
+function CpfStatisticBlock() {
   const currentCeiling = CPF_INCOME_CEILING["2026-01-01"];
-  const stats = [
+  const stats: Array<{
+    label: string;
+    value: number;
+    style: "currency" | "percent";
+    detail: string;
+  }> = [
     {
       label: "Current income ceiling (2026)",
-      value: `S$${formatNumber(currentCeiling)}`,
+      value: currentCeiling,
+      style: "currency",
       detail: "Final ceiling under 2023 Budget changes",
     },
     {
       label: "OA interest rate (floor)",
-      value: `${CPF_INTEREST_FLOOR_RATES.OA}% p.a.`,
-      detail: "Fixed, not pegged to SGS",
+      value: CPF_INTEREST_FLOOR_RATES.OA / 100,
+      style: "percent",
+      detail: "Fixed, not pegged to SGS · p.a.",
     },
     {
       label: "SMRA interest rate (floor)",
-      value: `${CPF_INTEREST_FLOOR_RATES.SMRA}% p.a.`,
-      detail: "Minimum guaranteed; may earn more",
+      value: CPF_INTEREST_FLOOR_RATES.SMRA / 100,
+      style: "percent",
+      detail: "Minimum guaranteed; may earn more · p.a.",
     },
   ];
 
@@ -34,22 +42,32 @@ const CpfStatisticBlock = () => {
         <Card.Content>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-lg border border-border bg-surface-tertiary/30 p-4"
-              >
-                <p className="mb-2 text-muted text-sm">{stat.label}</p>
-                <p className="font-bold font-mono text-2xl text-foreground">
-                  {stat.value}
-                </p>
-                <p className="text-muted text-xs">{stat.detail}</p>
-              </div>
+              <KPI className="gap-2" key={stat.label}>
+                <KPI.Header>
+                  <KPI.Title className="text-muted text-sm">
+                    {stat.label}
+                  </KPI.Title>
+                </KPI.Header>
+                <KPI.Content>
+                  <KPI.Value
+                    className="font-bold font-mono text-2xl text-foreground"
+                    currency={stat.style === "currency" ? "SGD" : undefined}
+                    locale="en-SG"
+                    maximumFractionDigits={stat.style === "percent" ? 1 : 0}
+                    style={stat.style}
+                    value={stat.value}
+                  />
+                </KPI.Content>
+                <KPI.Footer className="text-muted text-xs">
+                  {stat.detail}
+                </KPI.Footer>
+              </KPI>
             ))}
           </div>
         </Card.Content>
       </Card>
     </section>
   );
-};
+}
 
 export default CpfStatisticBlock;

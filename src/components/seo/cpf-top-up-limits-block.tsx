@@ -1,4 +1,5 @@
 import { Card } from "@heroui/react";
+import { KPI } from "@heroui-pro/react";
 import { formatNumber } from "@/lib/format";
 
 /**
@@ -19,7 +20,7 @@ const FAMILY_INCOME_CONDITION = 8000;
 const MRSS_ANNUAL_CAP = 2000;
 const MRSS_LIFETIME_CAP = 20000;
 
-const CpfTopUpLimitsBlock = () => {
+function CpfTopUpLimitsBlock() {
   const combinedRelief = TAX_RELIEF_SELF + TAX_RELIEF_FAMILY;
   // Illustrative only: the 4% SMRA floor rate compounded from age 30 to 55,
   // rounded to the nearest hundred. Extra interest is not modelled.
@@ -45,38 +46,60 @@ const CpfTopUpLimitsBlock = () => {
           </p>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
-              <p className="mb-1 font-semibold text-sm">
-                Top-Up to Your Own Account
-              </p>
-              <p className="font-bold text-2xl text-foreground">
-                Up to S${formatNumber(TAX_RELIEF_SELF)}
-              </p>
-              <p className="mt-1 text-muted text-xs">
-                Cash top-up to your SA (under 55) or RA (55+) qualifies for tax
-                relief
-              </p>
-              <p className="mt-2 text-accent text-xs">
-                Tax relief cap: S${formatNumber(TAX_RELIEF_SELF)} per calendar
-                year
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
-              <p className="mb-1 font-semibold text-sm">
-                Top-Up for Family Members
-              </p>
-              <p className="font-bold text-2xl text-foreground">
-                Up to S${formatNumber(TAX_RELIEF_FAMILY)}
-              </p>
-              <p className="mt-1 text-muted text-xs">
-                Top-up parents, parents-in-law, grandparents, spouse, or
-                siblings
-              </p>
-              <p className="mt-2 text-accent text-xs">
-                Separate S${formatNumber(TAX_RELIEF_FAMILY)} cap for family
-                top-ups
-              </p>
-            </div>
+            <KPI className="gap-2">
+              <KPI.Header>
+                <KPI.Title className="font-semibold text-sm">
+                  Top-Up to Your Own Account
+                </KPI.Title>
+              </KPI.Header>
+              <KPI.Content>
+                <KPI.Value
+                  className="font-bold text-2xl text-foreground"
+                  currency="SGD"
+                  locale="en-SG"
+                  maximumFractionDigits={0}
+                  style="currency"
+                  value={TAX_RELIEF_SELF}
+                />
+              </KPI.Content>
+              <KPI.Footer className="flex flex-col gap-2 text-muted text-xs">
+                <span>
+                  Cash top-up to your SA (under 55) or RA (55+) qualifies for
+                  tax relief
+                </span>
+                <span className="text-accent">
+                  Tax relief cap: S${formatNumber(TAX_RELIEF_SELF)} per calendar
+                  year
+                </span>
+              </KPI.Footer>
+            </KPI>
+            <KPI className="gap-2">
+              <KPI.Header>
+                <KPI.Title className="font-semibold text-sm">
+                  Top-Up for Family Members
+                </KPI.Title>
+              </KPI.Header>
+              <KPI.Content>
+                <KPI.Value
+                  className="font-bold text-2xl text-foreground"
+                  currency="SGD"
+                  locale="en-SG"
+                  maximumFractionDigits={0}
+                  style="currency"
+                  value={TAX_RELIEF_FAMILY}
+                />
+              </KPI.Content>
+              <KPI.Footer className="flex flex-col gap-2 text-muted text-xs">
+                <span>
+                  Top-up parents, parents-in-law, grandparents, spouse, or
+                  siblings
+                </span>
+                <span className="text-accent">
+                  Separate S${formatNumber(TAX_RELIEF_FAMILY)} cap for family
+                  top-ups
+                </span>
+              </KPI.Footer>
+            </KPI>
           </div>
 
           <p>
@@ -145,6 +168,6 @@ const CpfTopUpLimitsBlock = () => {
       </Card>
     </section>
   );
-};
+}
 
 export default CpfTopUpLimitsBlock;
