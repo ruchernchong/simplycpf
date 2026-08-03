@@ -102,7 +102,7 @@ export function Header() {
       </div>
 
       <nav
-        aria-label="Main"
+        aria-label="Main, compact"
         className="flex gap-4 overflow-x-auto px-4 pb-2 lg:hidden"
       >
         {[...questionNavItems, ...referenceNavItems].map((item) => (
