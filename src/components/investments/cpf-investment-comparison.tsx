@@ -262,7 +262,14 @@ export function CPFInvestmentComparison() {
             aria-label="Investment growth comparison chart showing projected returns over time for selected scenarios"
             className="flex flex-col gap-4"
           >
-            <Typography type="h5">Growth Over Time</Typography>
+            <Typography
+              type="h5"
+              render={({ children, ...domProps }) => (
+                <h3 {...domProps}>{children}</h3>
+              )}
+            >
+              Growth Over Time
+            </Typography>
             <LineChart data={chartData} height={400}>
               <LineChart.Grid strokeDasharray="3 3" />
               <LineChart.XAxis

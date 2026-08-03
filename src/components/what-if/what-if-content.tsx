@@ -283,17 +283,21 @@ function AssumptionsCard() {
               <span className={`${MONO_LABEL} text-muted`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <Typography color="muted" type="body-sm">
-                {assumption}
-              </Typography>
+              <div className="max-w-[64ch]">
+                <Typography color="muted" type="body-sm">
+                  {assumption}
+                </Typography>
+              </div>
             </div>
           ))}
         </div>
         <Separator />
-        <Typography color="muted" type="body-sm">
-          A projection is a calculation about assumptions, not a forecast about
-          you. Estimates only, not financial advice.
-        </Typography>
+        <div className="max-w-[64ch]">
+          <Typography color="muted" type="body-sm">
+            A projection is a calculation about assumptions, not a forecast
+            about you. Estimates only, not financial advice.
+          </Typography>
+        </div>
       </Card.Content>
     </Card>
   );

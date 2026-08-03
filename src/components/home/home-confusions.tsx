@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, Typography } from "@heroui/react";
 import type { Route } from "next";
 import Link from "next/link";
