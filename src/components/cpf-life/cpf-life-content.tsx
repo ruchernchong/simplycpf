@@ -11,6 +11,7 @@ import {
   ToggleButtonGroup,
 } from "@heroui/react";
 import { type Key, useEffect, useMemo, useState } from "react";
+import { shallow } from "zustand/shallow";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import {
   calculateCpfProjection,
@@ -64,7 +65,7 @@ export function CpfLifeContent() {
   useEffect(() => setMounted(true), []);
 
   const formStep = useCpfStore(selectFormStep);
-  const projectionInputs = useCpfStore(selectProjectionInputs);
+  const projectionInputs = useCpfStore(selectProjectionInputs, shallow);
 
   const hasProjection = mounted && formStep >= 2;
 
@@ -292,9 +293,9 @@ export function CpfLifeContent() {
             </Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-col gap-4">
-            <ol className="flex flex-col gap-3">
+            <ol className="flex flex-col gap-4">
               {method.map((item, index) => (
-                <li className="flex gap-3" key={item}>
+                <li className="flex gap-2" key={item}>
                   <span className="font-mono text-[10.5px] text-muted tracking-[0.12em]">
                     {String(index + 1).padStart(2, "0")}
                   </span>

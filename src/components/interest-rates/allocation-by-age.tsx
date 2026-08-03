@@ -19,7 +19,7 @@ export function AllocationByAge() {
         </Card.Description>
       </Card.Header>
       <Card.Content>
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-4">
           {ageGroups.map((group) => {
             const { OA, SA, MA } = group.distributionRate;
 

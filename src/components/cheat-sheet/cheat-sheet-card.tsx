@@ -36,7 +36,7 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
       <h3 className="font-mono text-[10px] text-accent uppercase tracking-[0.12em]">
         {title}
       </h3>
-      <div className="flex flex-col gap-1.5">{children}</div>
+      <div className="flex flex-col gap-2">{children}</div>
     </section>
   );
 }
