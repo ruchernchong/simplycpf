@@ -19,11 +19,11 @@ export default function ReadinessScoreForm() {
   const handleCalculate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const missingQuestion = READINESS_QUESTIONS.find(
+    const hasMissingAnswer = READINESS_QUESTIONS.some(
       (question) => !answers[question.key],
     );
 
-    if (missingQuestion) {
+    if (hasMissingAnswer) {
       setFormError(
         "Please answer all 5 questions before calculating your score.",
       );
