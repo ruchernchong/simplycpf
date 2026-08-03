@@ -1,5 +1,5 @@
 import { cn } from "@heroui/react";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 interface EyebrowProps {
   children: ReactNode;
@@ -11,7 +11,11 @@ interface EyebrowProps {
  * Mono uppercase eyebrow label — the "machine produced" register. Optionally
  * led by the live-data forest dot.
  */
-export function Eyebrow({ children, withDot, className }: EyebrowProps) {
+export function Eyebrow({
+  children,
+  withDot,
+  className,
+}: EyebrowProps): ReactElement {
   return (
     <span className={cn("flex items-center gap-2", className)}>
       {withDot && (
@@ -32,7 +36,12 @@ interface PageHeaderProps {
 }
 
 /** Screen heading: muted mono eyebrow, display title, optional lede + actions. */
-export function PageHeader({ eyebrow, title, lede, actions }: PageHeaderProps) {
+export function PageHeader({
+  eyebrow,
+  title,
+  lede,
+  actions,
+}: PageHeaderProps): ReactElement {
   return (
     <header className="flex flex-col gap-2">
       <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">

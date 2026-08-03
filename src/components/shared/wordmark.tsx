@@ -1,5 +1,6 @@
 import { cn } from "@heroui/react";
 import Link from "next/link";
+import type { ReactElement } from "react";
 
 interface WordmarkProps {
   size?: "sm" | "md";
@@ -11,7 +12,10 @@ interface WordmarkProps {
  * forest segment. The rule is the line drawn under a figure that has been
  * checked — never render the wordmark without it.
  */
-export function Wordmark({ size = "md", className }: WordmarkProps) {
+export function Wordmark({
+  size = "md",
+  className,
+}: WordmarkProps): ReactElement {
   const isSmall = size === "sm";
 
   return (

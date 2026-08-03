@@ -1,4 +1,5 @@
 import { cn } from "@heroui/react";
+import type { ReactElement } from "react";
 
 export type SplitBarColor =
   | "chart-1"
@@ -57,7 +58,7 @@ export function SplitBar({
   size = "md",
   formatValue,
   className,
-}: SplitBarProps) {
+}: SplitBarProps): ReactElement | null {
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
   if (total <= 0) return null;
 
@@ -96,7 +97,7 @@ export function SplitBar({
           {showLabels && (
             <span
               className={cn(
-                "overflow-hidden whitespace-nowrap pl-3 font-medium text-[12.5px]",
+                "overflow-hidden whitespace-nowrap pl-2 font-medium text-[12.5px]",
                 TEXT_CLASSES[segment.color],
               )}
             >
