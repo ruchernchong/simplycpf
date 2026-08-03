@@ -1,4 +1,4 @@
-import { buttonVariants } from "@heroui/react";
+import { buttonVariants, cn } from "@heroui/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
@@ -7,7 +7,6 @@ import type { Graph } from "schema-dts";
 import { CPFInvestmentComparison } from "@/components/investments/cpf-investment-comparison";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "CPF vs Other Investments: Compare Your CPF Returns Side by Side",

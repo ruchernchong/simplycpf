@@ -1,8 +1,7 @@
-import { buttonVariants, Card } from "@heroui/react";
+import { buttonVariants, Card, cn } from "@heroui/react";
 import type { Route } from "next";
 import Link from "next/link";
 import type { ReadinessResult } from "@/lib/calculate-retirement-readiness";
-import { cn } from "@/lib/utils";
 
 interface ReadinessScoreResultProps {
   result: ReadinessResult;

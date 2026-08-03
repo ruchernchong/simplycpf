@@ -26,7 +26,7 @@ export function Logo({
       >
         <title>SimplyCPF logo</title>
         {/* Background circle */}
-        <rect width="32" height="32" rx="8" className="fill-primary" />
+        <rect width="32" height="32" rx="8" className="fill-foreground" />
 
         {/* Three ascending bars - OA, SA, MA */}
         <rect
@@ -35,7 +35,7 @@ export function Logo({
           width="5"
           height="8"
           rx="1.5"
-          className="fill-primary-foreground"
+          className="fill-background"
         />
         <rect
           x="13.5"
@@ -51,7 +51,7 @@ export function Logo({
           width="5"
           height="18"
           rx="1.5"
-          className="fill-primary-foreground"
+          className="fill-background"
         />
 
         {/* Subtle arc suggesting growth trajectory */}
@@ -79,14 +79,14 @@ export function Logo({
     >
       <title>SimplyCPF logo</title>
       {/* Logo mark */}
-      <rect width="32" height="32" rx="8" className="fill-primary" />
+      <rect width="32" height="32" rx="8" className="fill-foreground" />
       <rect
         x="7"
         y="18"
         width="5"
         height="8"
         rx="1.5"
-        className="fill-primary-foreground"
+        className="fill-background"
       />
       <rect
         x="13.5"
@@ -102,7 +102,7 @@ export function Logo({
         width="5"
         height="18"
         rx="1.5"
-        className="fill-primary-foreground"
+        className="fill-background"
       />
       <path
         d="M6 22 Q16 4, 26 10"

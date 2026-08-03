@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, cn } from "@heroui/react";
 import { useState } from "react";
 import ReadinessScoreResult from "@/components/retirement-readiness/readiness-score-result";
 import { READINESS_QUESTIONS } from "@/data/retirement-readiness-questions";
@@ -9,7 +9,6 @@ import {
   type ReadinessAnswers,
   type ReadinessResult,
 } from "@/lib/calculate-retirement-readiness";
-import { cn } from "@/lib/utils";
 
 export default function ReadinessScoreForm() {
   const [answers, setAnswers] = useState<Partial<ReadinessAnswers>>({});

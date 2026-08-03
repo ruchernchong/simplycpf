@@ -242,8 +242,6 @@ around it.
 
 ## Off-limits
 
-- **Do not import from `src/components/ui/*`**. Deprecated shadcn/ui, pending
-  removal together with the LEGACY-ALIAS block in `globals.css`.
 - Appearance comes from HeroUI props and theme tokens. `className` on component
   roots is for composition only (layout, sizing, gaps), never hardcoded colours.
 - Dark mode is fully supported and in scope: the `.dark` block in `globals.css`
