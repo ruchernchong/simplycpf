@@ -468,9 +468,11 @@ export default function WhatIfContent() {
               <NumberField.Input className="w-full" />
             </NumberField.Group>
           </NumberField>
-          <Typography color="muted" type="body-xs">
-            {mounted ? descriptions[scenario] : null}
-          </Typography>
+          <div className="max-w-[64ch]">
+            <Typography color="muted" type="body-xs">
+              {mounted ? descriptions[scenario] : null}
+            </Typography>
+          </div>
         </Card.Content>
       </Card>
 
