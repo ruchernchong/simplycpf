@@ -36,33 +36,33 @@ const CpfRetirementSumsBlock = () => {
           </p>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
               <p className="mb-1 font-semibold text-sm">Basic Retirement Sum</p>
               <p className="font-bold text-2xl text-foreground">
                 S${formatNumber(sums.brs)}
               </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              <p className="mt-1 text-muted text-xs">
                 Minimum for CPF LIFE. Provides basic monthly payouts for life.
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
               <p className="mb-1 font-semibold text-sm">Full Retirement Sum</p>
               <p className="font-bold text-2xl text-foreground">
                 S${formatNumber(sums.frs)}
               </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              <p className="mt-1 text-muted text-xs">
                 {frsMultiple}× BRS. Higher monthly payouts for a more
                 comfortable retirement.
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
               <p className="mb-1 font-semibold text-sm">
                 Enhanced Retirement Sum
               </p>
               <p className="font-bold text-2xl text-foreground">
                 S${formatNumber(sums.ers)}
               </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              <p className="mt-1 text-muted text-xs">
                 {ersMultiple}× BRS. Maximum monthly payouts for enhanced
                 retirement income.
               </p>
@@ -72,7 +72,7 @@ const CpfRetirementSumsBlock = () => {
           {futureYears.length > 0 && (
             <>
               <p className="font-medium">Retirement Sums for Coming Years:</p>
-              <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
+              <ul className="flex flex-col gap-2 text-muted text-sm">
                 {futureYears.map((year) => {
                   const yearSums = getRetirementSumsForYear(year);
                   return (
@@ -88,7 +88,7 @@ const CpfRetirementSumsBlock = () => {
             </>
           )}
 
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted text-sm">
             Tip: You can withdraw the amount above your FRS at age 55, or
             transfer it to RA for higher CPF LIFE payouts later.
           </p>

@@ -36,28 +36,6 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-chart-track: var(--chart-track);
-
-  /* LEGACY-ALIAS mappings for src/components/ui/* (scheduled for removal) */
-  --color-card: var(--surface);
-  --color-card-foreground: var(--surface-foreground);
-  --color-popover: var(--overlay);
-  --color-popover-foreground: var(--overlay-foreground);
-  --color-primary: var(--foreground);
-  --color-primary-foreground: var(--background);
-  --color-secondary: var(--surface-tertiary);
-  --color-secondary-foreground: var(--foreground);
-  --color-muted-foreground: var(--muted);
-  --color-destructive: var(--danger);
-  --color-input: var(--field-border);
-  --color-ring: var(--focus);
-  --color-sidebar: var(--surface);
-  --color-sidebar-foreground: var(--surface-foreground);
-  --color-sidebar-primary: var(--foreground);
-  --color-sidebar-primary-foreground: var(--background);
-  --color-sidebar-accent: var(--surface-tertiary);
-  --color-sidebar-accent-foreground: var(--foreground);
-  --color-sidebar-border: var(--border);
-  --color-sidebar-ring: var(--focus);
 }
 
 /*
@@ -243,35 +221,9 @@
   --chart-track: oklch(0.9311 0.0194 90.55 / 10%);
 }
 
-/* LEGACY-ALIAS: shadcn token names consumed by src/components/ui/* and
-   not-yet-migrated pages. Remove together with src/components/ui/*. */
-:root,
-.dark {
-  --card: var(--surface);
-  --card-foreground: var(--surface-foreground);
-  --popover: var(--overlay);
-  --popover-foreground: var(--overlay-foreground);
-  --primary: var(--foreground);
-  --primary-foreground: var(--background);
-  --secondary: var(--surface-tertiary);
-  --secondary-foreground: var(--foreground);
-  --muted-foreground: var(--muted);
-  --destructive: var(--danger);
-  --input: var(--field-border);
-  --ring: var(--focus);
-  --sidebar: var(--surface);
-  --sidebar-foreground: var(--surface-foreground);
-  --sidebar-primary: var(--foreground);
-  --sidebar-primary-foreground: var(--background);
-  --sidebar-accent: var(--surface-tertiary);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--focus);
-}
-
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-focus/50;
   }
   body {
     @apply bg-background text-foreground;

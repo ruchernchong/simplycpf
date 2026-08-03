@@ -18,7 +18,7 @@ const CpfProjectionIntroBlock = () => (
           age, income, and contribution patterns.
         </p>
         <p>The projection accounts for:</p>
-        <ul className="flex flex-col gap-2 text-muted-foreground">
+        <ul className="flex flex-col gap-2 text-muted">
           <li>
             <strong>Your CPF contributions</strong>, Employee and employer
             contributions based on your income and age group
@@ -47,7 +47,7 @@ const CpfProjectionIntroBlock = () => (
           balance at age 65. This is an estimate, actual payouts depend on the
           CPF LIFE plan you choose and prevailing annuity factors when you join.
         </p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted text-sm">
           Important: This is a projection, not a guarantee. Actual rates, income
           changes, housing withdrawals, and voluntary top-ups will affect your
           final balances.

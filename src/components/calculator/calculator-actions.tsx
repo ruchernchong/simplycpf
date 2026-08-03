@@ -73,7 +73,7 @@ export function CalculatorActions() {
     setIsGeneratingPdf(true);
 
     try {
-      const { openPdf } = await import("@/lib/download-pdf");
+      const { openPdf } = await import("@/components/pdf/download-pdf");
 
       await openPdf({
         generatedAt: new Date(),

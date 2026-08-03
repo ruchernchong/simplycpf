@@ -30,7 +30,7 @@ const CpfLifeDefinitionBlock = () => {
             When you turn 65, you can start receiving monthly payouts from your
             CPF LIFE plan. The amount you receive depends on:
           </p>
-          <ul className="flex flex-col gap-2 text-muted-foreground">
+          <ul className="flex flex-col gap-2 text-muted">
             <li>
               <strong>Your Retirement Account (RA) balance</strong>, built from
               CPF savings and top-ups

@@ -37,18 +37,14 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
         </Card.Header>
         <Card.Content className="flex flex-col gap-6">
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg bg-muted p-4">
-              <p className="mb-1 text-muted-foreground text-sm">
-                Employee Rate
-              </p>
+            <div className="rounded-lg bg-surface-tertiary p-4">
+              <p className="mb-1 text-muted text-sm">Employee Rate</p>
               <p className="font-bold font-mono text-2xl text-foreground">
                 {formatPercentage(employeeRate, { decimalPlaces: 1 })}
               </p>
             </div>
-            <div className="rounded-lg bg-muted p-4">
-              <p className="mb-1 text-muted-foreground text-sm">
-                Employer Rate
-              </p>
+            <div className="rounded-lg bg-surface-tertiary p-4">
+              <p className="mb-1 text-muted text-sm">Employer Rate</p>
               <p className="font-bold font-mono text-2xl text-foreground">
                 {formatPercentage(employerRate, { decimalPlaces: 1 })}
               </p>
@@ -67,37 +63,31 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
             </h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-2">
-                <span className="text-muted-foreground text-xs">OA</span>
+                <span className="text-muted text-xs">OA</span>
                 <span className="font-medium font-mono">
                   {formatPercentage(ageGroup.distributionRate.OA, {
                     decimalPlaces: 1,
                   })}
                 </span>
-                <span className="text-muted-foreground text-xs">
-                  of contributions
-                </span>
+                <span className="text-muted text-xs">of contributions</span>
               </div>
               <div className="flex flex-col gap-2">
-                <span className="text-muted-foreground text-xs">SA</span>
+                <span className="text-muted text-xs">SA</span>
                 <span className="font-medium font-mono">
                   {formatPercentage(ageGroup.distributionRate.SA, {
                     decimalPlaces: 1,
                   })}
                 </span>
-                <span className="text-muted-foreground text-xs">
-                  of contributions
-                </span>
+                <span className="text-muted text-xs">of contributions</span>
               </div>
               <div className="flex flex-col gap-2">
-                <span className="text-muted-foreground text-xs">MA</span>
+                <span className="text-muted text-xs">MA</span>
                 <span className="font-medium font-mono">
                   {formatPercentage(ageGroup.distributionRate.MA, {
                     decimalPlaces: 1,
                   })}
                 </span>
-                <span className="text-muted-foreground text-xs">
-                  of contributions
-                </span>
+                <span className="text-muted text-xs">of contributions</span>
               </div>
             </div>
           </div>
@@ -105,14 +95,14 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div>
               <p className="font-medium">See Your Long-Term Projection</p>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted text-sm">
                 Project your CPF balances through retirement based on these
                 rates
               </p>
             </div>
             <Link
               href={`/projection?birthDate=${birthDate}`}
-              className="inline-flex h-9 items-center justify-center rounded-4xl bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/80"
+              className="inline-flex h-9 items-center justify-center rounded-4xl bg-foreground px-4 font-medium text-background text-sm transition-colors hover:bg-foreground/80"
             >
               View Projection
             </Link>

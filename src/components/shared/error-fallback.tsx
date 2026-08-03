@@ -43,13 +43,11 @@ export function ErrorFallback({
           <Card.Description>{description}</Card.Description>
         </Card.Header>
         <Card.Content className="flex flex-col gap-4">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted text-sm">
             {error.message || "An unexpected error occurred"}
           </p>
           {error.digest && (
-            <p className="text-muted-foreground text-xs">
-              Error ID: {error.digest}
-            </p>
+            <p className="text-muted text-xs">Error ID: {error.digest}</p>
           )}
           <Button onPress={reset} className="w-full" variant="primary">
             <HugeiconsIcon

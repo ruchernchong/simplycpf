@@ -1,8 +1,8 @@
 import { buttonVariants } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
-import { CheatSheetCard } from "@/components/cheat-sheet/cheat-sheet-card";
-import { PrintButton } from "@/components/cheat-sheet/print-button";
+import { CheatSheetCard } from "@/components/cpf-cheat-sheet/cheat-sheet-card";
+import { PrintButton } from "@/components/cpf-cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 

@@ -48,30 +48,28 @@ export default function CpfLifeEstimate({ result }: CpfLifeEstimateProps) {
             {payoutOptions.map((option) => (
               <div
                 key={option.label}
-                className="rounded-lg border border-border bg-muted/30 p-4"
+                className="rounded-lg border border-border bg-surface-tertiary/30 p-4"
               >
                 <p className="font-medium text-foreground text-sm">
                   {option.label}
                 </p>
                 <p className="pb-2 font-semibold text-2xl text-foreground">
                   {formatCurrency(option.value, 0)}
-                  <span className="pl-2 font-normal text-muted-foreground text-sm">
+                  <span className="pl-2 font-normal text-muted text-sm">
                     per month
                   </span>
                 </p>
-                <p className="text-muted-foreground text-sm">
-                  {option.description}
-                </p>
+                <p className="text-muted text-sm">{option.description}</p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
+          <div className="rounded-lg border border-border bg-surface-tertiary/30 p-4">
             <p className="font-medium text-foreground text-sm">
               Your projected RA balance is still below the S$60,000 threshold
               used for the current CPF LIFE estimate.
             </p>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted text-sm">
               Try extending the projection horizon, increasing income, or adding
               a top-up to see how the estimate changes.
             </p>

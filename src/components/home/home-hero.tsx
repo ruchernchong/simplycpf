@@ -20,6 +20,7 @@ import { SplitBar } from "@/components/shared/split-bar";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfContribution } from "@/lib/calculate-cpf-contribution";
 import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
+import { formatDateInput, isValidDateFormat } from "@/lib/date-utils";
 import { findAgeGroup } from "@/lib/find-age-group";
 import { formatCurrency } from "@/lib/format";
 import {
@@ -27,7 +28,6 @@ import {
   selectLatestIncomeCeilingDate,
 } from "@/stores/selectors";
 import type { AgeGroup, CitizenshipStatus } from "@/types";
-import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
 
 /** Illustrative figures shown before anyone types anything. */
 const EXAMPLE_INCOME = 5000;

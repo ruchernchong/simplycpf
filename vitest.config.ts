@@ -17,7 +17,6 @@ export default defineConfig({
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       exclude: [
         "src/**/*.d.ts",
-        "src/components/ui/**",
         "src/app/robots.ts",
         "src/app/sitemap.ts",
         "src/app/error.tsx",
@@ -42,7 +41,6 @@ export default defineConfig({
         // Hooks (require React context and mocking)
         "src/hooks/**",
         // PDF generation (requires @react-pdf/renderer mocking)
-        "src/lib/download-pdf.tsx",
         "src/components/pdf/**",
         // SEO components (static structured data)
         "src/components/seo/**",
@@ -65,19 +63,17 @@ export default defineConfig({
         "src/components/timeline/**",
         "src/components/what-if/**",
         "src/components/cpf-life/**",
-        "src/components/lead-magnets/**",
-        "src/components/at-55/**",
-        "src/components/check/**",
-        "src/components/housing/**",
-        "src/components/cheat-sheet/**",
+        "src/components/retirement-readiness/**",
+        "src/components/cpf-at-55/**",
+        "src/components/cpf-check/**",
+        "src/components/accrued-interest/**",
+        "src/components/cpf-cheat-sheet/**",
         "src/components/shared/**",
         // Layout components requiring context mocking
         "src/components/layout/theme-toggle.tsx",
         "src/components/layout/header.tsx",
         // Error boundary (requires complex error simulation)
-        "src/components/error-fallback.tsx",
-        // Logo mark (presentational sub-component)
-        "src/lib/logo-mark.tsx",
+        "src/components/shared/error-fallback.tsx",
         // Image generation (Next.js dynamic OG/favicon)
         "src/lib/icon-image.tsx",
         "src/lib/og-image.tsx",

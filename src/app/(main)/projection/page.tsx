@@ -131,10 +131,7 @@ export default function ProjectionPage() {
           <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
             Will Your CPF Be Enough for Retirement?
           </h1>
-          <p
-            data-projection-intro
-            className="mx-auto max-w-3xl text-muted-foreground"
-          >
+          <p data-projection-intro className="mx-auto max-w-3xl text-muted">
             Project your CPF balances using conservative floor rates, current
             contribution rules, and key milestones like the age 55 transfer to
             your Retirement Account. You can also test how housing withdrawals,
@@ -142,7 +139,9 @@ export default function ProjectionPage() {
           </p>
         </div>
         <Suspense
-          fallback={<div className="min-h-[480px] rounded-lg bg-muted/30" />}
+          fallback={
+            <div className="min-h-[480px] rounded-lg bg-surface-tertiary/30" />
+          }
         >
           <ProjectionContent />
         </Suspense>

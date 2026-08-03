@@ -19,7 +19,7 @@ const NotFound = () => (
         <Card.Description>Page not found</Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted text-sm">
           The page you're looking for doesn't exist.
         </p>
         <Link href="/" className="w-full">

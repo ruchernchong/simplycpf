@@ -38,10 +38,10 @@ The core calculators and planning tools work without sign-up. Email is only requ
 
 - **Framework**: [Next.js 16](https://nextjs.org/) with React 19
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4.x with shadcn/ui components
+- **Styling**: Tailwind CSS 4.x with HeroUI theme tokens
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **UI Components**: Base UI primitives
-- **Charts**: Recharts
+- **UI Components**: [HeroUI](https://www.heroui.com/) v3 (`@heroui/react`) and HeroUI Pro
+- **Charts**: HeroUI Pro chart wrappers (Recharts underneath)
 - **Testing**: Vitest with React Testing Library
 - **Linting**: Biome
 - **Package Manager**: pnpm 11.x (RC)
@@ -142,18 +142,27 @@ The site provides LLM-friendly endpoints following the [llms.txt specification](
 
 ```
 src/
-├── app/              # Next.js app directory (routes, layouts)
-│   └── (docs)/      # Developer portal (Fumadocs)
-├── atoms/            # Jotai state atoms
-├── components/       # React components
-│   └── ui/          # shadcn/ui components
-├── data/            # CPF age groups and rates data
-├── lib/             # Core calculation logic
-├── types/           # TypeScript type definitions
-├── constants/       # CPF income ceilings by year
-└── utils/           # Utility functions
+├── app/                 # Next.js App Router (routes, layouts, API)
+│   ├── (main)/          # Product routes
+│   ├── (docs)/          # Developer portal (Fumadocs, URLs under /docs)
+│   └── api/             # REST API route handlers
+├── components/          # Feature UI (folders match route names)
+│   ├── shared/          # SplitBar, Wordmark, Logo, ErrorFallback, …
+│   ├── calculator/
+│   ├── projection/
+│   ├── cpf-at-55/
+│   └── …
+├── stores/              # Zustand CPF store + selectors
+├── providers/           # CpfStoreProvider
+├── hooks/               # React hooks
+├── lib/                 # Calculation logic and utilities
+├── data/                # CPF age groups and rates data
+├── constants/           # Income ceilings, BHS, retirement sums, …
+├── types/               # TypeScript type definitions
+├── config/              # Application configuration
+└── proxy.ts             # Rate limit, CSP, LLM markdown negotiation
 content/
-└── docs/            # Developer portal MDX content
+└── docs/                # Developer portal MDX content
 ```
 
 ## Contributing
