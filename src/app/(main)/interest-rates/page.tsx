@@ -9,6 +9,7 @@ import CpfContributionComparisonBlock from "@/components/seo/cpf-contribution-co
 import CpfDistributionComparisonBlock from "@/components/seo/cpf-distribution-comparison-block";
 import CpfInterestTiersBlock from "@/components/seo/cpf-interest-tiers-block";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Eyebrow } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 
 export const metadata: Metadata = {
@@ -99,9 +100,7 @@ export default function InterestRatesPage() {
     <>
       <StructuredData data={schema} />
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Rates
-        </span>
+        <Eyebrow color="muted">Rates</Eyebrow>
         <Typography type="h1">Every rate that decides your numbers</Typography>
         <div className="max-w-[76ch]">
           <Typography color="muted">

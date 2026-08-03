@@ -5,6 +5,7 @@ import CpfLifeContent from "@/components/cpf-life/cpf-life-content";
 import CpfLifeDefinitionBlock from "@/components/seo/cpf-life-definition-block";
 import CpfRetirementSumsBlock from "@/components/seo/cpf-retirement-sums-block";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Eyebrow } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
 import faqCpfLifeData from "@/data/faq-cpf-life.json";
 
@@ -84,9 +85,7 @@ export default function CpfLifePage() {
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
-          <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-            CPF LIFE
-          </span>
+          <Eyebrow color="muted">CPF LIFE</Eyebrow>
           <Typography type="h1">One balance, three payout shapes</Typography>
           <div className="max-w-[76ch]">
             <Typography color="muted">

@@ -99,7 +99,7 @@ export function HomeHero() {
     <section className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr]">
       <div className="flex flex-col gap-6">
         <Eyebrow withDot>Updated for 1 Jan 2026 rates</Eyebrow>
-        <Typography type="h1" className="text-5xl md:text-6xl">
+        <Typography type="h1">
           Five questions about CPF, answered in plain English.
         </Typography>
         <div className="max-w-[47ch]">

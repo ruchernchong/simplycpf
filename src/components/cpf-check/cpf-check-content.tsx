@@ -11,6 +11,7 @@ import {
 } from "@heroui/react";
 import { ArrowRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { Eyebrow } from "@/components/shared/section-header";
 
 interface CheckItem {
   id: string;
@@ -123,9 +124,7 @@ export default function CpfCheckContent(): ReactNode {
   return (
     <div className="flex flex-col gap-12">
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Check
-        </span>
+        <Eyebrow color="muted">Check</Eyebrow>
         <Typography type="h1">
           Five things worth knowing. Which do you already?
         </Typography>

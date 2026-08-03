@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
+import { Eyebrow } from "@/components/shared/section-header";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
@@ -431,9 +432,7 @@ export default function At55Content(): ReactNode {
   return (
     <div className="flex flex-col gap-12">
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          At 55
-        </span>
+        <Eyebrow color="muted">At 55</Eyebrow>
         <Typography type="h1">
           Your Special Account closes. Here is where the money goes.
         </Typography>

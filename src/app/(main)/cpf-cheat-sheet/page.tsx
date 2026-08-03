@@ -4,6 +4,7 @@ import type { Graph } from "schema-dts";
 import { CheatSheetCard } from "@/components/cpf-cheat-sheet/cheat-sheet-card";
 import { PrintButton } from "@/components/cpf-cheat-sheet/print-button";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Eyebrow } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/cpf-cheat-sheet`;
@@ -81,9 +82,7 @@ export default function CpfCheatSheetPage() {
         {PRINT_STYLES}
       </style>
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Cheat sheet
-        </span>
+        <Eyebrow color="muted">Cheat sheet</Eyebrow>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <Typography type="h1">One page, on the fridge, done</Typography>
           <div className="flex flex-wrap gap-2">

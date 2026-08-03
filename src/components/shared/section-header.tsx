@@ -1,8 +1,11 @@
 import { cn } from "@heroui/react";
 import type { ReactElement, ReactNode } from "react";
 
+type EyebrowColor = "accent" | "muted";
+
 interface EyebrowProps {
   children: ReactNode;
+  color?: EyebrowColor;
   withDot?: boolean;
   className?: string;
 }
@@ -13,6 +16,7 @@ interface EyebrowProps {
  */
 export function Eyebrow({
   children,
+  color = "accent",
   withDot,
   className,
 }: EyebrowProps): ReactElement {
@@ -21,7 +25,12 @@ export function Eyebrow({
       {withDot && (
         <span aria-hidden className="size-1.5 rounded-full bg-accent" />
       )}
-      <span className="font-mono text-[10.5px] text-accent uppercase tracking-[0.13em]">
+      <span
+        className={cn(
+          "font-mono text-[10.5px] uppercase tracking-[0.13em]",
+          color === "muted" ? "text-muted" : "text-accent",
+        )}
+      >
         {children}
       </span>
     </span>

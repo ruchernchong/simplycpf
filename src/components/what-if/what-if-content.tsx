@@ -21,6 +21,7 @@ import {
 } from "nuqs";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import type { Key } from "react-aria-components";
+import { Eyebrow } from "@/components/shared/section-header";
 import { useCpfStore } from "@/hooks/use-cpf-store";
 import { estimateCpfLife } from "@/lib/calculate-cpf-projection";
 import {
@@ -409,9 +410,7 @@ export default function WhatIfContent() {
   return (
     <div className="flex flex-col gap-12">
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Compare
-        </span>
+        <Eyebrow color="muted">Compare</Eyebrow>
         <Typography type="h1">Two sets of assumptions, side by side</Typography>
         <div className="max-w-[76ch]">
           <Typography color="muted">

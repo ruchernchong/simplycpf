@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import type { Graph } from "schema-dts";
 import { AccruedInterestContent } from "@/components/accrued-interest/accrued-interest-content";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Eyebrow } from "@/components/shared/section-header";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
 const PAGE_URL = `${BASE_URL}/accrued-interest`;
@@ -73,9 +74,7 @@ export default function AccruedInterestPage() {
     <>
       <StructuredData data={schema} />
       <header className="flex flex-col gap-2">
-        <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
-          Home &amp; OA
-        </span>
+        <Eyebrow color="muted">Home &amp; OA</Eyebrow>
         <Typography type="h1">
           Accrued interest, without the forum arguments
         </Typography>
