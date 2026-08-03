@@ -63,7 +63,6 @@ function CpfTopUpLimitsBlock() {
                 />
               </KPI.Content>
               <KPI.Footer className="flex flex-col gap-2 text-muted text-xs">
-                <span>Up to this amount of cash top-up qualifies for relief</span>
                 <span>
                   Cash top-up to your SA (under 55) or RA (55+) qualifies for
                   tax relief
@@ -91,7 +90,6 @@ function CpfTopUpLimitsBlock() {
                 />
               </KPI.Content>
               <KPI.Footer className="flex flex-col gap-2 text-muted text-xs">
-                <span>Up to this amount of family top-up qualifies for relief</span>
                 <span>
                   Top-up parents, parents-in-law, grandparents, spouse, or
                   siblings

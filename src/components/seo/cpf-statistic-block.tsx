@@ -5,23 +5,28 @@ import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 
 function CpfStatisticBlock() {
   const currentCeiling = CPF_INCOME_CEILING["2026-01-01"];
-  const stats = [
+  const stats: Array<{
+    label: string;
+    value: number;
+    style: "currency" | "percent";
+    detail: string;
+  }> = [
     {
       label: "Current income ceiling (2026)",
       value: currentCeiling,
-      style: "currency" as const,
+      style: "currency",
       detail: "Final ceiling under 2023 Budget changes",
     },
     {
       label: "OA interest rate (floor)",
       value: CPF_INTEREST_FLOOR_RATES.OA / 100,
-      style: "percent" as const,
+      style: "percent",
       detail: "Fixed, not pegged to SGS · p.a.",
     },
     {
       label: "SMRA interest rate (floor)",
       value: CPF_INTEREST_FLOOR_RATES.SMRA / 100,
-      style: "percent" as const,
+      style: "percent",
       detail: "Minimum guaranteed; may earn more · p.a.",
     },
   ];
