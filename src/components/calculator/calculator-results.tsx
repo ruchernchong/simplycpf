@@ -60,11 +60,13 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
           </span>
         </Card.Header>
         <Card.Content className="gap-4">
-          <Typography className="max-w-[64ch] text-pretty text-[19px] leading-relaxed">
-            {isAboveCeiling
-              ? `Your salary is above the ${formatCurrency(figures.ceiling, 0)} ceiling, so contributions stop there. You keep ${formatCurrency(figures.takeHome)}, your employer adds ${formatCurrency(figures.employer)} on top, and ${formatCurrency(figures.total)} lands in your CPF accounts.`
-              : `You keep ${formatCurrency(figures.takeHome)} of ${formatCurrency(figures.gross)}. ${formatCurrency(figures.employee)} came out of your pay and your employer added ${formatCurrency(figures.employer)} on top of it, so ${formatCurrency(figures.total)} goes into your accounts.`}
-          </Typography>
+          <div className="max-w-[64ch]">
+            <Typography>
+              {isAboveCeiling
+                ? `Your salary is above the ${formatCurrency(figures.ceiling, 0)} ceiling, so contributions stop there. You keep ${formatCurrency(figures.takeHome)}, your employer adds ${formatCurrency(figures.employer)} on top, and ${formatCurrency(figures.total)} lands in your CPF accounts.`
+                : `You keep ${formatCurrency(figures.takeHome)} of ${formatCurrency(figures.gross)}. ${formatCurrency(figures.employee)} came out of your pay and your employer added ${formatCurrency(figures.employer)} on top of it, so ${formatCurrency(figures.total)} goes into your accounts.`}
+            </Typography>
+          </div>
           {figures.isIllustrative && (
             <Typography color="muted" type="body-xs">
               Illustrative figures for {formatCurrency(ILLUSTRATIVE_INCOME, 0)}{" "}

@@ -87,18 +87,15 @@ export default function CpfLifePage() {
           <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
             CPF LIFE
           </span>
-          <Typography type="h1" className="text-balance">
-            One balance, three payout shapes
-          </Typography>
-          <Typography
-            color="muted"
-            className="max-w-[76ch] text-pretty leading-relaxed"
-          >
-            The plans differ in shape, not in generosity: the same Retirement
-            Account buys a flat payout, a rising one that starts lower, or a
-            lower one that can fall further. We show all three side by side and
-            rank none of them.
-          </Typography>
+          <Typography type="h1">One balance, three payout shapes</Typography>
+          <div className="max-w-[76ch]">
+            <Typography color="muted">
+              The plans differ in shape, not in generosity: the same Retirement
+              Account buys a flat payout, a rising one that starts lower, or a
+              lower one that can fall further. We show all three side by side
+              and rank none of them.
+            </Typography>
+          </div>
         </header>
         <CpfLifeContent />
         <CpfLifeDefinitionBlock />

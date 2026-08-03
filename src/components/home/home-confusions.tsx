@@ -43,7 +43,12 @@ export function HomeConfusions() {
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <Typography type="h2" className="text-base tracking-tight">
+        <Typography
+          type="h6"
+          render={({ children, ...domProps }) => (
+            <h2 {...domProps}>{children}</h2>
+          )}
+        >
           The four things people actually get wrong
         </Typography>
         <Typography color="muted" type="body-xs">
@@ -58,7 +63,7 @@ export function HomeConfusions() {
                 <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
                   {confusion.eyebrow}
                 </span>
-                <Card.Title className="text-balance font-semibold text-[15px]">
+                <Card.Title className="font-semibold text-[15px]">
                   {confusion.title}
                 </Card.Title>
                 <Card.Description className="text-[13px] text-muted leading-relaxed">

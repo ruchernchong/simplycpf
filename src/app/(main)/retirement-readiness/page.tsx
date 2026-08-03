@@ -61,15 +61,9 @@ export default function RetirementReadinessPage() {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <Typography type="h1" weight="bold" className="mb-4 text-balance">
-            How Ready Is Your CPF Plan?
-          </Typography>
-          <Typography
-            color="muted"
-            data-readiness-intro
-            className="mx-auto max-w-3xl"
-          >
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-center">
+          <Typography type="h1">How Ready Is Your CPF Plan?</Typography>
+          <Typography color="muted" data-readiness-intro>
             This 5-question score is meant to surface the next CPF planning gap
             worth fixing. It is not a guarantee of retirement adequacy. It is a
             faster way to decide whether you should use the projection tool, the

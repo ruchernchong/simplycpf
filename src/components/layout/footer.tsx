@@ -1,4 +1,4 @@
-import { Link } from "@heroui/react";
+import { Link, Typography } from "@heroui/react";
 import type { Route } from "next";
 import { Wordmark } from "@/components/shared/wordmark";
 
@@ -20,11 +20,14 @@ export function Footer() {
     <footer className="border-border border-t">
       <div className="container mx-auto flex flex-col gap-6 px-4 py-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-          <p className="max-w-[74ch] text-muted text-xs leading-relaxed">
-            SimplyCPF is an independent, open-source tool. Not affiliated with
-            or endorsed by the CPF Board. Figures are estimates based on
-            published rates and the assumptions you enter, not financial advice.
-          </p>
+          <div className="max-w-[74ch]">
+            <Typography color="muted" type="body-xs">
+              SimplyCPF is an independent, open-source tool. Not affiliated with
+              or endorsed by the CPF Board. Figures are estimates based on
+              published rates and the assumptions you enter, not financial
+              advice.
+            </Typography>
+          </div>
           <nav aria-label="Footer" className="flex items-center gap-4 text-sm">
             {primaryLinks.map((link) => (
               <Link key={link.href} href={link.href}>

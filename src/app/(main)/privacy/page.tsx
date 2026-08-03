@@ -52,15 +52,9 @@ export default function PrivacyPage() {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <Typography type="h1" weight="bold" className="mb-4 text-balance">
-            Privacy
-          </Typography>
-          <Typography
-            color="muted"
-            data-privacy-summary
-            className="mx-auto max-w-3xl"
-          >
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-center">
+          <Typography type="h1">Privacy</Typography>
+          <Typography color="muted" data-privacy-summary>
             SimplyCPF works without sign-up. There is no account to create, no
             email address to hand over, and no backend database holding your
             calculator inputs.

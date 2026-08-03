@@ -10,6 +10,7 @@ import {
   Skeleton,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import { EmptyState } from "@heroui-pro/react";
 import {
@@ -281,17 +282,17 @@ function AssumptionsCard() {
               <span className={`${MONO_LABEL} text-muted`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+              <Typography color="muted" type="body-sm">
                 {assumption}
-              </p>
+              </Typography>
             </div>
           ))}
         </div>
         <Separator />
-        <p className="max-w-[64ch] text-muted text-sm leading-relaxed">
+        <Typography color="muted" type="body-sm">
           A projection is a calculation about assumptions, not a forecast about
           you. Estimates only, not financial advice.
-        </p>
+        </Typography>
       </Card.Content>
     </Card>
   );
@@ -411,13 +412,13 @@ export default function WhatIfContent() {
         <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
           Compare
         </span>
-        <h1 className="text-balance font-semibold text-4xl tracking-tight">
-          Two sets of assumptions, side by side
-        </h1>
-        <p className="max-w-[76ch] text-pretty text-base text-muted leading-relaxed">
-          Change one thing and see what the arithmetic does. This tool states
-          differences; it does not suggest which column you should prefer.
-        </p>
+        <Typography type="h1">Two sets of assumptions, side by side</Typography>
+        <div className="max-w-[76ch]">
+          <Typography color="muted">
+            Change one thing and see what the arithmetic does. This tool states
+            differences; it does not suggest which column you should prefer.
+          </Typography>
+        </div>
       </header>
 
       <Card>
@@ -464,9 +465,9 @@ export default function WhatIfContent() {
               <NumberField.Input className="w-full" />
             </NumberField.Group>
           </NumberField>
-          <p className="max-w-[64ch] text-[13px] text-muted leading-relaxed">
+          <Typography color="muted" type="body-xs">
             {mounted ? descriptions[scenario] : null}
-          </p>
+          </Typography>
         </Card.Content>
       </Card>
 

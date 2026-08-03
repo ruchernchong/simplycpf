@@ -65,11 +65,11 @@ const InvestmentsPage = () => {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <Typography type="h1" weight="bold" className="mb-4 text-balance">
+        <div className="mx-auto flex max-w-2xl flex-col gap-4 text-center">
+          <Typography type="h1">
             Is Keeping Money in CPF Your Best Move?
           </Typography>
-          <Typography color="muted" className="mx-auto max-w-2xl">
+          <Typography color="muted">
             CPF accounts offer guaranteed returns backed by the Singapore
             Government, but they are not your only option. Compare CPF growth
             against Singapore Government bonds, the STI ETF, or global equity
@@ -79,8 +79,8 @@ const InvestmentsPage = () => {
           </Typography>
         </div>
         <CPFInvestmentComparison />
-        <div className="text-center">
-          <Typography weight="medium" className="mb-4 text-lg">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Typography weight="medium">
             Haven&apos;t calculated your CPF contributions yet?
           </Typography>
           <Link

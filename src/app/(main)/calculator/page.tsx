@@ -200,7 +200,7 @@ async function CalculatorPage({
             This month
           </span>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <Typography type="h1" className="text-balance">
+            <Typography type="h1">
               Where this month&apos;s money went
             </Typography>
             <CalculatorActions />

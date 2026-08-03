@@ -257,13 +257,15 @@ export function CpfLifeContent() {
             </Typography>
           )}
 
-          <Typography className="max-w-[64ch] text-[19px] leading-relaxed">
-            A Retirement Account of {monthly(raBalance)} at 65 supports roughly{" "}
-            {monthly(standard)} a month on the Standard plan,{" "}
-            {monthly(escalating)} rising 2% a year on Escalating, or{" "}
-            {monthly(basic)} on Basic. Over twenty years the Escalating payout
-            reaches {monthly(escalating85)}.
-          </Typography>
+          <div className="max-w-[64ch]">
+            <Typography>
+              A Retirement Account of {monthly(raBalance)} at 65 supports
+              roughly {monthly(standard)} a month on the Standard plan,{" "}
+              {monthly(escalating)} rising 2% a year on Escalating, or{" "}
+              {monthly(basic)} on Basic. Over twenty years the Escalating payout
+              reaches {monthly(escalating85)}.
+            </Typography>
+          </div>
         </Card.Content>
       </Card>
 

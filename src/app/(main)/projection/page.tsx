@@ -128,15 +128,11 @@ export default function ProjectionPage() {
     <>
       <StructuredData data={schema} />
       <div className="flex flex-col gap-8">
-        <div className="text-center">
-          <Typography type="h1" weight="bold" className="mb-4 text-balance">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-center">
+          <Typography type="h1">
             Will Your CPF Be Enough for Retirement?
           </Typography>
-          <Typography
-            color="muted"
-            data-projection-intro
-            className="mx-auto max-w-3xl"
-          >
+          <Typography color="muted" data-projection-intro>
             Project your CPF balances using conservative floor rates, current
             contribution rules, and key milestones like the age 55 transfer to
             your Retirement Account. You can also test how housing withdrawals,

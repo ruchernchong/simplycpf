@@ -12,6 +12,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from "@heroui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -98,14 +99,16 @@ export function HomeHero() {
     <section className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr]">
       <div className="flex flex-col gap-6">
         <Eyebrow withDot>Updated for 1 Jan 2026 rates</Eyebrow>
-        <h1 className="text-balance font-semibold text-5xl tracking-tight md:text-6xl">
+        <Typography type="h1" className="text-5xl md:text-6xl">
           Five questions about CPF, answered in plain English.
-        </h1>
-        <p className="max-w-[47ch] text-pretty text-[17.5px] text-muted leading-relaxed">
-          Where this month&rsquo;s money went. What happens at 55. What a flat
-          really costs your OA. What arrives every month at 65. No sign-up, no
-          jargon, no advice, just the arithmetic, with every assumption shown.
-        </p>
+        </Typography>
+        <div className="max-w-[47ch]">
+          <Typography color="muted">
+            Where this month&rsquo;s money went. What happens at 55. What a flat
+            really costs your OA. What arrives every month at 65. No sign-up, no
+            jargon, no advice, just the arithmetic, with every assumption shown.
+          </Typography>
+        </div>
 
         <div className="flex flex-col gap-4 sm:flex-row">
           <Card variant="secondary" className="flex-[1.3]">
@@ -192,11 +195,13 @@ export function HomeHero() {
           </ToggleButtonGroup>
         </div>
 
-        <p className="max-w-[54ch] text-muted text-xs leading-relaxed">
-          Nothing leaves your browser. SimplyCPF is independent and not
-          affiliated with the CPF Board. Every figure is an estimate from
-          published rates, not financial advice.
-        </p>
+        <div className="max-w-[54ch]">
+          <Typography color="muted" type="body-xs">
+            Nothing leaves your browser. SimplyCPF is independent and not
+            affiliated with the CPF Board. Every figure is an estimate from
+            published rates, not financial advice.
+          </Typography>
+        </div>
       </div>
 
       <Card className="h-fit shadow-(--overlay-shadow)">

@@ -85,9 +85,7 @@ export default function CpfCheatSheetPage() {
           Cheat sheet
         </span>
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <Typography type="h1" className="text-balance">
-            One page, on the fridge, done
-          </Typography>
+          <Typography type="h1">One page, on the fridge, done</Typography>
           <div className="flex flex-wrap gap-2">
             <PrintButton />
             <a
@@ -98,14 +96,13 @@ export default function CpfCheatSheetPage() {
             </a>
           </div>
         </div>
-        <Typography
-          color="muted"
-          className="max-w-[76ch] text-pretty leading-relaxed"
-        >
-          Every reference number for 2026 on a single printable sheet. No
-          inputs, no personalisation, just the figures you keep having to look
-          up.
-        </Typography>
+        <div className="max-w-[76ch]">
+          <Typography color="muted">
+            Every reference number for 2026 on a single printable sheet. No
+            inputs, no personalisation, just the figures you keep having to look
+            up.
+          </Typography>
+        </div>
       </header>
       <CheatSheetCard />
     </>

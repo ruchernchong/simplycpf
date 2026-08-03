@@ -76,19 +76,18 @@ export default function AccruedInterestPage() {
         <span className="font-mono text-[10.5px] text-muted uppercase tracking-[0.13em]">
           Home &amp; OA
         </span>
-        <Typography type="h1" className="text-balance">
+        <Typography type="h1">
           Accrued interest, without the forum arguments
         </Typography>
-        <Typography
-          color="muted"
-          className="max-w-[76ch] text-pretty leading-relaxed"
-        >
-          OA money you put into a home keeps a running 2.5% tab: the interest it
-          would have earned had it stayed. When you sell, the principal plus
-          that accrued interest returns to your CPF before you see any cash. It
-          is a refund to yourself, not a penalty, but it changes what a sale
-          actually pays out.
-        </Typography>
+        <div className="max-w-[76ch]">
+          <Typography color="muted">
+            OA money you put into a home keeps a running 2.5% tab: the interest
+            it would have earned had it stayed. When you sell, the principal
+            plus that accrued interest returns to your CPF before you see any
+            cash. It is a refund to yourself, not a penalty, but it changes what
+            a sale actually pays out.
+          </Typography>
+        </div>
       </header>
       <Suspense>
         <AccruedInterestContent />
