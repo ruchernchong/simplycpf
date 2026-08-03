@@ -2,7 +2,7 @@
 
 import { Button } from "@heroui/react";
 import { useState } from "react";
-import ReadinessScoreResult from "@/components/lead-magnets/readiness-score-result";
+import ReadinessScoreResult from "@/components/retirement-readiness/readiness-score-result";
 import {
   calculateRetirementReadiness,
   type ReadinessAnswers,
@@ -207,7 +207,7 @@ export default function ReadinessScoreForm() {
                     <span className="font-medium text-foreground">
                       {option.label}
                     </span>
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-muted text-sm">
                       {option.description}
                     </span>
                   </label>
@@ -217,9 +217,7 @@ export default function ReadinessScoreForm() {
           </fieldset>
         ))}
 
-        {formError ? (
-          <p className="text-destructive text-sm">{formError}</p>
-        ) : null}
+        {formError ? <p className="text-danger text-sm">{formError}</p> : null}
         <Button type="submit" size="lg">
           Calculate my readiness score
         </Button>

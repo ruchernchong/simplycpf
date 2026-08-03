@@ -11,9 +11,9 @@ import {
 import { useState, useTransition } from "react";
 import { calculateCpfProjection } from "@/lib/calculate-cpf-projection";
 import { convertBirthDateToAge } from "@/lib/convert-birth-date-to-age";
+import { formatDateInput, isValidDateFormat } from "@/lib/date-utils";
 import { formatCurrency } from "@/lib/format";
 import type { ProjectionParams } from "@/types";
-import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
 import CpfLifeEstimate from "./cpf-life-estimate";
 import MilestoneCards from "./milestone-cards";
 import ProjectionForm, { type ProjectionFormValues } from "./projection-form";
@@ -237,7 +237,7 @@ export default function ProjectionContent() {
                 Add your income and birth date to start the projection.
               </Card.Description>
             </Card.Header>
-            <Card.Content className="flex flex-col gap-4 text-muted-foreground text-sm">
+            <Card.Content className="flex flex-col gap-4 text-muted text-sm">
               <p>
                 The current model uses CPF floor interest rates, your selected
                 citizenship status, and today&apos;s contribution rules.

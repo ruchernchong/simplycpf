@@ -11,6 +11,7 @@ import {
   ToggleButtonGroup,
 } from "@heroui/react";
 import { useCpfStore } from "@/hooks/use-cpf-store";
+import { formatDateInput, isValidDateFormat } from "@/lib/date-utils";
 import { formatDate } from "@/lib/format";
 import {
   selectAge,
@@ -20,7 +21,6 @@ import {
   selectMonthlyGrossIncome,
 } from "@/stores/selectors";
 import type { CitizenshipStatus } from "@/types";
-import { formatDateInput, isValidDateFormat } from "@/utils/date-utils";
 import { formatRate } from "./figures";
 
 const CITIZENSHIP_OPTIONS: { value: CitizenshipStatus; label: string }[] = [

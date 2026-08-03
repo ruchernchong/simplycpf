@@ -4,8 +4,8 @@ import { isMarkdownPreferred, rewritePath } from "fumadocs-core/negotiation";
 import { type NextProxy, NextResponse } from "next/server";
 
 const { rewrite: rewriteLLM } = rewritePath(
-  "/developer/*path",
-  "/developer/llms.mdx/*path",
+  "/docs/*path",
+  "/docs/llms.mdx/*path",
 );
 
 const ratelimit = new Ratelimit({

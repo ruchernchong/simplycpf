@@ -23,7 +23,7 @@ const IncomeCeilingDefinitionBlock = () => (
           rising progressively from <strong>S$6,000</strong> (pre-September
           2023) to <strong>S$8,000</strong> (January 2026) in stages:
         </p>
-        <ul className="flex flex-col gap-2 text-muted-foreground">
+        <ul className="flex flex-col gap-2 text-muted">
           <li>September 2023: S$6,000 → S$6,300</li>
           <li>January 2024: S$6,300 → S$6,800</li>
           <li>January 2025: S$6,800 → S$7,400</li>

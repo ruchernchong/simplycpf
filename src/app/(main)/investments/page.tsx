@@ -70,7 +70,7 @@ const InvestmentsPage = () => {
           <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
             Is Keeping Money in CPF Your Best Move?
           </h1>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
+          <p className="mx-auto max-w-2xl text-muted">
             CPF accounts offer guaranteed returns backed by the Singapore
             Government, but they are not your only option. Compare CPF growth
             against Singapore Government bonds, the STI ETF, or global equity

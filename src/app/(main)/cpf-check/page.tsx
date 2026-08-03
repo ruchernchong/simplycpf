@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
-import CpfCheckContent from "@/components/check/cpf-check-content";
+import CpfCheckContent from "@/components/cpf-check/cpf-check-content";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 

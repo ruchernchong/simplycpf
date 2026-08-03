@@ -52,13 +52,14 @@ Keep documentation in sync with code changes:
 ### State Management
 Calculator-wide shared state is managed through a Zustand store in `src/stores/`:
 - `cpf-store.ts` - Core store with settings and actions
-- `cpf-store-context.tsx` - React context provider for the store
+- `cpf-store-context.ts` - Store types and context helpers
 - `selectors.ts` - Computed selectors for derived state (age, age group, contribution results, etc.)
-- `use-cpf-store.ts` - Hook for accessing store state and actions
+
+The React provider lives in `src/providers/cpf-store-provider.tsx` and is composed from `src/app/providers.tsx`. Access the store via `src/hooks/use-cpf-store.ts`.
 
 Self-contained pages that do not need cross-route shared state, such as the CPF projection page, can use page-local client state instead of introducing new global store slices.
 Projection and what-if pages serialise form state into the URL with `nuqs` so results can be shared and reopened directly from search params.
-Lead magnet flows such as the retirement readiness score use page-local client state and should not introduce new global atoms.
+Lead magnet flows such as the retirement readiness score use page-local client state and should not introduce new global store slices.
 
 ### CPF Calculation Logic
 The core calculation happens in `src/lib/calculate-cpf-contribution.ts`:
@@ -81,30 +82,30 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 
 ### Testing Strategy
 - Tests use Vitest with jsdom environment
-- Coverage excludes: `node_modules`, `.next`, `.d.ts` files, config files, `src/middleware.ts`, and `src/components/ui/**` (UI library components)
+- Coverage excludes: `node_modules`, `.next`, `.d.ts` files, config files, `src/proxy.ts`, and presentational UI under `src/components/` (see `vitest.config.ts`)
 - Test files located alongside source in `__tests__` directories
 - React component tests exist but are excluded from main test runs
 
 ### UI Components
 - Public product screens use HeroUI v3 OSS (`@heroui/react`) and HeroUI Pro (`@heroui-pro/react`) with no provider; theme tokens live in `src/app/globals.css` using the HeroUI default variable names with SimplyCPF brand values (warm paper/ink/forest, OKLCH)
 - Appearance comes from HeroUI props and theme tokens; `className` on component roots is for composition only (layout, sizing, gaps), never hardcoded colours
-- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `Eyebrow`, `StatBand`, `Wordmark`. Page headings are written inline in each screen (mono eyebrow, `h1`, optional lede), not wrapped in a shared component
+- Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `Eyebrow` (from `section-header.tsx`), `StatBand`, `Wordmark`, `Logo`, `ErrorFallback`. Page headings are written inline in each screen (mono eyebrow, `h1`, optional lede), not wrapped in a shared component
 - Product-facing icons use Lucide; `cn` is imported from `@heroui/react`
 - Use named function declarations for components and exported functions, not arrow-function constants
 - React Aria formatting is pinned to `en-SG` via `I18nProvider` in `src/app/providers.tsx`
-- `src/components/ui/` (shadcn/ui) is DEPRECATED: kept only for not-yet-migrated pages, bridged by the LEGACY-ALIAS token block in `globals.css`; no new imports from it
 - Charts use HeroUI Pro chart wrappers (Recharts underneath) where a real chart exists
 
 ### Route Groups
 The application uses Next.js route groups for organisation:
-- `(main)` - Main application routes (home, calculator, at-55, accrued-interest, what-if, cpf-life, cpf-cheat-sheet, cpf-check, projection, retirement-readiness, about, privacy, interest-rates, investments)
-- `(docs)` - Developer portal routes powered by Fumadocs
+- `(main)` - Main application routes (home, calculator, cpf-at-55, accrued-interest, what-if, cpf-life, cpf-cheat-sheet, cpf-check, projection, retirement-readiness, about, privacy, interest-rates, investments, faq)
+- `(docs)` - Developer portal routes powered by Fumadocs (URLs under `/docs`)
 
 ### Developer Portal
-Documentation site powered by Fumadocs at `/developer`:
+Documentation site powered by Fumadocs at `/docs` (`/developer` permanently redirects to `/docs`):
 - **Configuration**: `source.config.ts` defines MDX processing with Twoslash support
 - **Content**: MDX files in `content/docs/` organised by category (api, examples, changelog)
 - **Features**: Interactive API documentation with TypeScript code examples, syntax highlighting with Twoslash
+- **Proxy**: `src/proxy.ts` handles rate limiting, CSP, and LLM markdown negotiation (`/docs` → `/docs/llms.mdx`)
 
 ### Next.js Configuration
 Key `next.config.ts` settings:
@@ -138,12 +139,14 @@ Routes for AI/LLM consumption following the llms.txt specification:
 ### Custom Hooks
 Located in `src/hooks/`:
 - `use-calculated-cpf.ts` - Hook for accessing calculated CPF contribution results
-- `use-form-state.ts` - Form state management for user input
+- `use-form-step.ts` - Multi-step form navigation helpers
 - `use-animated-number.tsx` - Animated number transitions for displaying results
+- `use-cpf-store.ts` - Hook for accessing the Zustand CPF store
 
 ### Utilities
 - `src/lib/cache-headers.ts` - Standardised cache header utilities for API responses
 - `src/lib/calculate-retirement-readiness.ts` - Scoring logic and next-step recommendations for the readiness assessment
+- `src/lib/date-utils.ts` / `src/lib/format-date-input.ts` - Birth-date input formatting and validation
 - `src/lib/error-handler.ts` - Centralised error handling with consistent API error responses
 - `src/lib/format.ts` - Number and currency formatting utilities
 - `src/lib/get-cpf-cheat-sheet-data.ts` - Shared CPF reference data used by the cheat sheet page and PDF export
@@ -151,12 +154,13 @@ Located in `src/hooks/`:
 
 ### Key Components
 - **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline showing the progression of CPF income ceiling changes from pre-2023 to final 2026 ceiling
-- **PDF Export** (`cpf-results-pdf.tsx`, `download-pdf.tsx`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
-- **Lead Magnet Components** (`src/components/lead-magnets/`): On-page readiness score assessment form and result view for the `/retirement-readiness` page
+- **PDF Export** (`src/components/pdf/`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
+- **Retirement Readiness** (`src/components/retirement-readiness/`): On-page readiness score assessment form and result view for `/retirement-readiness`
 - **Home Page Components** (`src/components/home/`): `home-hero.tsx` (global salary/DOB/citizenship inputs + short-answer card), `home-confusions.tsx`, `home-three-ages.tsx`
-- **At 55** (`src/components/at-55/`): projected day-before/day-after balances around the SA closure, cohort retirement sums for `/at-55`
-- **Accrued Interest** (`src/components/housing/`): OA housing accrued-interest illustration for `/accrued-interest`, powered by `src/lib/calculate-accrued-interest.ts`
-- **CPF Check** (`src/components/check/`): five self-assessment cards for `/cpf-check` (local state only, nothing recorded)
+- **At 55** (`src/components/cpf-at-55/`): projected day-before/day-after balances around the SA closure, cohort retirement sums for `/cpf-at-55`
+- **Accrued Interest** (`src/components/accrued-interest/`): OA housing accrued-interest illustration for `/accrued-interest`, powered by `src/lib/calculate-accrued-interest.ts`
+- **CPF Check** (`src/components/cpf-check/`): five self-assessment cards for `/cpf-check` (local state only, nothing recorded)
+- **CPF Cheat Sheet** (`src/components/cpf-cheat-sheet/`): printable cheat sheet card and print button for `/cpf-cheat-sheet`
 - **Projection Components** (`src/components/projection/`): Projection form, stacked balance chart, milestone cards, CPF LIFE estimate card, and yearly projection table for the `/projection` page
 - **What-If Components** (`src/components/what-if/`): Scenario selector, scenario-specific forms, comparison chart, and result cards for the `/what-if` page
 - **CPF LIFE Components** (`src/components/cpf-life/`): CPF LIFE payout estimator inputs, plan comparison cards, and retirement sum references for the `/cpf-life` page
@@ -205,7 +209,6 @@ Philosophy: **"Push Down, Not Pull Up"**. Elements push content below them rathe
 
 ### Off-Limits
 
-- **DO NOT import** from `src/components/ui/*` in new code. Deprecated shadcn/ui, pending removal together with the LEGACY-ALIAS block in `globals.css`
 - **Dark mode** is fully supported: `.dark` token block in `globals.css` mirrors the light tokens with the brand's dark values
 
 

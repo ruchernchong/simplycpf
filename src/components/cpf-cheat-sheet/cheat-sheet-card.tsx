@@ -1,6 +1,6 @@
 import { Card, Separator, Table } from "@heroui/react";
 import type { ReactNode } from "react";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/shared/logo";
 import { CPF_ADDITIONAL_WAGE_CEILING, CPF_INCOME_CEILING } from "@/constants";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import {

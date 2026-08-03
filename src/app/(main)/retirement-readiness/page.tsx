@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
-import ReadinessScoreForm from "@/components/lead-magnets/readiness-score-form";
+import ReadinessScoreForm from "@/components/retirement-readiness/readiness-score-form";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 
@@ -64,10 +64,7 @@ export default function RetirementReadinessPage() {
           <h1 className="mb-4 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
             How Ready Is Your CPF Plan?
           </h1>
-          <p
-            data-readiness-intro
-            className="mx-auto max-w-3xl text-muted-foreground"
-          >
+          <p data-readiness-intro className="mx-auto max-w-3xl text-muted">
             This 5-question score is meant to surface the next CPF planning gap
             worth fixing. It is not a guarantee of retirement adequacy. It is a
             faster way to decide whether you should use the projection tool, the

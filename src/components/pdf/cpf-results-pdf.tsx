@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-import type { PdfData } from "@/lib/download-pdf";
+import type { PdfData } from "@/components/pdf/download-pdf";
 
 const TEAL = "#0d9488";
 const SLATE_600 = "#475569";

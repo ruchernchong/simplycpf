@@ -36,15 +36,13 @@ const CpfStatisticBlock = () => {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg border border-border bg-muted/30 p-4"
+                className="rounded-lg border border-border bg-surface-tertiary/30 p-4"
               >
-                <p className="mb-2 text-muted-foreground text-sm">
-                  {stat.label}
-                </p>
+                <p className="mb-2 text-muted text-sm">{stat.label}</p>
                 <p className="font-bold font-mono text-2xl text-foreground">
                   {stat.value}
                 </p>
-                <p className="text-muted-foreground text-xs">{stat.detail}</p>
+                <p className="text-muted text-xs">{stat.detail}</p>
               </div>
             ))}
           </div>

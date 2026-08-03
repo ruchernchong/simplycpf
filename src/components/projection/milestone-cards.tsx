@@ -47,7 +47,7 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
             {milestone.available && milestone.balances ? (
               <div className="flex flex-col gap-4">
                 <div>
-                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                  <p className="text-muted text-xs uppercase tracking-wide">
                     Total projected CPF
                   </p>
                   <p className="font-semibold text-2xl text-foreground">
@@ -56,25 +56,25 @@ export default function MilestoneCards({ result }: MilestoneCardsProps) {
                 </div>
                 <div className="grid gap-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">OA</span>
+                    <span className="text-muted">OA</span>
                     <span>{formatCurrency(milestone.balances.oa, 0)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">SA</span>
+                    <span className="text-muted">SA</span>
                     <span>{formatCurrency(milestone.balances.sa, 0)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">MA</span>
+                    <span className="text-muted">MA</span>
                     <span>{formatCurrency(milestone.balances.ma, 0)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">RA</span>
+                    <span className="text-muted">RA</span>
                     <span>{formatCurrency(milestone.balances.ra, 0)}</span>
                   </div>
                 </div>
               </div>
             ) : (
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted text-sm">
                 Extend your projection to age {milestone.age} to see this
                 milestone.
               </p>

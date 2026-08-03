@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
-import At55Content from "@/components/at-55/at-55-content";
+import At55Content from "@/components/cpf-at-55/at-55-content";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import type { Graph } from "schema-dts";
-import { AccruedInterestContent } from "@/components/housing/accrued-interest-content";
+import { AccruedInterestContent } from "@/components/accrued-interest/accrued-interest-content";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 

@@ -20,7 +20,7 @@ export default function YearlyProjectionTable({
       </Card.Header>
       <Card.Content>
         <details className="group">
-          <summary className="cursor-pointer rounded-lg bg-muted/50 px-4 py-4 font-medium text-foreground text-sm transition-colors hover:bg-muted">
+          <summary className="cursor-pointer rounded-lg bg-surface-tertiary/50 px-4 py-4 font-medium text-foreground text-sm transition-colors hover:bg-surface-tertiary">
             See {yearlyBalances.length} yearly rows
           </summary>
           <div className="pb-2" />

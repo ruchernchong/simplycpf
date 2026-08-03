@@ -20,6 +20,20 @@ const nextConfig: NextConfig = {
     strictRouteTypes: true,
     typedEnv: true,
   },
+  async redirects() {
+    return [
+      {
+        source: "/developer",
+        destination: "/docs",
+        permanent: true,
+      },
+      {
+        source: "/developer/:path*",
+        destination: "/docs/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

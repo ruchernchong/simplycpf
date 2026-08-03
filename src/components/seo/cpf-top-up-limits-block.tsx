@@ -45,14 +45,14 @@ const CpfTopUpLimitsBlock = () => {
           </p>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
               <p className="mb-1 font-semibold text-sm">
                 Top-Up to Your Own Account
               </p>
               <p className="font-bold text-2xl text-foreground">
                 Up to S${formatNumber(TAX_RELIEF_SELF)}
               </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              <p className="mt-1 text-muted text-xs">
                 Cash top-up to your SA (under 55) or RA (55+) qualifies for tax
                 relief
               </p>
@@ -61,14 +61,14 @@ const CpfTopUpLimitsBlock = () => {
                 year
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="rounded-lg border border-border bg-surface-tertiary/50 p-4">
               <p className="mb-1 font-semibold text-sm">
                 Top-Up for Family Members
               </p>
               <p className="font-bold text-2xl text-foreground">
                 Up to S${formatNumber(TAX_RELIEF_FAMILY)}
               </p>
-              <p className="mt-1 text-muted-foreground text-xs">
+              <p className="mt-1 text-muted text-xs">
                 Top-up parents, parents-in-law, grandparents, spouse, or
                 siblings
               </p>
@@ -82,7 +82,7 @@ const CpfTopUpLimitsBlock = () => {
           <p>
             <strong>How the tax relief works:</strong>
           </p>
-          <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
+          <ul className="flex flex-col gap-2 text-muted text-sm">
             <li>
               The relief goes to the person making the top-up, not the person
               receiving it
@@ -108,7 +108,7 @@ const CpfTopUpLimitsBlock = () => {
           <p>
             <strong>Matched Retirement Savings Scheme (MRSS):</strong>
           </p>
-          <ul className="flex flex-col gap-2 text-muted-foreground text-sm">
+          <ul className="flex flex-col gap-2 text-muted text-sm">
             <li>
               A separate government matching grant, dollar for dollar, on cash
               top-ups to eligible members&rsquo; retirement savings
@@ -128,13 +128,13 @@ const CpfTopUpLimitsBlock = () => {
             </li>
           </ul>
 
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted text-sm">
             <strong>Note:</strong> Top-ups are irreversible. Once you transfer
             cash to CPF, it stays in CPF until retirement age (or for approved
             housing/education/insurance purposes from OA only).
           </p>
 
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted text-sm">
             <strong>Strategy tip:</strong> Top-ups early in the year earn a full
             year of interest. A S${formatNumber(TAX_RELIEF_SELF)} top-up to SA
             at age 30, left untouched at the 4% floor rate, would be worth about
