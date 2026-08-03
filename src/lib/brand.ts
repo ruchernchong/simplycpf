@@ -47,7 +47,7 @@ export const BRAND = {
    */
   chart1OnInk: "#6FB88F",
   chart2OnInk: "#A6D9BB",
-  chart3OnInk: "#9CC4AC",
+  chart3OnInk: "#C6E9D4",
   chart4OnInk: "#EDE8DA",
-  chart5OnInk: "#C08A5A",
+  chart5OnInk: "#C08D64",
 } as const;
