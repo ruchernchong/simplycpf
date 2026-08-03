@@ -136,7 +136,7 @@ export function AccruedInterestContent() {
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
               <Card variant="tertiary">
-                <Card.Content className="flex flex-col gap-1">
+                <Card.Content className="flex flex-col gap-2">
                   <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
                     OA used
                   </span>
@@ -146,7 +146,7 @@ export function AccruedInterestContent() {
                 </Card.Content>
               </Card>
               <Card variant="tertiary">
-                <Card.Content className="flex flex-col gap-1">
+                <Card.Content className="flex flex-col gap-2">
                   <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
                     Accrued interest
                   </span>
@@ -156,7 +156,7 @@ export function AccruedInterestContent() {
                 </Card.Content>
               </Card>
               <Card className="border-accent/25 bg-accent/10">
-                <Card.Content className="flex flex-col gap-1">
+                <Card.Content className="flex flex-col gap-2">
                   <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
                     Refundable on sale
                   </span>
@@ -252,9 +252,9 @@ export function AccruedInterestContent() {
               </Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-col gap-4">
-              <ol className="flex flex-col gap-3">
+              <ol className="flex flex-col gap-4">
                 {NOT_MODELLED.map((item, index) => (
-                  <li className="flex gap-3" key={item}>
+                  <li className="flex gap-2" key={item}>
                     <span className="font-mono text-[10.5px] text-muted tracking-[0.12em]">
                       {String(index + 1).padStart(2, "0")}
                     </span>

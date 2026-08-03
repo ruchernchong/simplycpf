@@ -66,7 +66,7 @@ const MobileNav = () => {
         <SheetHeader>
           <SheetTitle>Navigation</SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-1 px-4">
+        <nav className="flex flex-col gap-2 px-4">
           {navItems.map((item) => (
             <Link
               key={item.href}

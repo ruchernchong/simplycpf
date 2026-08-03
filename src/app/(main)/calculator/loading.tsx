@@ -9,7 +9,7 @@ function CalculatorLoading() {
       </div>
       <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">
         <Skeleton className="h-[420px] w-full rounded-lg" />
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <Skeleton className="h-32 w-full rounded-lg" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Skeleton className="h-28 w-full rounded-lg" />
@@ -18,7 +18,7 @@ function CalculatorLoading() {
             <Skeleton className="h-28 w-full rounded-lg" />
           </div>
           <Skeleton className="h-72 w-full rounded-lg" />
-          <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
             <Skeleton className="h-64 w-full rounded-lg" />
             <Skeleton className="h-64 w-full rounded-lg" />
           </div>

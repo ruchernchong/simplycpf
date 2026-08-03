@@ -79,7 +79,10 @@ export function buildFigures({
     oaRate: ageGroup.distributionRate.OA ?? 0,
     saRate: ageGroup.distributionRate.SA ?? 0,
     maRate: ageGroup.distributionRate.MA ?? 0,
-    isRetirementAccount: age > 55,
+    // The SA closes on the 55th birthday, so 55 itself is already RA. The
+    // hero, the at-55 screen and the projection all gate on `>= 55`; this was
+    // the one place that did not, and it told a 55-year-old they still had an SA.
+    isRetirementAccount: age >= 55,
   };
 }
 

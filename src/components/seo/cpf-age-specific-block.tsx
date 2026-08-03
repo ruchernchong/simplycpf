@@ -73,7 +73,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
               OA/SA/MA Distribution
             </h3>
             <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">OA</span>
                 <span className="font-medium font-mono">
                   {fmtPct(ageGroup.distributionRate.OA)}
@@ -82,7 +82,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
                   of contributions
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">SA</span>
                 <span className="font-medium font-mono">
                   {fmtPct(ageGroup.distributionRate.SA)}
@@ -91,7 +91,7 @@ const CpfAgeSpecificBlock = ({ ageGroup }: CpfAgeSpecificBlockProps) => {
                   of contributions
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-muted-foreground text-xs">MA</span>
                 <span className="font-medium font-mono">
                   {fmtPct(ageGroup.distributionRate.MA)}

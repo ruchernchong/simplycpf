@@ -10,6 +10,7 @@ import {
   Surface,
 } from "@heroui/react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { shallow } from "zustand/shallow";
 import { PageHeader } from "@/components/shared/section-header";
 import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
 import { useCpfStore } from "@/hooks/use-cpf-store";
@@ -135,7 +136,7 @@ function MovesDivider(): ReactNode {
   return (
     <div
       aria-hidden
-      className="flex flex-row items-center justify-center gap-3 md:flex-col"
+      className="flex flex-row items-center justify-center gap-2 md:flex-col"
     >
       <Separator className="flex-1 md:hidden" variant="secondary" />
       <Separator
@@ -269,7 +270,7 @@ function ChangedCard(): ReactNode {
         <ul className="flex flex-col gap-4">
           {CHANGE_NOTES.map((note) => (
             <li
-              className="flex items-baseline gap-3"
+              className="flex items-baseline gap-2"
               key={`${note.lead}-${note.text}`}
             >
               <span
@@ -329,7 +330,7 @@ function RetirementSumsCard({ figures }: { figures: At55Figures }): ReactNode {
           {rows.map((row, index) => (
             <li className="flex flex-col gap-4" key={row.code}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="flex items-baseline gap-3">
+                <span className="flex items-baseline gap-2">
                   <Chip
                     color={row.highlight ? "accent" : "default"}
                     size="sm"
@@ -401,8 +402,14 @@ export default function At55Content(): ReactNode {
   const formStep = useCpfStore(selectFormStep);
   const age = useCpfStore(selectAge);
   const birthDate = useCpfStore(selectBirthDate);
+  /*
+   * selectProjectionInputs builds a fresh object each call, so the default
+   * Object.is check never matches and the screen re-rendered on every store
+   * write, including income changes it does not use.
+   */
   const { monthlyIncome, citizenshipStatus } = useCpfStore(
     selectProjectionInputs,
+    shallow,
   );
 
   const figures = useMemo(() => {

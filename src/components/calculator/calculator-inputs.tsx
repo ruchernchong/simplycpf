@@ -114,7 +114,7 @@ export function CalculatorInputs({ ceilingDate }: CalculatorInputsProps) {
       </div>
 
       <Surface
-        className="flex flex-col gap-1 rounded-lg p-4 text-sm"
+        className="flex flex-col gap-2 rounded-lg p-4 text-sm"
         variant="tertiary"
       >
         <span>

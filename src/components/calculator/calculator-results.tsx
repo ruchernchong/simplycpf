@@ -52,7 +52,7 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
   ];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <Card className="gap-4 p-6">
         <Card.Header>
           <span className="font-mono text-[10px] text-muted uppercase tracking-[0.12em]">
@@ -122,7 +122,7 @@ export function CalculatorResults({ figures }: CalculatorResultsProps) {
 
       <DistributionCard figures={figures} />
 
-      <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <CeilingComparisonCard figures={figures} />
         <AssumptionsCard
           ceiling={figures.ceiling}
