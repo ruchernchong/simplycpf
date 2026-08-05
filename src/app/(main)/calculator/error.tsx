@@ -4,14 +4,14 @@ import { ErrorFallback } from "@/components/shared/error-fallback";
 
 interface ErrorProps {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }
 
-export default function CalculatorError({ error, reset }: ErrorProps) {
+export default function CalculatorError({ error, retry }: ErrorProps) {
   return (
     <ErrorFallback
       error={error}
-      reset={reset}
+      retry={retry}
       title="Calculation Error"
       description="Something went wrong with your calculation"
       logLabel="Calculator error"

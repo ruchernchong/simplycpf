@@ -32,7 +32,7 @@ vi.mock("@heroui/react", async () => {
       children: React.ReactNode;
       href?: string;
       className?: string;
-      "aria-current"?: string;
+      "aria-current"?: React.AriaAttributes["aria-current"];
     }) {
       return (
         <a href={href} className={className} aria-current={ariaCurrent}>

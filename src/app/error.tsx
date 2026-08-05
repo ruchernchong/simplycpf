@@ -4,14 +4,14 @@ import { ErrorFallback } from "@/components/shared/error-fallback";
 
 interface ErrorProps {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }
 
-export default function RootError({ error, reset }: ErrorProps) {
+export default function RootError({ error, retry }: ErrorProps) {
   return (
     <ErrorFallback
       error={error}
-      reset={reset}
+      retry={retry}
       title="Application Error"
       description="Something went wrong with the application"
       logLabel="Application error"
