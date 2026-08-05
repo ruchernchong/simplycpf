@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
     mcpServer: true,
     strictRouteTypes: true,
     typedEnv: true,
+    turbopackRustReactCompiler: true,
   },
   async redirects() {
     return [

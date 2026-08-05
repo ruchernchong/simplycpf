@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 interface ErrorFallbackProps {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
   title: string;
   description: string;
   logLabel: string;
@@ -17,7 +17,7 @@ interface ErrorFallbackProps {
 
 export function ErrorFallback({
   error,
-  reset,
+  retry,
   title,
   description,
   logLabel,
@@ -49,7 +49,7 @@ export function ErrorFallback({
           {error.digest && (
             <p className="text-muted text-xs">Error ID: {error.digest}</p>
           )}
-          <Button onPress={reset} className="w-full" variant="primary">
+          <Button onPress={retry} className="w-full" variant="primary">
             <HugeiconsIcon
               icon={RefreshIcon}
               className="mr-2 size-4"
