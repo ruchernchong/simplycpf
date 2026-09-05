@@ -1,5 +1,5 @@
 import { cn } from "@heroui/react";
-import { KPI } from "@heroui-pro/react";
+import { KPI } from "@heroui-pro/react/kpi";
 import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
 import {
   CPF_ADDITIONAL_SENIOR_INTEREST_CAP,

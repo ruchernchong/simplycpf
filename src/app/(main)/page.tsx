@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
-import { HomeConfusions } from "@/components/home/home-confusions";
 import { HomeHero } from "@/components/home/home-hero";
-import { HomeThreeAges } from "@/components/home/home-three-ages";
-import CpfDefinitionBlock from "@/components/seo/cpf-definition-block";
-import CpfStatisticBlock from "@/components/seo/cpf-statistic-block";
+import { HomeJourneys } from "@/components/home/home-journeys";
 import { StructuredData } from "@/components/seo/structured-data";
-import { StatBand } from "@/components/shared/stat-band";
 import { BASE_URL, OG_BASE, OG_IMAGE, WEBSITE_ID } from "@/config";
-import { CPF_INCOME_CEILING } from "@/constants";
-import { CPF_INTEREST_FLOOR_RATES } from "@/constants/cpf-interest-rates";
-import { getRetirementSumsForYear } from "@/constants/cpf-retirement-sums";
-import { formatCurrency, formatPercentage } from "@/lib/format";
 
 export const metadata: Metadata = {
   // `absolute` opts out of the root title template, which would otherwise
@@ -40,35 +32,6 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const { brs, frs, ers } = getRetirementSumsForYear(2026);
-  const statBandItems = [
-    {
-      label: "OA interest",
-      value: formatPercentage(CPF_INTEREST_FLOOR_RATES.OA / 100),
-      note: "Floor rate",
-    },
-    {
-      label: "SA · MA · RA",
-      value: formatPercentage(CPF_INTEREST_FLOOR_RATES.SMRA / 100),
-      note: "Plus 1% on first $60k",
-    },
-    {
-      label: "Wage ceiling",
-      value: formatCurrency(CPF_INCOME_CEILING["2026-01-01"], 0),
-      note: "Final step, Jan 2026",
-    },
-    {
-      label: "FRS 2026",
-      value: formatCurrency(frs, 0),
-      note: `BRS ${formatCurrency(brs, 0)}`,
-    },
-    {
-      label: "ERS 2026",
-      value: formatCurrency(ers, 0),
-      note: "4 × BRS since 2025",
-    },
-  ];
-
   const schema: Graph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -145,13 +108,7 @@ export default function HomePage() {
     <>
       <StructuredData data={schema} />
       <HomeHero />
-      <HomeConfusions />
-      <HomeThreeAges />
-      <StatBand items={statBandItems} />
-      <div className="flex flex-col gap-12">
-        <CpfDefinitionBlock />
-        <CpfStatisticBlock />
-      </div>
+      <HomeJourneys />
     </>
   );
 }

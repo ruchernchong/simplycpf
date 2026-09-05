@@ -21,6 +21,8 @@ interface SplitBarProps {
   size?: "sm" | "md" | "lg";
   formatValue?: (value: number) => string;
   className?: string;
+  /** Include formatted values in visible labels when the segment is wide enough. */
+  showValues?: boolean;
 }
 
 const HEIGHTS: Record<NonNullable<SplitBarProps["size"]>, number> = {
@@ -41,7 +43,7 @@ const FILL_CLASSES: Record<SplitBarColor, string> = {
 /** Light fills carry ink text; dark fills carry paper text. */
 const TEXT_CLASSES: Record<SplitBarColor, string> = {
   "chart-1": "text-background",
-  "chart-2": "text-background",
+  "chart-2": "text-(--eclipse)",
   "chart-3": "text-foreground",
   "chart-4": "text-background",
   "chart-5": "text-background",
@@ -58,6 +60,7 @@ export function SplitBar({
   size = "md",
   formatValue,
   className,
+  showValues = false,
 }: SplitBarProps): ReactElement | null {
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
   if (total <= 0) return null;
@@ -94,7 +97,7 @@ export function SplitBar({
           )}
           style={{ width: `${(segment.value / total) * 100}%` }}
         >
-          {showLabels && (
+          {showLabels && (!showValues || segment.value / total >= 0.15) && (
             <span
               className={cn(
                 "overflow-hidden whitespace-nowrap pl-2 font-medium text-[12.5px]",
@@ -102,6 +105,9 @@ export function SplitBar({
               )}
             >
               {segment.label}
+              {showValues && formatValue
+                ? ` ${formatValue(segment.value)}`
+                : ""}
             </span>
           )}
         </div>

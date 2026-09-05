@@ -143,21 +143,17 @@ describe("Header", () => {
     expect(wordmark.closest("a")?.getAttribute("href")).toBe("/");
   });
 
-  it("renders all nine navigation tabs", () => {
+  it("links the four main journeys to their entry pages", () => {
     render(<Header />);
-
-    for (const label of [
-      "Home",
-      "This month",
-      "At 55",
-      "Home & OA",
-      "CPF LIFE",
-      "Compare",
-      "Rates",
-      "Cheat sheet",
-      "Check",
+    for (const [label, href] of [
+      ["Your pay", "/calculator"],
+      ["Your home", "/accrued-interest"],
+      ["Your retirement", "/projection"],
+      ["Learn", "/faq"],
     ]) {
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+      for (const link of screen.getAllByRole("link", { name: label })) {
+        expect(link.getAttribute("href")).toBe(href);
+      }
     }
   });
 

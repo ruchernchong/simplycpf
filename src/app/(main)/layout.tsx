@@ -9,9 +9,13 @@ export default function MainLayout({
     // One flex column so gap-12 spaces header → body and body → footer.
     // Avoids pt-* on main (push-down via gap) while keeping the sticky header
     // in normal flow.
-    <div className="flex flex-1 flex-col gap-12">
+    <div className="flex flex-1 flex-col gap-8">
       <Header />
-      <main className="container mx-auto flex flex-1 flex-col gap-12 px-4">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="site-container mx-auto flex flex-1 flex-col gap-8"
+      >
         {children}
       </main>
       <Footer />

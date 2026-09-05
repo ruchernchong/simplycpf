@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 interface WordmarkProps {
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
@@ -17,16 +17,24 @@ export function Wordmark({
   className,
 }: WordmarkProps): ReactElement {
   const isSmall = size === "sm";
+  const isLarge = size === "lg";
 
   return (
     <Link
       href="/"
       className={cn("flex flex-col items-start", className)}
-      style={{ gap: isSmall ? 3 : 4 }}
+      style={{ gap: isSmall ? 3 : isLarge ? 6 : 4 }}
     >
       <span
         className="font-semibold tracking-tight"
-        style={{ fontSize: isSmall ? 13 : 17.5, letterSpacing: "-0.02em" }}
+        style={{
+          fontSize: isSmall
+            ? 13
+            : isLarge
+              ? "clamp(1.125rem, 6vw, 1.875rem)"
+              : 17.5,
+          letterSpacing: "-0.02em",
+        }}
       >
         SimplyCPF
       </span>
@@ -37,11 +45,14 @@ export function Wordmark({
       >
         <span
           className="flex-1 rounded-full bg-foreground"
-          style={{ height: isSmall ? 2 : 2.5 }}
+          style={{ height: isSmall ? 2 : isLarge ? 4 : 2.5 }}
         />
         <span
           className="rounded-full bg-accent"
-          style={{ height: isSmall ? 2 : 2.5, width: isSmall ? 16 : 22 }}
+          style={{
+            height: isSmall ? 2 : isLarge ? 4 : 2.5,
+            width: isSmall ? 16 : isLarge ? 36 : 22,
+          }}
         />
       </span>
     </Link>

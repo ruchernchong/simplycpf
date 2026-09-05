@@ -9,6 +9,8 @@ A modern web application to calculate CPF (Central Provident Fund) contributions
 
 ## Features
 
+- **Your CPF at a glance** — A warm cream statement homepage with salary, take-home pay and CPF contributions, editable HeroUI inputs, and routes into pay, housing and retirement. Update figures to apply your inputs; the retirement action carries them into the projection tool.
+
 - 💰 **Accurate CPF Calculations** - Compute employee and employer contributions based on current income ceilings
 - 📊 **Age-Based Rates** - Automatic calculation using 8 different age brackets with varying contribution rates
 - 📈 **Distribution Breakdown** - View OA (Ordinary Account), SA (Special Account), and MA (MediSave Account) allocations

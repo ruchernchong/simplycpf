@@ -92,8 +92,8 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 - Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `Eyebrow` (from `section-header.tsx`), `StatBand`, `Wordmark`, `Logo`, `ErrorFallback`. Page headings are written inline in each screen (mono eyebrow, `h1`, optional lede), not wrapped in a shared component
 - Product-facing icons use Lucide; `cn` is imported from `@heroui/react`
 - Use named function declarations for components and exported functions, not arrow-function constants
-- React Aria formatting is pinned to `en-SG` via `I18nProvider` in `src/app/providers.tsx`
-- Charts use HeroUI Pro chart wrappers (Recharts underneath) where a real chart exists
+- React Aria formatting is pinned to `en-SG` via `I18nProvider` in `src/app/providers.tsx`; `RouterProvider` connects HeroUI links to the typed Next.js router so navigation preserves shared calculator state
+- Charts use HeroUI Pro chart wrappers (Recharts underneath) where a real chart exists. Import charts and KPI from their explicit Pro subpaths (`/area-chart`, `/bar-chart`, `/line-chart`, `/kpi`) for beta.8 compatibility
 
 ### Route Groups
 The application uses Next.js route groups for organisation:
@@ -165,7 +165,7 @@ Located in `src/hooks/`:
 - **CPF Income Ceiling Timeline** (`cpf-income-ceiling-timeline.tsx`): Interactive timeline showing the progression of CPF income ceiling changes from pre-2023 to final 2026 ceiling
 - **PDF Export** (`src/components/pdf/`): Generate and download CPF calculation results as PDF documents using `@react-pdf/renderer`
 - **Retirement Readiness** (`src/components/retirement-readiness/`): On-page readiness score assessment form and result view for `/retirement-readiness`
-- **Home Page Components** (`src/components/home/`): `home-hero.tsx` (global salary/DOB/citizenship inputs + short-answer card), `home-confusions.tsx`, `home-three-ages.tsx`
+- **Home Page Components** (`src/components/home/`): `home-hero.tsx` (HeroUI form with draft salary/DOB/residency inputs; validated submission updates shared Zustand settings and a statement-style salary/take-home/CPF result), `home-journeys.tsx` (pay, housing and retirement routes; transfers committed inputs to projection search params). The homepage salary split excludes employer contributions. Example figures remain explicitly labelled until valid inputs are submitted. The three-ages explainer now lives at `/faq/general#three-ages`; other older editorial components remain available for reuse.
 - **At 55** (`src/components/cpf-at-55/`): projected day-before/day-after balances around the SA closure, cohort retirement sums for `/cpf-at-55`
 - **Accrued Interest** (`src/components/accrued-interest/`): OA housing accrued-interest illustration for `/accrued-interest`, powered by `src/lib/calculate-accrued-interest.ts`
 - **CPF Check** (`src/components/cpf-check/`): five self-assessment cards for `/cpf-check` (local state only, nothing recorded)

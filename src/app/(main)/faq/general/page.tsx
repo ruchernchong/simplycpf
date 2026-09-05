@@ -1,6 +1,7 @@
 import { Accordion, Breadcrumbs, Card } from "@heroui/react";
 import type { Metadata } from "next";
 import type { Graph } from "schema-dts";
+import { HomeThreeAges } from "@/components/home/home-three-ages";
 import { StructuredData } from "@/components/seo/structured-data";
 import { BASE_URL, OG_BASE, WEBSITE_ID } from "@/config";
 import faqData from "@/data/faq.json";
@@ -70,6 +71,9 @@ const GeneralFAQ = () => {
   return (
     <>
       <StructuredData data={schema} />
+      <section id="three-ages" className="scroll-m-32">
+        <HomeThreeAges />
+      </section>
       <div className="flex flex-col gap-6 p-6">
         <Breadcrumbs>
           <Breadcrumbs.Item href="/">Home</Breadcrumbs.Item>

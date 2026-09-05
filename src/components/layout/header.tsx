@@ -1,86 +1,55 @@
 "use client";
 
 import { Button, cn, Link } from "@heroui/react";
-import { Segment, Sheet } from "@heroui-pro/react";
+import { Sheet } from "@heroui-pro/react";
 import { Menu } from "lucide-react";
 import type { Route } from "next";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { type ReactElement, useState } from "react";
 import ThemeToggle from "@/components/layout/theme-toggle";
 import { Wordmark } from "@/components/shared/wordmark";
-import { useCpfStore } from "@/hooks/use-cpf-store";
-import { formatCurrency } from "@/lib/format";
-import {
-  selectAge,
-  selectFormStep,
-  selectMonthlyGrossIncome,
-} from "@/stores/selectors";
 
 interface NavItem {
   href: Route;
   label: string;
 }
 
-const questionNavItems: NavItem[] = [
-  { href: "/" as Route, label: "Home" },
-  { href: "/calculator" as Route, label: "This month" },
-  { href: "/cpf-at-55" as Route, label: "At 55" },
-  { href: "/accrued-interest" as Route, label: "Home & OA" },
-  { href: "/cpf-life" as Route, label: "CPF LIFE" },
-  { href: "/what-if" as Route, label: "Compare" },
+const mainNavItems: NavItem[] = [
+  { href: "/calculator", label: "Your pay" },
+  { href: "/accrued-interest", label: "Your home" },
+  { href: "/projection", label: "Your retirement" },
+  { href: "/faq", label: "Learn" },
 ];
 
-const referenceNavItems: NavItem[] = [
-  { href: "/interest-rates" as Route, label: "Rates" },
-  { href: "/cpf-cheat-sheet" as Route, label: "Cheat sheet" },
-  { href: "/cpf-check" as Route, label: "Check" },
+const moreNavItems: NavItem[] = [
+  { href: "/cpf-at-55", label: "What happens at 55" },
+  { href: "/cpf-life", label: "CPF LIFE" },
+  { href: "/what-if", label: "Compare scenarios" },
+  { href: "/interest-rates", label: "Interest rates" },
+  { href: "/cpf-cheat-sheet", label: "CPF cheat sheet" },
+  { href: "/cpf-check", label: "CPF check" },
 ];
 
-const allNavItems = [...questionNavItems, ...referenceNavItems];
+const allNavItems = [...mainNavItems, ...moreNavItems];
 
-function NavSegment({ items }: { items: NavItem[] }) {
+function MainNav(): ReactElement {
   const pathname = usePathname();
-  const router = useRouter();
-  const selectedKey =
-    items.find((item) => item.href === pathname)?.href ?? null;
-
   return (
-    <Segment
-      size="sm"
-      selectedKey={selectedKey}
-      onSelectionChange={(key) => {
-        if (key) router.push(key as Route);
-      }}
-    >
-      {items.map((item) => (
-        <Segment.Item key={item.href} id={item.href}>
+    <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
+      {mainNavItems.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          aria-current={pathname === item.href ? "page" : undefined}
+        >
           {item.label}
-        </Segment.Item>
+        </Link>
       ))}
-    </Segment>
+    </nav>
   );
 }
 
-function InputSummary() {
-  const age = useCpfStore(selectAge);
-  const income = useCpfStore(selectMonthlyGrossIncome);
-  const formStep = useCpfStore(selectFormStep);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || formStep < 2) return null;
-
-  return (
-    <span className="hidden text-muted text-xs xl:block">
-      Age {age} · {formatCurrency(income, 0)}/mo
-    </span>
-  );
-}
-
-function MobileNav() {
+function MobileNav(): ReactElement {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -136,26 +105,21 @@ function MobileNav() {
   );
 }
 
-export function Header() {
+export function Header(): ReactElement {
   return (
-    <header className="sticky top-0 z-50 w-full border-border border-b bg-background">
+    <header className="site-header sticky top-0 z-50 w-full border-border border-b bg-background">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground"
       >
         Skip to content
       </a>
-      <div className="container mx-auto flex h-18 items-center justify-between gap-4 px-4">
-        <Wordmark />
+      <div className="site-container mx-auto flex h-20 items-center justify-between gap-4 md:h-24">
+        <Wordmark size="lg" />
 
-        <nav aria-label="Main" className="hidden items-center gap-2 lg:flex">
-          <NavSegment items={questionNavItems} />
-          <span aria-hidden className="h-5 w-px bg-foreground/15" />
-          <NavSegment items={referenceNavItems} />
-        </nav>
+        <MainNav />
 
         <div className="flex items-center gap-4">
-          <InputSummary />
           <ThemeToggle />
           <MobileNav />
         </div>

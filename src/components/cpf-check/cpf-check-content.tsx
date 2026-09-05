@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@heroui/react";
 import { ArrowRight } from "lucide-react";
+import type { Route } from "next";
 import { type ReactNode, useState } from "react";
 import { Eyebrow } from "@/components/shared/section-header";
 
@@ -17,7 +18,7 @@ interface CheckItem {
   id: string;
   title: string;
   body: string;
-  href: string;
+  href: Route;
   linkLabel: string;
 }
 
@@ -47,8 +48,8 @@ const CHECK_ITEMS: CheckItem[] = [
     id: "three-ages",
     title: "I know my retirement age and my payout age are different numbers",
     body: "Statutory retirement age is 64 from July 2026. Payout eligibility age remains 65.",
-    href: "/",
-    linkLabel: "Three ages, on the home page",
+    href: "/faq/general#three-ages",
+    linkLabel: "Understand the three ages",
   },
   {
     id: "employer-share",

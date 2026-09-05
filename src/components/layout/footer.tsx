@@ -9,6 +9,12 @@ const primaryLinks: { href: Route; label: string }[] = [
 ];
 
 const moreLinks: { href: Route; label: string }[] = [
+  { href: "/cpf-at-55", label: "At 55" },
+  { href: "/cpf-life", label: "CPF LIFE" },
+  { href: "/what-if", label: "Compare" },
+  { href: "/interest-rates", label: "Rates" },
+  { href: "/cpf-cheat-sheet", label: "Cheat sheet" },
+  { href: "/cpf-check", label: "CPF check" },
   { href: "/projection" as Route, label: "Projection" },
   { href: "/investments" as Route, label: "Investments" },
   { href: "/retirement-readiness" as Route, label: "Retirement readiness" },
@@ -18,7 +24,7 @@ const moreLinks: { href: Route; label: string }[] = [
 export function Footer() {
   return (
     <footer className="border-border border-t">
-      <div className="container mx-auto flex flex-col gap-6 px-4 py-8">
+      <div className="site-container mx-auto flex flex-col gap-6 py-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-[74ch]">
             <Typography color="muted" type="body-xs">
@@ -37,8 +43,8 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="flex flex-col justify-between gap-4 border-separator border-t pt-6 md:flex-row md:items-center">
-          <div className="flex items-center gap-6">
+        <div className="flex flex-col justify-between gap-4 border-separator border-t py-6 md:flex-row md:items-center">
+          <div className="flex flex-wrap items-center gap-6">
             <Wordmark size="sm" />
             <nav aria-label="More pages" className="flex flex-wrap gap-4">
               {moreLinks.map((link) => (
