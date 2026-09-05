@@ -118,15 +118,31 @@ pnpm test:coverage
 The application includes a comprehensive API documentation portal at `/docs` with:
 
 - **Getting Started** - Quick start guide for developers
-- **API Reference** - Complete documentation for all 12 endpoints
+- **API Reference** - Complete documentation for all 14 CPF endpoints
 - **Examples** - Code samples in JavaScript/TypeScript and Python
 - **Changelog** - Version history and updates
 
 ### LLM Integration
 
 The site provides LLM-friendly endpoints following the [llms.txt specification](https://llmstxt.org/):
-- `/llms.txt` - Concise site summary for AI assistants
+- `/llms.txt` - Agent index with when-to-use guidance, API examples and limits
+- `/openapi.json` - OpenAPI 3.1 specification for all 14 public CPF endpoints
+- `/index.md` - Markdown homepage overview
+- `/llms-full.txt` - Extended site reference and CPF background
+- `/cpf-rates.md` - Reference tables generated from application constants
 - `/docs/llms-full.txt` - Complete documentation in plain text format
+
+The homepage and `/docs` pages negotiate HTML or Markdown using the `Accept` header, honour quality values and return `406` when neither representation is acceptable. Both variants include `Vary: Accept, Accept-Encoding`. Missing URLs requested as Markdown return a real `404` with recovery links; browser requests retain the existing error page.
+
+With `pnpm dev` running through Portless, verify public documents and CPF API operations with:
+
+```bash
+node scripts/verify-agent-readiness.mjs https://simplycpf.localhost
+```
+
+The verifier requires `curl`, spaces API calls to respect rate limits, and can also target a deployed origin. Production canonical URLs default to `https://simplycpf.com`; local URLs follow `PORTLESS_URL`. `NEXT_PUBLIC_BASE_URL` overrides either.
+
+Search ranking also requires external indexing and brand signals. After deployment, submit the sitemap and inspect the apex homepage in Google Search Console and Bing Webmaster Tools. Keep owned profile links consistent with `https://simplycpf.com`; add only verified organisation details. These steps require the owner's accounts and cannot guarantee a search position.
 
 ### API Endpoints
 
@@ -134,6 +150,7 @@ The site provides LLM-friendly endpoints following the [llms.txt specification](
 |----------|-----------|
 | Calculation | `/calculate`, `/calculate/batch`, `/projection` |
 | Age Groups | `/age-groups`, `/age-group/find`, `/age/from-birthdate` |
+| Retirement reference | `/retirement-sums`, `/bhs` |
 | Income Ceiling | `/ceiling`, `/ceiling/timeline` |
 | Interest Rates | `/interest-rates`, `/interest-rates/smra`, `/interest-rates/trend` |
 | Investment | `/investment-comparison` |

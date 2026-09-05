@@ -3,7 +3,7 @@
   "info": {
     "title": "SimplyCPF API",
     "version": "1.0.0",
-    "description": "API for calculating CPF (Central Provident Fund) contributions following Singapore's 2023 Budget changes to income ceilings.",
+    "description": "Public SimplyCPF calculation and reference API. No authentication required. Amounts are in SGD. Rate limit: 10 requests per 10 seconds per client IP. Results are estimates, not financial advice.",
     "contact": {
       "name": "SimplyCPF",
       "url": "https://simplycpf.com"
@@ -117,9 +117,15 @@
               },
               "example": {
                 "scenarios": [
-                  { "income": 4000 },
-                  { "income": 6000 },
-                  { "income": 8000 }
+                  {
+                    "income": 4000
+                  },
+                  {
+                    "income": 6000
+                  },
+                  {
+                    "income": 8000
+                  }
                 ]
               }
             }
@@ -159,7 +165,7 @@
       "post": {
         "operationId": "calculateProjection",
         "summary": "Generate CPF projection",
-        "description": "Generate multi-year CPF contribution projection with cumulative totals.",
+        "description": "Project yearly balances, contributions, interest, retirement milestones and simplified CPF LIFE estimates. Supports both legacy income/age/years and full monthlyIncome/startAge inputs.",
         "tags": ["Calculation"],
         "requestBody": {
           "required": true,
@@ -494,9 +500,18 @@
                 "principal": 100000,
                 "years": 10,
                 "scenarios": [
-                  { "name": "CPF OA", "rate": 2.5 },
-                  { "name": "CPF SA", "rate": 4.0 },
-                  { "name": "Market", "rate": 7.0 }
+                  {
+                    "name": "CPF OA",
+                    "rate": 2.5
+                  },
+                  {
+                    "name": "CPF SA",
+                    "rate": 4.0
+                  },
+                  {
+                    "name": "Market",
+                    "rate": 7.0
+                  }
                 ]
               }
             }
@@ -515,6 +530,108 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/bhs": {
+      "get": {
+        "operationId": "getBhs",
+        "summary": "Get bhs",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "description": "Omit for all published years. Future years use the application projection assumptions.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1900
+            },
+            "example": 2026
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/BhsForYear"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BhsAllYears"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid year",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/retirement-sums": {
+      "get": {
+        "operationId": "getRetirementSums",
+        "summary": "Get retirement sums",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "description": "Omit for all published years. Future years use the application projection assumptions.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1900
+            },
+            "example": 2026
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/RetirementSumsForYear"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RetirementSumsAllYears"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid year",
             "content": {
               "application/json": {
                 "schema": {
@@ -646,26 +763,14 @@
         "required": ["contribution", "distribution", "afterCpfContribution"]
       },
       "ProjectionRequest": {
-        "type": "object",
-        "properties": {
-          "income": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Monthly income (non-negative)"
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/LegacyProjectionRequest"
           },
-          "age": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Starting age"
-          },
-          "years": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
-            "description": "Number of years to project (1-50)"
+          {
+            "$ref": "#/components/schemas/FullProjectionRequest"
           }
-        },
-        "required": ["income", "age", "years"]
+        ]
       },
       "YearlyProjection": {
         "type": "object",
@@ -695,28 +800,139 @@
         "type": "object",
         "properties": {
           "input": {
-            "type": "object",
-            "properties": {
-              "income": {
-                "type": "number"
-              },
-              "age": {
-                "type": "number"
-              },
-              "years": {
-                "type": "number"
-              }
-            },
-            "required": ["income", "age", "years"]
+            "$ref": "#/components/schemas/ProjectionRequest"
           },
           "projections": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/YearlyProjection"
             }
+          },
+          "projectionInput": {
+            "type": "object",
+            "properties": {
+              "monthlyIncome": {
+                "type": "number",
+                "minimum": 0
+              },
+              "birthDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "startAge": {
+                "type": "number",
+                "minimum": 0
+              },
+              "endAge": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "housingWithdrawal": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Monthly OA housing withdrawal in SGD."
+              },
+              "citizenship": {
+                "type": "string",
+                "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
+                "default": "citizen"
+              },
+              "voluntaryTopUp": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "account": {
+                    "type": "string",
+                    "enum": ["SA", "MA", "RA"]
+                  },
+                  "frequency": {
+                    "type": "string",
+                    "enum": ["monthly", "yearly"]
+                  }
+                },
+                "required": ["amount", "account", "frequency"]
+              },
+              "oaToSaTransfer": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "timing": {
+                    "type": "string",
+                    "enum": ["now", "yearly"]
+                  }
+                },
+                "required": ["amount", "timing"]
+              }
+            },
+            "required": ["monthlyIncome", "birthDate", "citizenship"]
+          },
+          "yearlyBalances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YearlyBalance"
+            }
+          },
+          "milestones": {
+            "type": "object",
+            "properties": {
+              "age55": {
+                "$ref": "#/components/schemas/AccountBalances"
+              },
+              "age65": {
+                "$ref": "#/components/schemas/AccountBalances"
+              },
+              "age70": {
+                "$ref": "#/components/schemas/AccountBalances"
+              }
+            },
+            "required": ["age55", "age65"]
+          },
+          "cpfLifeEstimate": {
+            "type": "object",
+            "properties": {
+              "standardMonthly": {
+                "type": "number"
+              },
+              "escalatingStartMonthly": {
+                "type": "number"
+              },
+              "basicMonthly": {
+                "type": "number"
+              },
+              "deferredTo70Monthly": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "standardMonthly",
+              "escalatingStartMonthly",
+              "basicMonthly",
+              "deferredTo70Monthly"
+            ]
+          },
+          "totalContributed": {
+            "type": "number"
+          },
+          "totalInterestEarned": {
+            "type": "number"
           }
         },
-        "required": ["input", "projections"]
+        "required": [
+          "input",
+          "projections",
+          "projectionInput",
+          "yearlyBalances",
+          "milestones",
+          "cpfLifeEstimate",
+          "totalContributed",
+          "totalInterestEarned"
+        ]
       },
       "ContributionRate": {
         "type": "object",
@@ -1000,7 +1216,282 @@
           }
         },
         "required": ["input", "results"]
+      },
+      "LegacyProjectionRequest": {
+        "type": "object",
+        "properties": {
+          "income": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Monthly income (non-negative)"
+          },
+          "age": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Starting age"
+          },
+          "years": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of years to project (1-50)"
+          }
+        },
+        "required": ["income", "age", "years"]
+      },
+      "FullProjectionRequest": {
+        "type": "object",
+        "properties": {
+          "monthlyIncome": {
+            "type": "number",
+            "minimum": 0
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "startAge": {
+            "type": "number",
+            "minimum": 0
+          },
+          "endAge": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "housingWithdrawal": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Monthly OA housing withdrawal in SGD."
+          },
+          "citizenship": {
+            "type": "string",
+            "enum": ["citizen", "spr-year1", "spr-year2", "spr-year3-plus"],
+            "default": "citizen"
+          },
+          "voluntaryTopUp": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "account": {
+                "type": "string",
+                "enum": ["SA", "MA", "RA"]
+              },
+              "frequency": {
+                "type": "string",
+                "enum": ["monthly", "yearly"]
+              }
+            },
+            "required": ["amount", "account", "frequency"]
+          },
+          "oaToSaTransfer": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "timing": {
+                "type": "string",
+                "enum": ["now", "yearly"]
+              }
+            },
+            "required": ["amount", "timing"]
+          }
+        },
+        "required": ["monthlyIncome"],
+        "anyOf": [
+          {
+            "required": ["startAge"]
+          },
+          {
+            "required": ["birthDate"]
+          }
+        ],
+        "description": "Provide startAge or birthDate. endAge must be at least startAge, and the inclusive projection horizon cannot exceed 50 years."
+      },
+      "AccountBalances": {
+        "type": "object",
+        "properties": {
+          "oa": {
+            "type": "number"
+          },
+          "sa": {
+            "type": "number"
+          },
+          "ma": {
+            "type": "number"
+          },
+          "ra": {
+            "type": "number"
+          }
+        },
+        "required": ["oa", "sa", "ma", "ra"]
+      },
+      "YearlyBalance": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number"
+          },
+          "age": {
+            "type": "number"
+          },
+          "ageGroup": {
+            "type": "string"
+          },
+          "balances": {
+            "$ref": "#/components/schemas/AccountBalances"
+          },
+          "contributions": {
+            "type": "object",
+            "properties": {
+              "employee": {
+                "type": "number"
+              },
+              "employer": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              }
+            },
+            "required": ["employee", "employer", "total"]
+          },
+          "distribution": {
+            "$ref": "#/components/schemas/AccountBalances"
+          },
+          "interestEarned": {
+            "type": "object",
+            "properties": {
+              "oa": {
+                "type": "number"
+              },
+              "sa": {
+                "type": "number"
+              },
+              "ma": {
+                "type": "number"
+              },
+              "ra": {
+                "type": "number"
+              },
+              "extraInterest": {
+                "type": "number"
+              }
+            },
+            "required": ["oa", "sa", "ma", "ra", "extraInterest"]
+          },
+          "housingWithdrawal": {
+            "type": "number"
+          },
+          "voluntaryTopUp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "year",
+          "age",
+          "ageGroup",
+          "balances",
+          "contributions",
+          "distribution",
+          "interestEarned"
+        ]
+      },
+      "BhsForYear": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "bhs": {
+            "type": "number"
+          }
+        },
+        "required": ["year", "bhs"]
+      },
+      "BhsAllYears": {
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "currentYear": {
+            "type": "integer"
+          },
+          "current": {
+            "type": "number"
+          }
+        },
+        "required": ["years", "currentYear", "current"]
+      },
+      "RetirementSumsForYear": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "brs": {
+            "type": "number"
+          },
+          "frs": {
+            "type": "number"
+          },
+          "ers": {
+            "type": "number"
+          }
+        },
+        "required": ["year", "brs", "frs", "ers"]
+      },
+      "RetirementSumsAllYears": {
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "brs": {
+                  "type": "number"
+                },
+                "frs": {
+                  "type": "number"
+                },
+                "ers": {
+                  "type": "number"
+                }
+              },
+              "required": ["brs", "frs", "ers"]
+            }
+          },
+          "currentYear": {
+            "type": "integer"
+          },
+          "current": {
+            "type": "object",
+            "properties": {
+              "brs": {
+                "type": "number"
+              },
+              "frs": {
+                "type": "number"
+              },
+              "ers": {
+                "type": "number"
+              }
+            },
+            "required": ["brs", "frs", "ers"]
+          }
+        },
+        "required": ["years", "currentYear", "current"]
       }
     }
-  }
+  },
+  "security": []
 }

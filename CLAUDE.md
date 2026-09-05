@@ -105,7 +105,7 @@ Documentation site powered by Fumadocs at `/docs` (`/developer` permanently redi
 - **Configuration**: `source.config.ts` defines MDX processing with Twoslash support
 - **Content**: MDX files in `content/docs/` organised by category (api, examples, changelog)
 - **Features**: Interactive API documentation with TypeScript code examples, syntax highlighting with Twoslash
-- **Proxy**: `src/proxy.ts` handles rate limiting, CSP, and LLM markdown negotiation (`/docs` → `/docs/llms.mdx`)
+- **Proxy**: `src/proxy.ts` handles rate limiting, CSP, and LLM markdown negotiation (`/` → `/index.md`, `/docs` → `/docs/llms.mdx`)
 
 ### Next.js Configuration
 Key `next.config.ts` settings:
@@ -133,9 +133,17 @@ Other API routes:
 
 ### LLM Integration Routes
 Routes for AI/LLM consumption following the llms.txt specification:
-- `/llms.txt` - Concise site summary for LLMs
+- `/llms.txt` - Concise agent index following the llms.txt file-list format, including when-to-use guidance
+- `/openapi.json` - Public OpenAPI 3.1 document, imported from the same root `openapi.json` used by Fumadocs
+- `/index.md` - Markdown homepage overview using shared CPF constants
+- `/llms-full.txt` - Extended site reference previously served in llms.txt
+- `/agent-not-found.md` - Markdown 404 recovery body; fallback rewrite applies only after filesystem and dynamic routes fail
 - `/docs/llms-full.txt` - Complete documentation in plain text
 - `/docs/llms.mdx/[...slug]` - Individual documentation pages in MDX format
+
+Negotiated HTML and Markdown responses include `Vary: Accept, Accept-Encoding`. `src/lib/markdown-response.ts` handles media-range specificity, quality values and recovery bodies. Proxy overwrites the internal `x-simplycpf-markdown` request header before the fallback rewrite; it does not change RSC navigation. Keep `/docs/*.mdx` aliases from rewriting the Markdown handler itself.
+
+Run `node scripts/verify-agent-readiness.mjs https://simplycpf.localhost` with Portless running to verify all machine-readable documents, documentation pages and CPF API operations. Production canonical identity defaults to the apex domain, development follows `PORTLESS_URL`, and `NEXT_PUBLIC_BASE_URL` remains an explicit override.
 
 ### Custom Hooks
 Located in `src/hooks/`:

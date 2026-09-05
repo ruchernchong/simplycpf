@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
 import { getLLMText } from "@/app/(docs)/lib/get-llm-text";
 import { source } from "@/app/(docs)/lib/source";
+import { markdownNotFound, markdownResponse } from "@/lib/markdown-response";
 
 export const revalidate = false;
 
@@ -10,13 +10,9 @@ export async function GET(
 ) {
   const { slug } = await params;
   const page = source.getPage(slug);
-  if (!page) notFound();
+  if (!page) return markdownNotFound();
 
-  return new Response(await getLLMText(page), {
-    headers: {
-      "Content-Type": "text/markdown",
-    },
-  });
+  return markdownResponse(await getLLMText(page));
 }
 
 export function generateStaticParams() {

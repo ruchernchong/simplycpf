@@ -1,12 +1,11 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
-import { isMarkdownPreferred, rewritePath } from "fumadocs-core/negotiation";
-import { type NextProxy, NextResponse } from "next/server";
-
-const { rewrite: rewriteLLM } = rewritePath(
-  "/docs/*path",
-  "/docs/llms.mdx/*path",
-);
+import {
+  type NextFetchEvent,
+  type NextRequest,
+  NextResponse,
+} from "next/server";
+import { preferredPageType } from "@/lib/markdown-response";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -88,7 +87,10 @@ const setSecurityHeaders = (response: NextResponse): void => {
   );
 };
 
-export const proxy: NextProxy = async (request, event) => {
+export async function proxy(
+  request: NextRequest,
+  event: Pick<NextFetchEvent, "waitUntil">,
+): Promise<NextResponse> {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   if (shouldRateLimit(request.nextUrl.pathname)) {
@@ -111,20 +113,58 @@ export const proxy: NextProxy = async (request, event) => {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-
-  setSecurityHeaders(response);
-
-  if (isMarkdownPreferred(request)) {
-    const result = rewriteLLM(request.nextUrl.pathname);
-    if (result) {
-      return NextResponse.rewrite(new URL(result, request.nextUrl));
-    }
+  const pathname = request.nextUrl.pathname;
+  const negotiatedPage =
+    pathname === "/" ||
+    pathname === "/docs" ||
+    (pathname.startsWith("/docs/") &&
+      !pathname.includes(".") &&
+      !pathname.startsWith("/docs/og/"));
+  // RSC requests are a separate framework representation, not HTML/Markdown.
+  const isRsc = request.headers.get("rsc") === "1";
+  const preferred = preferredPageType(request.headers.get("accept"));
+  // A fallback rewrite handles only URLs that Next.js could not resolve.
+  requestHeaders.set(
+    "x-simplycpf-markdown",
+    !isRsc &&
+      preferred === "markdown" &&
+      ["GET", "HEAD"].includes(request.method)
+      ? "1"
+      : "0",
+  );
+  let response: NextResponse;
+  if (
+    negotiatedPage &&
+    !isRsc &&
+    ["GET", "HEAD"].includes(request.method) &&
+    preferred === null
+  ) {
+    response = new NextResponse(null, { status: 406 });
+  } else if (
+    negotiatedPage &&
+    !isRsc &&
+    ["GET", "HEAD"].includes(request.method) &&
+    preferred === "markdown"
+  ) {
+    const destination =
+      pathname === "/" ? "/index.md" : `/docs/llms.mdx${pathname.slice(5)}`;
+    response = NextResponse.rewrite(new URL(destination, request.nextUrl), {
+      request: { headers: requestHeaders },
+    });
+  } else {
+    response = NextResponse.next({ request: { headers: requestHeaders } });
   }
-
+  response.headers.append("Vary", "Accept");
+  response.headers.append("Vary", "Accept-Encoding");
+  response.headers.append(
+    "Link",
+    '</llms.txt>; rel="describedby", </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"',
+  );
+  if (pathname === "/")
+    response.headers.append(
+      "Link",
+      '</index.md>; rel="alternate"; type="text/markdown"',
+    );
+  setSecurityHeaders(response);
   return response;
-};
+}

@@ -1,16 +1,10 @@
-/**
- * Site origin, with no trailing slash.
- *
- * The localhost fallback matters: without it, an environment where neither
- * NEXT_PUBLIC_BASE_URL nor VERCEL_URL is set resolves to the literal string
- * "https://undefined", which would poison metadataBase, every canonical, the
- * sitemap, robots.txt and every JSON-LD url.
- */
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
-  ? process.env.NEXT_PUBLIC_BASE_URL
-  : process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+/** Canonical production identity must not drift to a Vercel deployment URL. */
+export const BASE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://simplycpf.com"
+    : process.env.PORTLESS_URL || "http://localhost:3000")
+).replace(/\/+$/, "");
 
 /**
  * Stable @id values for the site-wide JSON-LD nodes declared in the root

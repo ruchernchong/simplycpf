@@ -36,20 +36,30 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    return [
-      {
-        source: "/docs/:path*.mdx",
-        destination: "/docs/llms.mdx/:path*",
-      },
-      {
-        source: "/ph/static/:path*",
-        destination: "https://eu-assets.i.posthog.com/static/:path*",
-      },
-      {
-        source: "/ph/:path*",
-        destination: "https://eu.i.posthog.com/:path*",
-      },
-    ];
+    return {
+      afterFiles: [
+        {
+          // Do not rewrite the Markdown handler's own /docs/llms.mdx URL.
+          source: "/docs/:path((?!llms\\.mdx$).*)\\.mdx",
+          destination: "/docs/llms.mdx/:path",
+        },
+        {
+          source: "/ph/static/:path*",
+          destination: "https://eu-assets.i.posthog.com/static/:path*",
+        },
+        {
+          source: "/ph/:path*",
+          destination: "https://eu.i.posthog.com/:path*",
+        },
+      ],
+      fallback: [
+        {
+          source: "/:path*",
+          has: [{ type: "header", key: "x-simplycpf-markdown", value: "1" }],
+          destination: "/agent-not-found.md",
+        },
+      ],
+    };
   },
   skipTrailingSlashRedirect: true,
 };
