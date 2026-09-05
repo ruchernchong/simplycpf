@@ -129,8 +129,8 @@ importers:
   .:
     dependencies:
       '@heroui-pro/react':
-        specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7
+        specifier: 1.0.0-beta.8
+        version: 1.0.0-beta.8
       '@heroui/react':
         specifier: 3.2.2
         version: 3.2.2(@react-spectrum/provider@3.11.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(tailwindcss@4.1.17)
@@ -146,6 +146,9 @@ importers:
       '@number-flow/react':
         specifier: ^0.6.0
         version: 0.6.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@react-aria/utils':
+        specifier: 3.34.1
+        version: 3.34.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@react-pdf/renderer':
         specifier: 4.3.2
         version: 4.3.2(react@19.2.3)
@@ -243,8 +246,8 @@ importers:
         specifier: 19.2.3
         version: 19.2.3
       react-aria-components:
-        specifier: 1.20.0
-        version: 1.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: 1.21.0
+        version: 1.21.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
@@ -1087,8 +1090,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@heroui-pro/react@1.0.0-beta.7':
-    resolution: {integrity: sha512-8OPimF2ZwbX89wxpYlYRDFTCCVKQn1eRPtvymwLcjCTt2PWfYmYvqT/Yvn+VAgfr7QYCxmmxlAmLy29hwfyYcA==}
+  '@heroui-pro/react@1.0.0-beta.8':
+    resolution: {integrity: sha512-kEXEdz5iu0YZLQQcEPGxyDS38YfvoC7cvdKmFRt9AsRdwKwqVZE9x/+SYom/qDj5j7Qt6UdX54B0/U8rycSuFw==}
 
   '@heroui/react@3.2.2':
     resolution: {integrity: sha512-TN8ccfHCRIxa9dGhWMaVSl5sGCKWH2E13z2NJ5QBZTFQCow8GogQzW3cn/dRz3YEdYt4B9zfH2N0oKEazVoKRA==}
@@ -6313,20 +6316,8 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-aria-components@1.20.0:
-    resolution: {integrity: sha512-BMbpIgoV9aELeBrB0Y120NgoigHb5OdcJwc+4e7uSnbTbamea6lo+gqcc4LAxzMaK3Jf+7LI1oCDE6yANsmxIQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-
   react-aria-components@1.21.0:
     resolution: {integrity: sha512-jbUPSvy3S3XhToxl+Ta5TGVnLTqr5lnWafN8JWqvmVps8KQOdUareZ8IzjU0XQtdIncSv6oxGkn6nQBG26CSCw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-
-  react-aria@3.51.0:
-    resolution: {integrity: sha512-AyWLw0XR38cFPwBu/ErgGaVrc5dupLEKmRlMXTGvFKOtbaGRQ2+yQJkjVhpdHhoRhU4+G+tJDFeHDTS8tK3bfQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -6407,11 +6398,6 @@ packages:
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
-
-  react-stately@3.49.0:
-    resolution: {integrity: sha512-13iNq2KzBrRAzxRc+n53hgROfIistiYY/sPtIhCw1qUB7/kmo+X1xEU2uiS5zcCIrc55AUPwoHqOIIpKWSwB9A==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
   react-stately@3.50.0:
     resolution: {integrity: sha512-TnckvpDQGU0672wEaLZqdzvhuSeXWjgW6vijMWxiKOxc8CosQUfPGISdcZyfHqjX3XMjEtRxj4w9HumvX4h4mw==}
@@ -8056,7 +8042,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.2
 
-  '@heroui-pro/react@1.0.0-beta.7':
+  '@heroui-pro/react@1.0.0-beta.8':
     dependencies:
       chalk: 5.6.2
       heroui-pro: 1.0.0-beta.12
@@ -8074,7 +8060,7 @@ snapshots:
       input-otp: 1.4.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react: 19.2.3
       react-aria: 3.52.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react-aria-components: 1.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react-aria-components: 1.21.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-dom: 19.2.3(react@19.2.3)
       tailwind-merge: 3.4.0
       tailwind-variants: 3.2.2(tailwind-merge@3.4.0)(tailwindcss@4.1.17)
@@ -13518,18 +13504,6 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-aria-components@1.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
-    dependencies:
-      '@internationalized/date': 3.12.4
-      '@internationalized/string': 3.2.10
-      '@react-types/shared': 3.36.1(react@19.2.3)
-      '@swc/helpers': 0.5.23
-      client-only: 0.0.1
-      react: 19.2.3
-      react-aria: 3.51.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react-dom: 19.2.3(react@19.2.3)
-      react-stately: 3.49.0(react@19.2.3)
-
   react-aria-components@1.21.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       '@internationalized/date': 3.12.4
@@ -13541,20 +13515,6 @@ snapshots:
       react-aria: 3.52.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-dom: 19.2.3(react@19.2.3)
       react-stately: 3.50.0(react@19.2.3)
-
-  react-aria@3.51.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
-    dependencies:
-      '@internationalized/date': 3.12.4
-      '@internationalized/number': 3.6.8
-      '@internationalized/string': 3.2.10
-      '@react-types/shared': 3.36.1(react@19.2.3)
-      '@swc/helpers': 0.5.23
-      aria-hidden: 1.2.6
-      clsx: 2.1.1
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-stately: 3.49.0(react@19.2.3)
-      use-sync-external-store: 1.6.0(react@19.2.3)
 
   react-aria@3.52.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
@@ -13640,16 +13600,6 @@ snapshots:
     dependencies:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
-
-  react-stately@3.49.0(react@19.2.3):
-    dependencies:
-      '@internationalized/date': 3.12.4
-      '@internationalized/number': 3.6.8
-      '@internationalized/string': 3.2.10
-      '@react-types/shared': 3.36.1(react@19.2.3)
-      '@swc/helpers': 0.5.23
-      react: 19.2.3
-      use-sync-external-store: 1.6.0(react@19.2.3)
 
   react-stately@3.50.0(react@19.2.3):
     dependencies:
