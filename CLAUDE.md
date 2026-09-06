@@ -9,7 +9,7 @@ A Next.js 16.3 application that calculates CPF (Central Provident Fund) contribu
 ## Build and Test Commands
 - `pnpm dev` - Start development server via Portless at `https://simplycpf.localhost`
 - `PORTLESS=0 pnpm dev` - Start development server without Portless (direct `localhost:3000`)
-- `pnpm build` - Build for production
+- `pnpm build` - Build for production and verify that the homepage links its required product CSS
 - `pnpm start` - Start production server
 - `pnpm lint` - Run Biome linting
 - `pnpm format` - Format code with Biome
@@ -87,6 +87,7 @@ Career-long projection logic lives in `src/lib/calculate-cpf-projection.ts`:
 - React component tests exist but are excluded from main test runs
 
 ### UI Components
+- Product layout rules live in `src/app/product.css`, imported separately after `globals.css` in the root layout. Keep this separate: the combined framework stylesheet lost these rules during production optimisation. `scripts/verify-product-css.mjs` checks the CSS linked by the built homepage, and runs after every production build.
 - Public product screens use HeroUI v3 OSS (`@heroui/react`) and HeroUI Pro (`@heroui-pro/react`) with no provider; theme tokens live in `src/app/globals.css` using the HeroUI default variable names with SimplyCPF brand values (warm paper/ink/forest, OKLCH)
 - Appearance comes from HeroUI props and theme tokens; `className` on component roots is for composition only (layout, sizing, gaps), never hardcoded colours
 - Shared primitives in `src/components/shared/`: `SplitBar` (segmented proportional bars, fixed chart encoding: chart-1 OA, chart-2 SA/RA, chart-3 MA/employer, chart-4 take-home, chart-5 above-ceiling/clay), `Eyebrow` (from `section-header.tsx`), `StatBand`, `Wordmark`, `Logo`, `ErrorFallback`. Page headings are written inline in each screen (mono eyebrow, `h1`, optional lede), not wrapped in a shared component

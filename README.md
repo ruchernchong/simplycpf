@@ -210,3 +210,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Made with ❤️ for the Singapore community
+
+Production builds also check that the homepage stylesheet contains the container, heading and financial statement rules. A missing stylesheet rule fails the build before deployment.

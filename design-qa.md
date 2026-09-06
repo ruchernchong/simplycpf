@@ -1,6 +1,8 @@
 # Homepage redesign: visual QA
 
-Final visual result: **passed**. Reviewed on 5 September 2026.
+Initial development-only review: passed on 5 September 2026, but insufficient to establish production readiness. The deployed preview subsequently failed: its CSS omitted the product layout rules.
+
+Production correction reviewed on 6 September 2026: product rules are imported from a separate stylesheet; a complete Next.js production build now retains them. Desktop light/dark layouts and mobile layout were checked against the running production build. A build-time CSS regression check now verifies the assets actually linked by the homepage.
 
 ## Reference and evidence
 
@@ -37,6 +39,6 @@ Intentional differences from the mockup: the salary bar correctly represents the
 - Mobile navigation opens and closes. Light and dark themes were inspected. Browser error log was empty during the final checks.
 - Vitest: 44 test files, 297 tests passed. Biome: 252 files checked, no issues. Next.js route type generation passed.
 
-Full TypeScript checking remains blocked by the existing OpenAPI JSON-to-Document incompatibility at `src/app/(docs)/lib/openapi.ts:7` (TS2352). That file is unchanged. A production build is not claimed as verified.
+The original standalone TypeScript check reported an OpenAPI JSON-to-Document incompatibility at `src/app/(docs)/lib/openapi.ts:7`. The complete production build during the 6 September correction, including Next.js TypeScript checking and static page generation, passed.
 
 Scope delivered: homepage redesign and shared navigation/layout, with compatible HeroUI Pro imports on existing tool screens. Other tool screens retain their existing layouts.
