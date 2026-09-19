@@ -1,5 +1,5 @@
 import { Card } from "@heroui/react";
-import { KPI } from "@heroui-pro/react";
+import { KPI } from "@heroui-pro/react/kpi";
 import { formatNumber } from "@/lib/format";
 
 /**

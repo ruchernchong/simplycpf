@@ -12,7 +12,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@heroui/react";
-import { BarChart } from "@heroui-pro/react";
+import { BarChart } from "@heroui-pro/react/bar-chart";
 import { type Key, useEffect, useMemo, useState } from "react";
 import { shallow } from "zustand/shallow";
 import { useCpfStore } from "@/hooks/use-cpf-store";

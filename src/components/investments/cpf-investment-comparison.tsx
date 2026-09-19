@@ -12,7 +12,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@heroui/react";
-import { LineChart } from "@heroui-pro/react";
+import { LineChart } from "@heroui-pro/react/line-chart";
 import posthog from "posthog-js";
 import type { Key } from "react";
 import { useState } from "react";

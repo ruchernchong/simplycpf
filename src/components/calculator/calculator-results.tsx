@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, cn, Typography } from "@heroui/react";
-import { KPI } from "@heroui-pro/react";
+import { KPI } from "@heroui-pro/react/kpi";
 import { formatCurrency } from "@/lib/format";
 import { AssumptionsCard } from "./assumptions-card";
 import { CeilingComparisonCard } from "./ceiling-comparison-card";

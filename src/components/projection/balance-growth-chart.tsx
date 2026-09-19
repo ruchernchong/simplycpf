@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@heroui/react";
-import { AreaChart } from "@heroui-pro/react";
+import { AreaChart } from "@heroui-pro/react/area-chart";
 import { Legend } from "recharts";
 import { formatCurrency } from "@/lib/format";
 import type { ProjectionResult } from "@/types";

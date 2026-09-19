@@ -1,7 +1,8 @@
 "use client";
 
 import { Button, Card, Skeleton } from "@heroui/react";
-import { KPI, KPIGroup } from "@heroui-pro/react";
+import { KPIGroup } from "@heroui-pro/react";
+import { KPI } from "@heroui-pro/react/kpi";
 import dynamic from "next/dynamic";
 import {
   parseAsInteger,

@@ -9,7 +9,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@heroui/react";
-import { BarChart } from "@heroui-pro/react";
+import { BarChart } from "@heroui-pro/react/bar-chart";
 import { parseAsInteger, useQueryStates } from "nuqs";
 import type { Key } from "react";
 import { Cell } from "recharts";
